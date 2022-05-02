@@ -3,6 +3,9 @@
 </template>
 
 <script>
+/**
+ * Wrapper for national map dashboard.
+ */
 export default {
   name: 'MapContainer',
 }
