@@ -1,8 +1,6 @@
-# Welcome to your CDK TypeScript project
+# CDK deployment configurations for the Open Data Platform.
 
-This is a blank project for CDK development with TypeScript.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+The `cdk.json` stores all info on how to execute the app.
 
 ## Useful commands
 
