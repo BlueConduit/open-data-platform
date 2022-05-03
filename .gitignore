@@ -1,5 +1,9 @@
 .DS_Store
 **/.DS_Store
+
+api/node_modules
+api/dist
+
 client/node_modules
 client/dist
 client/tests/e2e/logs
