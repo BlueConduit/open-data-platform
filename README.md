@@ -18,4 +18,4 @@ Has the CDK deployment configurations. Instructions on how to run that
 
 INFO: These links are team-internal and not publicly accessible.
 
-The system architecture is [roughly outlined here](https://miro.com/app/board/uXjVO5fQW04=/), which breaks the project down into several sub-projects. Each sub-project has [a tag in Shortcut](https://app.shortcut.com/blueconduit/labels?SearchQuery=google.org&Sort=Label_NAME), prefixed with `Google.org`. Work is done in sprints, [visible here](https://app.shortcut.com/blueconduit/stories/space/3689/google-org-sprint).
+The system architecture is [roughly outlined here](https://miro.com/app/board/uXjVO5fQW04=/), which breaks the project down into several sub-projects. Each sub-project has [a tag in Shortcut](https://app.shortcut.com/blueconduit/labels?SearchQuery=google.org&Sort=Label_NAME), prefixed with `Google.org`. Work is broken up by [epics](https://app.shortcut.com/blueconduit/epics?group_ids=626829f8-5bec-4b27-b374-5b3cf7121a05) and completed in [sprints](https://app.shortcut.com/blueconduit/stories/space/3689/google-org-sprint).
