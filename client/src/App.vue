@@ -1,9 +1,10 @@
 <template>
-  <MapContainer/>
+  <NavigationBar/>
 </template>
 
 <script>
-import MapContainer from './components/MapContainer.vue'
+import "@blueconduit/copper/dist/css/copper.css";
+import NavigationBar from './components/NavigationBar.vue'
 
 /**
  * Entry point for the open platform application.
@@ -11,7 +12,10 @@ import MapContainer from './components/MapContainer.vue'
 export default {
   name: 'App',
   components: {
-    MapContainer
+    NavigationBar
   }
 }
 </script>
+<style>
+  @import "./assets/styles/global.scss";
+</style>
