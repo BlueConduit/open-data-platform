@@ -1,12 +1,17 @@
 <template>
   <div :style="cssVars" class="container">
     <div>
-      <router-link to="/">
-        <img src="../assets/logo.png" class="logo" />
+      <router-link to="/" >
+        <img src="../assets/logo.png" class="logo"/>
       </router-link>
     </div>
-    <div>
-      <router-link to="/about" class="semi-bold">About</router-link>
+    <div class="right-align">
+      <div>
+        <router-link to="/learn-more" class="semi-bold">About</router-link>
+      </div>
+      <div>
+        <router-link to="/contact" class="semi-bold">Contact</router-link>
+      </div>
     </div>
   </div>
   <router-view/>
@@ -48,10 +53,15 @@ export default {
     height: var(--height);
   }
 
-  .container div {
-    padding-left: 30px;
+  .right-align {
+    flex-grow: 1;
+    justify-content: flex-end;
+  }
+
+  .container  div {
+    padding: 0 30px;
     display: flex;
-    align-items:center;
+    align-items: center;
   }
 
   .logo {
