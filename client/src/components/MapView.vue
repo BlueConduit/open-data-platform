@@ -5,6 +5,9 @@
 <script>
 import mapbox from "mapbox-gl";
 
+const DEFAULT_LATITUDE = 39.8097343;
+const DEFAULT_LONGITUDE = -98.5556199;
+
 export default {
   name: "MapView",
   setup() {
@@ -23,7 +26,7 @@ export default {
     center: {
       type: Array,
       default: function () {
-        return [-98.5556199, 39.8097343];
+        return [DEFAULT_LONGITUDE, DEFAULT_LATITUDE];
       }
     }
   },
