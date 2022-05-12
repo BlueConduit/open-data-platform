@@ -53,10 +53,9 @@ export default {
 
           // TODO(kaila): Fix this to map the file correctly
           this.map.addLayer({
-            'id': 'water-boundaries',
+            'id': 'water-boundaries-style',
             'source': 'water-boundaries',
-            'source-layer': 'water-boundaries',
-            'type': 'fill',
+            'type': 'line',
             'layout': {
               // Make the layer visible by default.
               'visibility': 'visible'
