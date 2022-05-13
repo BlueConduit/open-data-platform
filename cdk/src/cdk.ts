@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { OpenDataPlatformStack } from '../lib/open-data-platform-stack';
+import { OpenDataPlatformStack } from './open-data-platform/root-stack';
 
 const topLevelId = 'OpenDataPlatform';
 const app = new cdk.App();
