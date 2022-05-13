@@ -16,7 +16,7 @@ The rough structure of the project is:
 ```text
 ./src
 ├── cdk.ts -- main CDK start point.
-├── types.ts -- common type definitions.
+├── util.ts -- common types, constants, functions.
 └── open-data-platform
     ├── root-stack.ts -- Stack definition for the root of the app. This refers to the below stacks.
     ├── data-plane-stack.ts -- Stack definitino for the data plane.
