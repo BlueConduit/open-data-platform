@@ -19,6 +19,6 @@ The rough structure of the project is:
 ├── util.ts -- common types, constants, functions.
 └── open-data-platform
     ├── root-stack.ts -- Stack definition for the root of the app. This refers to the below stacks.
-    ├── data-plane-stack.ts -- Stack definitino for the data plane.
+    ├── data-plane-stack.ts -- Stack definition for the data plane.
     └── ...
 ```
