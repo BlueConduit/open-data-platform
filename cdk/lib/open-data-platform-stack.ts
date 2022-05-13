@@ -1,7 +1,9 @@
-import { Duration, Stack, StackProps } from 'aws-cdk-lib';
+import { CfnOutput, Duration, Fn, Stack, StackProps } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
+import * as cloud9 from 'aws-cdk-lib/aws-cloud9';
 import { Construct } from 'constructs';
+import { CfnDBSubnetGroup } from 'aws-cdk-lib/aws-rds';
 
 export class OpenDataPlatformStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -34,24 +36,29 @@ export class OpenDataPlatformStack extends Stack {
     });
 
     // Set up data plane.
-    const cluster = new rds.DatabaseCluster(this, 'Cluster', {
-      engine: rds.DatabaseClusterEngine.auroraPostgres({ version: rds.AuroraPostgresEngineVersion.VER_13_4 }),
-      instanceProps: {
-        vpc: vpc,
-        vpcSubnets: {
-          // TODO: make PRIVATE_ISOLATED once we have things running.
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-      },
-      storageEncrypted: true,
+    const clusterSubnets = new CfnDBSubnetGroup(this, 'AuroraSubnetGroup', {
+      dbSubnetGroupDescription: 'Subnet group to access aurora',
+      dbSubnetGroupName: 'aurora-serverless-subnet-group',
+      subnetIds: vpc.privateSubnets.map(s => s.subnetId),
     });
-
-    cluster.addRotationSingleUser({
-      automaticallyAfter: Duration.days(30),
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_NAT
-      }
-    })
-
+    const serverlessCluster = new rds.CfnDBCluster(this, 'serverlessCluster', {
+      dbClusterIdentifier: `main-aurora-serverless-cluster`,
+      engineMode: 'serverless',
+      engine: 'aurora-postgresql',
+      engineVersion: '10.18',
+      enableHttpEndpoint: true,
+      databaseName: 'main',
+      dbSubnetGroupName: clusterSubnets.ref,
+      masterUsername: 'adminuser',
+      masterUserPassword: 'blueconduit', // TODO: GENERATE THIS!
+      // backupRetentionPeriod: 1,
+      // finalSnapshotIdentifier: `main-aurora-serverless-snapshot`,
+      // scalingConfiguration: {
+      //   autoPause: true,
+      //   maxCapacity: 4,
+      //   minCapacity: 2,
+      //   secondsUntilAutoPause: 3600,
+      // }
+    });
   }
 }
