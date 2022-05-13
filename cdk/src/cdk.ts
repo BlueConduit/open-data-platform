@@ -2,13 +2,11 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { OpenDataPlatformStack } from './open-data-platform/root-stack';
+import * as util from './util';
 
-const topLevelId = 'OpenDataPlatform';
 const app = new cdk.App();
 
-// This is just a simple naming scheme while we initialize the stack.
-// TODO: standardize the construct naming scheme.
-new OpenDataPlatformStack(app, `${process.env.USER}${topLevelId}`, {
+new OpenDataPlatformStack(app, util.stackName(util.StackId.Root), {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
