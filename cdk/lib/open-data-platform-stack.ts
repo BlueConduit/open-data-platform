@@ -1,9 +1,7 @@
-import { CfnOutput, Duration, Fn, Stack, StackProps } from 'aws-cdk-lib';
+import { Stack, StackProps } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as rds from 'aws-cdk-lib/aws-rds';
-import * as cloud9 from 'aws-cdk-lib/aws-cloud9';
 import { Construct } from 'constructs';
-import { CfnDBSubnetGroup } from 'aws-cdk-lib/aws-rds';
+import { DataPlaneStack } from './data-plane-stack';
 
 export class OpenDataPlatformStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -14,7 +12,7 @@ export class OpenDataPlatformStack extends Stack {
 
     // Set up networking.
     const vpc = new ec2.Vpc(this, 'VPC', {
-      cidr: "10.0.0.0/16",
+      cidr: '10.0.0.0/16',
       maxAzs: 2,
       subnetConfiguration: [
         {
@@ -35,30 +33,6 @@ export class OpenDataPlatformStack extends Stack {
       ],
     });
 
-    // Set up data plane.
-    const clusterSubnets = new CfnDBSubnetGroup(this, 'AuroraSubnetGroup', {
-      dbSubnetGroupDescription: 'Subnet group to access aurora',
-      dbSubnetGroupName: 'aurora-serverless-subnet-group',
-      subnetIds: vpc.privateSubnets.map(s => s.subnetId),
-    });
-    const serverlessCluster = new rds.CfnDBCluster(this, 'serverlessCluster', {
-      dbClusterIdentifier: `main-aurora-serverless-cluster`,
-      engineMode: 'serverless',
-      engine: 'aurora-postgresql',
-      engineVersion: '10.18',
-      enableHttpEndpoint: true,
-      databaseName: 'main',
-      dbSubnetGroupName: clusterSubnets.ref,
-      masterUsername: 'adminuser',
-      masterUserPassword: 'blueconduit', // TODO: GENERATE THIS!
-      // backupRetentionPeriod: 1,
-      // finalSnapshotIdentifier: `main-aurora-serverless-snapshot`,
-      // scalingConfiguration: {
-      //   autoPause: true,
-      //   maxCapacity: 4,
-      //   minCapacity: 2,
-      //   secondsUntilAutoPause: 3600,
-      // }
-    });
+    const dataPlaneStack = new DataPlaneStack(scope, 'DataPlane', { ...props, vpc });
   }
 }
