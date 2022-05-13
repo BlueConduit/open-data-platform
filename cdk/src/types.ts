@@ -1,6 +1,5 @@
 import { StackProps } from 'aws-cdk-lib';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
-export interface CommonProps extends StackProps {
-  vpc: ec2.Vpc;
-}
+// Leaving this here to add stuff like environmental variables, similar to
+// https://github.com/BlueConduit/tributary/blob/main/cdk/lib/types.ts
+export interface CommonProps extends StackProps {}
