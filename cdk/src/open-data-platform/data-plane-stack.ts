@@ -6,9 +6,10 @@
 // [1] https://us-east-2.console.aws.amazon.com/rds/home?region=us-east-2#query-editor:
 
 import { Stack } from 'aws-cdk-lib';
+import { ISubnet } from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
-import { CommonProps } from './types';
+import { CommonProps } from '../types';
 
 export class DataPlaneStack extends Stack {
   constructor(scope: Construct, id: string, props: CommonProps) {
@@ -19,7 +20,7 @@ export class DataPlaneStack extends Stack {
     const clusterSubnets = new rds.CfnDBSubnetGroup(this, 'AuroraSubnetGroup', {
       dbSubnetGroupDescription: 'Subnet group to access aurora',
       dbSubnetGroupName: 'aurora-serverless-subnet-group',
-      subnetIds: vpc.privateSubnets.map((s): string => s.subnetId),
+      subnetIds: vpc.privateSubnets.map((s: ISubnet): string => s.subnetId),
     });
     const serverlessCluster = new rds.CfnDBCluster(this, 'serverlessCluster', {
       dbClusterIdentifier: `main-aurora-serverless-cluster`,
