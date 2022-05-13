@@ -6,13 +6,17 @@
 // [1] https://us-east-2.console.aws.amazon.com/rds/home?region=us-east-2#query-editor:
 
 import { Stack } from 'aws-cdk-lib';
-import { ISubnet } from 'aws-cdk-lib/aws-ec2';
+import { ISubnet, Vpc } from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 import { CommonProps } from '../types';
 
+interface DataPlaneProps extends CommonProps {
+  vpc: Vpc;
+}
+
 export class DataPlaneStack extends Stack {
-  constructor(scope: Construct, id: string, props: CommonProps) {
+  constructor(scope: Construct, id: string, props: DataPlaneProps) {
     super(scope, id, props);
 
     const { vpc } = props;
