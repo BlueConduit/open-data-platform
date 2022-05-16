@@ -1,49 +1,48 @@
 // Defines the data plane.
-//
-// This uses Aurora Serverless, which supports the web-based Query Editor [1]. Therefore, engineers
-// can run queries on the privately-subnetted DB without the need to connect through a bastion VM.
-//
-// [1] https://us-east-2.console.aws.amazon.com/rds/home?region=us-east-2#query-editor:
 
-import { Stack } from 'aws-cdk-lib';
-import { ISubnet, IVpc } from 'aws-cdk-lib/aws-ec2';
+import { Duration, Stack } from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
+import * as secretsManager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { CommonProps } from '../util';
 
 interface DataPlaneProps extends CommonProps {
-  vpc: IVpc;
+  vpc: ec2.IVpc;
 }
 
 export class DataPlaneStack extends Stack {
+  readonly cluster: rds.ServerlessCluster;
+
   constructor(scope: Construct, id: string, props: DataPlaneProps) {
     super(scope, id, props);
 
     const { vpc } = props;
 
-    const clusterSubnets = new rds.CfnDBSubnetGroup(this, 'AuroraSubnetGroup', {
-      dbSubnetGroupDescription: 'Subnet group to access aurora',
-      dbSubnetGroupName: 'aurora-serverless-subnet-group',
-      subnetIds: vpc.privateSubnets.map((s: ISubnet): string => s.subnetId),
+    // This uses Aurora Serverless, which supports the web-based Query Editor [1]. Therefore, engineers
+    // can run queries on the privately-subnetted DB without the need to connect through a bastion VM.
+    //
+    // [1] https://us-east-2.console.aws.amazon.com/rds/home?region=us-east-2#query-editor:
+    // Based on: https://github.com/aws/aws-cdk/blob/master/packages/%40aws-cdk/aws-rds/README.md#serverless.
+    this.cluster = new rds.ServerlessCluster(this, 'MainCluster', {
+      engine: rds.DatabaseClusterEngine.AURORA_POSTGRESQL,
+      parameterGroup: rds.ParameterGroup.fromParameterGroupName(
+        this,
+        'ParameterGroup',
+        'default.aurora-postgresql10',
+      ),
+      vpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
+      },
+      enableDataApi: true, // Required to use Query Editor.
     });
-    const serverlessCluster = new rds.CfnDBCluster(this, 'serverlessCluster', {
-      dbClusterIdentifier: `main-aurora-serverless-cluster`,
-      engineMode: 'serverless',
-      engine: 'aurora-postgresql',
-      engineVersion: '10.18',
-      enableHttpEndpoint: true,
-      databaseName: 'main',
-      dbSubnetGroupName: clusterSubnets.ref,
-      masterUsername: 'adminuser',
-      masterUserPassword: 'blueconduit', // TODO: GENERATE THIS!
-      // backupRetentionPeriod: 1,
-      // finalSnapshotIdentifier: `main-aurora-serverless-snapshot`,
-      // scalingConfiguration: {
-      //   autoPause: true,
-      //   maxCapacity: 4,
-      //   minCapacity: 2,
-      //   secondsUntilAutoPause: 3600,
-      // }
+
+    this.cluster.addRotationSingleUser({
+      automaticallyAfter: Duration.days(30),
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
+      },
     });
   }
 }

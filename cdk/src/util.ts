@@ -19,5 +19,5 @@ export const stackName = (id: StackId): string => {
   const base = `${projectName}${StackId[id]}`;
   // Share a common Network name across multiple developers, so don't include the user name.
   if (id === StackId.Network) return base;
-  return `${process.env.USER}${base}`;
+  return `${process.env.USER}-${base}`;
 };
