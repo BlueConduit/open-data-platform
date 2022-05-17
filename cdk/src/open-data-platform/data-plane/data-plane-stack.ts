@@ -6,6 +6,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsManager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { CommonProps } from '../../util';
+import { Schema } from './schema';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
@@ -43,6 +44,15 @@ export class DataPlaneStack extends Stack {
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
       },
+    });
+
+    // Initialize the DB with linked SQL file.
+    new Schema(this, 'RootSchema', {
+      cluster: this.cluster,
+      vpc,
+      db: 'postgres', // default DB name.
+      schemaFileName: 'schema.sql',
+      credentialsSecret: this.cluster.secret!,
     });
   }
 }
