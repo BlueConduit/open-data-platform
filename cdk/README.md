@@ -33,7 +33,7 @@ How to interact with each component.
 
 The data plane uses Aurora Serverless.
 
-### Query the DB
+#### Query the DB
 
 To run queries on a deployed DB:
 
@@ -43,3 +43,10 @@ To run queries on a deployed DB:
 1. Select your DB cluster. It is probably prefixed with your name.
 1. Select `Connect with a Secrets Manager ARN` for the `Databse username` and paste the previously copied value.
 1. Enter the datbase you'd like to open. By default, it has a `postgres` DB.
+
+#### Update the DB Schema
+
+The DB schema is also updated via the CDK so that all environments use the same schema. To make
+changes to this, edit the `schema.sql` file in the data-plane directory.
+
+WARNING: Removing columns or changing data types may cause loss of data during deployment.

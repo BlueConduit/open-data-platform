@@ -1,3 +1,5 @@
+// Defines a custom resource that updates DB schema.
+
 import { Construct } from 'constructs';
 // import { ResourceInitializer } from '~/lib/resource-initializer';
 import * as rds from 'aws-cdk-lib/aws-rds';
@@ -11,21 +13,23 @@ interface SchemaProps {
   cluster: rds.ServerlessCluster;
   vpc: ec2.IVpc;
   db: string;
-  // Relative to this directory.
-  schemaFileName: string;
+  schemaFileName: string; // This can be a path relative to this directory.
   credentialsSecret: secretsmanager.ISecret;
   userCredentials?: secretsmanager.ISecret[];
 }
 
+// NodejsFunction looks for a .ts file using the handler ID to use as the lambda code [1].
+// [1] https://docs.aws.amazon.com/cdk/api/v1/docs/@aws-cdk_aws-lambda-nodejs.NodejsFunction.html#entry
+const handlerId = 'handler';
+
+// This construct works by defining a lambda that connects to the DB and executes the provided SQL.
 export class Schema extends Construct {
   constructor(scope: Construct, id: string, props: SchemaProps) {
     super(scope, id);
 
     const { cluster, vpc, db, schemaFileName, credentialsSecret, userCredentials } = props;
 
-    // This looks for a .ts file using the handler name to run as the lambda [1].
-    // [1] https://docs.aws.amazon.com/cdk/api/v1/docs/@aws-cdk_aws-lambda-nodejs.NodejsFunction.html#entry
-    const initSchemaFunction = new lambda.NodejsFunction(this, 'handler', {
+    const initSchemaFunction = new lambda.NodejsFunction(this, handlerId, {
       vpc: vpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
@@ -59,11 +63,12 @@ export class Schema extends Construct {
       },
     });
 
+    // Access control.
     credentialsSecret.grantRead(initSchemaFunction);
     userCredentials?.forEach((secret) => secret.grantRead(initSchemaFunction));
-
     cluster.connections.allowFrom(initSchemaFunction, ec2.Port.tcp(cluster.clusterEndpoint.port));
 
+    // TODO: set up trigger.
     // const init = new ResourceInitializer(this, 'InitSchema', {
     //   initFunction: initSchemaFunction,
     //   payload: {

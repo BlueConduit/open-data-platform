@@ -1,9 +1,13 @@
+// Defines the handler that is executed for the schema lambda.
+
 import createConnectionPool, { ConnectionPool, ConnectionPoolConfig, sql } from '@databases/pg';
 import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 
 const CREDENTIALS_SECRET = process.env.CREDENTIALS_SECRET ?? '';
 const DATABASE_NAME = process.env.DATABASE_NAME ?? '';
 const secretsmanager = new SecretsManager({});
+
+// Main handler for the lambda.
 
 export async function handler(event: { userCredentials?: string[] }) {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
@@ -47,6 +51,8 @@ export async function handler(event: { userCredentials?: string[] }) {
     console.log(`Disconnected from ${DATABASE_NAME}`);
   }
 }
+
+// Helper functions.
 
 async function getCredentials(secretArn: string) {
   const data = await secretsmanager.getSecretValue({ SecretId: secretArn });
