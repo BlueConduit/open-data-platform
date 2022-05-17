@@ -3,7 +3,7 @@
 import { Stack } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
-import { CommonProps, projectName } from '../util';
+import { CommonProps, projectName } from '../../util';
 
 export class NetworkStack extends Stack {
   readonly vpc: ec2.IVpc;

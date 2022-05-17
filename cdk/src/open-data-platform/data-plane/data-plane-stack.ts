@@ -5,7 +5,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsManager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
-import { CommonProps } from '../util';
+import { CommonProps } from '../../util';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;

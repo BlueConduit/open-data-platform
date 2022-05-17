@@ -2,8 +2,8 @@ import { Stack, StackProps } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import * as util from '../util';
-import { DataPlaneStack } from './data-plane-stack';
-import { NetworkStack } from './network-stack';
+import { DataPlaneStack } from './data-plane/data-plane-stack';
+import { NetworkStack } from './network/network-stack';
 
 export class OpenDataPlatformStack extends Stack {
   constructor(scope: Construct, id: string, props?: util.CommonProps) {
