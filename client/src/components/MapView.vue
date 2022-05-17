@@ -1,10 +1,14 @@
 <template>
   <div id="map-container"></div>
+  <MapLegend
+      :title="this.legendTitle"
+      :bucketKeyValueMap="this.legendKeyValueMap"/>
 </template>
 
 <script>
 import mapbox from 'mapbox-gl';
 import axios from 'axios'
+import MapLegend from '@/components/MapLegend';
 
 const DEFAULT_LATITUDE = 39.8097343;
 const DEFAULT_LONGITUDE = -98.5556199;
@@ -38,13 +42,16 @@ const POPULATION_COLOR_MAP =
 
 export default {
   name: "MapView",
+  components: {MapLegend},
   setup() {
     // TODO: Hide access tokens. For now, this is MapBox's public API token.
     mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN
   },
   data() {
     return {
-      map: {}
+      map: {},
+      legendTitle: '',
+      legendKeyValueMap: {},
     }
   },
   props: {
@@ -108,13 +115,18 @@ export default {
                 2000000,
                 POPULATION_COLOR_MAP[2000000],
               ],
-              'fill-opacity': 0.75
+              'fill-opacity': 0.75,
+              'fill-outline-color': '#164E87',
             },
             'layout': {
               // Make the layer visible by default.
               'visibility': 'visible'
             },
           });
+
+          // Initial values for legend based on visible layer.
+          this.legendTitle = 'Population Served';
+          this.legendKeyValueMap = POPULATION_COLOR_MAP;
         });
       } catch (err) {
         // TODO: Add error handling.
