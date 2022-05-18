@@ -72,7 +72,7 @@ export class Schema extends Construct {
     cluster.connections.allowFrom(initSchemaFunction, ec2.Port.tcp(cluster.clusterEndpoint.port));
 
     // Invoke the lambda.
-    const init = new ResourceInitializer(this, 'InitSchema', {
+    const init = new ResourceInitializer(this, 'InitSchemaResouce', {
       initFunction: initSchemaFunction,
       payload: {
         userCredentials: userCredentials?.map((secret) => secret.secretArn),
@@ -98,8 +98,9 @@ class ResourceInitializer extends Construct {
 
     const { initFunction, payload } = props;
 
+    // In the absence of a provided payload, let the lambda know what triggered it.
     const defaultPayload = {
-      source: 'customresource.init',
+      source: 'customresource.InitSchemaInvocation',
     };
 
     const apiCall: cr.AwsSdkCall = {
@@ -112,7 +113,8 @@ class ResourceInitializer extends Construct {
       physicalResourceId: cr.PhysicalResourceId.of(initFunction.currentVersion.version),
     };
 
-    const init = new cr.AwsCustomResource(this, 'CustomResource', {
+    // Invoke the lambda on creation or update of this "resource".
+    const init = new cr.AwsCustomResource(this, 'InitSchemaInvocation', {
       onCreate: apiCall,
       onUpdate: apiCall,
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
