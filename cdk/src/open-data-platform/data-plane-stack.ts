@@ -6,6 +6,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsManager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { CommonProps } from '../util';
+import {LambdaLayerStack} from './lambda/lambda-layer-stack';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
@@ -44,5 +45,12 @@ export class DataPlaneStack extends Stack {
         subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
       },
     });
+
+    new LambdaLayerStack(this, 'LambdaStack', {
+      cluster: this.cluster,
+      vpc: vpc,
+      db: 'postgres',
+      credentialsSecret: this.cluster.secret!,
+    })
   }
 }
