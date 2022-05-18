@@ -3,10 +3,10 @@
 import { Duration, Stack } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
-import * as secretsManager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { CommonProps } from '../../util';
 import { Schema } from './schema';
+import {LambdaLayerStack} from '../lambda/lambda-layer-stack';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
@@ -54,5 +54,12 @@ export class DataPlaneStack extends Stack {
       schemaFileName: 'schema.sql',
       credentialsSecret: this.cluster.secret!,
     });
+
+    new LambdaLayerStack(this, 'LambdaStack', {
+      cluster: this.cluster,
+      vpc: vpc,
+      db: 'postgres',
+      credentialsSecret: this.cluster.secret!,
+    })
   }
 }
