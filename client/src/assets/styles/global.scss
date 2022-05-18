@@ -3,18 +3,3 @@
 .semi-bold {
   font-weight: 600;
 }
-
-/* *
-* Set rules for how the map overlays
-* (information box and legend) will be displayed
-* on the page.
-*/
-.map-overlay {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background: #fff;
-  margin-right: 20px;
-  overflow: auto;
-  border-radius: 3px;
-}
