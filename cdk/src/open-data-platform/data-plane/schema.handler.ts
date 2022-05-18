@@ -1,4 +1,6 @@
 // Defines the handler that is executed for the schema lambda.
+//
+// Based on https://github.com/BlueConduit/tributary/blob/main/cdk/lib/data-plane/schema.handler.ts
 
 import createConnectionPool, { ConnectionPool, ConnectionPoolConfig, sql } from '@databases/pg';
 import { SecretsManager } from '@aws-sdk/client-secrets-manager';
@@ -109,7 +111,7 @@ function database(config: ConnectionPoolConfig): ConnectionPool {
   let connectionsCount = 0;
   return createConnectionPool({
     ...config,
-    // Log actions and results.
+    // Log actions and results. More detail: https://www.atdatabases.org/docs/pg-guide-logging
     onError: (err: Error) => {
       console.log(`${new Date().toISOString()} ERROR - ${err.message}`);
     },

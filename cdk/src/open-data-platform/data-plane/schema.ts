@@ -1,12 +1,15 @@
 // Defines a custom resource that updates DB schema.
+//
+// Based on https://github.com/BlueConduit/tributary/blob/main/cdk/lib/data-plane/schema.ts
 
-import { Construct } from 'constructs';
-// import { ResourceInitializer } from '~/lib/resource-initializer';
-import * as rds from 'aws-cdk-lib/aws-rds';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
-import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Duration } from 'aws-cdk-lib';
+import * as cr from 'aws-cdk-lib/custom-resources';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as rds from 'aws-cdk-lib/aws-rds';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import { Construct } from 'constructs';
 import * as path from 'path';
 
 interface SchemaProps {
@@ -29,7 +32,7 @@ export class Schema extends Construct {
 
     const { cluster, vpc, db, schemaFileName, credentialsSecret, userCredentials } = props;
 
-    const initSchemaFunction = new lambda.NodejsFunction(this, handlerId, {
+    const initSchemaFunction = new NodejsFunction(this, handlerId, {
       vpc: vpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
@@ -63,18 +66,60 @@ export class Schema extends Construct {
       },
     });
 
-    // Access control.
+    // Set up access control for the lambda.
     credentialsSecret.grantRead(initSchemaFunction);
     userCredentials?.forEach((secret) => secret.grantRead(initSchemaFunction));
     cluster.connections.allowFrom(initSchemaFunction, ec2.Port.tcp(cluster.clusterEndpoint.port));
 
-    // TODO: set up trigger.
-    // const init = new ResourceInitializer(this, 'InitSchema', {
-    //   initFunction: initSchemaFunction,
-    //   payload: {
-    //     userCredentials: userCredentials?.map((secret) => secret.secretArn),
-    //   },
-    // });
-    // init.node.addDependency(cluster);
+    // Invoke the lambda.
+    const init = new ResourceInitializer(this, 'InitSchema', {
+      initFunction: initSchemaFunction,
+      payload: {
+        userCredentials: userCredentials?.map((secret) => secret.secretArn),
+      },
+    });
+    init.node.addDependency(cluster);
+  }
+}
+
+// Construct that invokes a lambda one time during `cdk deploy`.
+// If there are other lambdas that we want to invoke during deployment, consider breaking this
+// out into a common file.
+//
+// Based on: https://github.com/BlueConduit/tributary/blob/main/cdk/lib/resource-initializer.ts
+interface ResourceInitializerProps {
+  initFunction: lambda.Function;
+  payload?: object;
+}
+
+class ResourceInitializer extends Construct {
+  constructor(scope: Construct, id: string, props: ResourceInitializerProps) {
+    super(scope, id);
+
+    const { initFunction, payload } = props;
+
+    const defaultPayload = {
+      source: 'customresource.init',
+    };
+
+    const apiCall: cr.AwsSdkCall = {
+      service: 'Lambda',
+      action: 'invoke',
+      parameters: {
+        FunctionName: initFunction.functionName,
+        Payload: JSON.stringify(payload ?? defaultPayload),
+      },
+      physicalResourceId: cr.PhysicalResourceId.of(initFunction.currentVersion.version),
+    };
+
+    const init = new cr.AwsCustomResource(this, 'CustomResource', {
+      onCreate: apiCall,
+      onUpdate: apiCall,
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
+      }),
+    });
+    init.node.addDependency(initFunction);
+    initFunction.grantInvoke(init);
   }
 }
