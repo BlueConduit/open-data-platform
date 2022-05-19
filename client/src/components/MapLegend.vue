@@ -1,11 +1,12 @@
 <template>
-  <div class="map-overlay" id="legend">
-    <div class="legend-title">{{ this.title }}</div>
+  <div class="map-overlay">
+    <div>{{ this.title }}</div>
     <p></p>
-    <div class="legend-entry" v-for="(item, index) in bucketLabels" :key="item">
+    <div class="bucket"
+         v-for="(bucket) in this.displayedBucketsMap.entries()" :key="bucket">
       <span class="color"
-            :style="{'background-color': bucketColors[index]}"></span>
-      <span class="label"> {{ bucketLabels[index] }}</span>
+            :style="{'background-color': bucket[1]}"></span>
+      <span> {{ bucket[0] }}</span>
     </div>
   </div>
 </template>
@@ -20,15 +21,29 @@ export default {
   name: "MapLegend",
   data() {
     return {
-      bucketLabels: [],
-      bucketColors: [],
+      displayedBucketsMap: new Map(),
     }
   },
   props: {
-    title: {type: String, required: true},
-    bucketKeyValueMap: {type: Object, required: true},
+    title: {
+      type: String,
+      required: true
+    },
+    bucketMap: {
+      type: Map,
+      required: true,
+    }
   },
   methods: {
+    /**
+     * If this is the last bucket, create label which is `currentKey+`.
+     * Otherwise, create label which is the range `currentKey - nextKey`.
+     */
+    bucketLabel(bucket, index, buckets) {
+      return index < buckets.length - 1
+          ? `${bucket[0]} - ${buckets[index + 1][0]}` : `${bucket[0]}+`;
+    },
+
     /**
      * Create bucket labels and colors for legend.
      *
@@ -36,25 +51,20 @@ export default {
      * bucketKeyValueMap is updated.
      */
     createLegend() {
-      const legendKeys = Object.keys(this.bucketKeyValueMap);
-      const legendValues = Object.values(this.bucketKeyValueMap);
+      this.displayedBucketsMap.clear();
+      const buckets = Array.from(this.bucketMap.entries());
 
-      legendKeys.forEach((legendKey, i) => {
-        // If this is the last legendKey, create label which is `legendKey+`.
-        // Otherwise, create label which is the range `currentKey - nextKey`.
-        this.bucketLabels.push(
-            i < legendKeys.length - 1
-                ? `${legendKey} - ${legendKeys[i + 1]}` : `${legendKey}+`);
-        this.bucketColors.push(legendValues[i]);
+      buckets.forEach((bucket, index) => {
+        const bucketLabel = this.bucketLabel(bucket, index, buckets);
+        this.displayedBucketsMap.set(bucketLabel, bucket[1]);
       });
-    }
+    },
   },
   mounted() {
     this.createLegend();
   },
   watch: {
-    // When map is updated, rebuild legend.
-    bucketKeyValueMap: function () {
+    bucketMap: function () {
       this.createLegend();
     },
   }
@@ -69,13 +79,7 @@ export default {
   margin-right: 5px;
 }
 
-#legend {
-  padding: 10px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  line-height: 20px;
-}
-
-.legend-entry {
+.bucket {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -89,5 +93,8 @@ export default {
   margin-right: 20px;
   overflow: auto;
   border-radius: 3px;
+  padding: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  line-height: 20px;
 }
 </style>

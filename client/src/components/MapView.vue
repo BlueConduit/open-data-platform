@@ -2,7 +2,7 @@
   <div id="map-container"></div>
   <MapLegend
       :title="this.legendTitle"
-      :bucketKeyValueMap="this.legendKeyValueMap"/>
+      :bucketMap="this.bucketMap"/>
 </template>
 
 <script>
@@ -57,7 +57,7 @@ export default {
     return {
       map: {},
       legendTitle: '',
-      legendKeyValueMap: {},
+      bucketMap: new Map(),
     }
   },
   props: {
@@ -72,6 +72,10 @@ export default {
     }
   },
   methods: {
+    mapOfObject(object) {
+      return new Map(Object.entries(object));
+    },
+
     /**
      * Creates popup component at the given lngLat.
      *
@@ -106,7 +110,7 @@ export default {
             e.lngLat,
             /* popupData= */
             {
-              properties: new Map(Object.entries(clickedFeature.properties))
+              properties: this.mapOfObject(clickedFeature.properties)
             });
       });
     },
@@ -177,7 +181,7 @@ export default {
 
           // Initial values for legend based on visible layer.
           this.legendTitle = 'Population Served';
-          this.legendKeyValueMap = POPULATION_COLOR_MAP;
+          this.bucketMap = this.mapOfObject(POPULATION_COLOR_MAP);
 
           this.setUpInteractionHandlers();
         });
