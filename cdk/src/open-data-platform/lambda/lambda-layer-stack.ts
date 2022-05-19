@@ -47,7 +47,8 @@ export class LambdaLayerStack extends Construct {
         ec2.Port.tcp(cluster.clusterEndpoint.port)
     )
 
-    const s3GetObjectPolicy = new iam.PolicyStatement({
+    // Allow reads to all S3 buckets in account.
+    let s3GetObjectPolicy = new iam.PolicyStatement({
       actions: ['s3:GetObject'],
       resources: ['arn:aws:s3:::*'],
     });
@@ -61,14 +62,6 @@ export class LambdaLayerStack extends Construct {
     if (writeDemographicDataFunction.role?.roleArn != undefined) {
       let role = iam.Role.fromRoleArn(scope, id + '-role', writeDemographicDataFunction.role.roleArn);
       cluster.grantDataApiAccess(role);
-
-      let bucket = s3.Bucket.fromBucketArn(scope, id + '-bucket', 'arn:aws:s3:::opendataplatformapistaticdata');
-      bucket.addToResourcePolicy(new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        actions: ['s3:GetObject'],
-        resources: [bucket.bucketArn],
-        principals: [role]
-      }));
     }
   }
 }
