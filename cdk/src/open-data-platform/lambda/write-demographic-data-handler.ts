@@ -121,7 +121,7 @@ const executeSqlStatement = (secretArn: string, resourceArn: string,
       }
     });
 }
-/// Format [DemographicsTableRow] as SQL row.
+/// Formats a [DemographicsTableRow] as SQL row.
 const formatPopulationTableRowAsSql = (row: DemographicsTableRow): string => {
   const singleValue = [
     row.censusGeoId, row.totalPopulation, row.percentageBlackPopulation(),
@@ -130,7 +130,8 @@ const formatPopulationTableRowAsSql = (row: DemographicsTableRow): string => {
   return '(' + singleValue.join(',') + ')';
 }
 
-/// Write demographic data handler.
+/// Parses S3 'alabama_acs_data.csv' file and writes rows to demographics
+/// table in the MainCluster postgres db.
 exports.handler =
   (event: APIGatewayEvent, context: Context,
    callback: APIGatewayProxyCallback): void => {
@@ -159,6 +160,7 @@ exports.handler =
           secretArn, mainClusterArn,
           insertRowsIntoDemographicsTableStatement, 'postgres',
           callback);
+
       })
       .catch(function (err) {
         console.log('Error:' + err);
