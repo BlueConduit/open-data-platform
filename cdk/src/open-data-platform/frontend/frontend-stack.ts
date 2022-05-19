@@ -1,5 +1,10 @@
 // Defines the s3 Bucket to host static assets, the distribution which
 // points to that bucket, and deploys Vue app to the bucket.
+//
+// Based on https://github.com/BlueConduit/patina/blob/main/cdk/lib/patina-stack.ts,
+// which gets bucket and distribution references from
+// https://github.com/BlueConduit/tributary/blob/7a275259c484dd637467c841a62997cb6370c9f4/cdk/lib/frontend/frontend-stack.ts.
+
 
 import {Stack} from 'aws-cdk-lib';
 import {Construct} from "constructs";
