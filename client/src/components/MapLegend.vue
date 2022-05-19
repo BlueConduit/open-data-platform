@@ -48,7 +48,7 @@ export default {
      * Create bucket labels and colors for legend.
      *
      * This is called when the component is mounted and any time the incoming
-     * bucketKeyValueMap is updated.
+     * bucketMap is updated.
      */
     createLegend() {
       this.displayedBucketsMap.clear();
