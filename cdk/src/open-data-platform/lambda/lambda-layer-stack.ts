@@ -36,7 +36,7 @@ export class LambdaLayerStack extends Construct {
       timeout: Duration.minutes(5),
       bundling: {
         externalModules: ['aws-sdk'],
-        nodeModules: ['csv-parser', 'stream'],
+        nodeModules: ['csv-parser', 'fs'],
       },
     });
 
