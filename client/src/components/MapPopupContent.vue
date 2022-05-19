@@ -28,7 +28,7 @@ export default {
       displayedProperties: new Map(),
     }
   },
-  // TODO(kaila): remove default when content is finalized.
+  // TODO(kaila): remove defaults when content is finalized.
   props: {
     title: {
       type: String,
@@ -50,6 +50,7 @@ export default {
     },
     properties: {
       type: Map,
+      required: true,
     }
   },
   methods: {
@@ -60,6 +61,8 @@ export default {
      * from properties.
      */
     updateDisplayedProperties() {
+      this.displayedProperties.clear();
+
       for (let entry of FEATURE_PROPERTY_LABELS_KEYS_MAP.entries()) {
         const label = entry[0];
         const featurePropertyKey = entry[1];
