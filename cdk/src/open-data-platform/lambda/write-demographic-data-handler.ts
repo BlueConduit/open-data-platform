@@ -28,7 +28,7 @@ const DELETE_DEMOGRAPHICS_TABLE =
 const parseS3IntoDemographicsTableRow = (s3Params: Object):
   Promise<Array<DemographicsTableRow>> => {
   let results: DemographicsTableRow[] = [];
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     let count = 0;
     let fileStream = S3.getObject(s3Params).createReadStream();
     fileStream.pipe(parse())
@@ -101,7 +101,7 @@ const parseSqlQuery = (data: Object):
 /// Executes SQL statement argument against the MainCluster db.
 const executeSqlStatement =
   (secretArn: string, resourceArn: string, statement: string,
-   db: String | undefined, callback: APIGatewayProxyCallback):
+   db: String|undefined, callback: APIGatewayProxyCallback):
     void => {
     let sqlParams = {
       secretArn: secretArn,
@@ -112,7 +112,7 @@ const executeSqlStatement =
     };
 
     rdsDataService.executeStatement(
-      sqlParams, function (err: Error, data: Object) {
+      sqlParams, function(err: Error, data: Object) {
         if (err) {
           console.log(err);
           callback('Error: RDS statement failed to execute');
@@ -145,7 +145,7 @@ exports.handler =
     };
     // Read CSV file and write to demographics table.
     parseS3IntoDemographicsTableRow(s3Params)
-      .then(function (rows: Array<DemographicsTableRow>) {
+      .then(function(rows: Array<DemographicsTableRow>) {
         let valuesForSql = rows.map(formatPopulationTableRowAsSql);
 
         let insertRowsIntoDemographicsTableStatement =
@@ -161,7 +161,7 @@ exports.handler =
           insertRowsIntoDemographicsTableStatement, 'postgres',
           callback);
       })
-      .catch(function (err) {
+      .catch(function(err) {
         console.log('Error:' + err);
         callback(
           null, {statusCode: 500, body: JSON.stringify(err.message)});
@@ -230,6 +230,5 @@ class DemographicsTableRowBuilder {
 
 /// Retrieved data from a SQL query.
 interface SqlData {
-  rows: any[],
-  columns: string[]
+  rows: any[], columns: string[]
 }
