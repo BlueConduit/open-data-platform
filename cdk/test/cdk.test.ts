@@ -1,14 +1,16 @@
-import { App, Stack } from 'aws-cdk-lib';
-import { Template } from 'aws-cdk-lib/assertions';
-import { DataPlaneStack } from '../src/open-data-platform/data-plane/data-plane-stack';
-import { NetworkStack } from '../src/open-data-platform/network/network-stack';
+import {App} from 'aws-cdk-lib';
+import {Template} from 'aws-cdk-lib/assertions';
+import {DataPlaneStack} from '../src/open-data-platform/data-plane/data-plane-stack';
+import {NetworkStack} from '../src/open-data-platform/network/network-stack';
 import * as util from '../src/util';
+import {FrontendStack} from '../src/open-data-platform/frontend/frontend-stack';
 
 // Inspired by https://github.com/aws/aws-cdk/blob/master/packages/%40aws-cdk/aws-iam/test/policy.test.ts
 describe('Full stack', () => {
   let app: App;
   let networkStack: NetworkStack;
   let dataPlaneStack: DataPlaneStack;
+  let frontendStack: FrontendStack;
 
   beforeEach(() => {
     app = new App();
@@ -18,6 +20,7 @@ describe('Full stack', () => {
     dataPlaneStack = new DataPlaneStack(app, util.stackName(util.StackId.DataPlane), {
       vpc: networkStack.vpc,
     });
+    frontendStack = new FrontendStack(app, util.stackName(util.StackId.Frontend), {});
   });
 
   // This only checks that resources exist, not that they have any particular properties or behavior.
@@ -29,6 +32,9 @@ describe('Full stack', () => {
     const dataPlaneTemplate = Template.fromStack(dataPlaneStack);
     dataPlaneTemplate.hasResourceProperties('AWS::RDS::DBCluster', {}); // Aurora cluster.
     dataPlaneTemplate.hasResourceProperties('AWS::Lambda::Function', {}); // Schema lambda.
+    const frontendTemplate = Template.fromStack(frontendStack);
+    frontendTemplate.hasResourceProperties('AWS::S3::Bucket', {}); // s3 bucket.
+    frontendTemplate.hasResourceProperties('AWS::CloudFront::Distribution', {}); // CloudFront Distribution.
   });
 
   // TODO: Check that the lambda has write access to the DB.
