@@ -11,193 +11,220 @@ const RACE_TOTAL = 'RaceTotal';
 const WHITE_POPULATION = 'Estimate!!Total:!!White alone';
 const BLACK_POPULATION = 'Estimate!!Total:!!Black or African American alone';
 
-let createDemographicsTableStatement =
-    'CREATE TABLE IF NOT EXISTS demographics( \n' +
-    '   census_geo_id varchar(255) NOT NULL, \n' +
-    '   total_population real, \n' +
-    '   black_percentage real,\n' +
-    '   white_percentage real, \n' +
-    '   PRIMARY KEY(census_geo_id) \n' +
-    ');';
+/// Prepared SQL statements.
+const CREATE_DEMOGRAPHICS_TABLE =
+		'CREATE TABLE IF NOT EXISTS demographics( \n' +
+		'   census_geo_id varchar(255) NOT NULL, \n' +
+		'   total_population real, \n' +
+		'   black_percentage real,\n' +
+		'   white_percentage real, \n' +
+		'   PRIMARY KEY(census_geo_id) \n' +
+		');';
+
+const DELETE_DEMOGRAPHICS_TABLE = 'DELETE FROM demographics WHERE census_geo_id IS NOT NULL';
 
 /// Reads the S3 bucket object and returns parsed rows from the CSV file.
 const readFile = (s3Params: Object): Promise<any> => {
-  let results: PopulationTableRow[] = [];
-  return new Promise(function (resolve, reject) {
-    let count = 0;
-    let fileStream = S3.getObject(s3Params).createReadStream();
-    fileStream.pipe(parse()).on('data', (chunk) => {
-      fileStream.pause();
-      count += 1;
-      // Only process 10 rows for now.
-      if (count < 10) {
-        let row = new PopulationTableRowBuilder()
-            .censusGeoId(chunk[GEO_ID])
-            .totalPopulation(parseInt(chunk[RACE_TOTAL]))
-            .blackPopulation(parseInt(chunk[BLACK_POPULATION]))
-            .whitePopulation(parseInt(chunk[WHITE_POPULATION]))
-            .build();
-        console.log(row);
-        results.push(row);
-      }
-      fileStream.resume();
-    }).on('error', (error) => {
-      reject(error);
-    }).on('end', () => {
-      console.log('Parsed ' + results.length + ' rows.');
-      resolve(results);
-    });
-  });
+	let results: DemographicsTableRow[] = [];
+	return new Promise(function (resolve, reject) {
+		let count = 0;
+		let fileStream = S3.getObject(s3Params).createReadStream();
+		fileStream.pipe(parse()).on('data', (chunk) => {
+			fileStream.pause();
+			count += 1;
+			// Only process 10 rows for now.
+			if (count < 10) {
+				let row = new DemographicsTableRowBuilder()
+						.censusGeoId(chunk[GEO_ID])
+						.totalPopulation(parseInt(chunk[RACE_TOTAL]))
+						.blackPopulation(parseInt(chunk[BLACK_POPULATION]))
+						.whitePopulation(parseInt(chunk[WHITE_POPULATION]))
+						.build();
+				console.log(row);
+				results.push(row);
+			}
+			fileStream.resume();
+		}).on('error', (error) => {
+			reject(error);
+		}).on('end', () => {
+			console.log('Parsed ' + results.length + ' rows.');
+			resolve(results);
+		});
+	});
 }
 
-/// Parses rows and columns of SQL data.
+/// Parses rows and columns of SQL query into [SqlData].
 const readSqlQuery = (data: Object): SqlData => {
-  let rows: any[] = [];
-  let cols: string[] = [];
+	let rows: any[] = [];
+	let cols: string[] = [];
 
-  if (data.columnMetadata != undefined) {
-    data.columnMetadata.map((value, _) => {
-      cols.push(value.name);
-    });
-  }
+	if (data.columnMetadata != undefined) {
+		data.columnMetadata.map((value, _) => {
+			cols.push(value.name);
+		});
+	}
 
-  if (data.records != undefined) {
-    data.records.map((record: Array<Object>) => {
-      let row = {};
-      record.map((value, index) => {
-        if (value.stringValue !== 'undefined') {
-          row[cols[index]] = value.stringValue;
-        } else if (value.blobValue !== 'undefined') {
-          row[cols[index]] = value.blobValue;
-        } else if (value.doubleValue !== 'undefined') {
-          row[cols[index]] = value.doubleValue;
-        } else if (value.longValue !== 'undefined') {
-          row[cols[index]] = value.longValue;
-        } else if (value.booleanValue !== 'undefined') {
-          row[cols[index]] = value.booleanValue;
-        } else if (value.isNull) {
-          row[cols[index]] = null;
-        }
-      });
-      rows.push(row);
-    });
-    console.log('Found rows: ' + rows.length);
-  }
-  return {columns: cols, rows: rows};
+	if (data.records != undefined) {
+		data.records.map((record: Array<Object>) => {
+			let row = {};
+			record.map((value, index) => {
+				if (value.stringValue !== 'undefined') {
+					row[cols[index]] = value.stringValue;
+				} else if (value.blobValue !== 'undefined') {
+					row[cols[index]] = value.blobValue;
+				} else if (value.doubleValue !== 'undefined') {
+					row[cols[index]] = value.doubleValue;
+				} else if (value.longValue !== 'undefined') {
+					row[cols[index]] = value.longValue;
+				} else if (value.booleanValue !== 'undefined') {
+					row[cols[index]] = value.booleanValue;
+				} else if (value.isNull) {
+					row[cols[index]] = null;
+				}
+			});
+			rows.push(row);
+		});
+		console.log('Found rows: ' + rows.length);
+	}
+	return {columns: cols, rows: rows};
 }
 
 /// Executes SQL statement passed in against the MainCluster db.
-const executeSqlStatement = (secretArn: string, resourceArn: string, statement: string, callback: APIGatewayProxyCallback): void => {
-  const db = 'postgres'; // Default db
-  let sqlParams = {
-    secretArn: secretArn,
-    resourceArn: resourceArn,
-    sql: statement,
-    database: db,
-    includeResultMetadata: true
-  };
+const executeSqlStatement = (secretArn: string, resourceArn: string,
+														 statement: string,
+														 callback: APIGatewayProxyCallback): void => {
+	const db = 'postgres'; // Default db
+	let sqlParams = {
+		secretArn: secretArn,
+		resourceArn: resourceArn,
+		sql: statement,
+		database: db,
+		includeResultMetadata: true
+	};
 
-  rdsDataService.executeStatement(sqlParams, function (err: Error, data: Object) {
-    if (err) {
-      console.log(err);
-      callback('Error: RDS statement failed to execute');
-    } else {
-
-      let sqlData = readSqlQuery(data);
-      console.log('Data is: ');
-      console.log(data);
-
-      callback(null, {
-        statusCode: 200,
-        body: JSON.stringify(sqlData)
-      });
-    }
-  });
+	rdsDataService.executeStatement(sqlParams,
+			function (err: Error, data: Object) {
+				if (err) {
+					console.log(err);
+					callback('Error: RDS statement failed to execute');
+				} else {
+					console.log('Data is: ' + data);
+					callback(null, {
+						statusCode: 200,
+						body: JSON.stringify(data)
+					});
+				}
+			});
+}
+/// Format [DemographicsTableRow] as SQL row.
+const formatPopulationTableRowAsSql = (row: DemographicsTableRow): string => {
+	let singleValue: any[] = [];
+	singleValue.push(row.censusGeoId, row.totalPopulation,
+			row.percentageBlackPopulation(), row.percentageWhitePopulation());
+	return '(' + singleValue.join(',') + ')';
 }
 
 /// Write demographic data handler.
-exports.handler = (event: APIGatewayEvent, context: Context, callback: APIGatewayProxyCallback): void => {
-  const s3Params = {
-    Bucket: 'opendataplatformapistaticdata',
-    Key: 'alabama_acs_data.csv'
-  };
+exports.handler = (event: APIGatewayEvent, context: Context,
+									 callback: APIGatewayProxyCallback): void => {
+	console.log(event.queryStringParameters);
+	const secretArn = event['secretArn'];
+	const mainClusterArn = event['mainClusterArn'];
+	const s3Params = {
+		Bucket: event['bucket'],
+		Key: event['key']
+	};
 
-  readFile(s3Params).then(function (results) {
-    callback(null, {
-      statusCode: 200,
-      body: JSON.stringify(results)
-    });
+	// Read CSV file and write to demographics table.
+	readFile(s3Params).then(function (rows: Array<DemographicsTableRow>) {
+		let valuesForSql = rows.map(
+				(row: DemographicsTableRow) => formatPopulationTableRowAsSql(row));
 
-  }).catch(function (err) {
-    console.log('Error:' + err);
-    callback(null, {
-      statusCode: 502,
-      body: JSON.stringify(err.message)
-    });
-  });
+		let insertRowsIntoDemographicsTableStatement =
+				'INSERT INTO demographics  \n' +
+				'(census_geo_id, total_population, black_percentage, white_percentage) \n' +
+				'VALUES \n' +
+				valuesForSql.join(', ') + '; \n';
 
-  let secretArn = 'arn:aws:secretsmanager:us-east-2:036999211278:secret:MainClusterSecretD2D17D33-Het1wBB6i4O7-kHd82A';
-  let mainClusterArn = 'arn:aws:rds:us-east-2:036999211278:cluster:breuch-opendataplatformdatapl-maincluster834123e8-vsco0l3vde9y';
+		console.log(
+				'Running statement: ' + insertRowsIntoDemographicsTableStatement);
+		executeSqlStatement(secretArn, mainClusterArn,
+				insertRowsIntoDemographicsTableStatement, callback);
 
-  executeSqlStatement(secretArn, mainClusterArn, createDemographicsTableStatement, callback);
+	}).catch(function (err) {
+		console.log('Error:' + err);
+		callback(null, {
+			statusCode: 500,
+			body: JSON.stringify(err.message)
+		});
+	});
+
 };
 
-interface SqlData {
-  rows: any[],
-  columns: string[]
-}
+/// Single row for demographics table.
+class DemographicsTableRow {
+	censusGeoId: string;
+	totalPopulation: number;
+	blackPopulation: number;
+	whitePopulation: number;
 
-interface PopulationTableRow {
-  censusGeoId: string;
-  totalPopulation: number;
-  blackPopulation: number;
-  whitePopulation: number;
+	constructor(censusGeoId: string, totalPopulation: number,
+							blackPopulation: number, whitePopulation: number) {
+		this.censusGeoId = censusGeoId;
+		this.totalPopulation = totalPopulation;
+		this.blackPopulation = blackPopulation;
+		this.whitePopulation = whitePopulation;
+	}
+
+	/// Returns black population : total population.
+	percentageBlackPopulation(): number {
+		return this.blackPopulation / this.totalPopulation;
+	}
+
+	/// Returns white population : total population.
+	percentageWhitePopulation(): number {
+		return this.whitePopulation / this.totalPopulation;
+	}
 }
 
 /// Builder utility for rows of the Demographics table.
-class PopulationTableRowBuilder {
-  private readonly _row: PopulationTableRow;
+class DemographicsTableRowBuilder {
+	private readonly _row: DemographicsTableRow;
 
-  constructor() {
-    this._row = {
-      censusGeoId: '',
-      totalPopulation: 0,
-      blackPopulation: 0,
-      whitePopulation: 0,
-    };
-  }
+	constructor() {
+		this._row = new DemographicsTableRow(
+				'',
+				0,
+				0, 0);
+	}
 
-  censusGeoId(censusGeoId: string): PopulationTableRowBuilder {
-    this._row.censusGeoId = censusGeoId;
-    return this;
-  }
+	censusGeoId(censusGeoId: string): DemographicsTableRowBuilder {
+		this._row.censusGeoId = censusGeoId;
+		return this;
+	}
 
-  totalPopulation(totalPopulation: number): PopulationTableRowBuilder {
-    this._row.totalPopulation = totalPopulation;
-    return this;
-  }
+	totalPopulation(totalPopulation: number): DemographicsTableRowBuilder {
+		this._row.totalPopulation = totalPopulation;
+		return this;
+	}
 
-  blackPopulation(blackPopulation: number): PopulationTableRowBuilder {
-    this._row.blackPopulation = blackPopulation;
-    return this;
-  }
+	blackPopulation(blackPopulation: number): DemographicsTableRowBuilder {
+		this._row.blackPopulation = blackPopulation;
+		return this;
+	}
 
-  whitePopulation(whitePopulation: number): PopulationTableRowBuilder {
-    this._row.whitePopulation = whitePopulation;
-    return this;
-  }
+	whitePopulation(whitePopulation: number): DemographicsTableRowBuilder {
+		this._row.whitePopulation = whitePopulation;
+		return this;
+	}
 
-  /// Returns black population : total population.
-  percentageBlackPopulation(): number {
-    return this._row.blackPopulation / this._row.totalPopulation;
-  }
+	build(): DemographicsTableRow {
+		return this._row;
+	}
+}
 
-  /// Returns white population : total population.
-  percentageWhitePopulation(): number {
-    return this._row.whitePopulation / this._row.totalPopulation;
-  }
-
-  build(): PopulationTableRow {
-    return this._row;
-  }
+/// Retrieved data from a SQL query.
+interface SqlData {
+	rows: any[],
+	columns: string[]
 }
