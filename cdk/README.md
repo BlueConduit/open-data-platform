@@ -4,10 +4,10 @@ The `cdk.json` stores all info on how to execute the app.
 
 ## Useful commands
 
-- `npm run test` perform the jest unit tests
-- `cdk deploy --all` deploy this stack to your default AWS account/region
-- `cdk diff` compare deployed stack with current state
-- `cdk destroy` tear down the existing stack
+- `npm run test` perform the jest unit tests. Append `-- --silent=false` to show logged lines.
+- `cdk deploy --all` deploy this stack to your default AWS account/region.
+- `cdk diff` compare deployed stack with current state.
+- `cdk destroy` tear down the existing stack.
 
 ## CDK Structure
 

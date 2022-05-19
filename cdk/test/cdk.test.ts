@@ -1,17 +1,36 @@
-// import * as cdk from 'aws-cdk-lib';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as Cdk from '../lib/cdk-stack';
+import { App, Stack } from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import { DataPlaneStack } from '../src/open-data-platform/data-plane/data-plane-stack';
+import { NetworkStack } from '../src/open-data-platform/network/network-stack';
+import * as util from '../src/util';
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/open-data-platform-stack.ts
-test('SQS Queue Created', () => {
-//   const app = new cdk.App();
-//     // WHEN
-//   const stack = new Cdk.OpenDataPlatformStack(app, 'MyTestStack');
-//     // THEN
-//   const template = Template.fromStack(stack);
+// Inspired by https://github.com/aws/aws-cdk/blob/master/packages/%40aws-cdk/aws-iam/test/policy.test.ts
+describe('Full stack', () => {
+  let app: App;
+  let networkStack: NetworkStack;
+  let dataPlaneStack: DataPlaneStack;
 
-//   template.hasResourceProperties('AWS::SQS::Queue', {
-//     VisibilityTimeout: 300
-//   });
+  beforeEach(() => {
+    app = new App();
+    // Set up stacks in dependency order. This has to be done before any `Template.fronStack` calls,
+    // due to https://github.com/aws/aws-cdk/issues/18847#issuecomment-1121980507
+    networkStack = new NetworkStack(app, util.stackName(util.StackId.Network), {});
+    dataPlaneStack = new DataPlaneStack(app, util.stackName(util.StackId.DataPlane), {
+      vpc: networkStack.vpc,
+    });
+  });
+
+  // This only checks that resources exist, not that they have any particular properties or behavior.
+  test('Presence', () => {
+    // Assert for presence. See this list of resource types to find the strings to use here:
+    // https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html
+    const networkTemplate = Template.fromStack(networkStack);
+    networkTemplate.hasResourceProperties('AWS::EC2::VPC', {});
+    const dataPlaneTemplate = Template.fromStack(dataPlaneStack);
+    dataPlaneTemplate.hasResourceProperties('AWS::RDS::DBCluster', {}); // Aurora cluster.
+    dataPlaneTemplate.hasResourceProperties('AWS::Lambda::Function', {}); // Schema lambda.
+  });
+
+  // TODO: Check that the lambda has write access to the DB.
+  test('Permissions', () => {});
 });
