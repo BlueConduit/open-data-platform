@@ -13,13 +13,13 @@ const BLACK_POPULATION = 'Estimate!!Total:!!Black or African American alone';
 
 /// Prepared SQL statements.
 const CREATE_DEMOGRAPHICS_TABLE =
-		'CREATE TABLE IF NOT EXISTS demographics( \n' +
-		'   census_geo_id varchar(255) NOT NULL, \n' +
-		'   total_population real, \n' +
-		'   black_percentage real,\n' +
-		'   white_percentage real, \n' +
-		'   PRIMARY KEY(census_geo_id) \n' +
-		');';
+	'CREATE TABLE IF NOT EXISTS demographics( \n' +
+	'   census_geo_id varchar(255) NOT NULL, \n' +
+	'   total_population real, \n' +
+	'   black_percentage real,\n' +
+	'   white_percentage real, \n' +
+	'   PRIMARY KEY(census_geo_id) \n' +
+	');';
 
 const DELETE_DEMOGRAPHICS_TABLE = 'DELETE FROM demographics WHERE census_geo_id IS NOT NULL';
 
@@ -34,11 +34,11 @@ const parseS3IntoDemographicsTableRow = (s3Params: Object): Promise<Array<Demogr
 			// Only process 10 rows for now.
 			if (count < 10) {
 				let row = new DemographicsTableRowBuilder()
-						.censusGeoId(chunk[GEO_ID])
-						.totalPopulation(parseInt(chunk[RACE_TOTAL]))
-						.blackPopulation(parseInt(chunk[BLACK_POPULATION]))
-						.whitePopulation(parseInt(chunk[WHITE_POPULATION]))
-						.build();
+					.censusGeoId(chunk[GEO_ID])
+					.totalPopulation(parseInt(chunk[RACE_TOTAL]))
+					.blackPopulation(parseInt(chunk[BLACK_POPULATION]))
+					.whitePopulation(parseInt(chunk[WHITE_POPULATION]))
+					.build();
 				count += 1;
 				console.log(row);
 				results.push(row);
@@ -103,18 +103,18 @@ const executeSqlStatement = (secretArn: string, resourceArn: string,
 	};
 
 	rdsDataService.executeStatement(sqlParams,
-			function (err: Error, data: Object) {
-				if (err) {
-					console.log(err);
-					callback('Error: RDS statement failed to execute');
-				} else {
-					console.log('Data is: ' + data);
-					callback(null, {
-						statusCode: 200,
-						body: JSON.stringify(data)
-					});
-				}
-			});
+		function (err: Error, data: Object) {
+			if (err) {
+				console.log(err);
+				callback('Error: RDS statement failed to execute');
+			} else {
+				console.log('Data is: ' + data);
+				callback(null, {
+					statusCode: 200,
+					body: JSON.stringify(data)
+				});
+			}
+		});
 }
 /// Format [DemographicsTableRow] as SQL row.
 const formatPopulationTableRowAsSql = (row: DemographicsTableRow): string => {
@@ -138,21 +138,21 @@ exports.handler = (event: APIGatewayEvent, context: Context,
 	};
 	// Read CSV file and write to demographics table.
 	parseS3IntoDemographicsTableRow(s3Params)
-			.then(function (rows: Array<DemographicsTableRow>) {
-				let valuesForSql = rows.map(formatPopulationTableRowAsSql);
+		.then(function (rows: Array<DemographicsTableRow>) {
+			let valuesForSql = rows.map(formatPopulationTableRowAsSql);
 
-				let insertRowsIntoDemographicsTableStatement =
-						'INSERT INTO demographics  \n' +
-						'(census_geo_id, total_population, black_percentage, white_percentage) \n' +
-						'VALUES \n' +
-						valuesForSql.join(', ') + '; \n';
+			let insertRowsIntoDemographicsTableStatement =
+				'INSERT INTO demographics  \n' +
+				'(census_geo_id, total_population, black_percentage, white_percentage) \n' +
+				'VALUES \n' +
+				valuesForSql.join(', ') + '; \n';
 
-				console.log(
-						'Running statement: ' + insertRowsIntoDemographicsTableStatement);
-				executeSqlStatement(secretArn, mainClusterArn,
-						insertRowsIntoDemographicsTableStatement, 'postgres', callback);
+			console.log(
+				'Running statement: ' + insertRowsIntoDemographicsTableStatement);
+			executeSqlStatement(secretArn, mainClusterArn,
+				insertRowsIntoDemographicsTableStatement, 'postgres', callback);
 
-			}).catch(function (err) {
+		}).catch(function (err) {
 		console.log('Error:' + err);
 		callback(null, {
 			statusCode: 500,
@@ -193,9 +193,9 @@ class DemographicsTableRowBuilder {
 
 	constructor() {
 		this._row = new DemographicsTableRow(
-				'',
-				0,
-				0, 0);
+			'',
+			0,
+			0, 0);
 	}
 
 	censusGeoId(censusGeoId: string): DemographicsTableRowBuilder {
