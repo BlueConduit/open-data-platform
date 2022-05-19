@@ -1,5 +1,5 @@
 // asset-input/src/open-data-platform/lambda/write-demographic-data-handler.js
-import {Context, APIGatewayProxyCallback, APIGatewayEvent} from 'aws-lambda';
+import {APIGatewayEvent, APIGatewayProxyCallback, Context} from 'aws-lambda';
 
 const AWS = require('aws-sdk');
 const parse = require('csv-parser');
@@ -21,40 +21,49 @@ const CREATE_DEMOGRAPHICS_TABLE =
 	'   PRIMARY KEY(census_geo_id) \n' +
 	');';
 
-const DELETE_DEMOGRAPHICS_TABLE = 'DELETE FROM demographics WHERE census_geo_id IS NOT NULL';
+const DELETE_DEMOGRAPHICS_TABLE =
+	'DELETE FROM demographics WHERE census_geo_id IS NOT NULL';
 
 /// Reads the S3 CSV file and returns [DemographicsTableRow]s.
-const parseS3IntoDemographicsTableRow = (s3Params: Object): Promise<Array<DemographicsTableRow>> => {
+const parseS3IntoDemographicsTableRow = (s3Params: Object):
+	Promise<Array<DemographicsTableRow>> => {
 	let results: DemographicsTableRow[] = [];
-	return new Promise(function (resolve, reject) {
+	return new Promise(function(resolve, reject) {
 		let count = 0;
 		let fileStream = S3.getObject(s3Params).createReadStream();
-		fileStream.pipe(parse()).on('data', (chunk) => {
-			fileStream.pause();
-			// Only process 10 rows for now.
-			if (count < 10) {
-				let row = new DemographicsTableRowBuilder()
-					.censusGeoId(chunk[GEO_ID])
-					.totalPopulation(parseInt(chunk[RACE_TOTAL]))
-					.blackPopulation(parseInt(chunk[BLACK_POPULATION]))
-					.whitePopulation(parseInt(chunk[WHITE_POPULATION]))
-					.build();
-				count += 1;
-				console.log(row);
-				results.push(row);
-			}
-			fileStream.resume();
-		}).on('error', (error) => {
-			reject(error);
-		}).on('end', () => {
-			console.log('Parsed ' + results.length + ' rows.');
-			resolve(results);
-		});
+		fileStream.pipe(parse())
+							.on('data',
+								(chunk) => {
+									fileStream.pause();
+									// Only process 10 rows for now.
+									if (count < 10) {
+										let row =
+											new DemographicsTableRowBuilder()
+												.censusGeoId(chunk[GEO_ID])
+												.totalPopulation(parseInt(chunk[RACE_TOTAL]))
+												.blackPopulation(parseInt(chunk[BLACK_POPULATION]))
+												.whitePopulation(parseInt(chunk[WHITE_POPULATION]))
+												.build();
+										count += 1;
+										console.log(row);
+										results.push(row);
+									}
+									fileStream.resume();
+								})
+							.on('error',
+								(error) => {
+									reject(error);
+								})
+							.on('end', () => {
+								console.log('Parsed ' + results.length + ' rows.');
+								resolve(results);
+							});
 	});
 }
 
 /// Parses rows and columns of SQL query into [SqlData].
-const parseSqlQuery = (data: Object): SqlData => {
+const parseSqlQuery = (data: Object):
+	SqlData => {
 	let rows: any[] = [];
 	let cols: string[] = [];
 
@@ -90,76 +99,74 @@ const parseSqlQuery = (data: Object): SqlData => {
 }
 
 /// Executes SQL statement argument against the MainCluster db.
-const executeSqlStatement = (secretArn: string, resourceArn: string,
-														 statement: string,
-														 db: String | undefined,
-														 callback: APIGatewayProxyCallback): void => {
-	let sqlParams = {
-		secretArn: secretArn,
-		resourceArn: resourceArn,
-		sql: statement,
-		database: db ?? 'postgres', // Default db
-		includeResultMetadata: true
-	};
+const executeSqlStatement =
+	(secretArn: string, resourceArn: string, statement: string,
+	 db: String|undefined, callback: APIGatewayProxyCallback):
+		void => {
+		let sqlParams = {
+			secretArn: secretArn,
+			resourceArn: resourceArn,
+			sql: statement,
+			database: db ?? 'postgres',  // Default db
+			includeResultMetadata: true
+		};
 
-	rdsDataService.executeStatement(sqlParams,
-		function (err: Error, data: Object) {
-			if (err) {
-				console.log(err);
-				callback('Error: RDS statement failed to execute');
-			} else {
-				console.log('Data is: ' + data);
-				callback(null, {
-					statusCode: 200,
-					body: JSON.stringify(data)
-				});
-			}
-		});
-}
+		rdsDataService.executeStatement(
+			sqlParams, function(err: Error, data: Object) {
+				if (err) {
+					console.log(err);
+					callback('Error: RDS statement failed to execute');
+				} else {
+					console.log('Data is: ' + data);
+					callback(null, {statusCode: 200, body: JSON.stringify(data)});
+				}
+			});
+	}
 /// Format [DemographicsTableRow] as SQL row.
-const formatPopulationTableRowAsSql = (row: DemographicsTableRow): string => {
+const formatPopulationTableRowAsSql = (row: DemographicsTableRow):
+	string => {
 	let singleValue = [
-		row.censusGeoId,
-		row.totalPopulation,
-		row.percentageBlackPopulation(),
-		row.percentageWhitePopulation()];
+		row.censusGeoId, row.totalPopulation, row.percentageBlackPopulation(),
+		row.percentageWhitePopulation()
+	];
 	return '(' + singleValue.join(',') + ')';
 }
 
 /// Write demographic data handler.
-exports.handler = (event: APIGatewayEvent, context: Context,
-									 callback: APIGatewayProxyCallback): void => {
-	const secretArn = event['secretArn'];
-	const mainClusterArn = event['mainClusterArn'];
+exports.handler =
+	(event: APIGatewayEvent, context: Context,
+	 callback: APIGatewayProxyCallback): void => {
+		const secretArn = event['secretArn'];
+		const mainClusterArn = event['mainClusterArn'];
 
-	const s3Params = {
-		Bucket: 'opendataplatformapistaticdata',
-		Key: 'alabama_acs_data.csv'
+		const s3Params = {
+			Bucket: 'opendataplatformapistaticdata',
+			Key: 'alabama_acs_data.csv'
+		};
+		// Read CSV file and write to demographics table.
+		parseS3IntoDemographicsTableRow(s3Params)
+			.then(function(rows: Array<DemographicsTableRow>) {
+				let valuesForSql = rows.map(formatPopulationTableRowAsSql);
+
+				let insertRowsIntoDemographicsTableStatement =
+					'INSERT INTO demographics  \n' +
+					'(census_geo_id, total_population, black_percentage, white_percentage) \n' +
+					'VALUES \n' + valuesForSql.join(', ') + '; \n';
+
+				console.log(
+					'Running statement: ' +
+					insertRowsIntoDemographicsTableStatement);
+				executeSqlStatement(
+					secretArn, mainClusterArn,
+					insertRowsIntoDemographicsTableStatement, 'postgres',
+					callback);
+			})
+			.catch(function(err) {
+				console.log('Error:' + err);
+				callback(
+					null, {statusCode: 500, body: JSON.stringify(err.message)});
+			});
 	};
-	// Read CSV file and write to demographics table.
-	parseS3IntoDemographicsTableRow(s3Params)
-		.then(function (rows: Array<DemographicsTableRow>) {
-			let valuesForSql = rows.map(formatPopulationTableRowAsSql);
-
-			let insertRowsIntoDemographicsTableStatement =
-				'INSERT INTO demographics  \n' +
-				'(census_geo_id, total_population, black_percentage, white_percentage) \n' +
-				'VALUES \n' +
-				valuesForSql.join(', ') + '; \n';
-
-			console.log(
-				'Running statement: ' + insertRowsIntoDemographicsTableStatement);
-			executeSqlStatement(secretArn, mainClusterArn,
-				insertRowsIntoDemographicsTableStatement, 'postgres', callback);
-
-		}).catch(function (err) {
-		console.log('Error:' + err);
-		callback(null, {
-			statusCode: 500,
-			body: JSON.stringify(err.message)
-		});
-	});
-};
 
 /// Single row for demographics table.
 class DemographicsTableRow {
@@ -168,8 +175,9 @@ class DemographicsTableRow {
 	blackPopulation: number;
 	whitePopulation: number;
 
-	constructor(censusGeoId: string, totalPopulation: number,
-							blackPopulation: number, whitePopulation: number) {
+	constructor(
+		censusGeoId: string, totalPopulation: number, blackPopulation: number,
+		whitePopulation: number) {
 		this.censusGeoId = censusGeoId;
 		this.totalPopulation = totalPopulation;
 		this.blackPopulation = blackPopulation;
@@ -192,10 +200,7 @@ class DemographicsTableRowBuilder {
 	private readonly _row: DemographicsTableRow;
 
 	constructor() {
-		this._row = new DemographicsTableRow(
-			'',
-			0,
-			0, 0);
+		this._row = new DemographicsTableRow('', 0, 0, 0);
 	}
 
 	censusGeoId(censusGeoId: string): DemographicsTableRowBuilder {
@@ -225,6 +230,5 @@ class DemographicsTableRowBuilder {
 
 /// Retrieved data from a SQL query.
 interface SqlData {
-	rows: any[],
-	columns: string[]
+	rows: any[], columns: string[]
 }
