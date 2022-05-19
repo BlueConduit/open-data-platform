@@ -27,17 +27,17 @@ const DELETE_DEMOGRAPHICS_TABLE =
 /// Reads the S3 CSV file and returns [DemographicsTableRow]s.
 const parseS3IntoDemographicsTableRow =
   (s3Params: Object): Promise<Array<DemographicsTableRow>> => {
-    let results: DemographicsTableRow[] = [];
+    const results: DemographicsTableRow[] = [];
     return new Promise(function (resolve, reject) {
       let count = 0;
-      let fileStream = S3.getObject(s3Params).createReadStream();
+      const fileStream = S3.getObject(s3Params).createReadStream();
       fileStream.pipe(parse())
                 .on('data',
                   (chunk) => {
                     fileStream.pause();
                     // Only process 10 rows for now.
                     if (count < 10) {
-                      let row =
+                      const row =
                         new DemographicsTableRowBuilder()
                           .censusGeoId(chunk[GEO_ID])
                           .totalPopulation(parseInt(chunk[RACE_TOTAL]))
@@ -63,8 +63,8 @@ const parseS3IntoDemographicsTableRow =
 
 /// Parses rows and columns of SQL query into [SqlData].
 const parseSqlQuery = (data: Object): SqlData => {
-  let rows: any[] = [];
-  let cols: string[] = [];
+  const rows: any[] = [];
+  const cols: string[] = [];
 
   if (data.columnMetadata != undefined) {
     data.columnMetadata.map((value, _) => {
@@ -74,7 +74,7 @@ const parseSqlQuery = (data: Object): SqlData => {
 
   if (data.records != undefined) {
     data.records.map((record: Array<Object>) => {
-      let row = {};
+      const row = {};
       record.map((value, index) => {
         if (value.stringValue !== 'undefined') {
           row[cols[index]] = value.stringValue;
@@ -102,7 +102,7 @@ const executeSqlStatement = (secretArn: string, resourceArn: string,
                              statement: string,
                              db: String | undefined,
                              callback: APIGatewayProxyCallback): void => {
-  let sqlParams = {
+  const sqlParams = {
     secretArn: secretArn,
     resourceArn: resourceArn,
     sql: statement,
@@ -123,7 +123,7 @@ const executeSqlStatement = (secretArn: string, resourceArn: string,
 }
 /// Format [DemographicsTableRow] as SQL row.
 const formatPopulationTableRowAsSql = (row: DemographicsTableRow): string => {
-  let singleValue = [
+  const singleValue = [
     row.censusGeoId, row.totalPopulation, row.percentageBlackPopulation(),
     row.percentageWhitePopulation()
   ];
@@ -144,9 +144,9 @@ exports.handler =
     // Read CSV file and write to demographics table.
     parseS3IntoDemographicsTableRow(s3Params)
       .then(function (rows: Array<DemographicsTableRow>) {
-        let valuesForSql = rows.map(formatPopulationTableRowAsSql);
+        const valuesForSql = rows.map(formatPopulationTableRowAsSql);
 
-        let insertRowsIntoDemographicsTableStatement =
+        const insertRowsIntoDemographicsTableStatement =
           'INSERT INTO demographics  \n' +
           '(census_geo_id, total_population, black_percentage, white_percentage) \n' +
           'VALUES \n' + valuesForSql.join(', ') + '; \n';
@@ -154,6 +154,7 @@ exports.handler =
         console.log(
           'Running statement: ' +
           insertRowsIntoDemographicsTableStatement);
+
         executeSqlStatement(
           secretArn, mainClusterArn,
           insertRowsIntoDemographicsTableStatement, 'postgres',
