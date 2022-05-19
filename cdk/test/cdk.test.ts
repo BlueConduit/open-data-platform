@@ -21,7 +21,7 @@ describe('Full stack', () => {
   });
 
   // This only checks that resources exist, not that they have any particular properties or behavior.
-  test('Stack Presence', () => {
+  test('Presence', () => {
     // Assert for presence. See this list of resource types to find the strings to use here:
     // https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html
     const networkTemplate = Template.fromStack(networkStack);
@@ -30,4 +30,7 @@ describe('Full stack', () => {
     dataPlaneTemplate.hasResourceProperties('AWS::RDS::DBCluster', {}); // Aurora cluster.
     dataPlaneTemplate.hasResourceProperties('AWS::Lambda::Function', {}); // Schema lambda.
   });
+
+  // TODO: Check that the lambda has write access to the DB.
+  test('Permissions', () => {});
 });
