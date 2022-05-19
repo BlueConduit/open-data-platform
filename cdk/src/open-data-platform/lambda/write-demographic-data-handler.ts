@@ -1,5 +1,5 @@
 // asset-input/src/open-data-platform/lambda/write-demographic-data-handler.js
-import {Context, APIGatewayProxyCallback, APIGatewayEvent, Callback} from 'aws-lambda';
+import {Context, APIGatewayProxyCallback, APIGatewayEvent} from 'aws-lambda';
 
 const AWS = require('aws-sdk');
 const parse = require('csv-parser');
@@ -23,15 +23,14 @@ const CREATE_DEMOGRAPHICS_TABLE =
 
 const DELETE_DEMOGRAPHICS_TABLE = 'DELETE FROM demographics WHERE census_geo_id IS NOT NULL';
 
-/// Reads the S3 bucket object and returns parsed rows from the CSV file.
-const readFile = (s3Params: Object): Promise<any> => {
+/// Reads the S3 CSV file and returns [DemographicsTableRow]s.
+const parseS3IntoDemographicsTableRow = (s3Params: Object): Promise<Array<DemographicsTableRow>> => {
 	let results: DemographicsTableRow[] = [];
 	return new Promise(function (resolve, reject) {
 		let count = 0;
 		let fileStream = S3.getObject(s3Params).createReadStream();
 		fileStream.pipe(parse()).on('data', (chunk) => {
 			fileStream.pause();
-			count += 1;
 			// Only process 10 rows for now.
 			if (count < 10) {
 				let row = new DemographicsTableRowBuilder()
@@ -40,6 +39,7 @@ const readFile = (s3Params: Object): Promise<any> => {
 						.blackPopulation(parseInt(chunk[BLACK_POPULATION]))
 						.whitePopulation(parseInt(chunk[WHITE_POPULATION]))
 						.build();
+				count += 1;
 				console.log(row);
 				results.push(row);
 			}
@@ -54,7 +54,7 @@ const readFile = (s3Params: Object): Promise<any> => {
 }
 
 /// Parses rows and columns of SQL query into [SqlData].
-const readSqlQuery = (data: Object): SqlData => {
+const parseSqlQuery = (data: Object): SqlData => {
 	let rows: any[] = [];
 	let cols: string[] = [];
 
@@ -89,16 +89,16 @@ const readSqlQuery = (data: Object): SqlData => {
 	return {columns: cols, rows: rows};
 }
 
-/// Executes SQL statement passed in against the MainCluster db.
+/// Executes SQL statement argument against the MainCluster db.
 const executeSqlStatement = (secretArn: string, resourceArn: string,
 														 statement: string,
+														 db: String | undefined,
 														 callback: APIGatewayProxyCallback): void => {
-	const db = 'postgres'; // Default db
 	let sqlParams = {
 		secretArn: secretArn,
 		resourceArn: resourceArn,
 		sql: statement,
-		database: db,
+		database: db ?? 'postgres', // Default db
 		includeResultMetadata: true
 	};
 
@@ -118,47 +118,47 @@ const executeSqlStatement = (secretArn: string, resourceArn: string,
 }
 /// Format [DemographicsTableRow] as SQL row.
 const formatPopulationTableRowAsSql = (row: DemographicsTableRow): string => {
-	let singleValue: any[] = [];
-	singleValue.push(row.censusGeoId, row.totalPopulation,
-			row.percentageBlackPopulation(), row.percentageWhitePopulation());
+	let singleValue = [
+		row.censusGeoId,
+		row.totalPopulation,
+		row.percentageBlackPopulation(),
+		row.percentageWhitePopulation()];
 	return '(' + singleValue.join(',') + ')';
 }
 
 /// Write demographic data handler.
 exports.handler = (event: APIGatewayEvent, context: Context,
 									 callback: APIGatewayProxyCallback): void => {
-	console.log(event.queryStringParameters);
 	const secretArn = event['secretArn'];
 	const mainClusterArn = event['mainClusterArn'];
+
 	const s3Params = {
-		Bucket: event['bucket'],
-		Key: event['key']
+		Bucket: 'opendataplatformapistaticdata',
+		Key: 'alabama_acs_data.csv'
 	};
-
 	// Read CSV file and write to demographics table.
-	readFile(s3Params).then(function (rows: Array<DemographicsTableRow>) {
-		let valuesForSql = rows.map(
-				(row: DemographicsTableRow) => formatPopulationTableRowAsSql(row));
+	parseS3IntoDemographicsTableRow(s3Params)
+			.then(function (rows: Array<DemographicsTableRow>) {
+				let valuesForSql = rows.map(formatPopulationTableRowAsSql);
 
-		let insertRowsIntoDemographicsTableStatement =
-				'INSERT INTO demographics  \n' +
-				'(census_geo_id, total_population, black_percentage, white_percentage) \n' +
-				'VALUES \n' +
-				valuesForSql.join(', ') + '; \n';
+				let insertRowsIntoDemographicsTableStatement =
+						'INSERT INTO demographics  \n' +
+						'(census_geo_id, total_population, black_percentage, white_percentage) \n' +
+						'VALUES \n' +
+						valuesForSql.join(', ') + '; \n';
 
-		console.log(
-				'Running statement: ' + insertRowsIntoDemographicsTableStatement);
-		executeSqlStatement(secretArn, mainClusterArn,
-				insertRowsIntoDemographicsTableStatement, callback);
+				console.log(
+						'Running statement: ' + insertRowsIntoDemographicsTableStatement);
+				executeSqlStatement(secretArn, mainClusterArn,
+						insertRowsIntoDemographicsTableStatement, 'postgres', callback);
 
-	}).catch(function (err) {
+			}).catch(function (err) {
 		console.log('Error:' + err);
 		callback(null, {
 			statusCode: 500,
 			body: JSON.stringify(err.message)
 		});
 	});
-
 };
 
 /// Single row for demographics table.
