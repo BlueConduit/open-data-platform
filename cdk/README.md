@@ -40,17 +40,39 @@ To run queries on a deployed DB:
 1. Open
    [Secrets Manager](https://us-east-2.console.aws.amazon.com/secretsmanager/home?region=us-east-2#!/listSecrets/)
    in the AWS Management Console.
-1. Search and open your secret, which will have your name and `Cluster` in it. Copy `Secret ARN`.
+1. Search and open your secret, which will have your name and `Cluster` in it.
+   Copy `Secret ARN`.
 1. Open the
-   [RDS Query Editor](https://us-east-2.console.aws.amazon.com/rds/home?region=us-east-2#query-editor:).
+   [RDS Query Editor](https://us-east-2.console.aws.amazon.com/rds/home?region=us-east-2#query-editor:)
+   .
 1. Select your DB cluster. It is probably prefixed with your name.
-1. Select `Connect with a Secrets Manager ARN` for the `Database username` and paste the previously
-   copied value.
+1. Select `Connect with a Secrets Manager ARN` for the `Database username` and
+   paste the previously copied value.
 1. Enter the datbase you'd like to open. By default, it has a `postgres` DB.
 
 #### Update the DB Schema
 
-The DB schema is also updated via the CDK so that all environments use the same schema. To make
-changes to this, edit the `schema.sql` file in the data-plane directory.
+The DB schema is also updated via the CDK so that all environments use the same
+schema. To make changes to this, edit the `schema.sql` file in the data-plane
+directory.
 
-WARNING: Removing columns or changing data types may cause loss of data during deployment.
+WARNING: Removing columns or changing data types may cause loss of data during
+deployment.
+
+### Frontend
+
+The frontend-stack consists of an s3 bucket which hosts the minified FE app
+files and a CloudFront Distribution which makes that app available at a URL.
+
+To deploy the FE, run `npm run build` in the client directory to compile the app
+to the client/dist folder. Then, deploy the CDK to push these new files to the
+s3 bucket.
+
+You can view the bucket in the AWS Console (Amazon S3 > Buckets). The bucket
+name will contain your ID and the `vueassets` string, e.g.:
+
+`kailajeter-opendataplatformfron-vueassetsa9cc1b8b-d6l9oiru7y2z`
+
+Find the domain at which your bucket is available in the AWS Console in
+CloudFront > Distributions by finding the domain which has your bucket as origin
+domain.
