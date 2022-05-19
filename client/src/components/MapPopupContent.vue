@@ -1,9 +1,15 @@
 <template>
   <div class="popup-content">
-    <div class="title">{{ title }}</div>
-    <div class="property-row" v-for="(key) in displayedProperties.keys()"
-         :key="key">
-      {{ key }}: {{ displayedProperties.get(key) }}
+    <div class="title-container">
+      <h2>{{ title }}</h2>
+      <div class="subtitle">{{ subtitle }}</div>
+    </div>
+    <div class="details">
+      <div class="details-title">{{ detailsTitle }}</div>
+      <div class="property-row" v-for="(entry) in displayedProperties.entries()"
+           :key="entry">
+        {{ entry[0] }}: {{ entry[1] }}
+      </div>
     </div>
   </div>
 </template>
@@ -22,9 +28,25 @@ export default {
       displayedProperties: new Map(),
     }
   },
+  // TODO(kaila): remove default when content is finalized.
   props: {
     title: {
       type: String,
+      default: function () {
+        return 'County';
+      }
+    },
+    subtitle: {
+      type: String,
+      default: function () {
+        return '320 estimated lead service lines';
+      }
+    },
+    detailsTitle: {
+      type: String,
+      default: function () {
+        return 'Lead & Copper Rule Violations';
+      }
     },
     properties: {
       type: Map,
@@ -59,5 +81,29 @@ export default {
 </script>
 
 <style>
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap");
 
+.details {
+  padding-top: 20px;
+  font-size: 14px;
+}
+
+.details-title {
+  font-weight: 600;
+}
+
+/* Override Mapbox Popup font. */
+.popup-content {
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+.subtitle {
+  font-size: 14px;
+}
+
+.title-container {
+  width: 222px;
+  height: 70px;
+  border-bottom: 1px solid #E5E5E5;
+}
 </style>

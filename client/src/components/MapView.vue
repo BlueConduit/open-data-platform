@@ -79,7 +79,8 @@ export default {
      * popup.
      */
     createMapPopup(lngLat, popupData) {
-      new mapbox.Popup({className: 'mapbox-popup'})
+      new mapbox.Popup(
+          {className: 'mapbox-popup', maxWidth: 258, maxHeight: 256})
           .setLngLat(lngLat)
           .setHTML(POPUP_CONTENT_BASE_HTML) // Add basic div to mount to.
           .addTo(this.map);
@@ -105,7 +106,6 @@ export default {
             e.lngLat,
             /* popupData= */
             {
-              title: 'County',
               properties: new Map(Object.entries(clickedFeature.properties))
             });
       });
@@ -202,13 +202,16 @@ export default {
   height: 100vh;
 }
 
-.mapboxgl-popup-tip {
-  visibility: hidden;
-}
+/** Override Mapbox Popup styles. */
 
-#popup-content {
+.mapboxgl-popup-content {
   border-radius: 8px;
   width: 258px;
   height: 256px;
+  padding: 18px;
+}
+
+.mapboxgl-popup-tip {
+  visibility: hidden;
 }
 </style>
