@@ -64,6 +64,12 @@ export default {
     this.createLegend();
   },
   watch: {
+    /**
+     * Update legend if bucketMap changes.
+     *
+     * This could happen if the user toggles visual layers, which would change
+     * the type and therefore buckets of the data we want to display.
+     */
     bucketMap: function () {
       this.createLegend();
     },
