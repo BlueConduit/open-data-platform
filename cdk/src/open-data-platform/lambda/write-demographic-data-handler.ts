@@ -1,5 +1,5 @@
 // asset-input/src/open-data-platform/lambda/write-demographic-data-handler.js
-import {APIGatewayEvent, APIGatewayProxyCallback, Context} from 'aws-lambda';
+import {APIGatewayEvent} from 'aws-lambda';
 
 const AWS = require('aws-sdk');
 const parse = require('csv-parser');
@@ -112,6 +112,7 @@ exports.handler = async (event: APIGatewayEvent): Promise<Object> => {
         'Running statement: ' +
         insertRowsIntoDemographicsTableStatement);
 
+      // Note: pass in DELETE_DEMOGRAPHICS_TABLE to drop rows first.
       let data = await executeSqlStatement(
         secretArn, mainClusterArn,
         insertRowsIntoDemographicsTableStatement, 'postgres');
@@ -183,10 +184,4 @@ class DemographicsTableRowBuilder {
   build(): DemographicsTableRow {
     return this._row;
   }
-}
-
-// Retrieved data from a SQL query.
-interface SqlData {
-  rows: any[],
-  columns: string[]
 }

@@ -6,7 +6,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 import { CommonProps } from '../../util';
 import { Schema } from './schema';
-import {DataImportStack} from '../../../bin/src/open-data-platform/lambda/data-import-stack';
+import {DataImportStack} from '../lambda/data-import-stack';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
