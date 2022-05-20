@@ -36,9 +36,9 @@ const parseS3IntoDemographicsTableRow =
                           .blackPopulation(parseInt(chunk[BLACK_POPULATION]))
                           .whitePopulation(parseInt(chunk[WHITE_POPULATION]))
                           .build();
-                      count += 1;
                       results.push(row);
                     }
+                    count += 1;
                     fileStream.resume();
                   })
                 .on('error',
@@ -71,7 +71,7 @@ const executeSqlStatement = async (secretArn: string, resourceArn: string,
           console.log(err);
           reject(err);
         } else {
-          console.log('Data is: ' + data);
+          console.log('Data is: ' + JSON.stringify(data));
           resolve(data);
         }
       });
