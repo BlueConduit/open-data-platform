@@ -6,7 +6,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 import { CommonProps } from '../../util';
 import { Schema } from './schema';
-import {LambdaLayerStack} from '../lambda/lambda-layer-stack';
+import {DataImportStack} from '../../../bin/src/open-data-platform/lambda/data-import-stack';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
@@ -55,7 +55,7 @@ export class DataPlaneStack extends Stack {
       credentialsSecret: this.cluster.secret!,
     });
 
-    new LambdaLayerStack(this, 'LambdaStack', {
+    new DataImportStack(this, 'DataImportStack', {
       cluster: this.cluster,
       vpc: vpc,
       db: 'postgres',

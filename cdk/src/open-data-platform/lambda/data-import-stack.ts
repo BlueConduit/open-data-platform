@@ -43,7 +43,7 @@ export class LambdaLayerStack extends Construct {
       ec2.Port.tcp(cluster.clusterEndpoint.port))
 
     // Allow reads to all S3 buckets in account.
-    let s3GetObjectPolicy = new iam.PolicyStatement({
+    const s3GetObjectPolicy = new iam.PolicyStatement({
       actions: ['s3:GetObject'],
       resources: ['arn:aws:s3:::*'],
     });
