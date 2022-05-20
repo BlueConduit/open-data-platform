@@ -103,6 +103,8 @@ export default {
      * Sets up interaction handlers for map.
      */
     setUpInteractionHandlers() {
+      // Use MapBox's custom click handler, which takes the style layer that we
+      // want to set up a handler for as a parameter.
       this.map.on('click', 'epa-violations-population-style', async (e) => {
         const clickedFeature = e.features[0];
 
