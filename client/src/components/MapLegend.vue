@@ -11,17 +11,19 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent} from 'vue';
+
 /**
  * Map legend component.
  *
  * Takes title and map of string keys -> hex string color values.
  */
-export default {
+export default defineComponent({
   name: "MapLegend",
   data() {
     return {
-      displayedBucketsMap: new Map(),
+      displayedBucketsMap: new Map<string, string>(),
     }
   },
   props: {
@@ -39,7 +41,7 @@ export default {
      * If this is the last bucket, create label which is `currentKey+`.
      * Otherwise, create label which is the range `currentKey - nextKey`.
      */
-    bucketLabel(bucket, index, buckets) {
+    bucketLabel(bucket: string[], index: number, buckets: string[][]): string {
       return index < buckets.length - 1
           ? `${bucket[0]} - ${buckets[index + 1][0]}` : `${bucket[0]}+`;
     },
@@ -50,11 +52,12 @@ export default {
      * This is called when the component is mounted and any time the incoming
      * bucketMap is updated.
      */
-    createLegend() {
+    createLegend(): void {
       this.displayedBucketsMap.clear();
-      const buckets = Array.from(this.bucketMap.entries());
+      const buckets: string[][] =
+          Array.from(this.bucketMap.entries()) as string[][];
 
-      buckets.forEach((bucket, index) => {
+      buckets.forEach((bucket: string[], index: number) => {
         const bucketLabel = this.bucketLabel(bucket, index, buckets);
         this.displayedBucketsMap.set(bucketLabel, bucket[1]);
       });
@@ -70,11 +73,11 @@ export default {
      * This could happen if the user toggles visual layers, which would change
      * the type and therefore buckets of the data we want to display.
      */
-    bucketMap: function () {
+    bucketMap: function (): void {
       this.createLegend();
     },
   }
-}
+})
 </script>
 
 <style scoped>

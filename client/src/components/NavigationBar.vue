@@ -17,8 +17,10 @@
   <router-view/>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import {defineComponent} from 'vue';
+
+export default defineComponent({
   name: 'NavigationBar',
   props: {
     bgColor: {
@@ -43,7 +45,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 
 <style scoped>

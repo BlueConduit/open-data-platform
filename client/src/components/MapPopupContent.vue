@@ -14,39 +14,35 @@
   </div>
 </template>
 
-<script>
-const FEATURE_PROPERTY_LABELS_KEYS_MAP = new Map(
+<script lang="ts">
+import {defineComponent} from 'vue';
+
+const FEATURE_PROPERTY_LABELS_KEYS_MAP = new Map<string, string>(
     [['Lead & Copper Rule Violations', 'Lead and Copper Rule'],]);
 
 /**
  * Map popup component.
  */
-export default {
+export default defineComponent({
   name: "MapPopupContent.vue",
   data() {
     return {
-      displayedProperties: new Map(),
+      displayedProperties: new Map<string, string>(),
     }
   },
   // TODO(kaila): remove defaults when content is finalized.
   props: {
     title: {
       type: String,
-      default: function () {
-        return 'County';
-      }
+      default: 'County',
     },
     subtitle: {
       type: String,
-      default: function () {
-        return '320 estimated lead service lines';
-      }
+      default: '320 estimated lead service lines',
     },
     detailsTitle: {
       type: String,
-      default: function () {
-        return 'Lead & Copper Rule Violations';
-      }
+      default: 'Lead & Copper Rule Violations',
     },
     properties: {
       type: Map,
@@ -62,13 +58,15 @@ export default {
      */
     updateDisplayedProperties() {
       this.displayedProperties.clear();
+      const featurePropertiesToDisplay =
+          Array.from(FEATURE_PROPERTY_LABELS_KEYS_MAP.entries());
 
-      for (let entry of FEATURE_PROPERTY_LABELS_KEYS_MAP.entries()) {
+      for (let entry of featurePropertiesToDisplay) {
         const label = entry[0];
         const featurePropertyKey = entry[1];
 
-        this.displayedProperties.set(label,
-            this.properties.get(featurePropertyKey));
+        const propertyValue = this.properties.get(featurePropertyKey) as string;
+        this.displayedProperties.set(label, propertyValue);
       }
     }
   },
@@ -80,7 +78,7 @@ export default {
       this.updateDisplayedProperties();
     },
   }
-}
+})
 </script>
 
 <style>

@@ -5,15 +5,17 @@
       :bucketMap="this.bucketMap"/>
 </template>
 
-<script>
-import mapbox from 'mapbox-gl';
+<script lang="ts">
+import mapboxgl from 'mapbox-gl';
+import mapbox, {GeoJSONSourceRaw, LngLatLike, MapLayerMouseEvent} from 'mapbox-gl';
 import axios from 'axios'
-import MapLegend from '@/components/MapLegend';
-import MapPopupContent from '@/components/MapPopupContent';
-import {createApp, defineComponent, nextTick} from 'vue'
+import MapLegend from '@/components/MapLegend.vue';
+import MapPopupContent from '@/components/MapPopupContent.vue';
+import {createApp, defineComponent, nextTick, PropType} from 'vue'
 
-const DEFAULT_LATITUDE = 39.8097343;
-const DEFAULT_LONGITUDE = -98.5556199;
+// const DEFAULT_LATITUDE = 39.8097343;
+// const DEFAULT_LONGITUDE = -98.5556199;
+const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
 const OPEN_DATA_PLATFORM_API_URL = 'https://v2rz6wzmb7.execute-api.us-east-2.amazonaws.com/default';
 const POPUP_CONTENT_BASE_ID = 'popup-content';
@@ -44,7 +46,7 @@ const POPULATION_COLOR_MAP =
           '#1A237E'
     };
 
-export default {
+export default defineComponent({
   name: "MapView",
   components: {
     MapLegend,
@@ -55,7 +57,7 @@ export default {
   },
   data() {
     return {
-      map: {},
+      map: {} as mapboxgl.Map,
       legendTitle: '',
       bucketMap: new Map(),
     }
@@ -65,26 +67,21 @@ export default {
      * Where to load the initial map. Defaults to center of continental US.
      */
     center: {
-      type: Array,
-      default: function () {
-        return [DEFAULT_LONGITUDE, DEFAULT_LATITUDE];
-      }
+      type: Object as PropType<[number, number]>,
+      default: DEFAULT_LNG_LAT,
     }
   },
   methods: {
-    mapOfObject(object) {
-      return new Map(Object.entries(object));
-    },
-
     /**
      * Creates popup component at the given lngLat.
      *
      * Passes propsData to the MapPopupContent component which is nested in the
      * popup.
      */
-    createMapPopup(lngLat, popupData) {
+    createMapPopup(lngLat: LngLatLike, popupData: Record<string, any>): void {
+      //TODO make sure omitting maxheight doesn't mess up ui
       new mapbox.Popup(
-          {className: 'mapbox-popup', maxWidth: 258, maxHeight: 256})
+          {className: 'mapbox-popup', maxWidth: '258'})
           .setLngLat(lngLat)
           .setHTML(POPUP_CONTENT_BASE_HTML) // Add basic div to mount to.
           .addTo(this.map);
@@ -105,15 +102,18 @@ export default {
     setUpInteractionHandlers() {
       // Use MapBox's custom click handler, which takes the style layer that we
       // want to set up a handler for as a parameter.
-      this.map.on('click', 'epa-violations-population-style', async (e) => {
-        const clickedFeature = e.features[0];
+      this.map.on('click', 'epa-violations-population-style', async (e: MapLayerMouseEvent) => {
+        if (e.features != undefined) {
+          const clickedFeatureProperties: { [name: string]: any; }
+              = e.features[0].properties as {};
 
-        this.createMapPopup(
-            e.lngLat,
-            /* popupData= */
-            {
-              properties: this.mapOfObject(clickedFeature.properties)
-            });
+          this.createMapPopup(
+              e.lngLat,
+              /* popupData= */
+              {
+                properties: new Map(Object.entries(clickedFeatureProperties)),
+              });
+        }
       });
     },
 
@@ -123,7 +123,7 @@ export default {
      *
      * @param leadRuleViolationData initial data to display.
      */
-    async createMap(leadRuleViolationData) {
+    async createMap(leadRuleViolationData: string) {
       try {
         this.map = new mapbox.Map({
           // Removes watermark by Mapbox.
@@ -135,10 +135,11 @@ export default {
         });
 
         this.map.on('load', () => {
-          this.map.addSource('epa-violations', {
+          const temporaryGeoJSONSource: GeoJSONSourceRaw = {
             type: 'geojson',
             data: leadRuleViolationData
-          });
+          };
+          this.map.addSource('epa-violations', temporaryGeoJSONSource);
 
           // Add style layer for water system boundary data. Without this layer
           // water boundary data will not appear.
@@ -183,7 +184,7 @@ export default {
 
           // Initial values for legend based on visible layer.
           this.legendTitle = 'Population Served';
-          this.bucketMap = this.mapOfObject(POPULATION_COLOR_MAP);
+          this.bucketMap = new Map(Object.entries(POPULATION_COLOR_MAP));
 
           this.setUpInteractionHandlers();
         });
@@ -200,7 +201,7 @@ export default {
         .get(`${OPEN_DATA_PLATFORM_API_URL}/getViolations`)
         .then(response => this.createMap(response.data.toString()));
   }
-}
+})
 </script>
 
 <style>
