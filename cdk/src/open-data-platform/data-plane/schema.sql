@@ -4,6 +4,14 @@
 -- [1] https://aws.amazon.com/about-aws/whats-new/2021/10/amazon-aurora-postgresql-supports-postgis/
 CREATE EXTENSION IF NOT EXISTS postgis;
 
+CREATE TABLE IF NOT EXISTS demographics(
+    census_geo_id varchar(255) NOT NULL,
+    total_population real,
+    black_percentage real,
+    white_percentage real,
+    PRIMARY KEY(census_geo_id)
+);
+
 -------------------
 -- EXAMPLE BELOW --
 -------------------
@@ -13,10 +21,11 @@ CREATE TABLE IF NOT EXISTS dummy (
    id serial PRIMARY KEY
 );
 
--- Add new columns and index, using example PostGIS data: https://postgis.net/install/#binary-installers#spatial-sql
+-- Add new columns and index using a new query, so they can use the `IF NOT EXISTS` keywords.
+-- using example PostGIS data: https://postgis.net/install/#binary-installers#spatial-sql
 ALTER TABLE dummy
-ADD COLUMN geom GEOMETRY(Point, 26910),
-ADD COLUMN name VARCHAR(128) unique;
+ADD COLUMN IF NOT EXISTS geom GEOMETRY(Point, 26910),
+ADD COLUMN IF NOT EXISTS name VARCHAR(128) unique;
 CREATE INDEX IF NOT EXISTS dummy_gix
   ON dummy
   USING GIST (geom);

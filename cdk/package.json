@@ -11,8 +11,9 @@
     "cdk": "cdk"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.97",
     "@types/jest": "^26.0.10",
-    "@types/node": "10.17.27",
+    "@types/node": "^10.17.27",
     "aws-cdk": "2.21.1",
     "esbuild": "^0.14.39",
     "jest": "^26.4.2",
@@ -23,8 +24,10 @@
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.92.0",
     "@databases/pg": "^5.4.1",
+    "@aws-cdk/aws-lambda": "^1.156.1",
     "aws-cdk-lib": "2.21.1",
     "constructs": "^10.0.0",
+    "csv-parser": "^3.0.0",
     "source-map-support": "^0.5.16"
   }
 }
