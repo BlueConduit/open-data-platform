@@ -13,8 +13,6 @@ import MapLegend from '@/components/MapLegend.vue';
 import MapPopupContent from '@/components/MapPopupContent.vue';
 import {createApp, defineComponent, nextTick, PropType} from 'vue'
 
-// const DEFAULT_LATITUDE = 39.8097343;
-// const DEFAULT_LONGITUDE = -98.5556199;
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
 const OPEN_DATA_PLATFORM_API_URL = 'https://v2rz6wzmb7.execute-api.us-east-2.amazonaws.com/default';
@@ -59,7 +57,7 @@ export default defineComponent({
     return {
       map: {} as mapboxgl.Map,
       legendTitle: '',
-      bucketMap: new Map(),
+      bucketMap: new Map<string, string>(),
     }
   },
   props: {
@@ -67,6 +65,9 @@ export default defineComponent({
      * Where to load the initial map. Defaults to center of continental US.
      */
     center: {
+      // There is no constructor function for a Tuple, so use object here and
+      // cast to PropType of a tuple.
+      // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
       type: Object as PropType<[number, number]>,
       default: DEFAULT_LNG_LAT,
     }
@@ -79,9 +80,8 @@ export default defineComponent({
      * popup.
      */
     createMapPopup(lngLat: LngLatLike, popupData: Record<string, any>): void {
-      //TODO make sure omitting maxheight doesn't mess up ui
       new mapbox.Popup(
-          {className: 'mapbox-popup', maxWidth: '258'})
+          {className: 'mapbox-popup'})
           .setLngLat(lngLat)
           .setHTML(POPUP_CONTENT_BASE_HTML) // Add basic div to mount to.
           .addTo(this.map);
@@ -99,22 +99,23 @@ export default defineComponent({
     /**
      * Sets up interaction handlers for map.
      */
-    setUpInteractionHandlers() {
+    setUpInteractionHandlers(): void {
       // Use MapBox's custom click handler, which takes the style layer that we
       // want to set up a handler for as a parameter.
-      this.map.on('click', 'epa-violations-population-style', async (e: MapLayerMouseEvent) => {
-        if (e.features != undefined) {
-          const clickedFeatureProperties: { [name: string]: any; }
-              = e.features[0].properties as {};
+      this.map.on('click', 'epa-violations-population-style',
+          async (e: MapLayerMouseEvent) => {
+            if (e.features != undefined) {
+              const clickedFeatureProperties: { [name: string]: any; }
+                  = e.features[0].properties as {};
 
-          this.createMapPopup(
-              e.lngLat,
-              /* popupData= */
-              {
-                properties: new Map(Object.entries(clickedFeatureProperties)),
-              });
-        }
-      });
+              this.createMapPopup(
+                  e.lngLat,
+                  /* popupData= */
+                  {
+                    properties: new Map(Object.entries(clickedFeatureProperties)),
+                  });
+            }
+          });
     },
 
     /**
@@ -123,7 +124,7 @@ export default defineComponent({
      *
      * @param leadRuleViolationData initial data to display.
      */
-    async createMap(leadRuleViolationData: string) {
+    async createMap(leadRuleViolationData: string): Promise<void> {
       try {
         this.map = new mapbox.Map({
           // Removes watermark by Mapbox.
@@ -135,11 +136,11 @@ export default defineComponent({
         });
 
         this.map.on('load', () => {
-          const temporaryGeoJSONSource: GeoJSONSourceRaw = {
+          const geoJSONSource: GeoJSONSourceRaw = {
             type: 'geojson',
             data: leadRuleViolationData
           };
-          this.map.addSource('epa-violations', temporaryGeoJSONSource);
+          this.map.addSource('epa-violations', geoJSONSource);
 
           // Add style layer for water system boundary data. Without this layer
           // water boundary data will not appear.
@@ -169,7 +170,7 @@ export default defineComponent({
                 750000,
                 POPULATION_COLOR_MAP[750000],
                 1000000,
-                POPULATION_COLOR_MAP[0],
+                POPULATION_COLOR_MAP[1000000],
                 2000000,
                 POPULATION_COLOR_MAP[2000000],
               ],

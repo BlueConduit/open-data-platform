@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, PropType} from 'vue';
 
 /**
  * Map legend component.
@@ -32,7 +32,10 @@ export default defineComponent({
       required: true
     },
     bucketMap: {
-      type: Map,
+      // There is no constructor function for a Map of declared type, so use
+      // object here and cast to PropType of a Map<string, string>.
+      // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
+      type: Map as PropType<Map<string, string>>,
       required: true,
     }
   },
@@ -54,8 +57,7 @@ export default defineComponent({
      */
     createLegend(): void {
       this.displayedBucketsMap.clear();
-      const buckets: string[][] =
-          Array.from(this.bucketMap.entries()) as string[][];
+      const buckets: string[][] = Array.from(this.bucketMap.entries());
 
       buckets.forEach((bucket: string[], index: number) => {
         const bucketLabel = this.bucketLabel(bucket, index, buckets);
