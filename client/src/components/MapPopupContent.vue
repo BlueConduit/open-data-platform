@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, PropType} from 'vue';
 
 const FEATURE_PROPERTY_LABELS_KEYS_MAP = new Map<string, string>(
     [['Lead & Copper Rule Violations', 'Lead and Copper Rule'],]);
@@ -45,7 +45,10 @@ export default defineComponent({
       default: 'Lead & Copper Rule Violations',
     },
     properties: {
-      type: Map,
+      // There is no constructor function for a Map of declared type, so use
+      // object here and cast to PropType of a Map<string, string>.
+      // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
+      type: Map as PropType<Map<string, string>>,
       required: true,
     }
   },
@@ -56,7 +59,7 @@ export default defineComponent({
      * Populates displayedProperties map with label and corresponding value read
      * from properties.
      */
-    updateDisplayedProperties() {
+    updateDisplayedProperties(): void {
       this.displayedProperties.clear();
       const featurePropertiesToDisplay =
           Array.from(FEATURE_PROPERTY_LABELS_KEYS_MAP.entries());
