@@ -1,5 +1,5 @@
 // Defines the s3 Bucket to host static assets, the distribution which
-// points to that bucket, and deploys Vue app to the bucket.
+// points to that bucket, and deploys frontend assets to the bucket.
 //
 // Based on https://github.com/BlueConduit/patina/blob/main/cdk/lib/patina-stack.ts,
 // which gets bucket and distribution references from
@@ -17,19 +17,19 @@ import {CommonProps} from '../../util';
 export class FrontendStack extends Stack {
 
   readonly distribution: cloudfront.Distribution;
-  readonly vueAssetsBucket: s3.Bucket;
+  readonly frontendAssetsBucket: s3.Bucket;
 
   constructor(scope: Construct, id: string, props: CommonProps) {
     super(scope, id, props);
 
     // Create s3 bucket to host static assets.
-    this.vueAssetsBucket = new s3.Bucket(this, "VueAssets");
+    this.frontendAssetsBucket = new s3.Bucket(this, "FrontendAssets");
 
-    // Create CloudFront Distribution that points to vueAssetsBucket.
+    // Create CloudFront Distribution that points to frontendAssetsBucket.
     this.distribution = new cloudfront.Distribution(this, "Distribution", {
       domainNames: undefined, // TODO: Add alternate domain name.
       defaultBehavior: {
-        origin: new origins.S3Origin(this.vueAssetsBucket),
+        origin: new origins.S3Origin(this.frontendAssetsBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.ALLOW_ALL,
         responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS
       },
@@ -38,10 +38,10 @@ export class FrontendStack extends Stack {
       enableLogging: true
     });
 
-    // Deploy Vue assets at client/dist to vueAssetsBucket.
+    // Deploy frontend assets at client/dist to frontendAssetsBucket.
     new s3deploy.BucketDeployment(this, "StaticAssetsDeployment", {
       sources: [s3deploy.Source.asset("../client/dist")],
-      destinationBucket: this.vueAssetsBucket,
+      destinationBucket: this.frontendAssetsBucket,
       distribution: this.distribution,
       distributionPaths: ["/*"]
     });
