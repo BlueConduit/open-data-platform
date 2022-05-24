@@ -33,7 +33,7 @@ export default defineComponent({
     },
     bucketMap: {
       // There is no constructor function for a Map of declared type, so use
-      // object here and cast to PropType of a Map<string, string>.
+      // generic Map here and cast to PropType of a Map<string, string>.
       // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
       type: Map as PropType<Map<string, string>>,
       required: true,
@@ -59,7 +59,7 @@ export default defineComponent({
       this.displayedBucketsMap.clear();
       const buckets: string[][] = Array.from(this.bucketMap.entries());
 
-      buckets.forEach((bucket: string[], index: number) => {
+      buckets.forEach((bucket: string[], index: number): void => {
         const bucketLabel = this.bucketLabel(bucket, index, buckets);
         this.displayedBucketsMap.set(bucketLabel, bucket[1]);
       });
