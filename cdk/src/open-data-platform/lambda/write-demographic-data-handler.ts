@@ -123,7 +123,6 @@ function parseS3IntoDemographicsTableRow(
             (dataRow) => {
               // Pause to allow for processing.
               fileStream.pause();
-              // Only process 10 rows for now.
               if (count < numberRowsToWrite) {
                 const row =
                     new DemographicsTableRowBuilder()
