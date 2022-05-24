@@ -91,7 +91,7 @@ export default defineComponent({
       const MapPopup = defineComponent({
         extends: MapPopupContent,
       })
-      nextTick(() => {
+      nextTick((): void => {
         createApp(MapPopup, popupData).mount(`#${POPUP_CONTENT_BASE_ID}`)
       });
     },
@@ -103,7 +103,7 @@ export default defineComponent({
       // Use MapBox's custom click handler, which takes the style layer that we
       // want to set up a handler for as a parameter.
       this.map.on('click', 'epa-violations-population-style',
-          async (e: MapLayerMouseEvent) => {
+          async (e: MapLayerMouseEvent): Promise<void> => {
             if (e.features != undefined) {
               const clickedFeatureProperties: { [name: string]: any; }
                   = e.features[0].properties as {};
@@ -135,7 +135,7 @@ export default defineComponent({
           zoom: 4,
         });
 
-        this.map.on('load', () => {
+        this.map.on('load', (): void => {
           const geoJSONSource: GeoJSONSourceRaw = {
             type: 'geojson',
             data: leadRuleViolationData
