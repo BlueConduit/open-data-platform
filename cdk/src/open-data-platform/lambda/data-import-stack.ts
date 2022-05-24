@@ -31,7 +31,7 @@ export class DataImportStack extends Construct {
         timeout: Duration.minutes(5),
         bundling: {
           externalModules: ['aws-sdk'],
-          nodeModules: ['csv-parser'],
+          nodeModules: ['csv-parser', '@databases/pg', '@databases/pg-bulk'],
         },
       });
 

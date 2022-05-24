@@ -22,9 +22,9 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
+    "@aws-cdk/aws-lambda": "^1.156.1",
     "@aws-sdk/client-secrets-manager": "^3.92.0",
     "@databases/pg": "^5.4.1",
-    "@aws-cdk/aws-lambda": "^1.156.1",
     "aws-cdk-lib": "2.21.1",
     "constructs": "^10.0.0",
     "csv-parser": "^3.0.0",

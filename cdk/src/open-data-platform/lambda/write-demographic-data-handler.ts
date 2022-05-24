@@ -1,158 +1,224 @@
 // asset-input/src/open-data-platform/lambda/write-demographic-data-handler.js
+import {SecretsManager} from '@aws-sdk/client-secrets-manager';
+import createConnectionPool, {ConnectionPool, ConnectionPoolConfig, Queryable, sql} from '@databases/pg';
+import {bulkInsert, BulkOperationOptions} from '@databases/pg-bulk';
 import {APIGatewayEvent} from 'aws-lambda';
 
 const AWS = require('aws-sdk');
 const parse = require('csv-parser');
 const S3 = new AWS.S3();
-const rdsDataService = new AWS.RDSDataService();
+const secretsmanager = new SecretsManager({})
 
 const GEO_ID = 'GEOID';
 const RACE_TOTAL = 'RaceTotal';
 const WHITE_POPULATION = 'Estimate!!Total:!!White alone';
 const BLACK_POPULATION = 'Estimate!!Total:!!Black or African American alone';
 
-// Prepared SQL statements.
-const DELETE_DEMOGRAPHICS_TABLE =
-    'DELETE FROM demographics WHERE census_geo_id IS NOT NULL';
+// Establishes connection with DB with the given ARN.
+function connectToDb(secretArn: string): Promise<ConnectionPool> {
+  return new Promise(async function(resolve, reject) {
+    try {
+      console.log('Fetching db credentials...');
+      const secretInfo =
+          await secretsmanager.getSecretValue({SecretId: secretArn});
+      const {host, port, username, password} =
+          JSON.parse(secretInfo.SecretString!);
+
+      const config: ConnectionPoolConfig = {
+        host: host,
+        port: port,
+        user: username,
+        password: password,
+      };
+
+      console.log('Connecting to database...');
+      let connectionsCount = 0;
+
+      let pool = createConnectionPool({
+        ...config,
+        onError: (err: Error) => {
+            console.log(`${new Date().toISOString()} ERROR - ${err.message}`)},
+        onConnectionOpened: () => {
+          console.log(
+              `Opened connection. Active connections = ${++connectionsCount}`,
+          );
+        },
+        onConnectionClosed: () => {
+          console.log(
+              `Closed connection. Active connections = ${--connectionsCount}`,
+          );
+        },
+        onQueryStart: (_query, {text, values}) => {
+          console.log(
+              `${new Date().toISOString()} START QUERY ${text} - ${
+                  JSON.stringify(
+                      values,
+                      )}`,
+          );
+        },
+        onQueryResults: (_query, {text}, results) => {
+          console.log(
+              `${new Date().toISOString()} END QUERY   ${text} - ${
+                  results.length} results`,
+          );
+        },
+        onQueryError: (_query, {text}, err) => {
+          console.log(
+              `${new Date().toISOString()} ERROR QUERY ${text} - ${
+                  err.message}`,
+          );
+        },
+      });
+      console.log('Finished connecting to database...');
+      resolve(pool);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+// Inserts all rows into the demographics table.
+async function insertRows(
+    db: Queryable, rows: DemographicsTableRow[]): Promise<any[]> {
+  const rowOptions:
+      BulkOperationOptions<'census_geo_id'|'total_population'|
+                           'black_percentage'|'white_percentage'> = {
+        database: db,
+        tableName: `demographics`,
+        columnTypes: {
+          census_geo_id: sql`VARCHAR`,
+          total_population: sql`REAL`,
+          black_percentage: sql`REAL`,
+          white_percentage: sql`REAL`,
+        },
+      };
+
+  return Promise.all([bulkInsert({
+    ...rowOptions,
+    columnsToInsert: [
+      `census_geo_id`, `total_population`, `black_percentage`,
+      `white_percentage`
+    ],
+    records: rows,
+  })]);
+}
+
+// Inserts all rows into the demographics table.
+async function deleteRows(db: Queryable): Promise<any[]> {
+  return db.query(sql`DELETE
+          FROM demographics
+          WHERE census_geo_id IS NOT NULL`);
+}
 
 // Reads the S3 CSV file and returns [DemographicsTableRow]s.
-const parseS3IntoDemographicsTableRow =
-    (s3Params: Object, numberRowsToWrite = 10): Promise<Array<DemographicsTableRow>> => {
-      const results: DemographicsTableRow[] = [];
-      return new Promise(function (resolve, reject) {
-        let count = 0;
-        const fileStream = S3.getObject(s3Params).createReadStream();
-        fileStream.pipe(parse())
-            .on('data',
-                (chunk) => {
-                  // Pause to allow for processing.
-                  fileStream.pause();
-                  // Only process 10 rows for now.
-                  if (count < numberRowsToWrite) {
-                    const row =
-                        new DemographicsTableRowBuilder()
-                            .censusGeoId(chunk[GEO_ID])
-                            .totalPopulation(parseInt(chunk[RACE_TOTAL]))
-                            .blackPopulation(parseInt(chunk[BLACK_POPULATION]))
-                            .whitePopulation(parseInt(chunk[WHITE_POPULATION]))
-                            .build();
-                    results.push(row);
-                  }
-                  count += 1;
-                  fileStream.resume();
-                })
-            .on('error',
-                (error) => {
-                  reject(error);
-                })
-            .on('end', () => {
-              console.log('Parsed ' + results.length + ' rows.');
-              resolve(results);
-            });
-      });
-    }
-
-// Executes SQL statement argument against the MainCluster db.
-const executeSqlStatement = async (secretArn: string, resourceArn: string,
-                                   statement: string,
-                                   db: string = 'postgres'): Promise<Object> => {
-  return new Promise(async function (resolve, reject) {
-    const sqlParams = {
-      secretArn: secretArn,
-      resourceArn: resourceArn,
-      sql: statement,
-      database: db,
-      includeResultMetadata: true
-    };
-
-    await rdsDataService.executeStatement(sqlParams,
-        function (err: Error, data: Object) {
-          if (err) {
-            console.log(err);
-            reject(err);
-          } else {
-            console.log('Data is: ' + JSON.stringify(data));
-            resolve(data);
-          }
+function parseS3IntoDemographicsTableRow(
+    s3Params: Object,
+    numberRowsToWrite = 10): Promise<Array<DemographicsTableRow>> {
+  const results: DemographicsTableRow[] = [];
+  return new Promise(function(resolve, reject) {
+    let count = 0;
+    const fileStream = S3.getObject(s3Params).createReadStream();
+    fileStream.pipe(parse())
+        .on('data',
+            (dataRow) => {
+              // Pause to allow for processing.
+              fileStream.pause();
+              // Only process 10 rows for now.
+              if (count < numberRowsToWrite) {
+                const row =
+                    new DemographicsTableRowBuilder()
+                        .censusGeoId(dataRow[GEO_ID])
+                        .totalPopulation(parseInt(dataRow[RACE_TOTAL]))
+                        .blackPopulation(parseInt(dataRow[BLACK_POPULATION]))
+                        .whitePopulation(parseInt(dataRow[WHITE_POPULATION]))
+                        .build();
+                results.push(row);
+              }
+              count += 1;
+              fileStream.resume();
+            })
+        .on('error',
+            (error: Error) => {
+              reject(error);
+            })
+        .on('end', () => {
+          console.log('Parsed ' + results.length + ' rows.');
+          resolve(results);
         });
   });
 }
-// Formats a [DemographicsTableRow] as SQL row.
-const formatPopulationTableRowAsSql = (row: DemographicsTableRow): string => {
-  const singleValue = [
-    row.censusGeoId, row.totalPopulation, row.percentageBlackPopulation(),
-    row.percentageWhitePopulation()
-  ];
-  return '(' + singleValue.join(',') + ')';
-}
 
 /*
- * Parses S3 'alabama_acs_data.csv' file and writes rows to demographics
- * table in the MainCluster postgres db.
+ * Parses S3 'alabama_acs_data.csv' file and writes rows
+ * to demographics table in the MainCluster postgres db.
  */
-exports.handler = async (event: APIGatewayEvent): Promise<Object> => {
-  return new Promise(async function (resolve, reject) {
-    const secretArn = event['secretArn'];
-    const mainClusterArn = event['mainClusterArn'];
-    const numberRowsToWrite = event['numberRows'];
+exports.handler = async(event: APIGatewayEvent): Promise<Object> => {
+  return new Promise(async function(resolve, reject) {
+    const secretArn: string = event['secretArn'];
+    const numberRowsToWrite: number = event['numberRows'];
 
     const s3Params = {
       Bucket: 'opendataplatformapistaticdata',
       Key: 'alabama_acs_data.csv'
     };
 
+    let db: ConnectionPool|undefined;
+
     // Read CSV file and write to demographics table.
     try {
-      let rows = await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
-      const valuesForSql = rows.map(formatPopulationTableRowAsSql);
+      const rows =
+          await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
+      console.log('Found rows: ' + JSON.stringify(rows));
 
-      const insertRowsIntoDemographicsTableStatement =
-          'INSERT INTO demographics  \n' +
-          '(census_geo_id, total_population, black_percentage, white_percentage) \n' +
-          'VALUES \n' + valuesForSql.join(', ') + '; \n';
+      db = await connectToDb(secretArn);
 
-      console.log(
-          'Running statement: ' +
-          insertRowsIntoDemographicsTableStatement);
-
-      // Note: pass in DELETE_DEMOGRAPHICS_TABLE to drop rows first.
-      let data = await executeSqlStatement(
-          secretArn, mainClusterArn,
-          insertRowsIntoDemographicsTableStatement, 'postgres');
-
+      // Remove existing rows before inserting new ones.
+      await deleteRows(db);
+      const data = await insertRows(db, rows);
       resolve({statusCode: 200, body: JSON.stringify(data)});
 
     } catch (error) {
-      console.log('Error:' + error);
+      console.log('Error:' + JSON.stringify(error));
       reject({statusCode: 500, body: JSON.stringify(error.message)});
+
+    } finally {
+      console.log('Disconnecting from db...');
+      await db?.dispose();
     }
   });
 };
 
 // Single row for demographics table.
 class DemographicsTableRow {
-  censusGeoId: string;
-  totalPopulation: number;
-  blackPopulation: number;
-  whitePopulation: number;
+  // Field formatting conforms to rows in the db. Requires less tranformations.
+  census_geo_id: string;
+  total_population: number;
+  black_population: number;
+  white_population: number;
 
   constructor(
       censusGeoId: string, totalPopulation: number, blackPopulation: number,
       whitePopulation: number) {
-    this.censusGeoId = censusGeoId;
-    this.totalPopulation = totalPopulation;
-    this.blackPopulation = blackPopulation;
-    this.whitePopulation = whitePopulation;
+    this.census_geo_id = censusGeoId;
+    this.total_population = totalPopulation;
+    this.black_population = blackPopulation;
+    this.white_population = whitePopulation;
   }
 
   // Returns black population : total population.
-  percentageBlackPopulation(): number {
-    return this.blackPopulation / this.totalPopulation;
+  get black_percentage(): number {
+    if (this.total_population == 0 || this.black_population == 0) {
+      return 0;
+    }
+    return this.black_population / this.total_population;
   }
 
   // Returns white population : total population.
-  percentageWhitePopulation(): number {
-    return this.whitePopulation / this.totalPopulation;
+  get white_percentage(): number {
+    if (this.total_population == 0 || this.white_population == 0) {
+      return 0;
+    }
+    return this.white_population / this.total_population;
   }
 }
 
@@ -165,22 +231,22 @@ class DemographicsTableRowBuilder {
   }
 
   censusGeoId(censusGeoId: string): DemographicsTableRowBuilder {
-    this._row.censusGeoId = censusGeoId;
+    this._row.census_geo_id = censusGeoId;
     return this;
   }
 
   totalPopulation(totalPopulation: number): DemographicsTableRowBuilder {
-    this._row.totalPopulation = totalPopulation;
+    this._row.total_population = totalPopulation;
     return this;
   }
 
   blackPopulation(blackPopulation: number): DemographicsTableRowBuilder {
-    this._row.blackPopulation = blackPopulation;
+    this._row.black_population = blackPopulation;
     return this;
   }
 
   whitePopulation(whitePopulation: number): DemographicsTableRowBuilder {
-    this._row.whitePopulation = whitePopulation;
+    this._row.white_population = whitePopulation;
     return this;
   }
 
