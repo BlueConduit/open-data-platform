@@ -14,7 +14,9 @@ const RACE_TOTAL = 'RaceTotal';
 const WHITE_POPULATION = 'Estimate!!Total:!!White alone';
 const BLACK_POPULATION = 'Estimate!!Total:!!Black or African American alone';
 
-// Establishes connection with DB with the given ARN.
+/**
+ * Establishes connection with DB with the given ARN.
+ */
 function connectToDb(secretArn: string): Promise<ConnectionPool> {
   return new Promise(async function(resolve, reject) {
     try {
@@ -25,8 +27,8 @@ function connectToDb(secretArn: string): Promise<ConnectionPool> {
           JSON.parse(secretInfo.SecretString!);
 
       const config: ConnectionPoolConfig = {
-        host: host,
-        port: port,
+        host,
+        port,
         user: username,
         password: password,
       };
@@ -77,7 +79,9 @@ function connectToDb(secretArn: string): Promise<ConnectionPool> {
   });
 }
 
-// Inserts all rows into the demographics table.
+/**
+ * Inserts all rows into the demographics table.
+ */
 async function insertRows(
     db: Queryable, rows: DemographicsTableRow[]): Promise<any[]> {
   const rowOptions:
@@ -93,24 +97,28 @@ async function insertRows(
         },
       };
 
-  return Promise.all([bulkInsert({
+  return bulkInsert({
     ...rowOptions,
     columnsToInsert: [
       `census_geo_id`, `total_population`, `black_percentage`,
       `white_percentage`
     ],
     records: rows,
-  })]);
+  });
 }
 
-// Inserts all rows into the demographics table.
-async function deleteRows(db: Queryable): Promise<any[]> {
+/**
+ * Inserts all rows into the demographics table.
+ */
+async function deleteRows(db: Queryable): Promise<any[]>  {
   return db.query(sql`DELETE
           FROM demographics
           WHERE census_geo_id IS NOT NULL`);
 }
 
-// Reads the S3 CSV file and returns [DemographicsTableRow]s.
+/**
+ * Reads the S3 CSV file and returns [DemographicsTableRow]s.
+ */
 function parseS3IntoDemographicsTableRow(
     s3Params: Object,
     numberRowsToWrite = 10): Promise<Array<DemographicsTableRow>> {
@@ -147,7 +155,7 @@ function parseS3IntoDemographicsTableRow(
   });
 }
 
-/*
+/**
  * Parses S3 'alabama_acs_data.csv' file and writes rows
  * to demographics table in the MainCluster postgres db.
  */
@@ -177,7 +185,7 @@ exports.handler = async(event: APIGatewayEvent): Promise<Object> => {
       resolve({statusCode: 200, body: JSON.stringify(data)});
 
     } catch (error) {
-      console.log('Error:' + JSON.stringify(error));
+      console.log('Error:' + error);
       reject({statusCode: 500, body: JSON.stringify(error.message)});
 
     } finally {
@@ -187,7 +195,9 @@ exports.handler = async(event: APIGatewayEvent): Promise<Object> => {
   });
 };
 
-// Single row for demographics table.
+/**
+ * Single row for demographics table.
+ */
 class DemographicsTableRow {
   // Field formatting conforms to rows in the db. Requires less tranformations.
   census_geo_id: string;
@@ -221,7 +231,9 @@ class DemographicsTableRow {
   }
 }
 
-// Builder utility for rows of the Demographics table.
+/**
+ * Builder utility for rows of the Demographics table.
+ */
 class DemographicsTableRowBuilder {
   private readonly _row: DemographicsTableRow;
 
