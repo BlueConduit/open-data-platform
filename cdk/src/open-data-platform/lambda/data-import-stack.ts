@@ -20,7 +20,7 @@ export class DataImportStack extends Construct {
 
     const writeDemographicDataFunction =
       new lambda.NodejsFunction(this, 'write-demographic-data-handler', {
-        entry: `${path.resolve(__dirname)}/write-demographic-data-handler.ts`,
+        entry: `${path.resolve(__dirname)}/write-demographic-data.handler.ts`,
         handler: 'handler',
         vpc: vpc,
         vpcSubnets: {subnetType: ec2.SubnetType.PRIVATE_WITH_NAT},
@@ -31,7 +31,7 @@ export class DataImportStack extends Construct {
         timeout: Duration.minutes(5),
         bundling: {
           externalModules: ['aws-sdk'],
-          nodeModules: ['csv-parser'],
+          nodeModules: ['csv-parser', '@databases/pg', '@databases/pg-bulk'],
         },
       });
 

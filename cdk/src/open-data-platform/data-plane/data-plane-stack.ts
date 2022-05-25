@@ -46,11 +46,14 @@ export class DataPlaneStack extends Stack {
       },
     });
 
+    // default DB name.
+    const dbName = 'postgres';
+
     // Initialize the DB with linked SQL file.
     new Schema(this, 'RootSchema', {
       cluster: this.cluster,
       vpc,
-      db: 'postgres', // default DB name.
+      db: dbName,
       schemaFileName: 'schema.sql',
       credentialsSecret: this.cluster.secret!,
     });
@@ -58,7 +61,7 @@ export class DataPlaneStack extends Stack {
     new DataImportStack(this, 'DataImportStack', {
       cluster: this.cluster,
       vpc: vpc,
-      db: 'postgres',
+      db: dbName,
       credentialsSecret: this.cluster.secret!,
     })
   }
