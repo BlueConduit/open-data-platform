@@ -17,66 +17,57 @@ const BLACK_POPULATION = 'Estimate!!Total:!!Black or African American alone';
 /**
  * Establishes connection with DB with the given ARN.
  */
-function connectToDb(secretArn: string): Promise<ConnectionPool> {
-  return new Promise(async function(resolve, reject) {
-    try {
-      console.log('Fetching db credentials...');
-      const secretInfo =
-          await secretsmanager.getSecretValue({SecretId: secretArn});
-      const {host, port, username, password} =
-          JSON.parse(secretInfo.SecretString!);
+async function connectToDb(secretArn: string): Promise<ConnectionPool> {
+  console.log('Fetching db credentials...');
+  const secretInfo = await secretsmanager.getSecretValue({SecretId: secretArn});
+  const {host, port, username, password} = JSON.parse(secretInfo.SecretString!);
 
-      const config: ConnectionPoolConfig = {
-        host,
-        port,
-        user: username,
-        password: password,
-      };
+  const config: ConnectionPoolConfig = {
+    host,
+    port,
+    user: username,
+    password: password,
+  };
 
-      console.log('Connecting to database...');
-      let connectionsCount = 0;
+  console.log('Connecting to database...');
+  let connectionsCount = 0;
 
-      let pool = createConnectionPool({
-        ...config,
-        onError: (err: Error) => {
-            console.log(`${new Date().toISOString()} ERROR - ${err.message}`)},
-        onConnectionOpened: () => {
-          console.log(
-              `Opened connection. Active connections = ${++connectionsCount}`,
-          );
-        },
-        onConnectionClosed: () => {
-          console.log(
-              `Closed connection. Active connections = ${--connectionsCount}`,
-          );
-        },
-        onQueryStart: (_query, {text, values}) => {
-          console.log(
-              `${new Date().toISOString()} START QUERY ${text} - ${
-                  JSON.stringify(
-                      values,
-                      )}`,
-          );
-        },
-        onQueryResults: (_query, {text}, results) => {
-          console.log(
-              `${new Date().toISOString()} END QUERY   ${text} - ${
-                  results.length} results`,
-          );
-        },
-        onQueryError: (_query, {text}, err) => {
-          console.log(
-              `${new Date().toISOString()} ERROR QUERY ${text} - ${
-                  err.message}`,
-          );
-        },
-      });
-      console.log('Finished connecting to database...');
-      resolve(pool);
-    } catch (error) {
-      reject(error);
-    }
+  let pool = createConnectionPool({
+    ...config,
+    onError: (err: Error) => {
+        console.log(`${new Date().toISOString()} ERROR - ${err.message}`)},
+    onConnectionOpened: () => {
+      console.log(
+          `Opened connection. Active connections = ${++connectionsCount}`,
+      );
+    },
+    onConnectionClosed: () => {
+      console.log(
+          `Closed connection. Active connections = ${--connectionsCount}`,
+      );
+    },
+    onQueryStart: (_query, {text, values}) => {
+      console.log(
+          `${new Date().toISOString()} START QUERY ${text} - ${
+              JSON.stringify(
+                  values,
+                  )}`,
+      );
+    },
+    onQueryResults: (_query, {text}, results) => {
+      console.log(
+          `${new Date().toISOString()} END QUERY   ${text} - ${
+              results.length} results`,
+      );
+    },
+    onQueryError: (_query, {text}, err) => {
+      console.log(
+          `${new Date().toISOString()} ERROR QUERY ${text} - ${err.message}`,
+      );
+    },
   });
+  console.log('Finished connecting to database...');
+  return pool;
 }
 
 /**
@@ -110,7 +101,7 @@ async function insertRows(
 /**
  * Inserts all rows into the demographics table.
  */
-async function deleteRows(db: Queryable): Promise<any[]>  {
+async function deleteRows(db: Queryable): Promise<any[]> {
   return db.query(sql`DELETE
           FROM demographics
           WHERE census_geo_id IS NOT NULL`);
