@@ -8,7 +8,9 @@ import {Construct} from 'constructs';
 import * as path from 'path';
 
 interface SchemaProps {
-  cluster: rds.ServerlessCluster, vpc: ec2.IVpc, db: string,
+  cluster: rds.ServerlessCluster,
+  vpc: ec2.IVpc,
+  db: string,
   credentialsSecret: secretsmanager.ISecret,
 }
 
@@ -19,30 +21,27 @@ export class DataImportStack extends Construct {
     const {cluster, vpc, db, credentialsSecret} = props
 
     const writeDemographicDataFunction =
-      new lambda.NodejsFunction(this, 'write-demographic-data-handler', {
-        entry: `${path.resolve(__dirname)}/write-demographic-data.handler.ts`,
-        handler: 'handler',
-        vpc: vpc,
-        vpcSubnets: {subnetType: ec2.SubnetType.PRIVATE_WITH_NAT},
-        environment: {
-          CREDENTIALS_SECRET: credentialsSecret.secretArn,
-          DATABASE_NAME: db
-        },
-        timeout: Duration.minutes(10),
-        bundling: {
-          externalModules: ['aws-sdk'],
-          nodeModules: ['csv-parser',
-            '@databases/pg',
-            '@databases/pg-bulk',
-            '@databases/pg-typed'],
-        },
-      });
+        new lambda.NodejsFunction(this, 'write-demographic-data-handler', {
+          entry: `${path.resolve(__dirname)}/write-demographic-data.handler.ts`,
+          handler: 'handler',
+          vpc: vpc,
+          vpcSubnets: {subnetType: ec2.SubnetType.PRIVATE_WITH_NAT},
+          environment: {
+            CREDENTIALS_SECRET: credentialsSecret.secretArn,
+            DATABASE_NAME: db
+          },
+          timeout: Duration.minutes(10),
+          bundling: {
+            externalModules: ['aws-sdk'],
+            nodeModules: ['csv-parser', '@databases/pg'],
+          },
+        });
 
     credentialsSecret.grantRead(writeDemographicDataFunction)
 
     cluster.connections.allowFrom(
-      writeDemographicDataFunction,
-      ec2.Port.tcp(cluster.clusterEndpoint.port))
+        writeDemographicDataFunction,
+        ec2.Port.tcp(cluster.clusterEndpoint.port))
 
     // Allow reads to all S3 buckets in account.
     const s3GetObjectPolicy = new iam.PolicyStatement({
@@ -51,14 +50,14 @@ export class DataImportStack extends Construct {
     });
 
     writeDemographicDataFunction.role?.attachInlinePolicy(
-      new iam.Policy(this, 'get-buckets-policy', {
-        statements: [s3GetObjectPolicy],
-      }),
+        new iam.Policy(this, 'get-buckets-policy', {
+          statements: [s3GetObjectPolicy],
+        }),
     );
 
     if (writeDemographicDataFunction.role?.roleArn != undefined) {
       let role = iam.Role.fromRoleArn(
-        scope, id + '-role', writeDemographicDataFunction.role.roleArn);
+          scope, id + '-role', writeDemographicDataFunction.role.roleArn);
       cluster.grantDataApiAccess(role);
     }
   }

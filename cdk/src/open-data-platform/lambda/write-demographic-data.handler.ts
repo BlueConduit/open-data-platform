@@ -1,7 +1,6 @@
 // asset-input/src/open-data-platform/lambda/write-demographic-data-handler.js
 import {SecretsManager} from '@aws-sdk/client-secrets-manager';
 import createConnectionPool, {ConnectionPool, ConnectionPoolConfig, Queryable, sql} from '@databases/pg';
-import {bulkInsert, bulkInsertOrUpdate, BulkOperationOptions} from '@databases/pg-bulk';
 import {APIGatewayEvent} from 'aws-lambda';
 
 const AWS = require('aws-sdk');
@@ -105,14 +104,13 @@ async function insertRows(
   return db.query(sql`INSERT INTO demographics (census_geo_id, total_population,
                                                 black_percentage,
                                                 white_percentage, geom)
-                      VALUES ${sql.join(
-                              rows.map((row: DemographicsTableRow) => {
-                                  return sql`(
-                                                 ${row.census_geo_id}, ${row.total_population},
-                                                 ${row.black_percentage},
-                                                 ${row.white_percentage},
-                                                 ${geometry})`
-                              }), ',')};`);
+                      VALUES ${sql.join(rows.map((row: DemographicsTableRow) => {
+                          return sql`(
+                                         ${row.census_geo_id}, ${row.total_population},
+                                         ${row.black_percentage},
+                                         ${row.white_percentage},
+                                         ${geometry})`
+                      }), ',')};`);
 }
 
 /**
