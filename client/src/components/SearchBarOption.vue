@@ -30,6 +30,9 @@ export default defineComponent({
   width: 186px;
   height: 26px;
   border-radius: 30px;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
 }
 
 .selected {
