@@ -65,9 +65,9 @@ export class DataPlaneStack extends Stack {
       db: databaseName,
       schemaFileName: 'schema.sql',
       credentialsSecret: this.cluster.secret!,
-      // userCredentials: [this.tileserverCredentials.secret],
+      userCredentials: [this.tileserverCredentials.credentialsSecret],
     });
-    // rootSchema.node.addDependency(this.tileserverCredentials.secret);
+    rootSchema.node.addDependency(this.tileserverCredentials.credentialsSecret);
 
     new DataImportStack(this, 'DataImportStack', {
       cluster: this.cluster,
