@@ -75,32 +75,16 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
  */
 async function insertRows(
     db: Queryable, rows: DemographicsTableRow[]): Promise<any[]> {
-  const rowOptions:
-      BulkOperationOptions<'census_geo_id'|'total_population'|
-                           'black_percentage'|'white_percentage'|'geom'> = {
-        database: db,
-        tableName: `demographics`,
-        columnTypes: {
-          census_geo_id: sql`VARCHAR`,
-          total_population: sql`REAL`,
-          black_percentage: sql`REAL`,
-          white_percentage: sql`REAL`,
-          geom: sql`POLYGON`
-        },
-      };
+  const geom = `ST_GeometryFromText('POLYGON((-122.76199734299996 47.34350314200003, -122.76248119999997 47.342854930000044, -122.76257080699997 47.34285604200005, -122.76259517499994 47.34266843300003, -122.76260856299996 47.34256536000004, -122.76286629299995 47.34250175600005, -122.76295867599998 47.34242223000007, -122.76328431199994 47.34202772300006, -122.763359015 47.34188063000005, -122.76359184199998 47.34185498100004, -122.76392923599997 47.34181781500007, -122.76392897999995 47.34183731100006, -122.76390878299998 47.341839519000075, -122.76390520999996 47.34211214900006, -122.76390440899996 47.342173262000074, -122.763924584 47.34217272700005, -122.763921139 47.342407894000075, -122.76391819399998 47.342471904000035, -122.76390565499997 47.34257032900007, -122.76390536899999 47.342571914000075, -122.76388240099999 47.34267173100005, -122.76388191899997 47.34267343500005, -122.76386218299996 47.34273572600006, -122.76383851199995 47.34279737900005, -122.76383805499995 47.34279846700008, -122.76380443699998 47.34287143500006, -122.76376811299997 47.34293827000005, -122.763727072 47.343003846000045, -122.76372118599994 47.34301258000005, -122.763375968 47.34352033700003, -122.76328781999996 47.343519239000045, -122.76310988499995 47.343517020000036, -122.76199734299996 47.34350314200003))')`;
 
-  const columns = [
-    `census_geo_id`, `total_population`, `black_percentage`, `white_percentage`,
-    `geom`
-  ];
+  console.log(geom);
+  const census_geo_id = rows[0].census_geo_id;
+  const total_population = rows[0].total_population;
+  const black_percentage = rows[0].black_percentage;
+  const white_percentage = rows[0].white_percentage;
 
-  return db.query(sql``);
-
-  return bulkInsert({
-    ...rowOptions,
-    columnsToInsert: columns,
-    records: rows,
-  });
+  return db.query(sql`INSERT INTO demographics (census_geo_id, total_population, black_percentage, white_percentage) 
+  VALUES (${census_geo_id}, ${total_population}, ${black_percentage}, ${white_percentage});`);
 }
 
 /**

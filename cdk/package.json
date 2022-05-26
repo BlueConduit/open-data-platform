@@ -26,6 +26,7 @@
     "@aws-sdk/client-secrets-manager": "^3.92.0",
     "@databases/pg": "^5.4.1",
     "@databases/pg-bulk": "^1.2.0",
+    "@databases/pg-typed": "^4.3.0",
     "aws-cdk-lib": "2.21.1",
     "constructs": "^10.0.0",
     "csv-parser": "^3.0.0",

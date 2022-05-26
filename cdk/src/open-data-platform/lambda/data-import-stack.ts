@@ -28,10 +28,13 @@ export class DataImportStack extends Construct {
           CREDENTIALS_SECRET: credentialsSecret.secretArn,
           DATABASE_NAME: db
         },
-        timeout: Duration.minutes(5),
+        timeout: Duration.minutes(10),
         bundling: {
           externalModules: ['aws-sdk'],
-          nodeModules: ['csv-parser', '@databases/pg', '@databases/pg-bulk'],
+          nodeModules: ['csv-parser',
+            '@databases/pg',
+            '@databases/pg-bulk',
+            '@databases/pg-typed'],
         },
       });
 
