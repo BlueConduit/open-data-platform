@@ -9,7 +9,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { ResourceInitializer } from '../../resource-initializer';
+import { ResourceInitializer } from '../../../resource-initializer';
 
 interface SchemaProps {
   cluster: rds.ServerlessCluster;
@@ -32,6 +32,7 @@ export class Schema extends Construct {
     const { cluster, vpc, db, schemaFileName, credentialsSecret, userCredentials } = props;
 
     const initSchemaFunction = new NodejsFunction(this, handlerId, {
+      description: `Updates the DB schema for the "${db}" database in "${cluster.clusterIdentifier}".`,
       vpc: vpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
