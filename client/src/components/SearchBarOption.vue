@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: "SearchBarOption",
@@ -27,12 +27,13 @@ export default defineComponent({
 
 <style scoped>
 .selected, .unselected {
-  width: 186px;
-  height: 26px;
   border-radius: 30px;
-  padding: 0 30px;
+  padding: 5px 10px;
+
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-left: 15px;
 }
 
 .selected {
