@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import MapContainer from './components/MapContainer.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import MapContentContainer from './components/MapContentContainer.vue';
 
 /** Defines all routes for the app **/
 export default createRouter({
@@ -7,15 +7,15 @@ export default createRouter({
   routes: [
     {
       path: '/',
-      component: MapContainer,
+      component: MapContentContainer,
     },
     {
       path: '/learn-more',
-      component: MapContainer,
+      component: MapContentContainer,
     },
     {
       path: '/contact',
-      component: MapContainer,
-    }
+      component: MapContentContainer,
+    },
   ]
 })
