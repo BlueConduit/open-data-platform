@@ -12,6 +12,13 @@ CREATE TABLE IF NOT EXISTS demographics(
     PRIMARY KEY(census_geo_id)
 );
 
+ALTER TABLE demographics
+    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Polygon);
+
+CREATE INDEX IF NOT EXISTS geom_index
+    ON demographics
+    USING GIST (geom);
+
 -------------------
 -- EXAMPLE BELOW --
 -------------------

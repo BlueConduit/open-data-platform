@@ -15,9 +15,14 @@ import {createApp, defineComponent, nextTick, PropType} from 'vue'
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
+<<<<<<< Updated upstream
 const OPEN_DATA_PLATFORM_API_URL = 'https://v2rz6wzmb7.execute-api.us-east-2.amazonaws.com/default';
 const POPUP_CONTENT_BASE_ID = 'popup-content';
 const POPUP_CONTENT_BASE_HTML = `<div id="${POPUP_CONTENT_BASE_ID}"></div>`;
+=======
+// TODO(kaila): Fetch this via API instead
+const PRESIGNED_URL = "https://opendataplatformapistaticdata.s3.us-east-2.amazonaws.com/cleaned_boundary_files_2022-03-18.geojson?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQRHKTFEHMSNFQNNZ%2F20220512%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20220512T175201Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEHIaCXVzLWVhc3QtMiJIMEYCIQD61DJxCnTdtg7YMbgq3inxdfnL0plalD1FbPNMhMyDuQIhANQqRDzy5wdpnDSY25jE87GfSvOLmAfYQV7l4Iu1uMUTKpkCCEsQABoMMDM2OTk5MjExMjc4IgzdiXvEac2ePqNHd8oq9gHQXioOPX0J2EdnkuMZOByu4YSlzjfNQAGSoT1JK92kx4LOcCYoiqUSCifbX5Bq%2F1c6mm3X2rDNjeKr%2FtvEz67IcFy%2Fho4WwnGBe3%2BzKltbhMwOKComYZO6fvsGFopoX2O2iJIBVQfeUWEW7ilRgzvF08BOX5C3ZO11avRDBn8do69GUUXJ%2FC9oG9dw4n1uYlcXui3j%2BG4XwmBgoBDYYVOd68t2EuzpxmFYPBBZ5dyIoo%2BGt0ThWtYFuRwQ6W%2F%2FkclMMaQPxNCTFqV%2B1UcCAfGEfueWdUevDZdUq9bR4JVkenMJ8DbeHvvd1q4qRjm1mZqNhkI6WJMwwJL1kwY6mQGzU%2BMF7yY05U3hrshKNPKq%2FsGUfuyXobmBlsN8NP7GqgPxZT41fB%2Fm6KP2uyDRCPUCZqyq8ySUvS%2BwQ8PjHkWsk7Z4r5fVn1cHmJwxd3raiqG61S%2FUYLWbZhy%2BN6O1XnKrCKFvLW0WgwJbSZbJWivQ6Nw9IFb7ZSbKALDW%2FApLdUUSczPynDCwDuZ1QqUx2yEa%2Fx8RR9PG7oA%3D&X-Amz-Signature=3c913cd3e86ac526d098e93d4bd19697ee25f8ef0d567818b077ffa3313e4808&X-Amz-SignedHeaders=host"
+>>>>>>> Stashed changes
 
 // TODO(kaila): figure out useful buckets.
 const POPULATION_COLOR_MAP =

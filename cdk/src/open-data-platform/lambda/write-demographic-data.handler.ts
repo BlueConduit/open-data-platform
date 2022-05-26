@@ -1,7 +1,7 @@
 // asset-input/src/open-data-platform/lambda/write-demographic-data-handler.js
 import {SecretsManager} from '@aws-sdk/client-secrets-manager';
 import createConnectionPool, {ConnectionPool, ConnectionPoolConfig, Queryable, sql} from '@databases/pg';
-import {bulkInsert, BulkOperationOptions} from '@databases/pg-bulk';
+import {bulkInsert, bulkInsertOrUpdate, BulkOperationOptions} from '@databases/pg-bulk';
 import {APIGatewayEvent} from 'aws-lambda';
 
 const AWS = require('aws-sdk');
@@ -77,7 +77,7 @@ async function insertRows(
     db: Queryable, rows: DemographicsTableRow[]): Promise<any[]> {
   const rowOptions:
       BulkOperationOptions<'census_geo_id'|'total_population'|
-                           'black_percentage'|'white_percentage'> = {
+                           'black_percentage'|'white_percentage'|'geom'> = {
         database: db,
         tableName: `demographics`,
         columnTypes: {
@@ -85,15 +85,20 @@ async function insertRows(
           total_population: sql`REAL`,
           black_percentage: sql`REAL`,
           white_percentage: sql`REAL`,
+          geom: sql`POLYGON`
         },
       };
 
+  const columns = [
+    `census_geo_id`, `total_population`, `black_percentage`, `white_percentage`,
+    `geom`
+  ];
+
+  return db.query(sql``);
+
   return bulkInsert({
     ...rowOptions,
-    columnsToInsert: [
-      `census_geo_id`, `total_population`, `black_percentage`,
-      `white_percentage`
-    ],
+    columnsToInsert: columns,
     records: rows,
   });
 }
@@ -190,19 +195,21 @@ exports.handler = async(event: APIGatewayEvent): Promise<Object> => {
  * Single row for demographics table.
  */
 class DemographicsTableRow {
-  // Field formatting conforms to rows in the db. Requires less tranformations.
+  // Field formatting conforms to rows in the db. Requires less transformations.
   census_geo_id: string;
   total_population: number;
   black_population: number;
   white_population: number;
+  geom: string;
 
   constructor(
       censusGeoId: string, totalPopulation: number, blackPopulation: number,
-      whitePopulation: number) {
+      whitePopulation: number, geom: string) {
     this.census_geo_id = censusGeoId;
     this.total_population = totalPopulation;
     this.black_population = blackPopulation;
     this.white_population = whitePopulation;
+    this.geom = geom;
   }
 
   // Returns black population : total population.
@@ -229,7 +236,7 @@ class DemographicsTableRowBuilder {
   private readonly _row: DemographicsTableRow;
 
   constructor() {
-    this._row = new DemographicsTableRow('', 0, 0, 0);
+    this._row = new DemographicsTableRow('', 0, 0, 0, '');
   }
 
   censusGeoId(censusGeoId: string): DemographicsTableRowBuilder {
