@@ -5,9 +5,9 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
-import MapView from './MapView.vue'
-import SearchBar from './SearchBar.vue'
+import { defineComponent } from 'vue';
+import MapView from './MapView.vue';
+import SearchBar from './SearchBar.vue';
 
 /**
  * Wrapper for national map dashboard.
