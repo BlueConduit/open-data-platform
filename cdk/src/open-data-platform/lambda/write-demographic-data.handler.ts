@@ -35,7 +35,8 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
   let pool = createConnectionPool({
     ...config,
     onError: (err: Error) => {
-        console.log(`${new Date().toISOString()} ERROR - ${err.message}`)},
+      console.log(`${new Date().toISOString()} ERROR - ${err.message}`)
+    },
     onConnectionOpened: () => {
       console.log(
           `Opened connection. Active connections = ${++connectionsCount}`,
@@ -51,7 +52,7 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
           `${new Date().toISOString()} START QUERY ${text} - ${
               JSON.stringify(
                   values,
-                  )}`,
+              )}`,
       );
     },
     onQueryResults: (_query, {text}, results) => {
@@ -75,19 +76,43 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
  */
 async function insertRows(
     db: Queryable, rows: DemographicsTableRow[]): Promise<any[]> {
-  const census_geo_id = rows[0].census_geo_id;
-  const total_population = rows[0].total_population;
-  const black_percentage = rows[0].black_percentage;
-  const white_percentage = rows[0].white_percentage;
+  // TODO(breuch): Replace with geom from new file.
+  const geometry = sql.__dangerous__rawValue(
+      'ST_GeometryFromText(\'POLYGON((-122.76199734299996 ' +
+      '47.34350314200003, -122.76248119999997 47.342854930000044, ' +
+      '-122.76257080699997 47.34285604200005, -122.76259517499994 ' +
+      '47.34266843300003, -122.76260856299996 47.34256536000004, ' +
+      '-122.76286629299995 47.34250175600005, -122.76295867599998 ' +
+      '47.34242223000007, -122.76328431199994 47.34202772300006, ' +
+      '-122.763359015 47.34188063000005, -122.76359184199998 ' +
+      '47.34185498100004, -122.76392923599997 47.34181781500007, ' +
+      '-122.76392897999995 47.34183731100006, -122.76390878299998 ' +
+      '47.341839519000075, -122.76390520999996 47.34211214900006, ' +
+      '-122.76390440899996 47.342173262000074, -122.763924584 ' +
+      '47.34217272700005, -122.763921139 47.342407894000075, ' +
+      '-122.76391819399998 47.342471904000035, -122.76390565499997 ' +
+      '47.34257032900007, -122.76390536899999 47.342571914000075, ' +
+      '-122.76388240099999 47.34267173100005, -122.76388191899997 ' +
+      '47.34267343500005, -122.76386218299996 47.34273572600006, ' +
+      '-122.76383851199995 47.34279737900005, -122.76383805499995 ' +
+      '47.34279846700008, -122.76380443699998 47.34287143500006, ' +
+      '-122.76376811299997 47.34293827000005, -122.763727072 ' +
+      '47.343003846000045, -122.76372118599994 47.34301258000005, ' +
+      '-122.763375968 47.34352033700003, -122.76328781999996 ' +
+      '47.343519239000045, -122.76310988499995 47.343517020000036, ' +
+      '-122.76199734299996 47.34350314200003))\')');
 
-  const geometry = sql.__dangerous__rawValue('ST_GeometryFromText(\'POLYGON((-122.76199734299996 47.34350314200003, -122.76248119999997 47.342854930000044, -122.76257080699997 47.34285604200005, -122.76259517499994 47.34266843300003, -122.76260856299996 47.34256536000004, -122.76286629299995 47.34250175600005, -122.76295867599998 47.34242223000007, -122.76328431199994 47.34202772300006, -122.763359015 47.34188063000005, -122.76359184199998 47.34185498100004, -122.76392923599997 47.34181781500007, -122.76392897999995 47.34183731100006, -122.76390878299998 47.341839519000075, -122.76390520999996 47.34211214900006, -122.76390440899996 47.342173262000074, -122.763924584 47.34217272700005, -122.763921139 47.342407894000075, -122.76391819399998 47.342471904000035, -122.76390565499997 47.34257032900007, -122.76390536899999 47.342571914000075, -122.76388240099999 47.34267173100005, -122.76388191899997 47.34267343500005, -122.76386218299996 47.34273572600006, -122.76383851199995 47.34279737900005, -122.76383805499995 47.34279846700008, -122.76380443699998 47.34287143500006, -122.76376811299997 47.34293827000005, -122.763727072 47.343003846000045, -122.76372118599994 47.34301258000005, -122.763375968 47.34352033700003, -122.76328781999996 47.343519239000045, -122.76310988499995 47.343517020000036, -122.76199734299996 47.34350314200003))\')');
-
-  return db.query(sql`INSERT INTO demographics (census_geo_id, total_population, black_percentage, white_percentage, geom) 
-  VALUES (${census_geo_id}, 
-          ${total_population}, 
-          ${black_percentage}, 
-          ${white_percentage}, 
-          ${geometry});`);
+  return db.query(sql`INSERT INTO demographics (census_geo_id, total_population,
+                                                black_percentage,
+                                                white_percentage, geom)
+                      VALUES ${sql.join(
+                              rows.map((row: DemographicsTableRow) => {
+                                  return sql`(
+                                                 ${row.census_geo_id}, ${row.total_population},
+                                                 ${row.black_percentage},
+                                                 ${row.white_percentage},
+                                                 ${geometry})`
+                              }), ',')};`);
 }
 
 /**
@@ -95,8 +120,8 @@ async function insertRows(
  */
 async function deleteRows(db: Queryable): Promise<any[]> {
   return db.query(sql`DELETE
-          FROM demographics
-          WHERE census_geo_id IS NOT NULL`);
+                      FROM demographics
+                      WHERE census_geo_id IS NOT NULL`);
 }
 
 /**
@@ -106,7 +131,7 @@ function parseS3IntoDemographicsTableRow(
     s3Params: Object,
     numberRowsToWrite = 10): Promise<Array<DemographicsTableRow>> {
   const results: DemographicsTableRow[] = [];
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let count = 0;
     const fileStream = S3.getObject(s3Params).createReadStream();
     fileStream.pipe(parse())
@@ -142,8 +167,8 @@ function parseS3IntoDemographicsTableRow(
  * Parses S3 'alabama_acs_data.csv' file and writes rows
  * to demographics table in the MainCluster postgres db.
  */
-exports.handler = async(event: APIGatewayEvent): Promise<Object> => {
-  return new Promise(async function(resolve, reject) {
+exports.handler = async (event: APIGatewayEvent): Promise<Object> => {
+  return new Promise(async function (resolve, reject) {
     const secretArn: string = event['secretArn'];
     const numberRowsToWrite: number = event['numberRows'];
 
@@ -152,7 +177,7 @@ exports.handler = async(event: APIGatewayEvent): Promise<Object> => {
       Key: 'alabama_acs_data.csv'
     };
 
-    let db: ConnectionPool|undefined;
+    let db: ConnectionPool | undefined;
 
     // Read CSV file and write to demographics table.
     try {
