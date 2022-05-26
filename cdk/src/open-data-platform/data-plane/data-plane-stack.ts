@@ -14,6 +14,7 @@ interface DataPlaneProps extends CommonProps {
 
 export class DataPlaneStack extends Stack {
   readonly cluster: rds.ServerlessCluster;
+  readonly tileserverCredentials: DatabaseUserCredentials;
 
   constructor(scope: Construct, id: string, props: DataPlaneProps) {
     super(scope, id, props);
@@ -28,9 +29,9 @@ export class DataPlaneStack extends Stack {
     this.cluster = new rds.ServerlessCluster(this, 'MainCluster', {
       engine: rds.DatabaseClusterEngine.AURORA_POSTGRESQL,
       parameterGroup: rds.ParameterGroup.fromParameterGroupName(
-          this,
-          'ParameterGroup',
-          'default.aurora-postgresql10',
+        this,
+        'ParameterGroup',
+        'default.aurora-postgresql10',
       ),
       vpc,
       vpcSubnets: {
@@ -47,13 +48,20 @@ export class DataPlaneStack extends Stack {
     });
 
     // default DB name.
-    const dbName = 'postgres';
+    const databaseName = 'postgres';
+
+    // Credentials for the tile server to access the cluster.
+    this.tileserverCredentials = new DatabaseUserCredentials(this, 'TileserverCredentials', {
+      cluster: this.cluster,
+      username: 'tileserver',
+      databaseName,
+    });
 
     // Initialize the DB with linked SQL file.
      new Schema(this, 'RootSchema', {
       cluster: this.cluster,
       vpc,
-      db: dbName,
+      db: databaseName,
       schemaFileName: 'schema.sql',
       credentialsSecret: this.cluster.secret!,
     });
@@ -61,8 +69,8 @@ export class DataPlaneStack extends Stack {
     new DataImportStack(this, 'DataImportStack', {
       cluster: this.cluster,
       vpc: vpc,
-      db: dbName,
+      db: databaseName,
       credentialsSecret: this.cluster.secret!,
-    })
+    });
   }
 }
