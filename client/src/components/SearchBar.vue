@@ -9,7 +9,9 @@
       </search-bar-option>
     </div>
     <div class="right-align">
-      <img src="../assets/search-icon.png" class="icon"/>
+      <div class="select-wrapper">
+        <vue-select v-model="this.selectedOption" :options="this.options"/>
+      </div>
     </div>
   </div>
 </template>
@@ -17,10 +19,12 @@
 <script lang="ts">
 import {defineComponent, PropType} from 'vue';
 import SearchBarOption from './SearchBarOption.vue';
+import VueSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
 
 export default defineComponent({
   name: "SearchBar",
-  components: {SearchBarOption},
+  components: {SearchBarOption, VueSelect},
   data() {
     return {
       selectedOption: this.initialSelectedOption,
@@ -44,20 +48,28 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style>
 .container {
   display: flex;
   height: 54px;
-}
-
-.container  div {
   padding: 0 30px;
   display: flex;
   align-items: center;
 }
 
+/*.container div {*/
+/*  padding: 0 30px;*/
+/*  display: flex;*/
+/*  align-items: center;*/
+/*}*/
+
 .right-align {
   flex-grow: 1;
   justify-content: flex-end;
+}
+
+.select-wrapper {
+  display: inline-block;
+  min-width: 241px;
 }
 </style>
