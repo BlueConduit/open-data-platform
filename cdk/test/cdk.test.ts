@@ -1,9 +1,9 @@
-import {App} from 'aws-cdk-lib';
-import {Template} from 'aws-cdk-lib/assertions';
-import {DataPlaneStack} from '../src/open-data-platform/data-plane/data-plane-stack';
-import {NetworkStack} from '../src/open-data-platform/network/network-stack';
+import { App } from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import { DataPlaneStack } from '../src/open-data-platform/data-plane/data-plane-stack';
+import { NetworkStack } from '../src/open-data-platform/network/network-stack';
 import * as util from '../src/util';
-import {FrontendStack} from '../src/open-data-platform/frontend/frontend-stack';
+import { FrontendStack } from '../src/open-data-platform/frontend/frontend-stack';
 
 // Inspired by https://github.com/aws/aws-cdk/blob/master/packages/%40aws-cdk/aws-iam/test/policy.test.ts
 describe('Full stack', () => {
@@ -38,5 +38,6 @@ describe('Full stack', () => {
   });
 
   // TODO: Check that the lambda has write access to the DB.
-  test('Permissions', () => {});
+  test('Permissions', () => {
+  });
 });
