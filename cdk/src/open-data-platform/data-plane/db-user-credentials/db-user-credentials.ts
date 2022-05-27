@@ -2,6 +2,10 @@
 //
 // The credentials rotate automatically, which triggers a lambda that updates the DB URL string with
 // which users connect to the DB.
+//
+// Based on a merge of:
+//   - https://github.com/BlueConduit/tributary/blob/main/cdk/lib/data-plane/connection-string.ts
+//   - https://github.com/BlueConduit/tributary/blob/main/cdk/lib/data-plane/db-user-credentials.ts
 
 import { Construct } from 'constructs';
 import { SecretValue } from 'aws-cdk-lib';

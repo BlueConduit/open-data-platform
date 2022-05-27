@@ -1,5 +1,7 @@
 // Defines the handler for a lambda that creates a DB URL string from a credentials secret and
 // updates the DB URL secret with it.
+//
+// Based on: https://github.com/BlueConduit/tributary/blob/main/cdk/lib/data-plane/connection-string.handler.ts
 
 import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 
