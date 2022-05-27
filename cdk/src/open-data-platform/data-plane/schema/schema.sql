@@ -4,6 +4,20 @@
 -- [1] https://aws.amazon.com/about-aws/whats-new/2021/10/amazon-aurora-postgresql-supports-postgis/
 CREATE EXTENSION IF NOT EXISTS postgis;
 
+-- Function for object creates without existence safety
+
+CREATE OR REPLACE FUNCTION safe_create(command TEXT)
+    RETURNS void
+AS $$
+BEGIN
+    EXECUTE command;
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Tables
+
 CREATE TABLE IF NOT EXISTS demographics(
     census_geo_id varchar(255) NOT NULL,
     total_population real,
@@ -11,6 +25,17 @@ CREATE TABLE IF NOT EXISTS demographics(
     white_percentage real,
     PRIMARY KEY(census_geo_id)
 );
+
+-- Roles and Grants
+
+-- The "readgeo" role can read data from all tables in the default DB and schema.
+SELECT safe_create($$CREATE ROLE readgeo$$);
+GRANT CONNECT ON DATABASE postgres TO readgeo;
+GRANT USAGE ON SCHEMA public TO readgeo;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO readgeo;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO readgeo;
+
+GRANT readgeo TO tileserver;
 
 -------------------
 -- EXAMPLE BELOW --
