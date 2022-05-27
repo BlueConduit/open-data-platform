@@ -1,5 +1,7 @@
 /**
- * Class representing the current state of the app.
+ * Class representing the global state of the app.
+ *
+ * Injected into components that need to read or write app data.
  */
 import { DataLayer } from '@/model/data_layer';
 
