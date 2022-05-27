@@ -16,10 +16,10 @@ export default defineComponent({
     NavigationBar,
   },
   setup() {
-    // TODO: associate with data in map.
+    // TODO(kailamjeter): bind map data to state.
     // Create and provide state.
     const initialDataLayer = new DataLayer('Population');
-    provide(stateKey, new State(initialDataLayer, [initialDataLayer]));
+    provide(stateKey, new State([initialDataLayer]));
   },
 });
 
