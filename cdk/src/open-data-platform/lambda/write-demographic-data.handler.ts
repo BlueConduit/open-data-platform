@@ -1,12 +1,17 @@
 // asset-input/src/open-data-platform/lambda/write-demographic-data-handler.js
-import {SecretsManager} from '@aws-sdk/client-secrets-manager';
-import createConnectionPool, {ConnectionPool, ConnectionPoolConfig, Queryable, sql} from '@databases/pg';
-import {APIGatewayEvent} from 'aws-lambda';
+import { SecretsManager } from '@aws-sdk/client-secrets-manager';
+import createConnectionPool, {
+  ConnectionPool,
+  ConnectionPoolConfig,
+  Queryable,
+  sql,
+} from '@databases/pg';
+import { APIGatewayEvent } from 'aws-lambda';
 
 const AWS = require('aws-sdk');
 const parse = require('csv-parser');
 const S3 = new AWS.S3();
-const secretsmanager = new SecretsManager({})
+const secretsmanager = new SecretsManager({});
 
 const GEO_ID = 'GEOID';
 const RACE_TOTAL = 'RaceTotal';
@@ -18,8 +23,8 @@ const BLACK_POPULATION = 'Estimate!!Total:!!Black or African American alone';
  */
 async function connectToDb(secretArn: string): Promise<ConnectionPool> {
   console.log('Fetching db credentials...');
-  const secretInfo = await secretsmanager.getSecretValue({SecretId: secretArn});
-  const {host, port, username, password} = JSON.parse(secretInfo.SecretString!);
+  const secretInfo = await secretsmanager.getSecretValue({ SecretId: secretArn });
+  const { host, port, username, password } = JSON.parse(secretInfo.SecretString!);
 
   const config: ConnectionPoolConfig = {
     host,
@@ -34,36 +39,22 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
   let pool = createConnectionPool({
     ...config,
     onError: (err: Error) => {
-      console.log(`${new Date().toISOString()} ERROR - ${err.message}`)
+      console.log(`${new Date().toISOString()} ERROR - ${err.message}`);
     },
     onConnectionOpened: () => {
-      console.log(
-          `Opened connection. Active connections = ${++connectionsCount}`,
-      );
+      console.log(`Opened connection. Active connections = ${++connectionsCount}`);
     },
     onConnectionClosed: () => {
-      console.log(
-          `Closed connection. Active connections = ${--connectionsCount}`,
-      );
+      console.log(`Closed connection. Active connections = ${--connectionsCount}`);
     },
-    onQueryStart: (_query, {text, values}) => {
-      console.log(
-          `${new Date().toISOString()} START QUERY ${text} - ${
-              JSON.stringify(
-                  values,
-              )}`,
-      );
+    onQueryStart: (_query, { text, values }) => {
+      console.log(`${new Date().toISOString()} START QUERY ${text} - ${JSON.stringify(values)}`);
     },
-    onQueryResults: (_query, {text}, results) => {
-      console.log(
-          `${new Date().toISOString()} END QUERY   ${text} - ${
-              results.length} results`,
-      );
+    onQueryResults: (_query, { text }, results) => {
+      console.log(`${new Date().toISOString()} END QUERY   ${text} - ${results.length} results`);
     },
-    onQueryError: (_query, {text}, err) => {
-      console.log(
-          `${new Date().toISOString()} ERROR QUERY ${text} - ${err.message}`,
-      );
+    onQueryError: (_query, { text }, err) => {
+      console.log(`${new Date().toISOString()} ERROR QUERY ${text} - ${err.message}`);
     },
   });
   console.log('Finished connecting to database...');
@@ -73,11 +64,10 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
 /**
  * Inserts all rows into the demographics table.
  */
-async function insertRows(
-    db: Queryable, rows: DemographicsTableRow[]): Promise<any[]> {
-  // TODO(breuch): Replace with geom from new file.
+async function insertRows(db: Queryable, rows: DemographicsTableRow[]): Promise<any[]> {
+  // TODO(breuch): Replgit puace with geom from new file.
   const geometry = sql.__dangerous__rawValue(
-      'ST_GeometryFromText(\'POLYGON((-122.76199734299996 ' +
+    "ST_GeometryFromText('POLYGON((-122.76199734299996 " +
       '47.34350314200003, -122.76248119999997 47.342854930000044, ' +
       '-122.76257080699997 47.34285604200005, -122.76259517499994 ' +
       '47.34266843300003, -122.76260856299996 47.34256536000004, ' +
@@ -99,18 +89,22 @@ async function insertRows(
       '47.343003846000045, -122.76372118599994 47.34301258000005, ' +
       '-122.763375968 47.34352033700003, -122.76328781999996 ' +
       '47.343519239000045, -122.76310988499995 47.343517020000036, ' +
-      '-122.76199734299996 47.34350314200003))\')');
+      "-122.76199734299996 47.34350314200003))')",
+  );
 
   return db.query(sql`INSERT INTO demographics (census_geo_id, total_population,
                                                 black_percentage,
                                                 white_percentage, geom)
-                      VALUES ${sql.join(rows.map((row: DemographicsTableRow) => {
+                      VALUES ${sql.join(
+                        rows.map((row: DemographicsTableRow) => {
                           return sql`(
                                          ${row.census_geo_id}, ${row.total_population},
                                          ${row.black_percentage},
                                          ${row.white_percentage},
-                                         ${geometry})`
-                      }), ',')};`);
+                                         ${geometry})`;
+                        }),
+                        ',',
+                      )};`);
 }
 
 /**
@@ -126,38 +120,37 @@ async function deleteRows(db: Queryable): Promise<any[]> {
  * Reads the S3 CSV file and returns [DemographicsTableRow]s.
  */
 function parseS3IntoDemographicsTableRow(
-    s3Params: Object,
-    numberRowsToWrite = 10): Promise<Array<DemographicsTableRow>> {
+  s3Params: Object,
+  numberRowsToWrite = 10,
+): Promise<Array<DemographicsTableRow>> {
   const results: DemographicsTableRow[] = [];
   return new Promise(function (resolve, reject) {
     let count = 0;
     const fileStream = S3.getObject(s3Params).createReadStream();
-    fileStream.pipe(parse())
-        .on('data',
-            (dataRow) => {
-              // Pause to allow for processing.
-              fileStream.pause();
-              if (count < numberRowsToWrite) {
-                const row =
-                    new DemographicsTableRowBuilder()
-                        .censusGeoId(dataRow[GEO_ID])
-                        .totalPopulation(parseInt(dataRow[RACE_TOTAL]))
-                        .blackPopulation(parseInt(dataRow[BLACK_POPULATION]))
-                        .whitePopulation(parseInt(dataRow[WHITE_POPULATION]))
-                        .build();
-                results.push(row);
-              }
-              count += 1;
-              fileStream.resume();
-            })
-        .on('error',
-            (error: Error) => {
-              reject(error);
-            })
-        .on('end', () => {
-          console.log('Parsed ' + results.length + ' rows.');
-          resolve(results);
-        });
+    fileStream
+      .pipe(parse())
+      .on('data', (dataRow) => {
+        // Pause to allow for processing.
+        fileStream.pause();
+        if (count < numberRowsToWrite) {
+          const row = new DemographicsTableRowBuilder()
+            .censusGeoId(dataRow[GEO_ID])
+            .totalPopulation(parseInt(dataRow[RACE_TOTAL]))
+            .blackPopulation(parseInt(dataRow[BLACK_POPULATION]))
+            .whitePopulation(parseInt(dataRow[WHITE_POPULATION]))
+            .build();
+          results.push(row);
+        }
+        count += 1;
+        fileStream.resume();
+      })
+      .on('error', (error: Error) => {
+        reject(error);
+      })
+      .on('end', () => {
+        console.log('Parsed ' + results.length + ' rows.');
+        resolve(results);
+      });
   });
 }
 
@@ -172,15 +165,14 @@ exports.handler = async (event: APIGatewayEvent): Promise<Object> => {
 
     const s3Params = {
       Bucket: 'opendataplatformapistaticdata',
-      Key: 'alabama_acs_data.csv'
+      Key: 'alabama_acs_data.csv',
     };
 
     let db: ConnectionPool | undefined;
 
     // Read CSV file and write to demographics table.
     try {
-      const rows =
-          await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
+      const rows = await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
       console.log('Found rows: ' + JSON.stringify(rows));
 
       db = await connectToDb(secretArn);
@@ -188,12 +180,10 @@ exports.handler = async (event: APIGatewayEvent): Promise<Object> => {
       // Remove existing rows before inserting new ones.
       await deleteRows(db);
       const data = await insertRows(db, rows);
-      resolve({statusCode: 200, body: JSON.stringify(data)});
-
+      resolve({ statusCode: 200, body: JSON.stringify(data) });
     } catch (error) {
       console.log('Error:' + error);
-      reject({statusCode: 500, body: JSON.stringify(error.message)});
-
+      reject({ statusCode: 500, body: JSON.stringify(error.message) });
     } finally {
       console.log('Disconnecting from db...');
       await db?.dispose();
@@ -213,8 +203,12 @@ class DemographicsTableRow {
   geom: string;
 
   constructor(
-      censusGeoId: string, totalPopulation: number, blackPopulation: number,
-      whitePopulation: number, geom: string) {
+    censusGeoId: string,
+    totalPopulation: number,
+    blackPopulation: number,
+    whitePopulation: number,
+    geom: string,
+  ) {
     this.census_geo_id = censusGeoId;
     this.total_population = totalPopulation;
     this.black_population = blackPopulation;
