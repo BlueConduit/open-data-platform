@@ -1,3 +1,6 @@
+// Defines the handler for a lambda that creates a DB URL string from a credentials secret and
+// updates the DB URL secret with it.
+
 import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 
 const SOURCE_SECRET_ARN = process.env.SOURCE_SECRET_ARN ?? '';
@@ -23,15 +26,8 @@ export async function handler(event: any) {
     });
     console.log(`Update response: ${JSON.stringify(result, null, 2)}`);
 
-    return {
-      status: 'OK',
-      results: result,
-    };
+    return { status: 'OK', results: result };
   } catch (error: any) {
-    return {
-      status: 'ERROR',
-      error,
-      message: error.message,
-    };
+    return { status: 'ERROR', error, message: error.message };
   }
 }
