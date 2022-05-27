@@ -23,7 +23,7 @@ describe('Full stack', () => {
       vpc: networkStack.vpc,
     });
     frontendStack = new FrontendStack(app, util.stackName(util.StackId.Frontend), {});
-    appPlaneStack = new AppPlaneStack(app, util.stackName(util.StackId.Frontend), {
+    appPlaneStack = new AppPlaneStack(app, util.stackName(util.StackId.AppPlane), {
       networkStack,
       dataPlaneStack,
     });

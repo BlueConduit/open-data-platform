@@ -14,7 +14,6 @@ const secretsmanager = new SecretsManager({});
 export async function handler(event: { userCredentials?: string[] }) {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
 
-  // Currently grants read credentials.
   const userCredentials = event.userCredentials ?? [];
 
   console.log('Fetching db credentials...');
