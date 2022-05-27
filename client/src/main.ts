@@ -5,4 +5,4 @@ import router from './router';
 /**
  * Starts up the application.
  */
-const app = createApp(App).use(router).mount('#app');
+createApp(App).use(router).mount('#app');
