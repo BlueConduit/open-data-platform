@@ -9,12 +9,6 @@ export class OpenDataPlatformStack extends Stack {
   constructor(scope: Construct, id: string, props?: util.CommonProps) {
     super(scope, id, props);
 
-    const annotatedProps = {
-      tags: {
-        Project: util.projectName,
-      },
-    };
-
     const networkStack = new NetworkStack(scope, util.stackName(util.StackId.Network), {
       ...props,
     });
