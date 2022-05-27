@@ -1,3 +1,8 @@
+// This creates credentials for users to connect to Postgres DB.
+//
+// The credentials rotate automatically, which triggers a lambda that updates the DB URL string with
+// which users connect to the DB.
+
 import { Construct } from 'constructs';
 import { SecretValue } from 'aws-cdk-lib';
 import * as cloudtrail from 'aws-cdk-lib/aws-cloudtrail';
@@ -42,7 +47,7 @@ export class DatabaseUserCredentials extends Construct {
 
     // Create the connection string secret.
     this.databaseUrlSecret = new secretsmanager.Secret(this, 'databaseUrl', {
-      description: `Composite secret created from ${this.credentialsSecret.secretArn}`,
+      description: `DB connection URL string, created from ${this.credentialsSecret.secretArn}`,
       // Initialize with a temporary string.
       secretStringValue: new SecretValue('replace-with-connection-string'),
     });
