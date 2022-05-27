@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType} from 'vue';
+import { defineComponent, PropType } from 'vue';
 
 /**
  * Map legend component.
@@ -20,16 +20,16 @@ import {defineComponent, PropType} from 'vue';
  * Takes title and map of string keys -> hex string color values.
  */
 export default defineComponent({
-  name: "MapLegend",
+  name: 'MapLegend',
   data() {
     return {
       displayedBucketsMap: new Map<string, string>(),
-    }
+    };
   },
   props: {
     title: {
       type: String,
-      required: true
+      required: true,
     },
     bucketMap: {
       // There is no constructor function for a Map of declared type, so use

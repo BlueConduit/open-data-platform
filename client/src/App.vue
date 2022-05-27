@@ -1,18 +1,28 @@
 <template>
-  <NavigationBar/>
+  <NavigationBar />
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
-import "@blueconduit/copper/dist/css/copper.css";
-import NavigationBar from './components/NavigationBar.vue'
+import { defineComponent, provide } from 'vue';
+import '@blueconduit/copper/dist/css/copper.css';
+import NavigationBar from './components/NavigationBar.vue';
+import { stateKey } from './injection_keys';
+import { DataLayer } from './model/data_layer';
+import { State } from './model/state';
 
 export default defineComponent({
   name: 'App',
   components: {
-    NavigationBar
-  }
+    NavigationBar,
+  },
+  setup() {
+    // TODO(kailamjeter): bind map data to state.
+    // Create and provide state.
+    const initialDataLayer: DataLayer = { name: 'Population' };
+    provide(stateKey, new State([initialDataLayer], initialDataLayer));
+  },
 });
+
 </script>
 <style>
 @import "./assets/styles/global.scss";
