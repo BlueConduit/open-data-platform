@@ -6,13 +6,14 @@
         :key='option'
         :text-content='option.name'
         :selected='getSelected(option)'
-        @click='setSelected(option)'>
-      </search-bar-option>
+        @click='setSelected(option)' />
     </div>
     <div class='right-align'>
       <div class='select-wrapper'>
-        <vue-select label='name' v-model='this.selectedOption'
-                    :options='this.options' />
+        <vue-select
+          label='name'
+          v-model='this.selectedOption'
+          :options='this.options' />
       </div>
     </div>
   </div>
@@ -31,23 +32,22 @@ export default defineComponent({
   name: 'SearchBar',
   components: { SearchBarOption, VueSelect },
   setup() {
-    const store: State | undefined = inject(stateKey);
+    const state: State | undefined = inject(stateKey);
 
     return {
-      store,
+      state,
     };
   },
   data() {
     return {
-      // TODO figure out how to not have a defaults
-      selectedOption: new DataLayer('fake layer'),
       options: [] as DataLayer[],
+      selectedOption: null as DataLayer | null,
     };
   },
   methods: {
 
     /**
-     * Returns whether option is the selected option.
+     * Returns whether {@code option} is the selected option.
      *
      * @param option
      */
@@ -56,21 +56,26 @@ export default defineComponent({
     },
 
     /**
-     * Updates the selected option.
+     * Updates the selected option to {@code option} from a click on an option button.
+     *
      * @param option
      */
     setSelected(option: DataLayer): void {
       this.selectedOption = option;
-      if (this.store) {
-        this.store.setCurrentDataLayer(this.selectedOption);
-      }
     },
   },
   mounted() {
-    if (this.store != null) {
-      this.options = this.store.dataLayers;
-      this.selectedOption = this.store.currentDataLayer;
+    // Set options for dropdown menu and options displayed in searchbar.
+    if (this.state != null) {
+      this.options = this.state.dataLayers;
+      this.selectedOption = this.state.currentDataLayer;
     }
+  },
+  watch: {
+    // If selectedOption changes update state data layer.
+    selectedOption: function(newOption: DataLayer | null): void {
+      this.state?.setCurrentDataLayer(newOption);
+    },
   },
 });
 </script>
