@@ -18,8 +18,8 @@ export default defineComponent({
   setup() {
     // TODO(kailamjeter): bind map data to state.
     // Create and provide state.
-    const initialDataLayer = new DataLayer('Population');
-    provide(stateKey, new State([initialDataLayer]));
+    const initialDataLayer: DataLayer = { name: 'Population' };
+    provide(stateKey, new State([initialDataLayer], initialDataLayer));
   },
 });
 
