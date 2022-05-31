@@ -2,11 +2,13 @@
 
 import { Stack } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
 import { Construct } from 'constructs';
 import { CommonProps, projectName } from '../../util';
 
 export class NetworkStack extends Stack {
   readonly vpc: ec2.IVpc;
+  readonly cluster: ecs.Cluster;
 
   constructor(scope: Construct, id: string, props: CommonProps) {
     super(scope, id, props);
@@ -42,5 +44,11 @@ export class NetworkStack extends Stack {
             },
           ],
         });
+
+    // Set up an ECS shared cluster for other stacks to add services to.
+    this.cluster = new ecs.Cluster(this, 'Cluster', {
+      vpc: this.vpc,
+      enableFargateCapacityProviders: true,
+    });
   }
 }

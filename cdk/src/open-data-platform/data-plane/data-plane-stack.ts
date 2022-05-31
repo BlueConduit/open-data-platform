@@ -5,8 +5,9 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 import { CommonProps } from '../../util';
-import { Schema } from './schema';
-import {DataImportStack} from '../lambda/data-import-stack';
+import { Schema } from './schema/schema';
+import { DataImportStack } from '../lambda/data-import-stack';
+import { DatabaseUserCredentials } from './db-user-credentials/db-user-credentials';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
@@ -14,6 +15,7 @@ interface DataPlaneProps extends CommonProps {
 
 export class DataPlaneStack extends Stack {
   readonly cluster: rds.ServerlessCluster;
+  readonly tileserverCredentials: DatabaseUserCredentials;
 
   constructor(scope: Construct, id: string, props: DataPlaneProps) {
     super(scope, id, props);
@@ -47,22 +49,31 @@ export class DataPlaneStack extends Stack {
     });
 
     // default DB name.
-    const dbName = 'postgres';
+    const databaseName = 'postgres';
+
+    // Credentials for the tile server to access the cluster.
+    this.tileserverCredentials = new DatabaseUserCredentials(this, 'TileserverCredentials', {
+      cluster: this.cluster,
+      username: 'tileserver',
+      databaseName,
+    });
 
     // Initialize the DB with linked SQL file.
-    new Schema(this, 'RootSchema', {
+    const rootSchema = new Schema(this, 'RootSchema', {
       cluster: this.cluster,
       vpc,
-      db: dbName,
+      db: databaseName,
       schemaFileName: 'schema.sql',
       credentialsSecret: this.cluster.secret!,
+      userCredentials: [this.tileserverCredentials.credentialsSecret],
     });
+    rootSchema.node.addDependency(this.tileserverCredentials.credentialsSecret);
 
     new DataImportStack(this, 'DataImportStack', {
       cluster: this.cluster,
       vpc: vpc,
-      db: dbName,
+      db: databaseName,
       credentialsSecret: this.cluster.secret!,
-    })
+    });
   }
 }

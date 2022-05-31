@@ -4,6 +4,7 @@ import { DataPlaneStack } from '../src/open-data-platform/data-plane/data-plane-
 import { NetworkStack } from '../src/open-data-platform/network/network-stack';
 import * as util from '../src/util';
 import { FrontendStack } from '../src/open-data-platform/frontend/frontend-stack';
+import { AppPlaneStack } from '../src/open-data-platform/app-plane/app-plane-stack';
 
 // Inspired by https://github.com/aws/aws-cdk/blob/master/packages/%40aws-cdk/aws-iam/test/policy.test.ts
 describe('Full stack', () => {
@@ -11,6 +12,7 @@ describe('Full stack', () => {
   let networkStack: NetworkStack;
   let dataPlaneStack: DataPlaneStack;
   let frontendStack: FrontendStack;
+  let appPlaneStack: AppPlaneStack;
 
   beforeEach(() => {
     app = new App();
@@ -21,6 +23,10 @@ describe('Full stack', () => {
       vpc: networkStack.vpc,
     });
     frontendStack = new FrontendStack(app, util.stackName(util.StackId.Frontend), {});
+    appPlaneStack = new AppPlaneStack(app, util.stackName(util.StackId.AppPlane), {
+      networkStack,
+      dataPlaneStack,
+    });
   });
 
   // This only checks that resources exist, not that they have any particular properties or behavior.
@@ -35,9 +41,10 @@ describe('Full stack', () => {
     const frontendTemplate = Template.fromStack(frontendStack);
     frontendTemplate.hasResourceProperties('AWS::S3::Bucket', {}); // s3 bucket.
     frontendTemplate.hasResourceProperties('AWS::CloudFront::Distribution', {}); // CloudFront Distribution.
+    const appPlaneTemplate = Template.fromStack(appPlaneStack);
+    appPlaneTemplate.hasResourceProperties('AWS::ECS::Service', {}); // Fargate instance.
   });
 
   // TODO: Check that the lambda has write access to the DB.
-  test('Permissions', () => {
-  });
+  test('Permissions', () => {});
 });
