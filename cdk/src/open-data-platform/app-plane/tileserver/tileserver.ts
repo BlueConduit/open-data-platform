@@ -28,9 +28,11 @@ export class TileServer extends Construct {
       taskSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
       },
+      // Resource quantities are copied from https://github.com/BlueConduit/tributary/blob/main/cdk/lib/app-plane/tileserver.ts
+      // TODO: adjust based on usage.
       desiredCount: 1,
       memoryLimitMiB: 1024,
-      cpu: 512,
+      cpu: 512, // measured in milliCPU; or 0.5 vCPU.
       taskImageOptions: {
         // Source: https://github.com/urbica/martin
         image: ecs.ContainerImage.fromRegistry('urbica/martin'),
