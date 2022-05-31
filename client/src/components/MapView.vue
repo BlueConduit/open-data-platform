@@ -1,8 +1,6 @@
 <template>
   <div id='map-container'></div>
-  <MapLegend
-    :title='this.legendTitle'
-    :bucketMap='this.bucketMap' />
+  <MapLegend />
 </template>
 
 <script lang='ts'>
@@ -41,9 +39,6 @@ export default defineComponent({
       // between the two since both null and any class fall into the unknown type.
       // See https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-0.html#new-unknown-top-type
       map: null as unknown as mapboxgl.Map,
-      // state: null as unknown as State,
-      legendTitle: '',
-      bucketMap: new Map<string, string>(),
     };
   },
   props: {
@@ -112,11 +107,6 @@ export default defineComponent({
         this.map.addSource(layer.id, source);
         this.map.addLayer(layer.styleLayer);
       });
-
-      // TODO(kailamjeter): delete this when legend uses state as source.
-      // Initial values for legend based on visible layer.
-      this.legendTitle = this.state?.currentDataLayer.legendInfo.title ?? '';
-      this.bucketMap = this.state?.currentDataLayer.legendInfo.bucketMap ?? new Map();
 
       this.setUpInteractionHandlers();
     },
