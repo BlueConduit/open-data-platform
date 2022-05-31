@@ -9,6 +9,7 @@ import NavigationBar from './components/NavigationBar.vue';
 import { stateKey } from './injection_keys';
 import { DataLayer } from './model/data_layer';
 import { State } from './model/state';
+import { populationByCountyDataLayer } from './data_layer_configs/population_by_county_config';
 
 export default defineComponent({
   name: 'App',
@@ -18,7 +19,7 @@ export default defineComponent({
   setup() {
     // TODO(kailamjeter): bind map data to state.
     // Create and provide state.
-    const initialDataLayer: DataLayer = { name: 'Population' };
+    const initialDataLayer: DataLayer = populationByCountyDataLayer;
     provide(stateKey, new State([initialDataLayer], initialDataLayer));
   },
 });
