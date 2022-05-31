@@ -8,8 +8,6 @@ interface ResourceInitializerProps {
 }
 
 // Construct that invokes a lambda one time during `cdk deploy`.
-// If there are other lambdas that we want to invoke during deployment, consider breaking this
-// out into a common file.
 //
 // Based on: https://github.com/BlueConduit/tributary/blob/main/cdk/lib/resource-initializer.ts
 export class ResourceInitializer extends Construct {
