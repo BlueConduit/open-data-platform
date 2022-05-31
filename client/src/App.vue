@@ -3,13 +3,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, provide } from 'vue';
+import { defineComponent, provide, reactive } from 'vue';
 import '@blueconduit/copper/dist/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
-import { stateKey } from './injection_keys';
 import { DataLayer } from './model/data_layer';
 import { State } from './model/state';
+import axios from 'axios';
 import { populationByCountyDataLayer } from './data_layer_configs/population_by_county_config';
+import { stateKey } from './injection_keys';
+
+const OPEN_DATA_PLATFORM_API_URL = 'https://v2rz6wzmb7.execute-api.us-east-2.amazonaws.com/default';
 
 export default defineComponent({
   name: 'App',
@@ -17,10 +20,39 @@ export default defineComponent({
     NavigationBar,
   },
   setup() {
-    // TODO(kailamjeter): bind map data to state.
-    // Create and provide state.
-    const initialDataLayer: DataLayer = populationByCountyDataLayer;
-    provide(stateKey, new State([initialDataLayer], initialDataLayer));
+    // Create and provide default state. This is updated once API data is fetched.
+    const initialDataLayer: DataLayer = null as unknown as DataLayer;
+    const state = reactive(new State([], initialDataLayer));
+
+    provide(stateKey, state);
+
+    return {
+      state,
+    };
+  },
+  async mounted() {
+    // Fetch data needed to render Population data layer and update state.
+    if (this.state != null) {
+      const initialDataLayer = populationByCountyDataLayer;
+
+      await this.fetchInitialData(initialDataLayer);
+
+      this.state.currentDataLayer = initialDataLayer;
+      this.state.dataLayers = [initialDataLayer];
+    }
+  },
+  methods: {
+    /**
+     * Fetch initial data needed to render the map.
+     *
+     * This includes data to render the Population data layer.
+     */
+    async fetchInitialData(layer: DataLayer): Promise<void> {
+      // TODO(kailamjeter): expand to fetch for other data layers.
+      await axios
+        .get(`${OPEN_DATA_PLATFORM_API_URL}/getViolations`)
+        .then(response => layer.data = response.data.toString());
+    },
   },
 });
 

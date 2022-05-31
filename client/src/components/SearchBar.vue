@@ -4,14 +4,14 @@
       <search-bar-option
         v-for='option in options'
         :key='option'
-        :text-content='option.id'
+        :text-content='option.name'
         :selected='getSelected(option)'
         @click='setSelected(option)' />
     </div>
     <div class='right-align'>
       <div class='select-wrapper'>
         <vue-select
-          label='id'
+          label='name'
           v-model='this.selectedOption'
           :options='this.options' />
       </div>
@@ -69,17 +69,20 @@ export default defineComponent({
       this.selectedOption = option;
     },
   },
-  mounted() {
-    // Set options for dropdown menu and options displayed in searchbar.
-    if (this.state != null) {
-      this.options = this.state.dataLayers;
-      this.selectedOption = this.state.currentDataLayer;
-    }
-  },
   watch: {
     // If selectedOption changes update state data layer.
     selectedOption: function(newOption: DataLayer): void {
       this.state?.setCurrentDataLayer(newOption);
+    },
+    state: {
+      handler(newState: State): void {
+        if (newState != null) {
+          this.options = newState.dataLayers;
+          this.selectedOption = newState.currentDataLayer;
+        }
+      },
+      // Make watcher deep, meaning that this will be triggered on a change to any nested field of state.
+      deep: true,
     },
   },
 });

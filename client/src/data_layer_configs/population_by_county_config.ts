@@ -1,33 +1,35 @@
-import { DataLayer, InteractionType, LegendInfo, PopupInfo } from '@/model/data_layer';
+import { DataLayer, LegendInfo } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
+
+const ID: string = 'epa-violations';
 
 const POPULATION_COLOR_MAP =
   {
-    0:
-      '#E1F5FE',
-    10000:
-      '#B3E5FC',
-    25000:
-      '#81D4FA',
-    50000:
-      '#4FC3F7',
-    100000:
-      '#29B6F6',
-    200000:
-      '#0288D1',
-    500000:
-      '#01579B',
-    750000:
-      '#0D47A1',
-    1000000:
-      '#303F9F',
-    2000000:
-      '#1A237E',
+      0:
+        '#E1F5FE',
+      10000:
+        '#B3E5FC',
+      25000:
+        '#81D4FA',
+      50000:
+        '#4FC3F7',
+      100000:
+        '#29B6F6',
+      200000:
+        '#0288D1',
+      500000:
+        '#01579B',
+      750000:
+        '#0D47A1',
+      1000000:
+        '#303F9F',
+      2000000:
+        '#1A237E',
   };
 
 const STYLE_LAYER: FillLayer = {
     'id': 'epa-violations-population-style',
-    'source': 'epa-violations',
+    'source': ID,
     'type': 'fill',
     'paint': {
         'fill-color': [
@@ -69,15 +71,10 @@ const LEGEND_INFO: LegendInfo = {
     bucketMap: new Map(Object.entries(POPULATION_COLOR_MAP)),
 }
 
-const POPUP_INFO: PopupInfo = {
-    interactionType: InteractionType.CLICK,
-}
-
 export const populationByCountyDataLayer: DataLayer = {
-    id: 'Population',
+    id: ID,
+    name: 'Population',
     data: '',
     legendInfo: LEGEND_INFO,
-    popupInfo: POPUP_INFO,
-    sourceType: 'geojson',
     styleLayer: STYLE_LAYER,
 };
