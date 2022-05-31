@@ -5,7 +5,6 @@
 // which gets bucket and distribution references from
 // https://github.com/BlueConduit/tributary/blob/7a275259c484dd637467c841a62997cb6370c9f4/cdk/lib/frontend/frontend-stack.ts.
 
-
 import { Stack } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
@@ -13,14 +12,20 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import { CommonProps } from '../../util';
+import { AppPlaneStack } from '../app-plane/app-plane-stack';
+
+interface FrontendProps extends CommonProps {
+  appPlaneStack: AppPlaneStack;
+}
 
 export class FrontendStack extends Stack {
-
   readonly distribution: cloudfront.Distribution;
   readonly frontendAssetsBucket: s3.Bucket;
 
-  constructor(scope: Construct, id: string, props: CommonProps) {
+  constructor(scope: Construct, id: string, props: FrontendProps) {
     super(scope, id, props);
+
+    const { appPlaneStack } = props;
 
     // Create s3 bucket to host static assets.
     this.frontendAssetsBucket = new s3.Bucket(this, 'FrontendAssets');
@@ -45,5 +50,33 @@ export class FrontendStack extends Stack {
       distribution: this.distribution,
       distributionPaths: ['/*'],
     });
+
+    // Add the tileserver to the Cloudfront distribution to make it publicly available.
+    this.addApiProxy(
+      appPlaneStack.tileServer.ecsService.loadBalancer.loadBalancerDnsName,
+      '/tiles/v1/*',
+    );
+  }
+
+  /**
+   * Adds an endpoint to the Cloudfront distribution for public access.
+   * @param origin - endpoint for the internal application.
+   * @param pathPattern - the path pattern (e.g., 'images/*') that specifies which requests to redirect.
+   */
+  addApiProxy(origin: string, pathPattern: string) {
+    this.distribution.addBehavior(
+      pathPattern,
+      new origins.HttpOrigin(origin, {
+        protocolPolicy: process.env.ACKLEN_DEV
+          ? cloudfront.OriginProtocolPolicy.HTTP_ONLY
+          : cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
+      }),
+      {
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+        responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+      },
+    );
   }
 }

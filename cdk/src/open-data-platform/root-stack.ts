@@ -26,6 +26,7 @@ export class OpenDataPlatformStack extends Stack {
     });
     const frontendStack = new FrontendStack(scope, util.stackName(util.StackId.Frontend), {
       ...props,
+      appPlaneStack,
     });
   }
 }
