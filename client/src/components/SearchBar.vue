@@ -4,14 +4,14 @@
       <search-bar-option
         v-for='option in options'
         :key='option'
-        :text-content='option.name'
+        :text-content='option.id'
         :selected='getSelected(option)'
         @click='setSelected(option)' />
     </div>
     <div class='right-align'>
       <div class='select-wrapper'>
         <vue-select
-          label='name'
+          label='id'
           v-model='this.selectedOption'
           :options='this.options' />
       </div>
