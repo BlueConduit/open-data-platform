@@ -70,7 +70,7 @@ export default defineComponent({
      * This will create a map if it does not exist and there is new data, or change the visual
      * layer if the currentDataLayer changes.
      */
-    updateMapOnStateChange(newState: State) {
+    updateMapOnStateChange(newState: State): void {
       if (this.map == null) {
         if (newState?.currentDataLayer?.data != null) {
           this.createMap();
@@ -125,7 +125,7 @@ export default defineComponent({
     /**
      * Configure data layers and interaction handlers on the map.
      */
-    configureMap() {
+    configureMap(): void {
       this.state?.dataLayers?.forEach(layer => {
         const source: GeoJSONSourceRaw = {
           type: 'geojson',
