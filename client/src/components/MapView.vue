@@ -26,7 +26,7 @@ export default defineComponent({
     // TODO: Hide access tokens. For now, this is MapBox's public API token.
     mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN;
 
-    const state: State | undefined = inject(stateKey);
+    const state: State = inject(stateKey, State.default());
 
     return {
       state,
@@ -72,7 +72,7 @@ export default defineComponent({
      */
     updateMapOnStateChange(newState: State): void {
       if (this.map == null) {
-        if (newState?.currentDataLayer?.data != null) {
+        if (newState.currentDataLayer?.data != null) {
           this.createMap();
         }
       } else {
@@ -107,7 +107,7 @@ export default defineComponent({
      * Sets up interaction handlers for map.
      */
     setUpInteractionHandlers(): void {
-      this.state?.dataLayers?.forEach(layer => {
+      this.state.dataLayers?.forEach(layer => {
         // Use MapBox's custom click handler, which takes the style layer that we
         // want to set up a handler for as a parameter.
         this.map.on('click', layer.styleLayer.id,
@@ -126,7 +126,7 @@ export default defineComponent({
      * Configure data layers and interaction handlers on the map.
      */
     configureMap(): void {
-      this.state?.dataLayers?.forEach(layer => {
+      this.state.dataLayers?.forEach(layer => {
         const source: GeoJSONSourceRaw = {
           type: 'geojson',
           data: layer.data,

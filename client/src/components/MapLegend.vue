@@ -24,7 +24,7 @@ import { stateKey } from '../injection_keys';
 export default defineComponent({
   name: 'MapLegend',
   setup() {
-    const state: State | undefined = inject(stateKey);
+    const state: State = inject(stateKey, State.default());
 
     return {
       state,
@@ -53,10 +53,10 @@ export default defineComponent({
      * bucketMap is updated.
      */
     createLegend(): void {
-      this.title = this.state?.currentDataLayer?.legendInfo?.title ?? '';
+      this.title = this.state.currentDataLayer?.legendInfo?.title ?? '';
       this.displayedBucketsMap.clear();
 
-      const bucketEntries = this.state?.currentDataLayer?.legendInfo?.bucketMap?.entries();
+      const bucketEntries = this.state.currentDataLayer?.legendInfo.bucketMap?.entries();
 
       if (bucketEntries != null) {
         const buckets: string[][] = Array.from(bucketEntries);
