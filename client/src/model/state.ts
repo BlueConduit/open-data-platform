@@ -19,6 +19,15 @@ export class State {
     this.dataLayers = dataLayers;
   }
 
+  /**
+   * Returns default instance of State.
+   *
+   * This consists of an empty list of dataLayers and null currentDataLayer.
+   */
+  static default(): State {
+    return State.constructor([], null as unknown as DataLayer);
+  }
+
   setCurrentDataLayer(newLayer: DataLayer): void {
     if (newLayer == null || this.dataLayers.includes(newLayer)) {
       this.currentDataLayer = newLayer;

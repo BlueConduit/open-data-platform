@@ -13,6 +13,8 @@ import { populationByCountyDataLayer } from './data_layer_configs/population_by_
 import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_county_config';
 import { stateKey } from './injection_keys';
 
+// Base URL for REST API in Amazon API Gateway.
+// See https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-call-api.html.
 const OPEN_DATA_PLATFORM_API_URL = 'https://v2rz6wzmb7.execute-api.us-east-2.amazonaws.com/default';
 
 export default defineComponent({
