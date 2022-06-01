@@ -10,6 +10,7 @@ import { DataLayer } from './model/data_layer';
 import { State } from './model/state';
 import axios from 'axios';
 import { populationByCountyDataLayer } from './data_layer_configs/population_by_county_config';
+import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_county_config';
 import { stateKey } from './injection_keys';
 
 const OPEN_DATA_PLATFORM_API_URL = 'https://v2rz6wzmb7.execute-api.us-east-2.amazonaws.com/default';
@@ -31,14 +32,13 @@ export default defineComponent({
     };
   },
   async mounted() {
-    // Fetch data needed to render Population data layer and update state.
+    // Fetch data needed to render data layers and update state.
     if (this.state != null) {
-      const initialDataLayer = populationByCountyDataLayer;
+      const dataLayers = [leadAndCopperViolationsByCountyDataLayer, populationByCountyDataLayer];
+      await this.fetchInitialData(dataLayers);
 
-      await this.fetchInitialData(initialDataLayer);
-
-      this.state.currentDataLayer = initialDataLayer;
-      this.state.dataLayers = [initialDataLayer];
+      this.state.currentDataLayer = dataLayers[0];
+      this.state.dataLayers = dataLayers;
     }
   },
   methods: {
@@ -47,11 +47,11 @@ export default defineComponent({
      *
      * This includes data to render the Population data layer.
      */
-    async fetchInitialData(layer: DataLayer): Promise<void> {
+    async fetchInitialData(layers: DataLayer[]): Promise<void> {
       // TODO(kailamjeter): expand to fetch for other data layers.
       await axios
         .get(`${OPEN_DATA_PLATFORM_API_URL}/getViolations`)
-        .then(response => layer.data = response.data.toString());
+        .then(response => layers.forEach(layer => layer.data = response.data.toString()));
     },
   },
 });

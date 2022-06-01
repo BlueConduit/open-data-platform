@@ -55,6 +55,32 @@ export default defineComponent({
   },
   methods: {
     /**
+     * Updates layer visibility based on current data layer.
+     */
+    toggleLayerVisibility(updatedState: State): void {
+      updatedState.dataLayers.forEach(layer => {
+        const visibility = layer == updatedState.currentDataLayer ? 'visible' : 'none';
+        this.map.setLayoutProperty(layer.styleLayer.id, 'visibility', visibility);
+      });
+    },
+
+    /**
+     * Updates map when injected State changes.
+     *
+     * This will create a map if it does not exist and there is new data, or change the visual
+     * layer if the currentDataLayer changes.
+     */
+    updateMapOnStateChange(newState: State) {
+      if (this.map == null) {
+        if (newState?.currentDataLayer?.data != null) {
+          this.createMap();
+        }
+      } else {
+        this.toggleLayerVisibility(newState);
+      }
+    },
+
+    /**
      * Creates popup component at the given lngLat.
      *
      * Passes propsData to the MapPopupContent component which is nested in the
@@ -89,7 +115,8 @@ export default defineComponent({
             if (e.features != undefined) {
               const clickedFeatureProperties: { [name: string]: any; } = e.features[0].properties as {};
 
-              this.createMapPopup(e.lngLat, /* popupData= */{ properties: new Map(Object.entries(clickedFeatureProperties)) });
+              this.createMapPopup(e.lngLat, /* popupData= */
+                { properties: new Map(Object.entries(clickedFeatureProperties)) });
             }
           });
       });
@@ -135,11 +162,9 @@ export default defineComponent({
   },
   watch: {
     state: {
+      // TODO(kailamjeter): experiment with watching different properties of state to avoid deep.
       handler(newState: State): void {
-        // Draw map when initial data is set and map has not yet been initialized.
-        if (newState?.currentDataLayer?.data != null && this.map == null) {
-          this.createMap();
-        }
+        this.updateMapOnStateChange(newState);
       },
       // Make watcher deep, meaning that this will be triggered on a change to any nested field of state.
       deep: true,
