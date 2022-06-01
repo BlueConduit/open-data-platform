@@ -59,7 +59,7 @@ export class DataPlaneStack extends Stack {
     });
 
     // Initialize the DB with linked SQL file.
-    const rootSchema = new Schema(this, 'RootSchema', {
+     new Schema(this, 'RootSchema', {
       cluster: this.cluster,
       vpc,
       db: databaseName,

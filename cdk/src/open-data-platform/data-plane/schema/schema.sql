@@ -23,8 +23,16 @@ CREATE TABLE IF NOT EXISTS demographics(
     total_population real,
     black_percentage real,
     white_percentage real,
+    geom GEOMETRY(Polygon),
     PRIMARY KEY(census_geo_id)
 );
+
+ALTER TABLE demographics
+    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Polygon);
+
+CREATE INDEX IF NOT EXISTS geom_index
+    ON demographics
+    USING GIST (geom);
 
 -- Roles and Grants
 
