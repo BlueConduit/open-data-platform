@@ -43,7 +43,8 @@ export class TileServer extends Construct {
           DATABASE_URL: ecs.Secret.fromSecretsManager(databaseUrlSecret),
         },
       },
-      publicLoadBalancer: false,
+      // Open the load balancer to internet, so this can be accessed directly.
+      publicLoadBalancer: true,
     });
 
     this.ecsService.targetGroup.configureHealthCheck({

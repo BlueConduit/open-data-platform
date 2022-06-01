@@ -51,32 +51,33 @@ export class FrontendStack extends Stack {
       distributionPaths: ['/*'],
     });
 
-    // Add the tileserver to the Cloudfront distribution to make it publicly available.
-    this.addApiProxy(
-      appPlaneStack.tileServer.ecsService.loadBalancer.loadBalancerDnsName,
-      '/tiles/v1/*',
-    );
+    // This doesn't work yet, but I'm checking it in disabled, so the work isn't lost.
+    if (false) {
+      // Add the tileserver to the Cloudfront distribution to make it publicly available.
+      this.addApiProxy(
+        appPlaneStack.tileServer.ecsService.loadBalancer.loadBalancerDnsName,
+        // Temporarily just front the health check endpoint.
+        '/healthz',
+      );
+    }
   }
 
   /**
    * Adds an endpoint to the Cloudfront distribution for public access.
-   * @param origin - endpoint for the internal application.
+   * @param originName - endpoint for the internal application.
    * @param pathPattern - the path pattern (e.g., 'images/*') that specifies which requests to redirect.
    */
-  addApiProxy(origin: string, pathPattern: string) {
-    this.distribution.addBehavior(
-      pathPattern,
-      new origins.HttpOrigin(origin, {
-        protocolPolicy: process.env.ACKLEN_DEV
-          ? cloudfront.OriginProtocolPolicy.HTTP_ONLY
-          : cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
-      }),
-      {
-        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-        responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
-        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
-      },
-    );
+  addApiProxy(originName: string, pathPattern: string) {
+    const origin = new origins.HttpOrigin(originName, {
+      protocolPolicy: process.env.ACKLEN_DEV
+        ? cloudfront.OriginProtocolPolicy.HTTP_ONLY
+        : cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
+    });
+    this.distribution.addBehavior(pathPattern, origin, {
+      allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+      responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+      originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+    });
   }
 }
