@@ -5,8 +5,9 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 import { CommonProps } from '../../util';
-import { Schema } from './schema';
-import {DataImportStack} from '../lambda/data-import-stack';
+import { Schema } from './schema/schema';
+import { DataImportStack } from '../lambda/data-import-stack';
+import { DatabaseUserCredentials } from './db-user-credentials/db-user-credentials';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
@@ -64,7 +65,9 @@ export class DataPlaneStack extends Stack {
       db: databaseName,
       schemaFileName: 'schema.sql',
       credentialsSecret: this.cluster.secret!,
+      userCredentials: [this.tileserverCredentials.credentialsSecret],
     });
+    rootSchema.node.addDependency(this.tileserverCredentials.credentialsSecret);
 
     new DataImportStack(this, 'DataImportStack', {
       cluster: this.cluster,

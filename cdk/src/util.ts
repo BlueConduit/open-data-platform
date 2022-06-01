@@ -6,6 +6,7 @@ export enum StackId {
   Network,
   DataPlane,
   Frontend,
+  AppPlane,
 }
 export const projectName = 'OpenDataPlatform';
 

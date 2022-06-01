@@ -14,7 +14,7 @@ const secretsmanager = new SecretsManager({});
 export async function handler(event: { userCredentials?: string[] }) {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
 
-  const credentialSecrets = event.userCredentials ?? [];
+  const userCredentials = event.userCredentials ?? [];
 
   console.log('Fetching db credentials...');
   const { host, port, username, password } = await getCredentials(CREDENTIALS_SECRET);
@@ -32,7 +32,7 @@ export async function handler(event: { userCredentials?: string[] }) {
   try {
     await createDatabaseIfNotExists(DATABASE_NAME, defaultDb);
     await Promise.all(
-      credentialSecrets.map(async (arn) => await createUserIfNotExists(arn, defaultDb)),
+      userCredentials.map(async (arn) => await createUserIfNotExists(arn, defaultDb)),
     );
   } finally {
     await defaultDb.dispose();
@@ -57,6 +57,7 @@ export async function handler(event: { userCredentials?: string[] }) {
 // Helper functions.
 
 async function getCredentials(secretArn: string) {
+  console.log(`Getting user credentials from secret: ${secretArn}`);
   const data = await secretsmanager.getSecretValue({ SecretId: secretArn });
   return JSON.parse(data.SecretString!);
 }
