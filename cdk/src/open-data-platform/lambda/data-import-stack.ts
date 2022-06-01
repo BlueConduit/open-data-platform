@@ -40,11 +40,24 @@ export class DataImportStack extends Construct {
       },
     );
 
-    credentialsSecret.grantRead(writeDemographicDataFunction);
-
-    cluster.connections.allowFrom(
-      writeDemographicDataFunction,
-      ec2.Port.tcp(cluster.clusterEndpoint.port),
+    const writeLeadPredictionFunction = new lambda.NodejsFunction(
+      this,
+      'write-lead-prediction-handler',
+      {
+        entry: `${path.resolve(__dirname)}/write-lead-prediction-handler.handler.ts`,
+        handler: 'handler',
+        vpc: vpc,
+        vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+        environment: {
+          CREDENTIALS_SECRET: credentialsSecret.secretArn,
+          DATABASE_NAME: db,
+        },
+        timeout: Duration.minutes(10),
+        bundling: {
+          externalModules: ['aws-sdk'],
+          nodeModules: ['stream-json', '@databases/pg'],
+        },
+      },
     );
 
     // Allow reads to all S3 buckets in account.
@@ -53,19 +66,25 @@ export class DataImportStack extends Construct {
       resources: ['arn:aws:s3:::*'],
     });
 
-    writeDemographicDataFunction.role?.attachInlinePolicy(
-      new iam.Policy(this, 'get-buckets-policy', {
-        statements: [s3GetObjectPolicy],
-      }),
-    );
+    const getS3BucketsPolicy = new iam.Policy(this, 'get-buckets-policy', {
+      statements: [s3GetObjectPolicy],
+    });
 
-    if (writeDemographicDataFunction.role?.roleArn != undefined) {
-      let role = iam.Role.fromRoleArn(
-        scope,
-        id + '-role',
-        writeDemographicDataFunction.role.roleArn,
-      );
-      cluster.grantDataApiAccess(role);
+    const lambda_functions: lambda.NodejsFunction[] = [
+      writeDemographicDataFunction,
+      writeLeadPredictionFunction,
+    ];
+
+    for (let f of lambda_functions) {
+      credentialsSecret.grantRead(f);
+      cluster.connections.allowFrom(f, ec2.Port.tcp(cluster.clusterEndpoint.port));
+
+      f.role?.attachInlinePolicy(getS3BucketsPolicy);
+
+      if (f.role?.roleArn != undefined) {
+        let role = iam.Role.fromRoleArn(scope, id + '-' + f, f.role.roleArn);
+        cluster.grantDataApiAccess(role);
+      }
     }
   }
 }

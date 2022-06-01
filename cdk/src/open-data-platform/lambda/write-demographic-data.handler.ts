@@ -65,7 +65,8 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
  * Inserts all rows into the demographics table.
  */
 async function insertRows(db: Queryable, rows: DemographicsTableRow[]): Promise<any[]> {
-  // TODO(breuch): Replgit puace with geom from new file.
+  // TODO(breuch): Replace with geom from new file.
+  // This is a random polygon taken from an unmapped s3 file.
   const geometry = sql.__dangerous__rawValue(
     "ST_GeometryFromText('POLYGON((-122.76199734299996 " +
       '47.34350314200003, -122.76248119999997 47.342854930000044, ' +

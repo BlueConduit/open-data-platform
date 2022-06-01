@@ -19,6 +19,19 @@ CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
     USING GIST (geom);
 
+CREATE TABLE IF NOT EXISTS lead_service_lines(
+    pws_id varchar(255) NOT NULL,
+    lead_connections_count real,
+    PRIMARY KEY(pws_is)
+    );
+
+ALTER TABLE lead_service_lines
+    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Polygon);
+
+CREATE INDEX IF NOT EXISTS geom_index
+    ON lead_service_lines
+    USING GIST (geom);
+
 -------------------
 -- EXAMPLE BELOW --
 -------------------
