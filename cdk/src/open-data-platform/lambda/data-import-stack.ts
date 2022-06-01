@@ -62,7 +62,7 @@ export class DataImportStack extends Construct {
     if (writeDemographicDataFunction.role?.roleArn != undefined) {
       let role = iam.Role.fromRoleArn(
         scope,
-        id + '-role',
+        `{id} + -role`,
         writeDemographicDataFunction.role.roleArn,
       );
       cluster.grantDataApiAccess(role);
