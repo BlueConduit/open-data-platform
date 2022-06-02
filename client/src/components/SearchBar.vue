@@ -1,0 +1,110 @@
+<template>
+  <div class='container'>
+    <div class='data-layer-options'>
+      <search-bar-option
+        v-for='option in options'
+        :key='option'
+        :text-content='option.name'
+        :selected='getSelected(option)'
+        @click='setSelected(option)' />
+    </div>
+    <div class='right-align'>
+      <div class='select-wrapper'>
+        <vue-select
+          label='name'
+          v-model='this.selectedOption'
+          :options='this.options' />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent, inject } from 'vue';
+import SearchBarOption from './SearchBarOption.vue';
+import VueSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
+import { State } from '../model/state';
+import { stateKey } from '../injection_keys';
+import { DataLayer } from '../model/data_layer';
+
+export default defineComponent({
+  name: 'SearchBar',
+  components: { SearchBarOption, VueSelect },
+  setup() {
+    const state: State | undefined = inject(stateKey);
+
+    return {
+      state,
+    };
+  },
+  data() {
+    return {
+      options: [] as DataLayer[],
+      // Initializing with null requires typing `as unknown as type` since
+      // there is no apparent overlap between null and DataLayer. Typing as
+      // unknown creates an intersection between the two since both null and
+      // DataLayer fall into the unknown type.
+      // See https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-0.html#new-unknown-top-type
+      selectedOption: null as unknown as DataLayer,
+    };
+  },
+  methods: {
+
+    /**
+     * Returns whether {@code option} is the selected option.
+     *
+     * @param option
+     */
+    getSelected(option: DataLayer): boolean {
+      return option === this.selectedOption;
+    },
+
+    /**
+     * Updates the selected option to {@code option} from a click on an option button.
+     *
+     * @param option
+     */
+    setSelected(option: DataLayer): void {
+      this.selectedOption = option;
+    },
+  },
+  watch: {
+    // If selectedOption changes update state data layer.
+    selectedOption: function(newOption: DataLayer): void {
+      this.state?.setCurrentDataLayer(newOption);
+    },
+    state: {
+      handler(newState: State): void {
+        if (newState != null) {
+          this.options = newState.dataLayers;
+          this.selectedOption = newState.currentDataLayer;
+        }
+      },
+      // Make watcher deep, meaning that this will be triggered on a change to any nested field of state.
+      deep: true,
+    },
+  },
+});
+</script>
+
+<style scoped>
+.container {
+  display: flex;
+  height: 54px;
+  padding: 0 15px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.data-layer-options {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.select-wrapper {
+  display: inline-block;
+  min-width: 241px;
+}
+</style>

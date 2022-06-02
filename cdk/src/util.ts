@@ -1,10 +1,12 @@
-import { StackProps } from 'aws-cdk-lib';
+import {StackProps} from 'aws-cdk-lib';
 
 // Constants. Define anything that's referenced in multiple places here.
 export enum StackId {
   Root,
   Network,
   DataPlane,
+  Frontend,
+  AppPlane,
 }
 export const projectName = 'OpenDataPlatform';
 

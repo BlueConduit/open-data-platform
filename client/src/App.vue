@@ -1,18 +1,63 @@
 <template>
-  <NavigationBar/>
+  <NavigationBar />
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
-import "@blueconduit/copper/dist/css/copper.css";
-import NavigationBar from './components/NavigationBar.vue'
+import { defineComponent, provide, reactive } from 'vue';
+import '@blueconduit/copper/dist/css/copper.css';
+import NavigationBar from './components/NavigationBar.vue';
+import { DataLayer } from './model/data_layer';
+import { State } from './model/state';
+import axios from 'axios';
+import { populationByCountyDataLayer } from './data_layer_configs/population_by_county_config';
+import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_county_config';
+import { stateKey } from './injection_keys';
+
+// Base URL for REST API in Amazon API Gateway.
+// See https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-call-api.html.
+const OPEN_DATA_PLATFORM_API_URL = 'https://v2rz6wzmb7.execute-api.us-east-2.amazonaws.com/default';
 
 export default defineComponent({
   name: 'App',
   components: {
-    NavigationBar
-  }
+    NavigationBar,
+  },
+  setup() {
+    // Create and provide default state. This is updated once API data is fetched.
+    const initialDataLayer: DataLayer = null as unknown as DataLayer;
+    const state = reactive(new State([], initialDataLayer));
+
+    provide(stateKey, state);
+
+    return {
+      state,
+    };
+  },
+  async mounted() {
+    // Fetch data needed to render data layers and update state.
+    if (this.state != null) {
+      const dataLayers = [leadAndCopperViolationsByCountyDataLayer, populationByCountyDataLayer];
+      await this.fetchInitialData(dataLayers);
+
+      this.state.currentDataLayer = dataLayers[0];
+      this.state.dataLayers = dataLayers;
+    }
+  },
+  methods: {
+    /**
+     * Fetch initial data needed to render the map.
+     *
+     * This includes data to render the Population data layer.
+     */
+    async fetchInitialData(layers: DataLayer[]): Promise<void> {
+      // TODO(kailamjeter): expand to fetch for other data layers.
+      await axios
+        .get(`${OPEN_DATA_PLATFORM_API_URL}/getViolations`)
+        .then(response => layers.forEach(layer => layer.data = response.data.toString()));
+    },
+  },
 });
+
 </script>
 <style>
 @import "./assets/styles/global.scss";
