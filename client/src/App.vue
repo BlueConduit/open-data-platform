@@ -12,6 +12,7 @@ import axios from 'axios';
 import { populationByCountyDataLayer } from './data_layer_configs/population_by_county_config';
 import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_county_config';
 import { stateKey } from './injection_keys';
+import mapboxgl from 'mapbox-gl';
 
 // Base URL for REST API in Amazon API Gateway.
 // See https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-call-api.html.
@@ -25,7 +26,8 @@ export default defineComponent({
   setup() {
     // Create and provide default state. This is updated once API data is fetched.
     const initialDataLayer: DataLayer = null as unknown as DataLayer;
-    const state = reactive(new State([], initialDataLayer));
+    const initialMap: mapboxgl.Map = null as unknown as mapboxgl.Map;
+    const state = reactive(new State([], initialDataLayer, initialMap));
 
     provide(stateKey, state);
 

@@ -1,5 +1,5 @@
 <template>
-  <div class='container'>
+  <div class='searchbar-container'>
     <div class='data-layer-options'>
       <search-bar-option
         v-for='option in options'
@@ -8,13 +8,14 @@
         :selected='getSelected(option)'
         @click='setSelected(option)' />
     </div>
-    <div class='right-align'>
-      <div class='select-wrapper'>
-        <vue-select
-          label='name'
-          v-model='this.selectedOption'
-          :options='this.options' />
-      </div>
+    <div class='select-wrapper'>
+      <vue-select
+        label='name'
+        v-model='this.selectedOption'
+        :options='this.options' />
+    </div>
+    <div class='search-wrapper'>
+      <map-geocoder-wrapper />
     </div>
   </div>
 </template>
@@ -27,10 +28,11 @@ import 'vue-select/dist/vue-select.css';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import { DataLayer } from '../model/data_layer';
+import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 
 export default defineComponent({
   name: 'SearchBar',
-  components: { SearchBarOption, VueSelect },
+  components: { MapGeocoderWrapper, SearchBarOption, VueSelect },
   setup() {
     const state: State | undefined = inject(stateKey);
 
@@ -88,8 +90,8 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.container {
+<style>
+.searchbar-container {
   display: flex;
   height: 54px;
   padding: 0 15px;
@@ -103,8 +105,18 @@ export default defineComponent({
   flex-grow: 1;
 }
 
+.search-wrapper {
+  display: inline-block;
+  padding-left: 15px;
+}
+
 .select-wrapper {
   display: inline-block;
   min-width: 241px;
+  padding-left: 15px;
+}
+
+.vs__dropdown-toggle {
+  height: 40px;
 }
 </style>
