@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType} from 'vue';
+import { defineComponent, PropType } from 'vue';
 
 const FEATURE_PROPERTY_LABELS_KEYS_MAP = new Map<string, string>(
     [['Lead & Copper Rule Violations', 'Lead and Copper Rule'],]);

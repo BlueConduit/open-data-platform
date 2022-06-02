@@ -12,7 +12,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, inject } from 'vue';
+import { State } from '../model/state';
+import { stateKey } from '../injection_keys';
 
 /**
  * Map legend component.
@@ -21,23 +23,18 @@ import { defineComponent, PropType } from 'vue';
  */
 export default defineComponent({
   name: 'MapLegend',
-  data() {
+  setup() {
+    const state: State = inject(stateKey, State.default());
+
     return {
-      displayedBucketsMap: new Map<string, string>(),
+      state,
     };
   },
-  props: {
-    title: {
-      type: String,
-      required: true,
-    },
-    bucketMap: {
-      // There is no constructor function for a Map of declared type, so use
-      // generic Map here and cast to PropType of a Map<string, string>.
-      // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
-      type: Map as PropType<Map<string, string>>,
-      required: true,
-    }
+  data() {
+    return {
+      title: '',
+      displayedBucketsMap: new Map<string, string>(),
+    };
   },
   methods: {
     /**
@@ -46,7 +43,7 @@ export default defineComponent({
      */
     bucketLabel(bucket: string[], index: number, buckets: string[][]): string {
       return index < buckets.length - 1
-          ? `${bucket[0]} - ${buckets[index + 1][0]}` : `${bucket[0]}+`;
+        ? `${bucket[0]} - ${buckets[index + 1][0]}` : `${bucket[0]}+`;
     },
 
     /**
@@ -56,13 +53,19 @@ export default defineComponent({
      * bucketMap is updated.
      */
     createLegend(): void {
+      this.title = this.state.currentDataLayer?.legendInfo?.title ?? '';
       this.displayedBucketsMap.clear();
-      const buckets: string[][] = Array.from(this.bucketMap.entries());
 
-      buckets.forEach((bucket: string[], index: number): void => {
-        const bucketLabel = this.bucketLabel(bucket, index, buckets);
-        this.displayedBucketsMap.set(bucketLabel, bucket[1]);
-      });
+      const bucketEntries = this.state.currentDataLayer?.legendInfo.bucketMap?.entries();
+
+      if (bucketEntries != null) {
+        const buckets: string[][] = Array.from(bucketEntries);
+
+        buckets.forEach((bucket: string[], index: number): void => {
+          const bucketLabel = this.bucketLabel(bucket, index, buckets);
+          this.displayedBucketsMap.set(bucketLabel, bucket[1]);
+        });
+      }
     },
   },
   mounted() {
@@ -70,13 +73,19 @@ export default defineComponent({
   },
   watch: {
     /**
-     * Update legend if bucketMap changes.
+     * Update legend with current data layer options when state is updated.
      *
      * This could happen if the user toggles visual layers, which would change
      * the type and therefore buckets of the data we want to display.
      */
-    bucketMap: function (): void {
-      this.createLegend();
+    state: {
+      handler(newState: State): void {
+        if (newState.currentDataLayer != null) {
+          this.createLegend();
+        }
+      },
+      // Make watcher deep, meaning that this will be triggered on a change to any nested field of state.
+      deep: true,
     },
   }
 })
