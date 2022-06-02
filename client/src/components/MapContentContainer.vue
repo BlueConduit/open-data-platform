@@ -12,7 +12,7 @@ import { defineComponent } from 'vue';
  * Container for SearchBar and MapContainer.
  */
 export default defineComponent({
-  name: 'MapContentContainer.vue',
+  name: 'MapContentContainer',
   components: {
     MapContainer,
     SearchBar,

@@ -126,6 +126,7 @@ export default defineComponent({
      * Configure data layers and interaction handlers on the map.
      */
     configureMap(): void {
+      this.state.map = this.map;
       this.state.dataLayers?.forEach(layer => {
         const source: GeoJSONSourceRaw = {
           type: 'geojson',
