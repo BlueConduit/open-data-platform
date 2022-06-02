@@ -69,7 +69,8 @@ export class FrontendStack extends Stack {
       originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
       functionAssociations: [
         // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.
-        // Since CloudFront is instantiated in us-east-1, so must this function: https://us-east-1.console.aws.amazon.com/cloudfront/v3/home?region=us-east-2#/functions/tileServerPrefixTrim?tab=test
+        // Since CloudFront is instantiated in us-east-1, so must this function:
+        // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/monitoring-functions.htmltions/tileServerPrefixTrim?tab=test
         {
           function: new cloudfront.Function(this, 'ViewerResponseFunction', {
             functionName: 'tileServerPrefixTrim',

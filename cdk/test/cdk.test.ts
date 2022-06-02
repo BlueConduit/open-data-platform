@@ -22,10 +22,12 @@ describe('Full stack', () => {
     dataPlaneStack = new DataPlaneStack(app, util.stackName(util.StackId.DataPlane), {
       vpc: networkStack.vpc,
     });
-    frontendStack = new FrontendStack(app, util.stackName(util.StackId.Frontend), {});
     appPlaneStack = new AppPlaneStack(app, util.stackName(util.StackId.AppPlane), {
       networkStack,
       dataPlaneStack,
+    });
+    frontendStack = new FrontendStack(app, util.stackName(util.StackId.Frontend), {
+      appPlaneStack,
     });
   });
 
@@ -38,11 +40,12 @@ describe('Full stack', () => {
     const dataPlaneTemplate = Template.fromStack(dataPlaneStack);
     dataPlaneTemplate.hasResourceProperties('AWS::RDS::DBCluster', {}); // Aurora cluster.
     dataPlaneTemplate.hasResourceProperties('AWS::Lambda::Function', {}); // Schema lambda.
+    const appPlaneTemplate = Template.fromStack(appPlaneStack);
+    appPlaneTemplate.hasResourceProperties('AWS::ECS::Service', {}); // Tile server.
     const frontendTemplate = Template.fromStack(frontendStack);
     frontendTemplate.hasResourceProperties('AWS::S3::Bucket', {}); // s3 bucket.
     frontendTemplate.hasResourceProperties('AWS::CloudFront::Distribution', {}); // CloudFront Distribution.
-    const appPlaneTemplate = Template.fromStack(appPlaneStack);
-    appPlaneTemplate.hasResourceProperties('AWS::ECS::Service', {}); // Fargate instance.
+    frontendTemplate.hasResourceProperties('AWS::CloudFront::Function', {}); // URL prefix trimmer.
   });
 
   // TODO: Check that the lambda has write access to the DB.
