@@ -13,6 +13,7 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import { CommonProps } from '../../util';
 import { AppPlaneStack } from '../app-plane/app-plane-stack';
+import prefixes, { handler } from './url-prefixes';
 
 interface FrontendProps extends CommonProps {
   appPlaneStack: AppPlaneStack;
@@ -51,33 +52,33 @@ export class FrontendStack extends Stack {
       distributionPaths: ['/*'],
     });
 
-    // This doesn't work yet, but I'm checking it in disabled, so the work isn't lost.
-    if (false) {
-      // Add the tileserver to the Cloudfront distribution to make it publicly available.
-      this.addApiProxy(
-        appPlaneStack.tileServer.ecsService.loadBalancer.loadBalancerDnsName,
-        // Temporarily just front the health check endpoint.
-        '/healthz',
-      );
-    }
-  }
-
-  /**
-   * Adds an endpoint to the Cloudfront distribution for public access.
-   * @param originName - endpoint for the internal application.
-   * @param pathPattern - the path pattern (e.g., 'images/*') that specifies which requests to redirect.
-   */
-  addApiProxy(originName: string, pathPattern: string) {
-    const origin = new origins.HttpOrigin(originName, {
-      protocolPolicy: process.env.ACKLEN_DEV
-        ? cloudfront.OriginProtocolPolicy.HTTP_ONLY
-        : cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
-    });
-    this.distribution.addBehavior(pathPattern, origin, {
+    // Add the tileserver to the Cloudfront distribution to make it publicly available.
+    // TODO: consider splitting this out into another file for organization.
+    const tileServerOrigin = new origins.HttpOrigin(
+      // The URL for the load balancer in front of the tile server cluster.
+      appPlaneStack.tileServer.ecsService.loadBalancer.loadBalancerDnsName,
+      {
+        // TODO: set up HTTPS. Until then, this is HTTP only.
+        protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+      },
+    );
+    this.distribution.addBehavior(`${prefixes.tileServer}/*`, tileServerOrigin, {
       allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
       responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
       cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
       originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+      functionAssociations: [
+        // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.
+        // Since CloudFront is instantiated in us-east-1, so must this function: https://us-east-1.console.aws.amazon.com/cloudfront/v3/home?region=us-east-2#/functions/tileServerPrefixTrim?tab=test
+        {
+          function: new cloudfront.Function(this, 'ViewerResponseFunction', {
+            functionName: 'tileServerPrefixTrim',
+            code: cloudfront.FunctionCode.fromInline(handler.toString()),
+            comment: `Trim "${prefixes.tileServer}" prefix from URL`,
+          }),
+          eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+        },
+      ],
     });
   }
 }
