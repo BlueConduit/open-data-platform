@@ -35,14 +35,16 @@ export class TileServer extends Construct {
       cpu: 512, // measured in milliCPU; or 0.5 vCPU.
       taskImageOptions: {
         // Source: https://github.com/urbica/martin
-        image: ecs.ContainerImage.fromRegistry('urbica/martin'),
+        // TODO: Rename this reposity or tag to describe that it's the tile server, not the platform.
+        image: ecs.ContainerImage.fromRegistry('public.ecr.aws/m2w9u0k4/open-data-platform:latest'),
         containerPort: 3000,
         secrets: {
           // This includes the credentials, host, and database name.
           DATABASE_URL: ecs.Secret.fromSecretsManager(databaseUrlSecret),
         },
       },
-      publicLoadBalancer: false,
+      // Open the load balancer to internet, so this can be accessed directly.
+      publicLoadBalancer: true,
     });
 
     this.ecsService.targetGroup.configureHealthCheck({

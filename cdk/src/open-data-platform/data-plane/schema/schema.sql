@@ -63,9 +63,11 @@ CREATE INDEX IF NOT EXISTS dummy_gix
   ON dummy
   USING GIST (geom);
 
--- Upsert a test point.
+-- Upsert a few test points.
 INSERT INTO dummy (geom, name)
-VALUES (ST_MakePoint(0,0), 'test_point')
+VALUES (ST_MakePoint(0,0), 'test_point'),
+(ST_MakePoint(1,0), 'test_point_2'),
+(ST_MakePoint(0,1), 'test_point_3')
 ON CONFLICT (name) 
 DO NOTHING;
 
