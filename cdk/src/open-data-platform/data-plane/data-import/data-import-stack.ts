@@ -6,7 +6,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { ResourceInitializer } from '../../resource-initializer';
+import { ResourceInitializer } from '../../../resource-initializer';
 
 interface SchemaProps {
   cluster: rds.ServerlessCluster;
@@ -41,26 +41,6 @@ export class DataImportStack extends Construct {
       },
     );
 
-    // const writeLeadPredictionFunction = new lambda.NodejsFunction(
-    //   this,
-    //   'write-lead-prediction-handler',
-    //   {
-    //     entry: `${path.resolve(__dirname)}/write-lead-prediction-handler.handler.ts`,
-    //     handler: 'handler',
-    //     vpc: vpc,
-    //     vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
-    //     environment: {
-    //       CREDENTIALS_SECRET: credentialsSecret.secretArn,
-    //       DATABASE_NAME: db,
-    //     },
-    //     timeout: Duration.minutes(10),
-    //     bundling: {
-    //       externalModules: ['aws-sdk'],
-    //       nodeModules: ['stream-json', '@databases/pg'],
-    //     },
-    //   },
-    // );
-
     // Allow reads to all S3 buckets in account.
     const s3GetObjectPolicy = new iam.PolicyStatement({
       actions: ['s3:GetObject'],
@@ -88,9 +68,12 @@ export class DataImportStack extends Construct {
       }
     }
 
-    // Invoke the lambda.
-    const init = new ResourceInitializer(this, 'ImportDemographicData', {
-      initFunction: writeDemographicDataFunction,
-    });
+    // Import the data on CDK deploy.
+    // TODO: enable this once it is ready to use.
+    if (true) {
+      const init = new ResourceInitializer(this, 'ImportDemographicData', {
+        initFunction: writeDemographicDataFunction,
+      });
+    }
   }
 }

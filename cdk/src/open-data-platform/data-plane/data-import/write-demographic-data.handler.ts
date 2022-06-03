@@ -8,6 +8,7 @@ import createConnectionPool, {
 } from '@databases/pg';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
+import { database } from '../schema/schema.handler';
 
 // We have to import it this way, otherwise typescript doesn't like using it as a function.
 const parse = require('csv-parser');
@@ -37,27 +38,7 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
   console.log('Connecting to database...');
   let connectionsCount = 0;
 
-  let pool = createConnectionPool({
-    ...config,
-    onError: (err: Error) => {
-      console.log(`${new Date().toISOString()} ERROR - ${err.message}`);
-    },
-    onConnectionOpened: () => {
-      console.log(`Opened connection. Active connections = ${++connectionsCount}`);
-    },
-    onConnectionClosed: () => {
-      console.log(`Closed connection. Active connections = ${--connectionsCount}`);
-    },
-    onQueryStart: (_query, { text, values }) => {
-      console.log(`${new Date().toISOString()} START QUERY ${text} - ${JSON.stringify(values)}`);
-    },
-    onQueryResults: (_query, { text }, results) => {
-      console.log(`${new Date().toISOString()} END QUERY   ${text} - ${results.length} results`);
-    },
-    onQueryError: (_query, { text }, err) => {
-      console.log(`${new Date().toISOString()} ERROR QUERY ${text} - ${err.message}`);
-    },
-  });
+  let pool = database(config);
   console.log('Finished connecting to database...');
   return pool;
 }

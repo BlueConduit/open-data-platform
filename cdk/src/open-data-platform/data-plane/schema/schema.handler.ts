@@ -108,7 +108,7 @@ async function runSchemaFile(file: string, db: ConnectionPool) {
   return await db.query(sql.file(file));
 }
 
-function database(config: ConnectionPoolConfig): ConnectionPool {
+export function database(config: ConnectionPoolConfig): ConnectionPool {
   let connectionsCount = 0;
   return createConnectionPool({
     ...config,

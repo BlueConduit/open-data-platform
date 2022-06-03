@@ -38,7 +38,7 @@ CREATE INDEX IF NOT EXISTS geom_index
 CREATE TABLE IF NOT EXISTS lead_service_lines(
     pws_id varchar(255) NOT NULL,
     lead_connections_count real,
-    PRIMARY KEY(pws_is)
+    PRIMARY KEY(pws_id)
     );
 
 ALTER TABLE lead_service_lines
