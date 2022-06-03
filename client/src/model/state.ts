@@ -25,12 +25,10 @@ export class State {
   /**
    * Returns default instance of State.
    *
-   * This consists of an empty list of dataLayers and null currentDataLayer.
+   * This consists of an empty list of dataLayers and null currentDataLayer and map.
    */
   static default(): State {
-    const initialDataLayer = null as unknown as DataLayer;
-    const initialMap = null as unknown as mapboxgl.Map;
-    return State.constructor([], initialDataLayer);
+    return State.constructor([] as DataLayer[]);
   }
 
   setCurrentDataLayer(newLayer: DataLayer): void {

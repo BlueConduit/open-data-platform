@@ -1,13 +1,13 @@
 <template>
   <div v-show='visible' class='geocoder-content-expanded'>
     <div class='geocoder' id='geocoder'></div>
-    <div class='search-button' @click='toggleVisibility()'>
-      <img src="@/assets/icons/search.svg" />
+    <div class='search-button' @click='this.visible = !this.visible'>
+      <img src='@/assets/icons/search.svg' />
     </div>
   </div>
   <div v-show='!visible' class='geocoder-content-collapsed'>
-    <div class='search-button' @click='toggleVisibility()'>
-      <img src="@/assets/icons/search.svg" />
+    <div class='search-button' @click='this.visible = !this.visible'>
+      <img src='@/assets/icons/search.svg' />
     </div>
   </div>
 </template>
@@ -20,6 +20,11 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import mapboxgl from 'mapbox-gl';
 
+/**
+ * Wrapper for Mapbox Geocoder.
+ *
+ * See details at https://github.com/mapbox/mapbox-gl-geocoder.
+ */
 export default defineComponent({
   name: 'MapGeocoderWrapper',
   setup() {
@@ -33,21 +38,18 @@ export default defineComponent({
     return {
       geocoder: null as unknown as MapboxGeocoder,
       visible: false,
-    }
-  },
-  methods: {
-    toggleVisibility() {
-      this.visible = !this.visible;
-      console.log(this.visible);
-    }
+    };
   },
   watch: {
     'state.map': function(newMap: mapboxgl.Map) {
+      // Create geocoder when map is updated and geocoder is null. This is only triggered once per
+      // app load since the map is only created once.
       if (newMap != null && this.geocoder == null) {
         this.geocoder = new MapboxGeocoder({
           accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN,
           mapboxgl: mapboxgl as unknown as mapboxgl.Map,
           marker: true,
+          countries: 'US',
         });
 
         document.getElementById('geocoder')?.appendChild(this.geocoder.onAdd(newMap));
@@ -69,19 +71,22 @@ export default defineComponent({
   border-right: 1px solid #CCCCCC;
 }
 
-.mapboxgl-ctrl-geocoder--input:focus {
-  outline: none;
-}
-
-.mapboxgl-ctrl-geocoder--input {
-  padding: 10px 11px;
-  line-height: 12px;
-}
-
 .geocoder-content-expanded {
   height: 38px;
   border: 1px solid #CCCCCC;
   border-radius: 5px;
+}
+
+.search-button {
+  float: right;
+  display: inline-block;
+  padding: 10px 15px 0 15px;
+}
+
+/** Override geocoder styles. **/
+
+.mapboxgl-ctrl-geocoder {
+  box-shadow: none;
 }
 
 .mapboxgl-ctrl-geocoder--icon-search {
@@ -90,13 +95,12 @@ export default defineComponent({
   height: 0;
 }
 
-.mapboxgl-ctrl-geocoder {
-  box-shadow: none;
+.mapboxgl-ctrl-geocoder--input {
+  padding: 10px 11px;
+  line-height: 12px;
 }
 
-.search-button {
-  float: right;
-  display: inline-block;
-  padding: 10px 15px 0 15px;
+.mapboxgl-ctrl-geocoder--input:focus {
+  outline: none;
 }
 </style>
