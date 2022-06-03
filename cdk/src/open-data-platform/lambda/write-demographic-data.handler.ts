@@ -8,8 +8,9 @@ import createConnectionPool, {
 } from '@databases/pg';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import * as parse from 'csv-parser';
 
+// We have to import it this way, otherwise typescript doesn't like using it as a function.
+const parse = require('csv-parser');
 const S3 = new AWS.S3();
 const secretsmanager = new SecretsManager({});
 
@@ -130,7 +131,7 @@ function parseS3IntoDemographicsTableRow(
     const fileStream = S3.getObject(s3Params).createReadStream();
     fileStream
       .pipe(parse())
-      .on('data', (dataRow) => {
+      .on('data', (dataRow: any) => {
         // Pause to allow for processing.
         fileStream.pause();
         if (count < numberRowsToWrite) {
@@ -160,7 +161,7 @@ function parseS3IntoDemographicsTableRow(
  * to demographics table in the MainCluster postgres db.
  */
 export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  const secretArn: string = process.env.secretArn ?? '';
+  const secretArn: string = process.env.CREDENTIALS_SECRET ?? '';
   const numberRowsToWrite: number = parseInt(process.env.numberRows ?? '10');
 
   const s3Params = {
