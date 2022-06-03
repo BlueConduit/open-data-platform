@@ -1,13 +1,15 @@
 <template>
-  <div v-show='visible' class='geocoder-content-expanded'>
-    <div class='geocoder' id='geocoder'></div>
-    <div class='search-button' @click='this.visible = !this.visible'>
-      <img src='@/assets/icons/search.svg' />
+  <div>
+    <div v-show='visible' class='geocoder-content-expanded'>
+      <div class='geocoder' id='geocoder'></div>
+      <div class='search-button' @click='this.visible = !this.visible'>
+        <img src='@/assets/icons/search.svg' />
+      </div>
     </div>
-  </div>
-  <div v-show='!visible' class='geocoder-content-collapsed'>
-    <div class='search-button' @click='this.visible = !this.visible'>
-      <img src='@/assets/icons/search.svg' />
+    <div v-show='!visible' class='geocoder-content-collapsed'>
+      <div class='search-button' @click='this.visible = !this.visible'>
+        <img src='@/assets/icons/search.svg' />
+      </div>
     </div>
   </div>
 </template>
@@ -47,6 +49,7 @@ export default defineComponent({
       // app load since the map is only created once.
       if (newMap != null) {
         this.geocoder = new MapboxGeocoder({
+          // TODO(kailamjeter): use secrets manager for this.
           accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN,
           mapboxgl: undefined,
           marker: false,
