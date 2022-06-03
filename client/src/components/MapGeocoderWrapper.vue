@@ -36,11 +36,8 @@ export default defineComponent({
   },
   data() {
     return {
-      // Initializing with null requires typing `as unknown as MapboxGeocoder` since there is no
-      // apparent overlap between null and the MapboxGeocoder class. Typing as unknown creates an
-      // intersection between the two since both null and any class fall into the unknown type.
-      // See https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-0.html#new-unknown-top-type
-      geocoder: null as unknown as MapboxGeocoder,
+      // Default to empty geocoder instance that is not connected to map or view.
+      geocoder: new MapboxGeocoder(),
       visible: false,
     };
   },
@@ -48,14 +45,11 @@ export default defineComponent({
     'state.map': function(newMap: mapboxgl.Map) {
       // Create geocoder when map is updated and geocoder is null. This is only triggered once per
       // app load since the map is only created once.
-      if (newMap != null && this.geocoder == null) {
+      if (newMap != null) {
         this.geocoder = new MapboxGeocoder({
           accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN,
-          // Casting to 'as unknown as mapboxgl.Map is required since mapboxgl is of type
-          // 'mapboxgl.Map', however the geocoder actually expects type mapboxgl. This is a bug in
-          // the geocoder code.
-          mapboxgl: mapboxgl as unknown as mapboxgl.Map,
-          marker: true,
+          mapboxgl: undefined,
+          marker: false,
           countries: 'US',
         });
 

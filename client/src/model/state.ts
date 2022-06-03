@@ -11,15 +11,17 @@ import { DataLayer } from '@/model/data_layer';
 import mapboxgl from 'mapbox-gl';
 
 export class State {
-  currentDataLayer: DataLayer;
+  currentDataLayer: DataLayer | null;
   dataLayers: DataLayer[];
   map: mapboxgl.Map | null;
 
-  constructor(dataLayers: DataLayer[], initialDataLayer: DataLayer, map?: mapboxgl.Map) {
-    // Default to first entry in dataLayers if initial layer is not provided and data layers are provided.
-    this.currentDataLayer
-      = (initialDataLayer == null && dataLayers.length > 0) ? dataLayers[0] : initialDataLayer;
+  constructor(dataLayers: DataLayer[], initialDataLayer?: DataLayer, map?: mapboxgl.Map) {
     this.dataLayers = dataLayers;
+    this.currentDataLayer = initialDataLayer ?? null;
+    // Default to first entry in dataLayers if initial layer is not provided and data layers are provided.
+    if (this.currentDataLayer == null && dataLayers.length > 0) {
+      this.currentDataLayer = dataLayers[0];
+    }
     this.map = map ?? null;
   }
 
