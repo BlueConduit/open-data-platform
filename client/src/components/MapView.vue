@@ -34,11 +34,7 @@ export default defineComponent({
   },
   data() {
     return {
-      // Initializing with null requires typing `as unknown as type` since there is no apparent
-      // overlap between null and the declared class. Typing as unknown creates an intersection
-      // between the two since both null and any class fall into the unknown type.
-      // See https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-0.html#new-unknown-top-type
-      map: null as unknown as mapboxgl.Map,
+      map: null as mapboxgl.Map | null,
     };
   },
   props: {
@@ -58,9 +54,11 @@ export default defineComponent({
      * Updates layer visibility based on current data layer.
      */
     toggleLayerVisibility(updatedState: State): void {
+      if (this.map == null) return;
+      
       updatedState.dataLayers.forEach(layer => {
         const visibility = layer == updatedState.currentDataLayer ? 'visible' : 'none';
-        this.map.setLayoutProperty(layer.styleLayer.id, 'visibility', visibility);
+        this.map?.setLayoutProperty(layer.styleLayer.id, 'visibility', visibility);
       });
     },
 
@@ -87,6 +85,7 @@ export default defineComponent({
      * popup.
      */
     createMapPopup(lngLat: LngLatLike, popupData: Record<string, any>): void {
+      if (this.map == null) return;
       new mapbox.Popup(
         { className: 'mapbox-popup' })
         .setLngLat(lngLat)
@@ -107,10 +106,12 @@ export default defineComponent({
      * Sets up interaction handlers for map.
      */
     setUpInteractionHandlers(): void {
+      if (this.map == null) return;
+
       this.state.dataLayers?.forEach(layer => {
         // Use MapBox's custom click handler, which takes the style layer that we
         // want to set up a handler for as a parameter.
-        this.map.on('click', layer.styleLayer.id,
+        this.map?.on('click', layer.styleLayer.id,
           async (e: MapLayerMouseEvent): Promise<void> => {
             if (e.features != undefined) {
               const clickedFeatureProperties: { [name: string]: any; } = e.features[0].properties as {};
@@ -126,14 +127,16 @@ export default defineComponent({
      * Configure data layers and interaction handlers on the map.
      */
     configureMap(): void {
+      if (this.map == null) return;
+
       this.state.map = this.map;
       this.state.dataLayers?.forEach(layer => {
         const source: GeoJSONSourceRaw = {
           type: 'geojson',
           data: layer.data,
         };
-        this.map.addSource(layer.id, source);
-        this.map.addLayer(layer.styleLayer);
+        this.map?.addSource(layer.id, source);
+        this.map?.addLayer(layer.styleLayer);
       });
 
       this.setUpInteractionHandlers();

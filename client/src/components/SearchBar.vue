@@ -43,12 +43,7 @@ export default defineComponent({
   data() {
     return {
       options: [] as DataLayer[],
-      // Initializing with null requires typing `as unknown as type` since
-      // there is no apparent overlap between null and DataLayer. Typing as
-      // unknown creates an intersection between the two since both null and
-      // DataLayer fall into the unknown type.
-      // See https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-0.html#new-unknown-top-type
-      selectedOption: null as unknown as DataLayer,
+      selectedOption: null as DataLayer | null,
     };
   },
   methods: {
