@@ -13,13 +13,14 @@ import mapboxgl from 'mapbox-gl';
 export class State {
   currentDataLayer: DataLayer;
   dataLayers: DataLayer[];
-  map: mapboxgl.Map;
+  map: mapboxgl.Map | null;
 
-  constructor(dataLayers: DataLayer[], initialDataLayer: DataLayer, map: mapboxgl.Map) {
+  constructor(dataLayers: DataLayer[], initialDataLayer: DataLayer, map?: mapboxgl.Map) {
     // Default to first entry in dataLayers if initial layer is not provided and data layers are provided.
-    this.currentDataLayer = (initialDataLayer == null && dataLayers.length > 0) ? dataLayers[0] : initialDataLayer;
+    this.currentDataLayer
+      = (initialDataLayer == null && dataLayers.length > 0) ? dataLayers[0] : initialDataLayer;
     this.dataLayers = dataLayers;
-    this.map = map;
+    this.map = map ?? null;
   }
 
   /**
