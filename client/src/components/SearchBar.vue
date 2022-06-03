@@ -91,14 +91,6 @@ export default defineComponent({
 </script>
 
 <style>
-.searchbar-container {
-  display: flex;
-  height: 54px;
-  padding: 0 15px;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .data-layer-options {
   display: flex;
   align-items: center;
@@ -116,6 +108,15 @@ export default defineComponent({
   padding-left: 15px;
 }
 
+.searchbar-container {
+  display: flex;
+  height: 54px;
+  padding: 0 15px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/** Style vue-select dropdown. */
 .vs__dropdown-toggle {
   height: 40px;
 }
