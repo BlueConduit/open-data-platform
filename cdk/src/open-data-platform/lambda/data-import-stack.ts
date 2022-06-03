@@ -41,25 +41,25 @@ export class DataImportStack extends Construct {
       },
     );
 
-    // const writeLeadPredictionFunction = new lambda.NodejsFunction(
-    //   this,
-    //   'write-lead-prediction-handler',
-    //   {
-    //     entry: `${path.resolve(__dirname)}/write-lead-prediction-handler.handler.ts`,
-    //     handler: 'handler',
-    //     vpc: vpc,
-    //     vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
-    //     environment: {
-    //       CREDENTIALS_SECRET: credentialsSecret.secretArn,
-    //       DATABASE_NAME: db,
-    //     },
-    //     timeout: Duration.minutes(10),
-    //     bundling: {
-    //       externalModules: ['aws-sdk'],
-    //       nodeModules: ['stream-json', '@databases/pg'],
-    //     },
-    //   },
-    // );
+    const writeLeadPredictionFunction = new lambda.NodejsFunction(
+      this,
+      'write-lead-prediction-handler',
+      {
+        entry: `${path.resolve(__dirname)}/write-lead-prediction-handler.handler.ts`,
+        handler: 'handler',
+        vpc: vpc,
+        vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+        environment: {
+          CREDENTIALS_SECRET: credentialsSecret.secretArn,
+          DATABASE_NAME: db,
+        },
+        timeout: Duration.minutes(10),
+        bundling: {
+          externalModules: ['aws-sdk'],
+          nodeModules: ['stream-json', '@databases/pg'],
+        },
+      },
+    );
 
     // Allow reads to all S3 buckets in account.
     const s3GetObjectPolicy = new iam.PolicyStatement({
@@ -73,7 +73,7 @@ export class DataImportStack extends Construct {
 
     const lambda_functions: lambda.NodejsFunction[] = [
       writeDemographicDataFunction,
-      // writeLeadPredictionFunction,
+      writeLeadPredictionFunction,
     ];
 
     for (let f of lambda_functions) {

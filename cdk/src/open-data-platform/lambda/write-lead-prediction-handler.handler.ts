@@ -1,7 +1,7 @@
-import { APIGatewayEvent } from 'aws-lambda';
+import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { ConnectionPool } from '@databases/pg';
+import * as AWS from 'aws-sdk';
 
-const AWS = require('aws-sdk');
 const S3 = new AWS.S3();
 const streamObject = require('stream-json/streamers/StreamObject');
 const streamValues = require('stream-json/streamers/StreamValues');
@@ -16,7 +16,7 @@ const LEAD_CONNECTIONS = 'lead_connections';
  * Reads the S3 CSV file and returns [LeadServiceLinesTableRow]s.
  */
 function parseS3IntoLeadServiceLinesTableRow(
-  s3Params: Object,
+  s3Params: AWS.S3.GetObjectRequest,
   numberRowsToWrite = 10,
 ): Promise<Array<LeadServiceLinesTableRow>> {
   const results: LeadServiceLinesTableRow[] = [];
@@ -26,7 +26,7 @@ function parseS3IntoLeadServiceLinesTableRow(
     const fileStream = S3.getObject(s3Params).createReadStream();
     fileStream
       .pipe(jsonStreamObject.input)
-      .on('data', (data) => {
+      .on('data', (data: any) => {
         // Pause to allow for processing.
         fileStream.pause();
         if (count < numberRowsToWrite) {
@@ -55,7 +55,7 @@ function parseS3IntoLeadServiceLinesTableRow(
  * Parses S3 'alabama_acs_data.csv' file and writes rows
  * to demographics table in the MainCluster postgres db.
  */
-exports.handler = async (event: APIGatewayEvent): Promise<Object> => {
+exports.handler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   return new Promise(async function (resolve, reject) {
     const secretArn: string = event['secretArn'];
     const numberRowsToWrite: number = event['numberRows'];
