@@ -6,10 +6,10 @@ import createConnectionPool, {
   Queryable,
   sql,
 } from '@databases/pg';
-import { APIGatewayEvent } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import * as AWS from 'aws-sdk';
+import * as parse from 'csv-parser';
 
-const AWS = require('aws-sdk');
-const parse = require('csv-parser');
 const S3 = new AWS.S3();
 const secretsmanager = new SecretsManager({});
 
@@ -121,7 +121,7 @@ async function deleteRows(db: Queryable): Promise<any[]> {
  * Reads the S3 CSV file and returns [DemographicsTableRow]s.
  */
 function parseS3IntoDemographicsTableRow(
-  s3Params: Object,
+  s3Params: AWS.S3.GetObjectRequest,
   numberRowsToWrite = 10,
 ): Promise<Array<DemographicsTableRow>> {
   const results: DemographicsTableRow[] = [];
@@ -159,38 +159,36 @@ function parseS3IntoDemographicsTableRow(
  * Parses S3 'alabama_acs_data.csv' file and writes rows
  * to demographics table in the MainCluster postgres db.
  */
-exports.handler = async (event: APIGatewayEvent): Promise<Object> => {
-  return new Promise(async function (resolve, reject) {
-    const secretArn: string = event['secretArn'];
-    const numberRowsToWrite: number = event['numberRows'];
+export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+  const secretArn: string = process.env.secretArn ?? '';
+  const numberRowsToWrite: number = parseInt(process.env.numberRows ?? '10');
 
-    const s3Params = {
-      Bucket: 'opendataplatformapistaticdata',
-      Key: 'alabama_acs_data.csv',
-    };
+  const s3Params = {
+    Bucket: 'opendataplatformapistaticdata',
+    Key: 'alabama_acs_data.csv',
+  };
 
-    let db: ConnectionPool | undefined;
+  let db: ConnectionPool | undefined;
 
-    // Read CSV file and write to demographics table.
-    try {
-      const rows = await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
-      console.log('Found rows: ' + JSON.stringify(rows));
+  // Read CSV file and write to demographics table.
+  try {
+    const rows = await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
+    console.log('Found rows: ' + JSON.stringify(rows));
 
-      db = await connectToDb(secretArn);
+    db = await connectToDb(secretArn);
 
-      // Remove existing rows before inserting new ones.
-      await deleteRows(db);
-      const data = await insertRows(db, rows);
-      resolve({ statusCode: 200, body: JSON.stringify(data) });
-    } catch (error) {
-      console.log('Error:' + error);
-      reject({ statusCode: 500, body: JSON.stringify(error.message) });
-    } finally {
-      console.log('Disconnecting from db...');
-      await db?.dispose();
-    }
-  });
-};
+    // Remove existing rows before inserting new ones.
+    await deleteRows(db);
+    const data = await insertRows(db, rows);
+    return { statusCode: 200, body: JSON.stringify(data) };
+  } catch (error: any) {
+    throw error;
+  } finally {
+    // This is wrapped in a try-catch-finally block so the connection can be disposed of.
+    console.log('Disconnecting from db...');
+    await db?.dispose();
+  }
+}
 
 /**
  * Single row for demographics table.
