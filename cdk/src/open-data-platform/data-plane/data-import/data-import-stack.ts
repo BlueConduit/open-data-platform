@@ -6,6 +6,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import * as path from 'path';
+import { ResourceInitializer } from '../../../resource-initializer';
 
 interface SchemaProps {
   cluster: rds.ServerlessCluster;
@@ -32,19 +33,12 @@ export class DataImportStack extends Construct {
           CREDENTIALS_SECRET: credentialsSecret.secretArn,
           DATABASE_NAME: db,
         },
-        timeout: Duration.minutes(10),
+        timeout: Duration.minutes(5),
         bundling: {
           externalModules: ['aws-sdk'],
           nodeModules: ['csv-parser', '@databases/pg'],
         },
       },
-    );
-
-    credentialsSecret.grantRead(writeDemographicDataFunction);
-
-    cluster.connections.allowFrom(
-      writeDemographicDataFunction,
-      ec2.Port.tcp(cluster.clusterEndpoint.port),
     );
 
     // Allow reads to all S3 buckets in account.
@@ -53,19 +47,33 @@ export class DataImportStack extends Construct {
       resources: ['arn:aws:s3:::*'],
     });
 
-    writeDemographicDataFunction.role?.attachInlinePolicy(
-      new iam.Policy(this, 'get-buckets-policy', {
-        statements: [s3GetObjectPolicy],
-      }),
-    );
+    const getS3BucketsPolicy = new iam.Policy(this, 'get-buckets-policy', {
+      statements: [s3GetObjectPolicy],
+    });
 
-    if (writeDemographicDataFunction.role?.roleArn != undefined) {
-      let role = iam.Role.fromRoleArn(
-        scope,
-        `{id} + -role`,
-        writeDemographicDataFunction.role.roleArn,
-      );
-      cluster.grantDataApiAccess(role);
+    const lambda_functions: lambda.NodejsFunction[] = [
+      writeDemographicDataFunction,
+      // writeLeadPredictionFunction,
+    ];
+
+    for (let f of lambda_functions) {
+      credentialsSecret.grantRead(f);
+      cluster.connections.allowFrom(f, ec2.Port.tcp(cluster.clusterEndpoint.port));
+
+      f.role?.attachInlinePolicy(getS3BucketsPolicy);
+
+      if (f.role?.roleArn != undefined) {
+        let role = iam.Role.fromRoleArn(scope, id + '-' + f, f.role.roleArn);
+        cluster.grantDataApiAccess(role);
+      }
+    }
+
+    // Import the data on CDK deploy.
+    // TODO: enable this once it is ready to use.
+    if (false) {
+      const init = new ResourceInitializer(this, 'ImportDemographicData', {
+        initFunction: writeDemographicDataFunction,
+      });
     }
   }
 }

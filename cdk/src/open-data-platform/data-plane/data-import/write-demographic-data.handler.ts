@@ -6,9 +6,11 @@ import createConnectionPool, {
   Queryable,
   sql,
 } from '@databases/pg';
-import { APIGatewayEvent } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import * as AWS from 'aws-sdk';
+import { database } from '../schema/schema.handler';
 
-const AWS = require('aws-sdk');
+// We have to import it this way, otherwise typescript doesn't like using it as a function.
 const parse = require('csv-parser');
 const S3 = new AWS.S3();
 const secretsmanager = new SecretsManager({});
@@ -36,27 +38,7 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
   console.log('Connecting to database...');
   let connectionsCount = 0;
 
-  let pool = createConnectionPool({
-    ...config,
-    onError: (err: Error) => {
-      console.log(`${new Date().toISOString()} ERROR - ${err.message}`);
-    },
-    onConnectionOpened: () => {
-      console.log(`Opened connection. Active connections = ${++connectionsCount}`);
-    },
-    onConnectionClosed: () => {
-      console.log(`Closed connection. Active connections = ${--connectionsCount}`);
-    },
-    onQueryStart: (_query, { text, values }) => {
-      console.log(`${new Date().toISOString()} START QUERY ${text} - ${JSON.stringify(values)}`);
-    },
-    onQueryResults: (_query, { text }, results) => {
-      console.log(`${new Date().toISOString()} END QUERY   ${text} - ${results.length} results`);
-    },
-    onQueryError: (_query, { text }, err) => {
-      console.log(`${new Date().toISOString()} ERROR QUERY ${text} - ${err.message}`);
-    },
-  });
+  let pool = database(config);
   console.log('Finished connecting to database...');
   return pool;
 }
@@ -65,7 +47,8 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
  * Inserts all rows into the demographics table.
  */
 async function insertRows(db: Queryable, rows: DemographicsTableRow[]): Promise<any[]> {
-  // TODO(breuch): Replgit puace with geom from new file.
+  // TODO(breuch): Replace with geom from new file.
+  // This is a random polygon taken from an unmapped s3 file.
   const geometry = sql.__dangerous__rawValue(
     "ST_GeometryFromText('POLYGON((-122.76199734299996 " +
       '47.34350314200003, -122.76248119999997 47.342854930000044, ' +
@@ -120,7 +103,7 @@ async function deleteRows(db: Queryable): Promise<any[]> {
  * Reads the S3 CSV file and returns [DemographicsTableRow]s.
  */
 function parseS3IntoDemographicsTableRow(
-  s3Params: Object,
+  s3Params: AWS.S3.GetObjectRequest,
   numberRowsToWrite = 10,
 ): Promise<Array<DemographicsTableRow>> {
   const results: DemographicsTableRow[] = [];
@@ -129,7 +112,7 @@ function parseS3IntoDemographicsTableRow(
     const fileStream = S3.getObject(s3Params).createReadStream();
     fileStream
       .pipe(parse())
-      .on('data', (dataRow) => {
+      .on('data', (dataRow: any) => {
         // Pause to allow for processing.
         fileStream.pause();
         if (count < numberRowsToWrite) {
@@ -158,38 +141,36 @@ function parseS3IntoDemographicsTableRow(
  * Parses S3 'alabama_acs_data.csv' file and writes rows
  * to demographics table in the MainCluster postgres db.
  */
-exports.handler = async (event: APIGatewayEvent): Promise<Object> => {
-  return new Promise(async function (resolve, reject) {
-    const secretArn: string = event['secretArn'];
-    const numberRowsToWrite: number = event['numberRows'];
+export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+  const secretArn: string = process.env.CREDENTIALS_SECRET ?? '';
+  const numberRowsToWrite: number = parseInt(process.env.numberRows ?? '10');
 
-    const s3Params = {
-      Bucket: 'opendataplatformapistaticdata',
-      Key: 'alabama_acs_data.csv',
-    };
+  const s3Params = {
+    Bucket: 'opendataplatformapistaticdata',
+    Key: 'alabama_acs_data.csv',
+  };
 
-    let db: ConnectionPool | undefined;
+  let db: ConnectionPool | undefined;
 
-    // Read CSV file and write to demographics table.
-    try {
-      const rows = await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
-      console.log('Found rows: ' + JSON.stringify(rows));
+  // Read CSV file and write to demographics table.
+  try {
+    const rows = await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
+    console.log('Found rows: ' + JSON.stringify(rows));
 
-      db = await connectToDb(secretArn);
+    db = await connectToDb(secretArn);
 
-      // Remove existing rows before inserting new ones.
-      await deleteRows(db);
-      const data = await insertRows(db, rows);
-      resolve({ statusCode: 200, body: JSON.stringify(data) });
-    } catch (error) {
-      console.log('Error:' + error);
-      reject({ statusCode: 500, body: JSON.stringify(error.message) });
-    } finally {
-      console.log('Disconnecting from db...');
-      await db?.dispose();
-    }
-  });
-};
+    // Remove existing rows before inserting new ones.
+    await deleteRows(db);
+    const data = await insertRows(db, rows);
+    return { statusCode: 200, body: JSON.stringify(data) };
+  } catch (error: any) {
+    throw error;
+  } finally {
+    // This is wrapped in a try-catch-finally block so the connection can be disposed of.
+    console.log('Disconnecting from db...');
+    await db?.dispose();
+  }
+}
 
 /**
  * Single row for demographics table.
