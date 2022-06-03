@@ -33,7 +33,7 @@ export class DataImportStack extends Construct {
           CREDENTIALS_SECRET: credentialsSecret.secretArn,
           DATABASE_NAME: db,
         },
-        timeout: Duration.minutes(10),
+        timeout: Duration.minutes(5),
         bundling: {
           externalModules: ['aws-sdk'],
           nodeModules: ['csv-parser', '@databases/pg'],
@@ -53,10 +53,10 @@ export class DataImportStack extends Construct {
           CREDENTIALS_SECRET: credentialsSecret.secretArn,
           DATABASE_NAME: db,
         },
-        timeout: Duration.minutes(10),
+        timeout: Duration.minutes(5),
         bundling: {
           externalModules: ['aws-sdk'],
-          nodeModules: ['stream-json', '@databases/pg'],
+          nodeModules: ['stream-json', '@databases/pg', 'stream-chain'],
         },
       },
     );

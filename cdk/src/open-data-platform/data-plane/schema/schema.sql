@@ -16,6 +16,12 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+-- Constants
+
+DECLARE
+    -- SRID 4326 maps the shape to latitude and longitude.
+SRID_LAT_LONG := 4326
+
 -- Tables
 
 CREATE TABLE IF NOT EXISTS demographics(
@@ -23,12 +29,11 @@ CREATE TABLE IF NOT EXISTS demographics(
     total_population real,
     black_percentage real,
     white_percentage real,
-    geom GEOMETRY(Polygon),
     PRIMARY KEY(census_geo_id)
 );
 
 ALTER TABLE demographics
-    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Polygon);
+    ADD COLUMN IF NOT EXISTS geom GEOMETRY(MultiPolygon, SRID_LAT_LONG);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
@@ -37,11 +42,11 @@ CREATE INDEX IF NOT EXISTS geom_index
 CREATE TABLE IF NOT EXISTS lead_service_lines(
     pws_id varchar(255) NOT NULL,
     lead_connections_count real,
-    PRIMARY KEY(pws_is)
+    PRIMARY KEY(pws_id)
     );
 
 ALTER TABLE lead_service_lines
-    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Polygon);
+    ADD COLUMN IF NOT EXISTS geom GEOMETRY(MultiPolygon, SRID_LAT_LONG);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON lead_service_lines

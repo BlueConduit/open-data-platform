@@ -16,15 +16,7 @@ export async function handler(event: { userCredentials?: string[] }) {
 
   const userCredentials = event.userCredentials ?? [];
 
-  console.log('Fetching db credentials...');
-  const { host, port, username, password } = await getCredentials(CREDENTIALS_SECRET);
-
-  const config: ConnectionPoolConfig = {
-    host: host,
-    port: port,
-    user: username,
-    password: password,
-  };
+  const config = await createDatabaseConfig();
 
   console.log('Connecting to default database...');
   const defaultDb = database(config);
@@ -108,7 +100,24 @@ async function runSchemaFile(file: string, db: ConnectionPool) {
   return await db.query(sql.file(file));
 }
 
-function database(config: ConnectionPoolConfig): ConnectionPool {
+async function createDatabaseConfig(): Promise<ConnectionPoolConfig> {
+  console.log('Fetching db credentials...');
+  const { host, port, username, password } = await getCredentials(CREDENTIALS_SECRET);
+  return {
+    host: host,
+    port: port,
+    user: username,
+    password: password,
+  };
+}
+
+export async function connectToDb(config?: ConnectionPoolConfig): Promise<ConnectionPool> {
+  config = config ?? (await createDatabaseConfig());
+  console.log('Connecting to database...');
+  return database(config);
+}
+
+export function database(config: ConnectionPoolConfig): ConnectionPool {
   let connectionsCount = 0;
   return createConnectionPool({
     ...config,

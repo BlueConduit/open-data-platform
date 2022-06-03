@@ -7,6 +7,7 @@ import createConnectionPool, {
   sql,
 } from '@databases/pg';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { database } from '../data-plane/schema/schema.handler';
 import * as AWS from 'aws-sdk';
 
 // We have to import it this way, otherwise typescript doesn't like using it as a function.
@@ -35,29 +36,7 @@ async function connectToDb(secretArn: string): Promise<ConnectionPool> {
   };
 
   console.log('Connecting to database...');
-  let connectionsCount = 0;
-
-  let pool = createConnectionPool({
-    ...config,
-    onError: (err: Error) => {
-      console.log(`${new Date().toISOString()} ERROR - ${err.message}`);
-    },
-    onConnectionOpened: () => {
-      console.log(`Opened connection. Active connections = ${++connectionsCount}`);
-    },
-    onConnectionClosed: () => {
-      console.log(`Closed connection. Active connections = ${--connectionsCount}`);
-    },
-    onQueryStart: (_query, { text, values }) => {
-      console.log(`${new Date().toISOString()} START QUERY ${text} - ${JSON.stringify(values)}`);
-    },
-    onQueryResults: (_query, { text }, results) => {
-      console.log(`${new Date().toISOString()} END QUERY   ${text} - ${results.length} results`);
-    },
-    onQueryError: (_query, { text }, err) => {
-      console.log(`${new Date().toISOString()} ERROR QUERY ${text} - ${err.message}`);
-    },
-  });
+  let pool = database(config);
   console.log('Finished connecting to database...');
   return pool;
 }
@@ -160,7 +139,7 @@ function parseS3IntoDemographicsTableRow(
  * Parses S3 'alabama_acs_data.csv' file and writes rows
  * to demographics table in the MainCluster postgres db.
  */
-export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const secretArn: string = process.env.CREDENTIALS_SECRET ?? '';
   const numberRowsToWrite: number = parseInt(process.env.numberRows ?? '10');
 
@@ -182,7 +161,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
     await deleteRows(db);
     const data = await insertRows(db, rows);
     return { statusCode: 200, body: JSON.stringify(data) };
-  } catch (error: any) {
+  } catch (error) {
     throw error;
   } finally {
     // This is wrapped in a try-catch-finally block so the connection can be disposed of.
