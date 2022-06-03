@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS demographics(
 );
 
 ALTER TABLE demographics
-    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Polygon);
+    -- SRID 4326 maps the shape to latitude and longitude.
+    ADD COLUMN IF NOT EXISTS geom GEOMETRY(MultiPolygon, 4326);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
@@ -41,7 +42,8 @@ CREATE TABLE IF NOT EXISTS lead_service_lines(
     );
 
 ALTER TABLE lead_service_lines
-    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Polygon);
+    -- SRID 4326 maps the shape to latitude and longitude.
+    ADD COLUMN IF NOT EXISTS geom GEOMETRY(MultiPolygon, 4326);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON lead_service_lines
