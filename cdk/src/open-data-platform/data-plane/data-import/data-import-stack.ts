@@ -33,7 +33,7 @@ export class DataImportStack extends Construct {
           CREDENTIALS_SECRET: credentialsSecret.secretArn,
           DATABASE_NAME: db,
         },
-        timeout: Duration.minutes(10),
+        timeout: Duration.minutes(5),
         bundling: {
           externalModules: ['aws-sdk'],
           nodeModules: ['csv-parser', '@databases/pg'],
@@ -70,7 +70,7 @@ export class DataImportStack extends Construct {
 
     // Import the data on CDK deploy.
     // TODO: enable this once it is ready to use.
-    if (true) {
+    if (false) {
       const init = new ResourceInitializer(this, 'ImportDemographicData', {
         initFunction: writeDemographicDataFunction,
       });
