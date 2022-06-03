@@ -6,7 +6,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 import { CommonProps } from '../../util';
 import { Schema } from './schema/schema';
-import { DataImportStack } from '../lambda/data-import-stack';
+import { DataImportStack } from './data-import/data-import-stack';
 import { DatabaseUserCredentials } from './db-user-credentials/db-user-credentials';
 
 interface DataPlaneProps extends CommonProps {

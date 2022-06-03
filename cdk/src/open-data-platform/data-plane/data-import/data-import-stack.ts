@@ -6,7 +6,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { ResourceInitializer } from '../../resource-initializer';
+import { ResourceInitializer } from '../../../resource-initializer';
 
 interface SchemaProps {
   cluster: rds.ServerlessCluster;
@@ -88,9 +88,12 @@ export class DataImportStack extends Construct {
       }
     }
 
-    // Invoke the lambda.
-    const init = new ResourceInitializer(this, 'ImportDemographicData', {
-      initFunction: writeDemographicDataFunction,
-    });
+    // Import the data on CDK deploy.
+    // TODO: enable this once it is ready to use.
+    if (false) {
+      const init = new ResourceInitializer(this, 'ImportDemographicData', {
+        initFunction: writeDemographicDataFunction,
+      });
+    }
   }
 }

@@ -73,7 +73,7 @@ export class FrontendStack extends Stack {
         // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/monitoring-functions.htmltions/tileServerPrefixTrim?tab=test
         {
           function: new cloudfront.Function(this, 'ViewerResponseFunction', {
-            functionName: 'tileServerPrefixTrim',
+            functionName: `${id}-tileServerPrefixTrim`,
             code: cloudfront.FunctionCode.fromInline(handler.toString()),
             comment: `Trim "${prefixes.tileServer}" prefix from URL`,
           }),

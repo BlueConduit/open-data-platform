@@ -7,39 +7,17 @@ import createConnectionPool, {
   sql,
 } from '@databases/pg';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { database } from '../data-plane/schema/schema.handler';
 import * as AWS from 'aws-sdk';
+import { connectToDb } from '../schema/schema.handler';
 
 // We have to import it this way, otherwise typescript doesn't like using it as a function.
 const parse = require('csv-parser');
 const S3 = new AWS.S3();
-const secretsmanager = new SecretsManager({});
 
 const GEO_ID = 'GEOID';
 const RACE_TOTAL = 'RaceTotal';
 const WHITE_POPULATION = 'Estimate!!Total:!!White alone';
 const BLACK_POPULATION = 'Estimate!!Total:!!Black or African American alone';
-
-/**
- * Establishes connection with DB with the given ARN.
- */
-async function connectToDb(secretArn: string): Promise<ConnectionPool> {
-  console.log('Fetching db credentials...');
-  const secretInfo = await secretsmanager.getSecretValue({ SecretId: secretArn });
-  const { host, port, username, password } = JSON.parse(secretInfo.SecretString!);
-
-  const config: ConnectionPoolConfig = {
-    host,
-    port,
-    user: username,
-    password: password,
-  };
-
-  console.log('Connecting to database...');
-  let pool = database(config);
-  console.log('Finished connecting to database...');
-  return pool;
-}
 
 /**
  * Inserts all rows into the demographics table.
@@ -140,7 +118,6 @@ function parseS3IntoDemographicsTableRow(
  * to demographics table in the MainCluster postgres db.
  */
 export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  const secretArn: string = process.env.CREDENTIALS_SECRET ?? '';
   const numberRowsToWrite: number = parseInt(process.env.numberRows ?? '10');
 
   const s3Params = {
@@ -155,7 +132,7 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     const rows = await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
     console.log('Found rows: ' + JSON.stringify(rows));
 
-    db = await connectToDb(secretArn);
+    db = await connectToDb();
 
     // Remove existing rows before inserting new ones.
     await deleteRows(db);

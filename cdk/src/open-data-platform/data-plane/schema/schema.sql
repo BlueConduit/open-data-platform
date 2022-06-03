@@ -20,7 +20,7 @@ $$ LANGUAGE plpgsql;
 
 DECLARE
     -- SRID 4326 maps the shape to latitude and longitude.
-SRID_LAT_LONG := 4326
+    SRID_LAT_LONG := 4326
 
 -- Tables
 
@@ -33,7 +33,9 @@ CREATE TABLE IF NOT EXISTS demographics(
 );
 
 ALTER TABLE demographics
-    ADD COLUMN IF NOT EXISTS geom GEOMETRY(MultiPolygon, SRID_LAT_LONG);
+    -- SRID 4326 maps the shape to latitude and longitude.
+    ALTER COLUMN geom TYPE GEOMETRY(MultiPolygon, SRID_LAT_LONG);
+
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
