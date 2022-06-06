@@ -1,11 +1,12 @@
 <template>
   <div class='control-container'>
-    <div class='zoom-in-control-button'>
-      <img src='@/assets/icons/zoom_in.svg' />
-    </div>
-    <div class='zoom-out-control-button'>
-      <img src='@/assets/icons/zoom_out.svg' />
-    </div>
+    <button @click="$emit('zoomIn')" class='zoom-in-control-button'>
+      <img class='button-icon' src='@/assets/icons/zoom_in.svg' />
+    </button>
+    <div class='disabled-overlay'></div>
+    <button @click="$emit('zoomOut')" class='zoom-out-control-button'>
+      <img class='button-icon' src='@/assets/icons/zoom_out.svg' />
+    </button>
   </div>
 </template>
 
@@ -14,11 +15,21 @@ import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'ZoomControl',
+  // TODO use props to update styling when disabled.
+  props: {
+    zoomInEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    zoomOutEnabled: {
+      type: Boolean,
+      default: true,
+    },
+  },
 });
 </script>
 
 <style scoped>
-
 .control-container {
   position: absolute;
   top: 120px;
@@ -34,6 +45,20 @@ export default defineComponent({
 
 .zoom-in-control-button {
   border-bottom: 1px solid #E5E5E5;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+
 }
 
+.zoom-out-control-button {
+  border: none;
+}
+
+.zoom-in-control-button, .zoom-out-control-button {
+  background-color: white;
+  cursor: pointer;
+  width: 100%;
+  height: 50%;
+}
 </style>

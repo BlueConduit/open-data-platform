@@ -1,6 +1,9 @@
 <template>
   <div id='map-container'></div>
-  <ZoomControl />
+  <ZoomControl zoom-in-enabled='this.zoomInEnabled()'
+               zoom-out-enabled='this.zoomOutEnabled()'
+               @zoomIn='handleZoom("zoomIn")'
+               @zoomOut='handleZoom("zoomOut")' />
   <MapLegend />
 </template>
 
@@ -53,7 +56,29 @@ export default defineComponent({
       default: DEFAULT_LNG_LAT,
     },
   },
+  zoomInEnabled() {
+    if (this.map == null) return;
+
+    return this.map.getZoom() <= this.map.getMaxZoom();
+  },
+
+  zoomOutEnabled() {
+    if (this.map == null) return;
+
+    return this.map.getZoom() >= this.map.getMinZoom();
+  },
+
   methods: {
+    handleZoom(zoom: string): void {
+      if (this.map == null) return;
+
+      if (zoom == 'zoomOut') {
+        this.map.zoomOut();
+      } else if (zoom == 'zoomIn') {
+        this.map.zoomIn();
+      }
+    },
+
     /**
      * Updates layer visibility based on current data layer.
      */
