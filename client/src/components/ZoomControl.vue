@@ -1,10 +1,12 @@
 <template>
   <div class='control-container'>
-    <button @click="$emit('zoomIn')" class='zoom-in-control-button'>
+    <button @click="$emit('zoomIn')" class='zoom-in-control-button'
+            :disabled='!this.zoomInEnabled'>
       <img class='button-icon' src='@/assets/icons/zoom_in.svg' />
     </button>
     <div class='disabled-overlay'></div>
-    <button @click="$emit('zoomOut')" class='zoom-out-control-button'>
+    <button @click="$emit('zoomOut')" class='zoom-out-control-button'
+            :disabled='!this.zoomOutEnabled'>
       <img class='button-icon' src='@/assets/icons/zoom_out.svg' />
     </button>
   </div>
