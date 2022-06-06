@@ -58,13 +58,17 @@ async function createDatabaseIfNotExists(dbName: string, db: ConnectionPool) {
   console.log(`Creating ${dbName} if it doesn't exist...`);
   const exists = await dbExists(dbName, db);
   if (!exists) {
-    await db.query(sql`CREATE DATABASE ${sql.__dangerous__rawValue(dbName)};`);
+    await db.query(sql`CREATE
+    DATABASE
+    ${sql.__dangerous__rawValue(dbName)};`);
   }
 }
 
 async function dbExists(dbName: string, db: ConnectionPool) {
   const result = await db.query(sql`
-    SELECT count(*) FROM pg_database WHERE datname='${sql.__dangerous__rawValue(dbName)}';
+      SELECT count(*)
+      FROM pg_database
+      WHERE datname = '${sql.__dangerous__rawValue(dbName)}';
   `);
   return result[0].count == 1;
 }
@@ -81,16 +85,21 @@ async function createUserIfNotExists(secretArn: string, db: ConnectionPool) {
   const exists = await userExists(username, db);
   if (!exists) {
     await db.query(
-      sql`CREATE USER ${sql.__dangerous__rawValue(
-        username,
-      )} WITH PASSWORD '${sql.__dangerous__rawValue(password)}'`,
+      sql`CREATE
+      USER
+      ${sql.__dangerous__rawValue(username)}
+      WITH
+      PASSWORD
+      '${sql.__dangerous__rawValue(password)}'`,
     );
   }
 }
 
 async function userExists(username: string, db: ConnectionPool) {
   const result = await db.query(sql`
-    SELECT count(*) FROM pg_user WHERE usename='${sql.__dangerous__rawValue(username)}';
+      SELECT count(*)
+      FROM pg_user
+      WHERE usename = '${sql.__dangerous__rawValue(username)}';
   `);
   return result[0].count == 1;
 }
@@ -100,6 +109,9 @@ async function runSchemaFile(file: string, db: ConnectionPool) {
   return await db.query(sql.file(file));
 }
 
+/**
+ * Fetches database credentials based on the CREDENTIALS_SECRET
+ */
 async function createDatabaseConfig(): Promise<ConnectionPoolConfig> {
   console.log('Fetching db credentials...');
   const { host, port, username, password } = await getCredentials(CREDENTIALS_SECRET);
@@ -111,6 +123,11 @@ async function createDatabaseConfig(): Promise<ConnectionPoolConfig> {
   };
 }
 
+/**
+ * Provides a ConnectionPool based on the config provided.
+ * @param config: credentials to use for the db. If none are provided,
+ * credentials are fetched based on CREDENTIALS_SECRET.
+ */
 export async function connectToDb(config?: ConnectionPoolConfig): Promise<ConnectionPool> {
   config = config ?? (await createDatabaseConfig());
   console.log('Connecting to database...');
