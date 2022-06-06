@@ -86,6 +86,7 @@ function parseS3IntoLeadServiceLinesTableRow(
           await insertRows(db, results);
           pipeline.resume();
         } else {
+          // Stop reading stream if numberOfRowsToWrite has been met.
           pipeline.destroy();
         }
       })
