@@ -15,7 +15,7 @@ const LEAD_CONNECTIONS = 'lead_connections';
 /**
  * Inserts all rows into the demographics table.
  */
-async function insertRows(db: Queryable, rows: LeadServiceLinesTableRow[]): Promise<any[]> {
+async function insertRows(db: ConnectionPool, rows: LeadServiceLinesTableRow[]): Promise<any[]> {
   // TODO(breuch): Replace with geom from new file.
   // This is a random polygon taken from an unmapped s3 file.
   const geometry = sql.__dangerous__rawValue(
@@ -58,7 +58,7 @@ async function insertRows(db: Queryable, rows: LeadServiceLinesTableRow[]): Prom
 /**
  * Inserts all rows into the demographics table.
  */
-async function deleteRows(db: Queryable): Promise<any[]> {
+async function deleteRows(db: ConnectionPool): Promise<any[]> {
   return db.query(sql`DELETE
                       FROM lead_service_lines
                       WHERE pws_id IS NOT NULL`);
@@ -120,6 +120,10 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
   try {
     const rows = await parseS3IntoLeadServiceLinesTableRow(s3Params, numberRowsToWrite);
     db = await connectToDb();
+
+    if (db == undefined) {
+      throw Error('Unable to connect to db');
+    }
 
     // Remove existing rows before inserting new ones.
     await deleteRows(db);
