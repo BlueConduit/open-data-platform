@@ -29,7 +29,9 @@ export async function handler(event: any) {
     console.log(`Update response: ${JSON.stringify(result, null, 2)}`);
 
     return { status: 'OK', results: result };
-  } catch (error: any) {
-    return { status: 'ERROR', error, message: error.message };
+  } catch (error) {
+    //  Catch clause variable cannot have a type annotation.
+    const typedError = error as Error;
+    return { status: 'ERROR', typedError, message: typedError?.message };
   }
 }

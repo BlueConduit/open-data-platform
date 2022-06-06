@@ -29,29 +29,29 @@ CREATE TABLE IF NOT EXISTS demographics(
     total_population real,
     black_percentage real,
     white_percentage real,
-    geom GEOMETRY(Polygon),
     PRIMARY KEY(census_geo_id)
 );
 
 ALTER TABLE demographics
     -- SRID 4326 maps the shape to latitude and longitude.
-    ALTER COLUMN geom TYPE GEOMETRY(MultiPolygon, SRID_LAT_LONG);
+    ALTER COLUMN geom TYPE GEOMETRY(Geometry, SRID_LAT_LONG);
+
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
     USING GIST (geom);
 
-CREATE TABLE IF NOT EXISTS lead_service_lines(
+CREATE TABLE IF NOT EXISTS water_systems(
     pws_id varchar(255) NOT NULL,
     lead_connections_count real,
     PRIMARY KEY(pws_id)
     );
 
-ALTER TABLE lead_service_lines
-    ADD COLUMN IF NOT EXISTS geom GEOMETRY(MultiPolygon, SRID_LAT_LONG);
+ALTER TABLE water_systems
+    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Geometry, SRID_LAT_LONG);
 
 CREATE INDEX IF NOT EXISTS geom_index
-    ON lead_service_lines
+    ON water_systems
     USING GIST (geom);
 
 -- Roles and Grants
