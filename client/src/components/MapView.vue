@@ -1,18 +1,19 @@
 <template>
   <div id='map-container'></div>
+  <ZoomControl />
   <MapLegend />
 </template>
 
 <script lang='ts'>
-import mapboxgl, { AnySourceData } from 'mapbox-gl';
-import mapbox, { GeoJSONSourceRaw, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
+import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from '@/components/MapLegend.vue';
 import MapPopupContent from '@/components/MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { styleLayer } from '../data_layer_configs/water_systems_config';
 import { DataSourceType } from '../model/data_layer';
+import ZoomControl from './ZoomControl.vue';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -22,6 +23,7 @@ const POPUP_CONTENT_BASE_HTML = `<div id='${POPUP_CONTENT_BASE_ID}'></div>`;
 export default defineComponent({
   name: 'MapView',
   components: {
+    ZoomControl,
     MapLegend,
   },
   setup() {
