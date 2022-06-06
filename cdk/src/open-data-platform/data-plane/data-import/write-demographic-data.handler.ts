@@ -8,40 +8,16 @@ import createConnectionPool, {
 } from '@databases/pg';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import { database } from '../schema/schema.handler';
+import { connectToDb } from '../schema/schema.handler';
 
 // We have to import it this way, otherwise typescript doesn't like using it as a function.
 const parse = require('csv-parser');
 const S3 = new AWS.S3();
-const secretsmanager = new SecretsManager({});
 
 const GEO_ID = 'GEOID';
 const RACE_TOTAL = 'RaceTotal';
 const WHITE_POPULATION = 'Estimate!!Total:!!White alone';
 const BLACK_POPULATION = 'Estimate!!Total:!!Black or African American alone';
-
-/**
- * Establishes connection with DB with the given ARN.
- */
-async function connectToDb(secretArn: string): Promise<ConnectionPool> {
-  console.log('Fetching db credentials...');
-  const secretInfo = await secretsmanager.getSecretValue({ SecretId: secretArn });
-  const { host, port, username, password } = JSON.parse(secretInfo.SecretString!);
-
-  const config: ConnectionPoolConfig = {
-    host,
-    port,
-    user: username,
-    password: password,
-  };
-
-  console.log('Connecting to database...');
-  let connectionsCount = 0;
-
-  let pool = database(config);
-  console.log('Finished connecting to database...');
-  return pool;
-}
 
 /**
  * Inserts all rows into the demographics table.
@@ -141,8 +117,7 @@ function parseS3IntoDemographicsTableRow(
  * Parses S3 'alabama_acs_data.csv' file and writes rows
  * to demographics table in the MainCluster postgres db.
  */
-export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  const secretArn: string = process.env.CREDENTIALS_SECRET ?? '';
+export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const numberRowsToWrite: number = parseInt(process.env.numberRows ?? '10');
 
   const s3Params = {
@@ -157,13 +132,13 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const rows = await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
     console.log('Found rows: ' + JSON.stringify(rows));
 
-    db = await connectToDb(secretArn);
+    db = await connectToDb();
 
     // Remove existing rows before inserting new ones.
     await deleteRows(db);
     const data = await insertRows(db, rows);
     return { statusCode: 200, body: JSON.stringify(data) };
-  } catch (error: any) {
+  } catch (error) {
     throw error;
   } finally {
     // This is wrapped in a try-catch-finally block so the connection can be disposed of.

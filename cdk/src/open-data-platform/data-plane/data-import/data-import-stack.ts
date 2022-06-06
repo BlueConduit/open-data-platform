@@ -41,6 +41,26 @@ export class DataImportStack extends Construct {
       },
     );
 
+    const writeWaterSystemsDataFunction = new lambda.NodejsFunction(
+      this,
+      'write-water-systems-data-handler',
+      {
+        entry: `${path.resolve(__dirname)}/write-water-systems-data-handler.handler.ts`,
+        handler: 'handler',
+        vpc: vpc,
+        vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+        environment: {
+          CREDENTIALS_SECRET: credentialsSecret.secretArn,
+          DATABASE_NAME: db,
+        },
+        timeout: Duration.minutes(5),
+        bundling: {
+          externalModules: ['aws-sdk'],
+          nodeModules: ['stream-json', '@databases/pg', 'stream-chain'],
+        },
+      },
+    );
+
     // Allow reads to all S3 buckets in account.
     const s3GetObjectPolicy = new iam.PolicyStatement({
       actions: ['s3:GetObject'],
@@ -53,7 +73,7 @@ export class DataImportStack extends Construct {
 
     const lambda_functions: lambda.NodejsFunction[] = [
       writeDemographicDataFunction,
-      // writeLeadPredictionFunction,
+      writeWaterSystemsDataFunction,
     ];
 
     for (let f of lambda_functions) {
@@ -71,7 +91,7 @@ export class DataImportStack extends Construct {
     // Import the data on CDK deploy.
     // TODO: enable this once it is ready to use.
     if (false) {
-      const init = new ResourceInitializer(this, 'ImportDemographicData', {
+      new ResourceInitializer(this, 'ImportDemographicData', {
         initFunction: writeDemographicDataFunction,
       });
     }
