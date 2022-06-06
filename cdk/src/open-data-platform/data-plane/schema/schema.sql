@@ -16,13 +16,17 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
--- Constants
+---------------
+-- Constants --
+---------------
 
 DECLARE
     -- SRID 4326 maps the shape to latitude and longitude.
     SRID_LAT_LONG := 4326
 
--- Tables
+------------
+-- Tables --
+------------
 
 CREATE TABLE IF NOT EXISTS demographics(
     census_geo_id varchar(255) NOT NULL,
@@ -54,7 +58,24 @@ CREATE INDEX IF NOT EXISTS geom_index
     ON lead_service_lines
     USING GIST (geom);
 
--- Roles and Grants
+-- Parcel-level data
+
+CREATE TABLE IF NOT EXISTS parcels (
+    id serial PRIMARY KEY
+);
+ALTER TABLE parcels
+    -- TODO: consider standardizing addresses into a PostGIS type once we have data.
+    -- https://postgis.net/docs/manual-2.5/Address_Standardizer.html
+    ADD COLUMN IF NOT EXISTS address text,
+    ADD COLUMN IF NOT EXISTS sl_path geometry(MultiLineString, SRID_LAT_LONG),
+    ADD COLUMN IF NOT EXISTS lead_prediction float,
+-- Either of these might be used for searching.
+CREATE INDEX IF NOT EXISTS sl_geometry_index ON parcels USING GIST (sl_path);
+CREATE INDEX IF NOT EXISTS addres_index ON parcels(address);
+
+----------------------
+-- Roles and Grants --
+----------------------
 
 -- The "readgeo" role can read data from all tables in the default DB and schema.
 SELECT safe_create($$CREATE ROLE readgeo$$);
