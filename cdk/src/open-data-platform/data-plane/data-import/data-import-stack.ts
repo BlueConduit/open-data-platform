@@ -41,11 +41,11 @@ export class DataImportStack extends Construct {
       },
     );
 
-    const writeLeadPredictionFunction = new lambda.NodejsFunction(
+    const writeWaterSystemsDataFunction = new lambda.NodejsFunction(
       this,
-      'write-lead-prediction-handler',
+      'write-water-systems-data-handler',
       {
-        entry: `${path.resolve(__dirname)}/write-lead-prediction-handler.handler.ts`,
+        entry: `${path.resolve(__dirname)}/write-water-systems-data-handler.handler.ts`,
         handler: 'handler',
         vpc: vpc,
         vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
@@ -73,7 +73,7 @@ export class DataImportStack extends Construct {
 
     const lambda_functions: lambda.NodejsFunction[] = [
       writeDemographicDataFunction,
-      writeLeadPredictionFunction,
+      writeWaterSystemsDataFunction,
     ];
 
     for (let f of lambda_functions) {

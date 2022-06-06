@@ -15,12 +15,12 @@ const DEFAULT_NUMBER_ROWS_TO_INSERT = 10;
 /**
  * Inserts all rows into the water systems table.
  */
-async function insertRows(db: ConnectionPool, rows: LeadServiceLinesTableRow[]): Promise<any[]> {
+async function insertRows(db: ConnectionPool, rows: WaterSystemsTableRow[]): Promise<any[]> {
   return db.query(sql`INSERT INTO water_systems (pws_id,
                                                  lead_connections_count,
                                                  geom)
                       VALUES ${sql.join(
-                        rows.map((row: LeadServiceLinesTableRow) => {
+                        rows.map((row: WaterSystemsTableRow) => {
                           return sql`(${row.pws_id}, ${
                             row.lead_connections_count
                           }, ${sql.__dangerous__rawValue(
@@ -32,7 +32,7 @@ async function insertRows(db: ConnectionPool, rows: LeadServiceLinesTableRow[]):
 }
 
 /**
- * Inserts all rows into the demographics table.
+ * Inserts all rows into the water systems table.
  */
 async function deleteRows(db: ConnectionPool): Promise<any[]> {
   return db.query(sql`DELETE
@@ -41,7 +41,7 @@ async function deleteRows(db: ConnectionPool): Promise<any[]> {
 }
 
 /**
- * Reads the S3 CSV file and returns [LeadServiceLinesTableRow]s.
+ * Reads the S3 CSV file and the number of rows successfully written.
  */
 function parseS3IntoLeadServiceLinesTableRow(
   s3Params: AWS.S3.GetObjectRequest,
@@ -63,13 +63,13 @@ function parseS3IntoLeadServiceLinesTableRow(
     pipeline
       .on('data', async (batch: any[]) => {
         if (numberRows < numberOfRowsToWrite) {
-          const results: LeadServiceLinesTableRow[] = [];
+          const results: WaterSystemsTableRow[] = [];
 
           batch.forEach((data) => {
             const value = data.value;
             const properties = value.properties;
 
-            const row = new LeadServiceLinesTableRowBuilder()
+            const row = new WaterSystemsTableRowBuilder()
               .pwsId(properties.pwsid)
               // Sometimes this number is negative because it is based on a
               // regression.
@@ -103,8 +103,8 @@ function parseS3IntoLeadServiceLinesTableRow(
 }
 
 /**
- * Parses S3 'alabama_acs_data.csv' file and writes rows
- * to demographics table in the MainCluster postgres db.
+ * Parses S3 'pwsid_lead_connections.geojson' file and writes rows
+ * to water systems table in the MainCluster postgres db.
  */
 export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const numberRowsToWrite: number = parseInt(
@@ -118,7 +118,7 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
   let db: ConnectionPool | undefined;
 
-  // Read CSV file and write to demographics table.
+  // Read CSV file and write to water systems table.
   try {
     db = await connectToDb();
     if (db == undefined) {
@@ -142,9 +142,9 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 }
 
 /**
- * Single row for lead service lines table.
+ * Single row for water systems table.
  */
-class LeadServiceLinesTableRow {
+class WaterSystemsTableRow {
   // Field formatting conforms to rows in the db. Requires less transformations.
 
   // Water system identifier.
@@ -162,31 +162,31 @@ class LeadServiceLinesTableRow {
 }
 
 /**
- * Builder utility for rows of the lead service lines table.
+ * Builder utility for rows of the water systems table.
  */
-class LeadServiceLinesTableRowBuilder {
-  private readonly _row: LeadServiceLinesTableRow;
+class WaterSystemsTableRowBuilder {
+  private readonly _row: WaterSystemsTableRow;
 
   constructor() {
-    this._row = new LeadServiceLinesTableRow('', 0, '');
+    this._row = new WaterSystemsTableRow('', 0, '');
   }
 
-  pwsId(pwsId: string): LeadServiceLinesTableRowBuilder {
+  pwsId(pwsId: string): WaterSystemsTableRowBuilder {
     this._row.pws_id = pwsId;
     return this;
   }
 
-  geom(geom: string): LeadServiceLinesTableRowBuilder {
+  geom(geom: string): WaterSystemsTableRowBuilder {
     this._row.geom = geom;
     return this;
   }
 
-  leadConnectionsCount(leadConnectionsCount: number): LeadServiceLinesTableRowBuilder {
+  leadConnectionsCount(leadConnectionsCount: number): WaterSystemsTableRowBuilder {
     this._row.lead_connections_count = leadConnectionsCount;
     return this;
   }
 
-  build(): LeadServiceLinesTableRow {
+  build(): WaterSystemsTableRow {
     return this._row;
   }
 }
