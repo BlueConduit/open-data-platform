@@ -67,7 +67,7 @@ ALTER TABLE parcels
     -- TODO: consider standardizing addresses into a PostGIS type once we have data.
     -- https://postgis.net/docs/manual-2.5/Address_Standardizer.html
     ADD COLUMN IF NOT EXISTS address text,
-    ADD COLUMN IF NOT EXISTS sl_path geometry(MultiLineString, SRID_LAT_LONG),
+    ADD COLUMN IF NOT EXISTS sl_path geometry(Geometry, SRID_LAT_LONG),
     ADD COLUMN IF NOT EXISTS lead_prediction float,
 -- Either of these might be used for searching.
 CREATE INDEX IF NOT EXISTS sl_geometry_index ON parcels USING GIST (sl_path);
