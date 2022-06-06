@@ -1,15 +1,17 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { ConnectionPool, Queryable, sql } from '@databases/pg';
 import * as AWS from 'aws-sdk';
-import { connectToDb } from '../data-plane/schema/schema.handler';
+import { connectToDb } from '../schema/schema.handler';
 
 const { chain } = require('stream-chain');
 const { streamArray } = require('stream-json/streamers/StreamArray');
+const Batch = require('stream-json/utils/Batch');
 const Pick = require('stream-json/filters/Pick');
 
 const S3 = new AWS.S3();
 
 const PWS_ID = 'pwsid';
+const GEOMETRY = 'geometry';
 const LEAD_CONNECTIONS = 'lead_connections';
 
 /**
@@ -69,34 +71,50 @@ async function deleteRows(db: ConnectionPool): Promise<any[]> {
  */
 function parseS3IntoLeadServiceLinesTableRow(
   s3Params: AWS.S3.GetObjectRequest,
-  numberRowsToWrite = 10,
+  db: ConnectionPool,
+  numberRowsToWrite = 1,
 ): Promise<Array<LeadServiceLinesTableRow>> {
   const results: LeadServiceLinesTableRow[] = [];
   return new Promise(function (resolve, reject) {
     let count = 0;
     const fileStream = S3.getObject(s3Params).createReadStream();
-    const pipeline = chain([fileStream, Pick.withParser({ filter: 'features' }), streamArray()]);
+    let pipeline = chain([
+      fileStream,
+      Pick.withParser({ filter: 'features' }),
+      streamArray(),
+      new Batch({ batchSize: 1 }),
+    ]);
 
     pipeline
-      .on('data', (data: any) => {
-        fileStream.pause();
-        const properties = data['value']['properties'];
+      .on('data', async (batch: any[]) => {
         if (count < numberRowsToWrite) {
-          const row = new LeadServiceLinesTableRowBuilder()
-            .pwsId(properties[PWS_ID])
-            .leadConnectionsCount(Math.max(parseInt(properties[LEAD_CONNECTIONS]), 0))
-            .build();
-          results.push(row);
-          console.log(data);
+          batch.forEach((data) => {
+            console.log(data);
+            const properties = data['value']['properties'];
+            const row = new LeadServiceLinesTableRowBuilder()
+              .pwsId(properties[PWS_ID])
+              .leadConnectionsCount(Math.max(parseFloat(properties[LEAD_CONNECTIONS]), 0))
+              .geom(properties[GEOMETRY])
+              .build();
+            results.push(row);
+            console.log(row);
+          });
+        } else {
+          pipeline.destroy();
         }
-        count += 1;
-        fileStream.resume();
+        ++count;
       })
       .on('error', (error: Error) => {
         reject(error);
       })
-      .on('end', () => {
+      .on('close', async (error: Error) => {
+        console.log('Closed and parsed ' + results.length + ' rows.');
+        await insertRows(db, results);
+        resolve(results);
+      })
+      .on('end', async () => {
         console.log('Parsed ' + results.length + ' rows.');
+        await insertRows(db, results);
         resolve(results);
       });
   });
@@ -118,17 +136,15 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
   // Read CSV file and write to demographics table.
   try {
-    const rows = await parseS3IntoLeadServiceLinesTableRow(s3Params, numberRowsToWrite);
     db = await connectToDb();
-
     if (db == undefined) {
       throw Error('Unable to connect to db');
     }
 
     // Remove existing rows before inserting new ones.
     await deleteRows(db);
-    const data = await insertRows(db, rows);
-    return { statusCode: 200, body: JSON.stringify(data) };
+    const rows = await parseS3IntoLeadServiceLinesTableRow(s3Params, db, numberRowsToWrite);
+    return { statusCode: 200, body: JSON.stringify(rows) };
   } catch (error) {
     console.log('Error:' + error);
     throw error;
@@ -166,6 +182,11 @@ class LeadServiceLinesTableRowBuilder {
 
   pwsId(pwsId: string): LeadServiceLinesTableRowBuilder {
     this._row.pws_id = pwsId;
+    return this;
+  }
+
+  geom(geom: string): LeadServiceLinesTableRowBuilder {
+    this._row.geom = geom;
     return this;
   }
 
