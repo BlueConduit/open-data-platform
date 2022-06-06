@@ -10,48 +10,22 @@ const Pick = require('stream-json/filters/Pick');
 
 const S3 = new AWS.S3();
 
-const PWS_ID = 'pwsid';
-const GEOMETRY = 'geometry';
-const LEAD_CONNECTIONS = 'lead_connections';
+const DEFAULT_NUMBER_ROWS_TO_INSERT = 10;
 
 /**
- * Inserts all rows into the demographics table.
+ * Inserts all rows into the water systems table.
  */
 async function insertRows(db: ConnectionPool, rows: LeadServiceLinesTableRow[]): Promise<any[]> {
-  // TODO(breuch): Replace with geom from new file.
-  // This is a random polygon taken from an unmapped s3 file.
-  const geometry = sql.__dangerous__rawValue(
-    "ST_GeometryFromText('POLYGON((-122.76199734299996 " +
-      '47.34350314200003, -122.76248119999997 47.342854930000044, ' +
-      '-122.76257080699997 47.34285604200005, -122.76259517499994 ' +
-      '47.34266843300003, -122.76260856299996 47.34256536000004, ' +
-      '-122.76286629299995 47.34250175600005, -122.76295867599998 ' +
-      '47.34242223000007, -122.76328431199994 47.34202772300006, ' +
-      '-122.763359015 47.34188063000005, -122.76359184199998 ' +
-      '47.34185498100004, -122.76392923599997 47.34181781500007, ' +
-      '-122.76392897999995 47.34183731100006, -122.76390878299998 ' +
-      '47.341839519000075, -122.76390520999996 47.34211214900006, ' +
-      '-122.76390440899996 47.342173262000074, -122.763924584 ' +
-      '47.34217272700005, -122.763921139 47.342407894000075, ' +
-      '-122.76391819399998 47.342471904000035, -122.76390565499997 ' +
-      '47.34257032900007, -122.76390536899999 47.342571914000075, ' +
-      '-122.76388240099999 47.34267173100005, -122.76388191899997 ' +
-      '47.34267343500005, -122.76386218299996 47.34273572600006, ' +
-      '-122.76383851199995 47.34279737900005, -122.76383805499995 ' +
-      '47.34279846700008, -122.76380443699998 47.34287143500006, ' +
-      '-122.76376811299997 47.34293827000005, -122.763727072 ' +
-      '47.343003846000045, -122.76372118599994 47.34301258000005, ' +
-      '-122.763375968 47.34352033700003, -122.76328781999996 ' +
-      '47.343519239000045, -122.76310988499995 47.343517020000036, ' +
-      "-122.76199734299996 47.34350314200003))')",
-  );
-
-  return db.query(sql`INSERT INTO lead_service_lines (pws_id,
-                                                      lead_connections_count,
-                                                      geom)
+  return db.query(sql`INSERT INTO water_systems (pws_id,
+                                                 lead_connections_count,
+                                                 geom)
                       VALUES ${sql.join(
                         rows.map((row: LeadServiceLinesTableRow) => {
-                          return sql`(${row.pws_id}, ${row.lead_connections_count}, ${geometry})`;
+                          return sql`(${row.pws_id}, ${
+                            row.lead_connections_count
+                          }, ${sql.__dangerous__rawValue(
+                            `ST_AsText(ST_GeomFromGeoJSON('${row.geom}'))`,
+                          )})`;
                         }),
                         ',',
                       )};`);
@@ -62,7 +36,7 @@ async function insertRows(db: ConnectionPool, rows: LeadServiceLinesTableRow[]):
  */
 async function deleteRows(db: ConnectionPool): Promise<any[]> {
   return db.query(sql`DELETE
-                      FROM lead_service_lines
+                      FROM water_systems
                       WHERE pws_id IS NOT NULL`);
 }
 
@@ -72,50 +46,58 @@ async function deleteRows(db: ConnectionPool): Promise<any[]> {
 function parseS3IntoLeadServiceLinesTableRow(
   s3Params: AWS.S3.GetObjectRequest,
   db: ConnectionPool,
-  numberRowsToWrite = 1,
-): Promise<Array<LeadServiceLinesTableRow>> {
-  const results: LeadServiceLinesTableRow[] = [];
+  numberOfRowsToWrite = DEFAULT_NUMBER_ROWS_TO_INSERT,
+): Promise<number> {
   return new Promise(function (resolve, reject) {
-    let count = 0;
+    const batchSize = 10;
+    let numberRows = 0;
+
     const fileStream = S3.getObject(s3Params).createReadStream();
     let pipeline = chain([
       fileStream,
       Pick.withParser({ filter: 'features' }),
       streamArray(),
-      new Batch({ batchSize: 1 }),
+      new Batch({ batchSize: batchSize }),
     ]);
 
     pipeline
       .on('data', async (batch: any[]) => {
-        if (count < numberRowsToWrite) {
+        if (numberRows < numberOfRowsToWrite) {
+          const results: LeadServiceLinesTableRow[] = [];
+
           batch.forEach((data) => {
-            console.log(data);
-            const properties = data['value']['properties'];
+            const value = data.value;
+            const properties = value.properties;
+
             const row = new LeadServiceLinesTableRowBuilder()
-              .pwsId(properties[PWS_ID])
-              .leadConnectionsCount(Math.max(parseFloat(properties[LEAD_CONNECTIONS]), 0))
-              .geom(properties[GEOMETRY])
+              .pwsId(properties.pwsid)
+              // Sometimes this number is negative because it is based on a
+              // regression.
+              .leadConnectionsCount(Math.max(parseFloat(properties.lead_connections), 0))
+              // Keep JSON formatting. Post-GIS helpers depend on this.
+              .geom(JSON.stringify(value.geometry))
               .build();
             results.push(row);
-            console.log(row);
+            ++numberRows;
           });
+
+          // Pause reads while inserting into db.
+          pipeline.pause();
+          await insertRows(db, results);
+          pipeline.resume();
         } else {
           pipeline.destroy();
         }
-        ++count;
       })
       .on('error', (error: Error) => {
         reject(error);
       })
-      .on('close', async (error: Error) => {
-        console.log('Closed and parsed ' + results.length + ' rows.');
-        await insertRows(db, results);
-        resolve(results);
+      // Gets called by pipeline.destroy()
+      .on('close', async (_: Error) => {
+        resolve(numberRows);
       })
       .on('end', async () => {
-        console.log('Parsed ' + results.length + ' rows.');
-        await insertRows(db, results);
-        resolve(results);
+        resolve(numberRows);
       });
   });
 }
@@ -125,7 +107,9 @@ function parseS3IntoLeadServiceLinesTableRow(
  * to demographics table in the MainCluster postgres db.
  */
 export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  const numberRowsToWrite: number = parseInt(process.env.numberRows ?? '10');
+  const numberRowsToWrite: number = parseInt(
+    process.env.numberRows ?? `${DEFAULT_NUMBER_ROWS_TO_INSERT}`,
+  );
 
   const s3Params = {
     Bucket: 'opendataplatformapistaticdata',
@@ -143,8 +127,11 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
     // Remove existing rows before inserting new ones.
     await deleteRows(db);
-    const rows = await parseS3IntoLeadServiceLinesTableRow(s3Params, db, numberRowsToWrite);
-    return { statusCode: 200, body: JSON.stringify(rows) };
+    const numberRows = await parseS3IntoLeadServiceLinesTableRow(s3Params, db, numberRowsToWrite);
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ 'Added rows': numberRows }),
+    };
   } catch (error) {
     console.log('Error:' + error);
     throw error;
@@ -159,8 +146,12 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
  */
 class LeadServiceLinesTableRow {
   // Field formatting conforms to rows in the db. Requires less transformations.
+
+  // Water system identifier.
   pws_id: string;
+  // Reported or estimated number of lead pipes in the boundary.
   lead_connections_count: number;
+  // GeoJSON representation of the boundaries.
   geom: string;
 
   constructor(pws_id: string, lead_connections_count: number, geom: string) {

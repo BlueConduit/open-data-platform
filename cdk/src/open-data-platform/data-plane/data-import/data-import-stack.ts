@@ -91,7 +91,7 @@ export class DataImportStack extends Construct {
     // Import the data on CDK deploy.
     // TODO: enable this once it is ready to use.
     if (false) {
-      const init = new ResourceInitializer(this, 'ImportDemographicData', {
+      new ResourceInitializer(this, 'ImportDemographicData', {
         initFunction: writeDemographicDataFunction,
       });
     }
