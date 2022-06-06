@@ -130,6 +130,29 @@ export default defineComponent({
     },
 
     /**
+     * Set up map controls.
+     *
+     * This currently consists of the GeolocateControl which sets up
+     * functionality to pan to the user's current location.
+     */
+    setUpControls(): void {
+      if (this.map == null) return;
+
+      // Add geolocate control to the map.a
+      this.map.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: {
+            // If enabled, gets the best possible results. Can result in slower response times or
+            // increased power consumption so set to false for now.
+            enableHighAccuracy: false,
+          },
+          // Receive updates to the device's location as it changes.
+          trackUserLocation: true,
+        }),
+      );
+    },
+
+    /**
      * Configure data layers and interaction handlers on the map.
      */
     configureMap(): void {
@@ -143,6 +166,7 @@ export default defineComponent({
       });
 
       this.setUpInteractionHandlers();
+      this.setUpControls();
     },
 
     /**
