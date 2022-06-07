@@ -4,13 +4,14 @@
 </template>
 
 <script lang='ts'>
-import mapboxgl from 'mapbox-gl';
+import mapboxgl, { AnySourceData } from 'mapbox-gl';
 import mapbox, { GeoJSONSourceRaw, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from '@/components/MapLegend.vue';
 import MapPopupContent from '@/components/MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
+import { STYLE_LAYER } from '../data_layer_configs/water_systems_config';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -55,7 +56,7 @@ export default defineComponent({
      */
     toggleLayerVisibility(updatedState: State): void {
       if (this.map == null) return;
-      
+
       updatedState.dataLayers.forEach(layer => {
         const visibility = layer == updatedState.currentDataLayer ? 'visible' : 'none';
         this.map?.setLayoutProperty(layer.styleLayer.id, 'visibility', visibility);
@@ -130,18 +131,25 @@ export default defineComponent({
       if (this.map == null) return;
 
       this.state.map = this.map;
-      // this.state.dataLayers?.forEach(layer => {
-      //   const source: GeoJSONSourceRaw = {
-      //     type: 'geojson',
-      //     data: layer.data,
-      //   };
-      //   this.map?.addSource(layer.id, source);
-      //   this.map?.addLayer(layer.styleLayer);
-      // });
+      this.state.dataLayers?.forEach(layer => {
+        let source : AnySourceData;
+        const geoJSONSource: GeoJSONSourceRaw = {
+          type: 'geojson',
+          data: layer.data,
+        };
 
-      const toledo = 'OH8676027';
-      const servicelineTiles = `servicelines_geom_${toledo}`;
-      this.map?.addSource("service_lines_geom", {type: "vector", tiles: [`${window.location.origin}/api/v1/tileserver/public.${servicelineTiles}/{z}/{x}/{y}.mvt`]});
+        if (layer.id == 'water-systems') {
+          source = {
+            type: 'vector',
+            tiles: [`http://d2rh1jofbeqlpq.cloudfront.net/public.lead_service_lines/{z}/{x}/{y}.pbf`],
+          }
+        } else {
+          source = geoJSONSource;
+        }
+        this.map?.addSource(layer.id, source);
+        this.map?.addLayer(layer.styleLayer);
+
+      });
 
       this.setUpInteractionHandlers();
     },

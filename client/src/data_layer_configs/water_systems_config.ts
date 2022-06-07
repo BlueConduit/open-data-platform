@@ -11,7 +11,7 @@ const LEGEND_COLOR_MAP = {
   100: '#d73819',
 };
 
-const STYLE_LAYER: FillLayer = {
+export const STYLE_LAYER: FillLayer = {
   id: `${ID}-style`,
   source: ID,
   type: 'fill',
@@ -19,7 +19,7 @@ const STYLE_LAYER: FillLayer = {
     'fill-color': [
       'interpolate',
       ['linear'],
-      ['get', 'Lead and Copper Rule'],
+      ['get', 'lead_connections_count'],
       0,
       LEGEND_COLOR_MAP[0],
       25,
