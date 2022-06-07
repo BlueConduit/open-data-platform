@@ -56,14 +56,13 @@ CREATE INDEX IF NOT EXISTS geom_index
 -- Parcel-level data
 
 CREATE TABLE IF NOT EXISTS parcels (
-    id serial PRIMARY KEY
-);
-ALTER TABLE parcels
+    id serial PRIMARY KEY,
     -- TODO: consider standardizing addresses into a PostGIS type once we have data.
     -- https://postgis.net/docs/manual-2.5/Address_Standardizer.html
-    ADD COLUMN IF NOT EXISTS address text,
-    ADD COLUMN IF NOT EXISTS sl_path geometry(Geometry, 4326),
-    ADD COLUMN IF NOT EXISTS lead_prediction float;
+    address text,
+    sl_path geometry(Geometry, 4326),
+    lead_prediction float
+);
 -- Either of these might be used for searching.
 CREATE INDEX IF NOT EXISTS sl_geometry_index ON parcels USING GIST (sl_path);
 CREATE INDEX IF NOT EXISTS addres_index ON parcels(address);
