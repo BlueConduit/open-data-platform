@@ -130,14 +130,18 @@ export default defineComponent({
       if (this.map == null) return;
 
       this.state.map = this.map;
-      this.state.dataLayers?.forEach(layer => {
-        const source: GeoJSONSourceRaw = {
-          type: 'geojson',
-          data: layer.data,
-        };
-        this.map?.addSource(layer.id, source);
-        this.map?.addLayer(layer.styleLayer);
-      });
+      // this.state.dataLayers?.forEach(layer => {
+      //   const source: GeoJSONSourceRaw = {
+      //     type: 'geojson',
+      //     data: layer.data,
+      //   };
+      //   this.map?.addSource(layer.id, source);
+      //   this.map?.addLayer(layer.styleLayer);
+      // });
+
+      const toledo = 'OH8676027';
+      const servicelineTiles = `servicelines_geom_${toledo}`;
+      this.map?.addSource("service_lines_geom", {type: "vector", tiles: [`${window.location.origin}/api/v1/tileserver/public.${servicelineTiles}/{z}/{x}/{y}.mvt`]});
 
       this.setUpInteractionHandlers();
     },
