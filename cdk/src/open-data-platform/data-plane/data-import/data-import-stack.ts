@@ -7,6 +7,7 @@ import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import * as path from 'path';
 import { ResourceInitializer } from '../../../resource-initializer';
+import { DataImportApiStack } from './data-import-api-stack';
 
 interface SchemaProps {
   cluster: rds.ServerlessCluster;
@@ -87,6 +88,10 @@ export class DataImportStack extends Construct {
         cluster.grantDataApiAccess(role);
       }
     }
+
+    const dataImportApiStack = new DataImportApiStack(this, 'DataImportApiStack');
+    dataImportApiStack.addLambdaIntegration('waterSystems', writeWaterSystemsDataFunction);
+    dataImportApiStack.addLambdaIntegration('demographics', writeDemographicDataFunction);
 
     // Import the data on CDK deploy.
     // TODO: enable this once it is ready to use.
