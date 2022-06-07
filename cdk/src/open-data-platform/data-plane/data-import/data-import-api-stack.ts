@@ -20,14 +20,15 @@ export class DataImportApiStack extends Construct {
       allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key'],
       allowMethods: ['GET'],
       allowCredentials: true,
+      // TODO(breuch): Limit origins to credentialed users.
       allowOrigins: ['*'],
     },
   });
 
   /**
-   * Adds a lambda integration to the REST api. The endpoint will invoke its
+   * Adds a lambda integration to the REST API. The endpoint will invoke its
    * corresponding lambda
-   * @param endPoint: API endpoint or resource
+   * @param endPoint: API endpoint (Gateway "resource")
    * @param lambdaFunction: function to invoke with /GET request to the endpoint
    */
   addLambdaIntegration(endPoint: string, lambdaFunction: lambda.IFunction): void {
