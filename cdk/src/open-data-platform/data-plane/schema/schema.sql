@@ -16,17 +16,11 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
----------------
--- Constants --
----------------
-
-DECLARE
-    -- SRID 4326 maps the shape to latitude and longitude.
-    SRID_LAT_LONG := 4326
-
 ------------
 -- Tables --
 ------------
+
+-- Census-block-level data. TODO: consider renaming the table.
 
 CREATE TABLE IF NOT EXISTS demographics(
     census_geo_id varchar(255) NOT NULL,
@@ -38,12 +32,13 @@ CREATE TABLE IF NOT EXISTS demographics(
 
 ALTER TABLE demographics
     -- SRID 4326 maps the shape to latitude and longitude.
-    ALTER COLUMN geom TYPE GEOMETRY(Geometry, SRID_LAT_LONG);
-
+    ALTER COLUMN geom TYPE GEOMETRY(Geometry, 4326);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
     USING GIST (geom);
+
+-- Water-system-level data
 
 CREATE TABLE IF NOT EXISTS water_systems(
     pws_id varchar(255) NOT NULL,
@@ -52,7 +47,7 @@ CREATE TABLE IF NOT EXISTS water_systems(
     );
 
 ALTER TABLE water_systems
-    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Geometry, SRID_LAT_LONG);
+    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Geometry, 4326);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON water_systems
@@ -67,8 +62,8 @@ ALTER TABLE parcels
     -- TODO: consider standardizing addresses into a PostGIS type once we have data.
     -- https://postgis.net/docs/manual-2.5/Address_Standardizer.html
     ADD COLUMN IF NOT EXISTS address text,
-    ADD COLUMN IF NOT EXISTS sl_path geometry(Geometry, SRID_LAT_LONG),
-    ADD COLUMN IF NOT EXISTS lead_prediction float,
+    ADD COLUMN IF NOT EXISTS sl_path geometry(Geometry, 4326),
+    ADD COLUMN IF NOT EXISTS lead_prediction float;
 -- Either of these might be used for searching.
 CREATE INDEX IF NOT EXISTS sl_geometry_index ON parcels USING GIST (sl_path);
 CREATE INDEX IF NOT EXISTS addres_index ON parcels(address);

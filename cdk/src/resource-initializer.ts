@@ -8,10 +8,8 @@ interface ResourceInitializerProps {
 }
 
 // Construct that invokes a lambda one time during `cdk deploy`.
-
-// If there are other lambdas that we want to invoke during deployment, consider breaking this
-// out into a common file.
-//
+// Note: CDK will consider this "successful" if it is able to invoke the lambda at all, regardless
+// of whether the lambda executed successfully. Check the lambda logs to see its results.
 // Based on: https://github.com/BlueConduit/tributary/blob/main/cdk/lib/resource-initializer.ts
 export class ResourceInitializer extends Construct {
   constructor(scope: Construct, id: string, props: ResourceInitializerProps) {
