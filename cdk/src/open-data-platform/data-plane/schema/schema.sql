@@ -79,38 +79,3 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO readgeo;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO readgeo;
 
 GRANT readgeo TO tileserver;
-
--------------------
--- EXAMPLE BELOW --
--------------------
-
--- Upsert a table
-CREATE TABLE IF NOT EXISTS dummy (
-   id serial PRIMARY KEY
-);
-
--- Add new columns and index using a new query, so they can use the `IF NOT EXISTS` keywords.
--- using example PostGIS data: https://postgis.net/install/#binary-installers#spatial-sql
-ALTER TABLE dummy
-ADD COLUMN IF NOT EXISTS geom GEOMETRY(Point, 26910),
-ADD COLUMN IF NOT EXISTS name VARCHAR(128) unique;
-CREATE INDEX IF NOT EXISTS dummy_gix
-  ON dummy
-  USING GIST (geom);
-
--- Upsert a few test points.
-INSERT INTO dummy (geom, name)
-VALUES (ST_MakePoint(0,0), 'test_point'),
-(ST_MakePoint(1,0), 'test_point_2'),
-(ST_MakePoint(0,1), 'test_point_3')
-ON CONFLICT (name) 
-DO NOTHING;
-
--- Then run the following query to test. It should return the "test_point".
--- SELECT id, name
--- FROM dummy
--- WHERE ST_DWithin(
---   geom,
---   ST_GeomFromText('POINT(0 0)', 26910),
---   1000
--- );
