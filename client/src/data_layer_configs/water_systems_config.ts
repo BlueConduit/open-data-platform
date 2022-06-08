@@ -1,4 +1,4 @@
-import { DataLayer, LegendInfo } from '@/model/data_layer';
+import { DataLayer, DataSourceType, LegendInfo, TileDataLayer } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 
 const ID: string = 'water-systems';
@@ -77,12 +77,13 @@ export const styleLayer: FillLayer = {
   },
 };
 
-export const leadServiceLinesByWaterSystemLayer: DataLayer = {
+export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
+  source: {
+    type: DataSourceType.Vector,
+    tiles: [`http://dzx2b187zv29o.cloudfront.net/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
+  },
   id: ID,
   name: 'Water systems',
-  // Data is required for DataLayer but this is not used since it relies on the
-  // tileserver.
-  data: '',
   legendInfo: legendInfo,
   styleLayer: styleLayer,
 };

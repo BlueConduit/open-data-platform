@@ -6,7 +6,7 @@
 import { defineComponent, provide, reactive } from 'vue';
 import '@blueconduit/copper/dist/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
-import { DataLayer } from './model/data_layer';
+import { DataLayer, DataSourceType } from './model/data_layer';
 import { State } from './model/state';
 import axios from 'axios';
 import { populationByCountyDataLayer } from './data_layer_configs/population_by_county_config';
@@ -54,7 +54,9 @@ export default defineComponent({
       await axios
         .get(`${OPEN_DATA_PLATFORM_API_URL}/getViolations`)
         .then(response => layers.forEach(layer => {
-          return layer.data = layer.id != 'water-systems' ? response.data.toString() : '';
+          if (layer.source.type == DataSourceType.GeoJson) {
+            return layer.source.data = response.data.toString();
+          }
         }));
     },
   },

@@ -12,6 +12,7 @@ import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import { styleLayer } from '../data_layer_configs/water_systems_config';
+import { DataSourceType } from '../model/data_layer';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -71,7 +72,7 @@ export default defineComponent({
      */
     updateMapOnStateChange(newState: State): void {
       if (this.map == null) {
-        if (newState.currentDataLayer?.data != null) {
+        if (newState.currentDataLayer?.source != null) {
           this.createMap();
         }
       } else {
@@ -132,21 +133,7 @@ export default defineComponent({
 
       this.state.map = this.map;
       this.state.dataLayers?.forEach(layer => {
-        let source : AnySourceData;
-        const geoJSONSource: GeoJSONSourceRaw = {
-          type: 'geojson',
-          data: layer.data,
-        };
-
-        if (layer.id == 'water-systems') {
-          source = {
-            type: 'vector',
-            tiles: [`http://dzx2b187zv29o.cloudfront.net/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
-          }
-        } else {
-          source = geoJSONSource;
-        }
-        this.map?.addSource(layer.id, source);
+        this.map?.addSource(layer.id, layer.source);
         this.map?.addLayer(layer.styleLayer);
 
       });
