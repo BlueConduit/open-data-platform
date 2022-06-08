@@ -1,12 +1,12 @@
 import { ConnectionPool } from '@databases/pg';
-import { handerFactory } from './hander-factory';
+import { geoJsonHanderFactory } from './hander-factory';
 
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata',
   Key: 'toledo_parcel_preds.geojson',
 };
 
-export const handler = handerFactory(
+export const handler = geoJsonHanderFactory(
   s3Params,
   async (row: any, _: ConnectionPool) => {
     console.log('Row:', row);

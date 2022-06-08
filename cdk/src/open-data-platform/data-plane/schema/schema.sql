@@ -71,7 +71,8 @@ ALTER TABLE parcels
     ADD COLUMN IF NOT EXISTS last_updated_time timestamp;
 -- Either of these might be used for searching.
 CREATE INDEX IF NOT EXISTS sl_geometry_index ON parcels USING GIST (sl_path);
-CREATE INDEX IF NOT EXISTS addres_index ON parcels(address);
+-- Uniqueness will prevent multiple rows for the same address from being re-imported.
+CREATE UNIQUE INDEX IF NOT EXISTS address_index ON parcels(address);
 
 ----------------------
 -- Roles and Grants --

@@ -18,17 +18,21 @@ const S3 = new AWS.S3();
  * @param numberOfRowsToWrite - Row limit, which can be used for testing.
  * @returns
  */
-export const handerFactory = (
+export const geoJsonHanderFactory = (
   s3Params: AWS.S3.GetObjectRequest,
   callback: (row: any, db: ConnectionPool) => Promise<void>,
   numberOfRowsToWrite: number = Infinity,
 ): ((event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => {
   /**
-   * Reads an GeoJSON file and performs the callback on each element.
+   * Reads an GeoJSON file and performs the callback on each element. This does not handle any
+   * processing of the data itself, but provides a DB connection to the callback to process it.
+   *
+   * TODO: track how many rows were processed and avoid re-importing the old rows.
+   *
    * @param db - Connection pool to the DB, made available to the callback.
    * @returns
    */
-  const readFile = (db: ConnectionPool): Promise<number> =>
+  const readGeoJsonFile = (db: ConnectionPool): Promise<number> =>
     new Promise((resolve, reject) => {
       const batchSize = 10;
       let numberRows = 0;
@@ -85,7 +89,7 @@ export const handerFactory = (
     let numberRows = 0;
     try {
       // Remove existing rows before inserting new ones.
-      numberRows = await readFile(db);
+      numberRows = await readGeoJsonFile(db);
     } catch (error) {
       console.log('Error:' + error);
       throw error;
