@@ -11,7 +11,7 @@ import MapPopupContent from '@/components/MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { STYLE_LAYER } from '../data_layer_configs/water_systems_config';
+import { styleLayer } from '../data_layer_configs/water_systems_config';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -141,7 +141,7 @@ export default defineComponent({
         if (layer.id == 'water-systems') {
           source = {
             type: 'vector',
-            tiles: [`http://d2rh1jofbeqlpq.cloudfront.net/public.lead_service_lines/{z}/{x}/{y}.pbf`],
+            tiles: [`http://dzx2b187zv29o.cloudfront.net/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
           }
         } else {
           source = geoJSONSource;

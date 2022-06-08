@@ -53,7 +53,9 @@ export default defineComponent({
       // TODO(kailamjeter): expand to fetch for other data layers.
       await axios
         .get(`${OPEN_DATA_PLATFORM_API_URL}/getViolations`)
-        .then(response => layers.forEach(layer => layer.data = response.data.toString()));
+        .then(response => layers.forEach(layer => {
+          return layer.data = layer.id != 'water-systems' ? response.data.toString() : '';
+        }));
     },
   },
 });
