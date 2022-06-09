@@ -1,7 +1,7 @@
 <template>
   <div id='map-container'></div>
-  <ZoomControl :zoom-in-enabled='this.zoomInEnabled()'
-               :zoom-out-enabled='this.zoomOutEnabled()'
+  <ZoomControl :zoom-in-enabled='this.zoomInEnabled'
+               :zoom-out-enabled='this.zoomOutEnabled'
                @zoomIn='handleZoom("zoomIn")'
                @zoomOut='handleZoom("zoomOut")' />
   <MapLegend />
@@ -41,7 +41,18 @@ export default defineComponent({
   },
   data() {
     return {
+      /**
+       * Mapbox map instance.
+       */
       map: null as mapboxgl.Map | null,
+      /**
+       * Whether the zoom out button should be enabled.
+       */
+      zoomInEnabled: true,
+      /**
+       * Whether the zoom out button should be enabled.
+       */
+      zoomOutEnabled: true,
     };
   },
   props: {
@@ -58,28 +69,6 @@ export default defineComponent({
   },
   methods: {
     /**
-     * Whether the zoom in button should be enabled.
-     *
-     * True if current zoom level is < max zoom level.
-     */
-    zoomInEnabled(): boolean {
-      if (this.map == null) return false;
-
-      return this.map.getZoom() < this.map.getMaxZoom();
-    },
-
-    /**
-     * Whether the zoom out button should be enabled.
-     *
-     * True if current zoom level is > min zoom level.
-     */
-    zoomOutEnabled(): boolean {
-      if (this.map == null) return false;
-
-      return this.map.getZoom() > this.map.getMinZoom();
-    },
-
-    /**
      * Handles zoom in or out triggered by zoom buttons.
      *
      * @param zoom: string describing which action to take.
@@ -89,8 +78,10 @@ export default defineComponent({
 
       if (zoom == 'zoomOut') {
         this.map.zoomOut();
+        this.zoomOutEnabled = this.map.getZoom() > this.map.getMinZoom();
       } else if (zoom == 'zoomIn') {
         this.map.zoomIn();
+        this.zoomInEnabled = this.map.getZoom() < this.map.getMaxZoom();
       }
     },
 
