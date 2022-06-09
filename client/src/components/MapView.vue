@@ -72,7 +72,11 @@ export default defineComponent({
      */
     updateMapOnStateChange(newState: State): void {
       if (this.map == null) {
-        if (newState.currentDataLayer?.source != null) {
+        const source = newState.currentDataLayer?.source;
+        const dataLoaded =
+          (source?.type == DataSourceType.GeoJson && source?.data != null) ||
+          (source?.type == DataSourceType.Vector && source?.tiles != null);
+        if (dataLoaded) {
           this.createMap();
         }
       } else {
