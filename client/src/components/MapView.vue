@@ -4,14 +4,13 @@
 </template>
 
 <script lang='ts'>
-import mapboxgl, { AnySourceData } from 'mapbox-gl';
-import mapbox, { GeoJSONSourceRaw, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
+import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from '@/components/MapLegend.vue';
 import MapPopupContent from '@/components/MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { styleLayer } from '../data_layer_configs/water_systems_config';
 import { DataSourceType } from '../model/data_layer';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
@@ -138,7 +137,7 @@ export default defineComponent({
     setUpControls(): void {
       if (this.map == null) return;
 
-      // Add geolocate control to the map.a
+      // Add geolocate control to the map.
       this.map.addControl(
         new mapboxgl.GeolocateControl({
           positionOptions: {
@@ -150,6 +149,9 @@ export default defineComponent({
           trackUserLocation: true,
         }),
       );
+
+      // Add zoom in / zoom out buttons to map.
+      this.map.addControl(new mapboxgl.NavigationControl());
     },
 
     /**
