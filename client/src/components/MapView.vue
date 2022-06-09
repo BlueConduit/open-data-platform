@@ -57,18 +57,33 @@ export default defineComponent({
     },
   },
   methods: {
+    /**
+     * Whether the zoom in button should be enabled.
+     *
+     * True if current zoom level is < max zoom level.
+     */
     zoomInEnabled(): boolean {
       if (this.map == null) return false;
 
-      return this.map.getZoom() <= this.map.getMaxZoom();
+      return this.map.getZoom() < this.map.getMaxZoom();
     },
 
+    /**
+     * Whether the zoom out button should be enabled.
+     *
+     * True if current zoom level is > min zoom level.
+     */
     zoomOutEnabled(): boolean {
       if (this.map == null) return false;
 
-      return this.map.getZoom() >= this.map.getMinZoom();
+      return this.map.getZoom() > this.map.getMinZoom();
     },
 
+    /**
+     * Handles zoom in or out triggered by zoom buttons.
+     *
+     * @param zoom: string describing which action to take.
+     */
     handleZoom(zoom: string): void {
       if (this.map == null) return;
 

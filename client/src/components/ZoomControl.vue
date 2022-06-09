@@ -1,4 +1,5 @@
 <template>
+<!--  TODO: style buttons to look disabled when they are disabled.-->
   <div class='control-container'>
     <button @click="$emit('zoomIn')" class='zoom-in-control-button'
             :disabled='!this.zoomInEnabled'>
@@ -15,9 +16,13 @@
 <script lang='ts'>
 import { defineComponent } from 'vue';
 
+/**
+ * Zoom controls on map.
+ *
+ * Contains zoom in and zoom out button.
+ */
 export default defineComponent({
   name: 'ZoomControl',
-  // TODO use props to update styling when disabled.
   props: {
     zoomInEnabled: {
       type: Boolean,
