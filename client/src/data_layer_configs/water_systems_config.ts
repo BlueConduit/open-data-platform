@@ -1,5 +1,7 @@
-import { DataLayer, DataSourceType, LegendInfo, TileDataLayer } from '@/model/data_layer';
+import { DataSourceType, LegendInfo, TileDataLayer } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
+
+const LOCALHOST = 'localhost';
 
 const ID: string = 'water-systems';
 const DEFAULT_NULL_COLOR = '#d3d3d3';
@@ -38,24 +40,6 @@ const legendInfo: LegendInfo = {
   bucketMap: colorMapToBuckets(LEGEND_COLOR_MAPPING),
 };
 
-/**
- * Converts list of legend pairs (alternating numerical key, string hex color
- * value) to a map of legend key : color hex.
- * @param colorMapping the list of legend pairs
- *
- * Example:
- * [0, '#9fcd7c', 10000, '#f7e5af'] => {'0' :  '#9fcd7c', '10000', '#f7e5af'}
- */
-function colorMapToBuckets(colorMapping: any[]): Map<string, string> {
-  const listOfLegendPairs: [string, string][] = [];
-  for (let index = 0; index < LEGEND_COLOR_MAPPING.length; index++) {
-    if (index % 2 != 0) {
-      listOfLegendPairs.push([LEGEND_COLOR_MAPPING[index - 1].toString(), colorMapping[index]]);
-    }
-  }
-  return new Map(listOfLegendPairs);
-}
-
 export const styleLayer: FillLayer = {
   id: `${ID}-style`,
   source: ID,
@@ -80,10 +64,39 @@ export const styleLayer: FillLayer = {
 export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`http://dzx2b187zv29o.cloudfront.net/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
+    tiles: [`http://${tileServerHost()}/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
   },
   id: ID,
   name: 'Water systems',
   legendInfo: legendInfo,
   styleLayer: styleLayer,
 };
+
+/**
+ * Converts list of legend pairs (alternating numerical key, string hex color
+ * value) to a map of legend key : color hex.
+ * @param colorMapping the list of legend pairs
+ *
+ * Example:
+ * [0, '#9fcd7c', 10000, '#f7e5af'] => {'0' :  '#9fcd7c', '10000', '#f7e5af'}
+ */
+function colorMapToBuckets(colorMapping: any[]): Map<string, string> {
+  const listOfLegendPairs: [string, string][] = [];
+  for (let index = 0; index < LEGEND_COLOR_MAPPING.length; index++) {
+    if (index % 2 != 0) {
+      listOfLegendPairs.push([LEGEND_COLOR_MAPPING[index - 1].toString(), colorMapping[index]]);
+    }
+  }
+  return new Map(listOfLegendPairs);
+}
+
+/**
+ * Hostname of tileserver to be passed to mapbox.
+ *
+ * Returns location.hostname unless app is being run locally.
+ */
+function tileServerHost() {
+  return location.hostname == LOCALHOST
+    ? process.env.VUE_APP_DEFAULT_TILESERVER_HOST
+    : location.hostname;
+}
