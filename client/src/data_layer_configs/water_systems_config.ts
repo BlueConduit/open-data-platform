@@ -1,4 +1,4 @@
-import { DataSourceType, LegendInfo, TileDataLayer } from '@/model/data_layer';
+import { DataSourceType, LegendInfo, PopupInfo, TileDataLayer } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 
 const LOCALHOST = 'localhost';
@@ -61,6 +61,17 @@ export const styleLayer: FillLayer = {
   },
 };
 
+const popupInfo: PopupInfo = {
+  title: 'Water system',
+  subtitle: 'Estimated lead service lines',
+  detailsTitle: 'Water system information',
+  featurePropertyLabelMap: new Map<string, string>(
+    [
+      ['lead_connections_count', 'Number of lead connections'],
+      ['pws_id', 'PWSID'],
+    ]),
+};
+
 export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
@@ -69,6 +80,7 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   id: ID,
   name: 'Water systems',
   legendInfo: legendInfo,
+  popupInfo: popupInfo,
   styleLayer: styleLayer,
 };
 

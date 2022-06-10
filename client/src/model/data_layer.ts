@@ -16,6 +16,9 @@ export interface DataLayer {
   styleLayer: AnyLayer;
   // Information to display in the map legend when this layer is visible.
   legendInfo: LegendInfo;
+  // Information to display in the map popup when this layer is visible and the user interacts with
+  // the map.
+  popupInfo: PopupInfo;
   // Data source for the layer.
   source: AnySourceData;
 }
@@ -44,6 +47,21 @@ export interface LegendInfo {
   title: string;
   // Key / value map of visual representation -> values to be displayed in the legend.
   bucketMap: Map<string, string>;
+}
+
+/**
+ * Information to be displayed in the map popup when this layer is visible and the user clicks the
+ * map.
+ */
+export interface PopupInfo {
+  // Popup title.
+  title: string;
+  // Popup subtitle.
+  subtitle: string;
+  // Popup details title.
+  detailsTitle: string;
+  // Map of feature property name to the label that is displayed for that feature in the popup.
+  featurePropertyLabelMap: Map<string, string>;
 }
 
 /**
