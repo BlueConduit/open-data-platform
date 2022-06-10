@@ -64,7 +64,7 @@ export const styleLayer: FillLayer = {
 export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`http://${tileServerHost()}/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
   },
   id: ID,
   name: 'Water systems',
