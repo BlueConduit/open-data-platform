@@ -1,4 +1,4 @@
-import { DataLayer, DataSourceType, GeoJsonDataLayer, LegendInfo } from '@/model/data_layer';
+import { DataSourceType, GeoJsonDataLayer, LegendInfo, PopupInfo } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 
 const ID: string = 'epa-lead-and-copper-violations';
@@ -45,6 +45,14 @@ const LEGEND_INFO: LegendInfo = {
   bucketMap: new Map(Object.entries(LEGEND_COLOR_MAP)),
 };
 
+const POPUP_INFO: PopupInfo = {
+  title: 'County',
+  subtitle: '320 estimated lead service lines',
+  detailsTitle: 'Lead & Copper Rule Violations',
+  featurePropertyLabelMap: new Map<string, string>(
+    [['Lead and Copper Rule', 'Lead & Copper Rule Violations']]),
+};
+
 export const leadAndCopperViolationsByCountyDataLayer: GeoJsonDataLayer = {
   id: ID,
   name: 'Lead & Copper Rule Violations',
@@ -53,5 +61,6 @@ export const leadAndCopperViolationsByCountyDataLayer: GeoJsonDataLayer = {
     data: '',
   },
   legendInfo: LEGEND_INFO,
+  popupInfo: POPUP_INFO,
   styleLayer: STYLE_LAYER,
 };

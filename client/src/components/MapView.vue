@@ -120,9 +120,17 @@ export default defineComponent({
           async (e: MapLayerMouseEvent): Promise<void> => {
             if (e.features != undefined) {
               const clickedFeatureProperties: { [name: string]: any; } = e.features[0].properties as {};
+              const popupInfo = this.state?.currentDataLayer?.popupInfo;
 
               this.createMapPopup(e.lngLat, /* popupData= */
-                { properties: new Map(Object.entries(clickedFeatureProperties)) });
+                {
+                  title: popupInfo?.title ?? '',
+                  subtitle: popupInfo?.subtitle ?? '',
+                  detailsTitle: popupInfo?.detailsTitle ?? '',
+                  featurePropertyLabelMap:
+                    popupInfo?.featurePropertyLabelMap ?? new Map<string, string>(),
+                  properties: new Map(Object.entries(clickedFeatureProperties)),
+                });
             }
           });
       });

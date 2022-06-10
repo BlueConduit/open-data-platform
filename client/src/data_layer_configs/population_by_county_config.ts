@@ -1,4 +1,4 @@
-import { DataLayer, DataSourceType, LegendInfo } from '@/model/data_layer';
+import { DataLayer, DataSourceType, LegendInfo, PopupInfo } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 
 const ID: string = 'epa-population-by-county';
@@ -60,6 +60,14 @@ const LEGEND_INFO: LegendInfo = {
   bucketMap: new Map(Object.entries(LEGEND_COLOR_MAP)),
 };
 
+const POPUP_INFO: PopupInfo = {
+  title: 'County',
+  subtitle: '320 estimated lead service lines',
+  detailsTitle: 'Lead & Copper Rule Violations',
+  featurePropertyLabelMap: new Map<string, string>(
+    [['Lead and Copper Rule', 'Lead & Copper Rule Violations']]),
+};
+
 export const populationByCountyDataLayer: DataLayer = {
   id: ID,
   name: 'Population',
@@ -68,5 +76,6 @@ export const populationByCountyDataLayer: DataLayer = {
     data: '',
   },
   legendInfo: LEGEND_INFO,
+  popupInfo: POPUP_INFO,
   styleLayer: STYLE_LAYER,
 };
