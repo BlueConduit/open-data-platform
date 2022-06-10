@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { ConnectionPool, Queryable, sql } from '@databases/pg';
+import { ConnectionPool, sql } from '@databases/pg';
 import * as AWS from 'aws-sdk';
 import { connectToDb } from '../schema/schema.handler';
 

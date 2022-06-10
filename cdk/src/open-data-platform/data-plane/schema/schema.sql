@@ -27,12 +27,9 @@ CREATE TABLE IF NOT EXISTS demographics(
     total_population real,
     black_percentage real,
     white_percentage real,
+    geom TYPE GEOMETRY(Geometry, 4326)
     PRIMARY KEY(census_geo_id)
 );
-
-ALTER TABLE demographics
-    -- SRID 4326 maps the shape to latitude and longitude.
-    ALTER COLUMN geom TYPE GEOMETRY(Geometry, 4326);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
@@ -43,15 +40,34 @@ CREATE INDEX IF NOT EXISTS geom_index
 CREATE TABLE IF NOT EXISTS water_systems(
     pws_id varchar(255) NOT NULL,
     lead_connections_count real,
+    geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(pws_id)
     );
-
-ALTER TABLE water_systems
-    ADD COLUMN IF NOT EXISTS geom GEOMETRY(Geometry, 4326);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON water_systems
     USING GIST (geom);
+
+-- EPA violations data
+
+CREATE TABLE IF NOT EXISTS epa_violations(
+    violation_id varchar(255) NOT NULL,
+    violation_code varchar(255) NOT NULL,
+    compliance_status varchar(255) NOT NULL,
+    start_date DATE NOT NULL,
+    pws_id varchar(255) NOT NULL,
+    geom GEOMETRY(Geometry, 4326),
+    PRIMARY KEY(violation_id)
+    );
+
+CREATE INDEX IF NOT EXISTS geom_index
+    ON epa_violations
+    USING GIST (geom);
+
+-- Ensure faster reads on PWS id --
+CREATE INDEX IF NOT EXISTS pws_id_index
+    ON epa_violations
+    USING GIST (pws_id);
 
 -- Parcel-level data
 
@@ -79,38 +95,3 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO readgeo;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO readgeo;
 
 GRANT readgeo TO tileserver;
-
--------------------
--- EXAMPLE BELOW --
--------------------
-
--- Upsert a table
-CREATE TABLE IF NOT EXISTS dummy (
-   id serial PRIMARY KEY
-);
-
--- Add new columns and index using a new query, so they can use the `IF NOT EXISTS` keywords.
--- using example PostGIS data: https://postgis.net/install/#binary-installers#spatial-sql
-ALTER TABLE dummy
-ADD COLUMN IF NOT EXISTS geom GEOMETRY(Point, 26910),
-ADD COLUMN IF NOT EXISTS name VARCHAR(128) unique;
-CREATE INDEX IF NOT EXISTS dummy_gix
-  ON dummy
-  USING GIST (geom);
-
--- Upsert a few test points.
-INSERT INTO dummy (geom, name)
-VALUES (ST_MakePoint(0,0), 'test_point'),
-(ST_MakePoint(1,0), 'test_point_2'),
-(ST_MakePoint(0,1), 'test_point_3')
-ON CONFLICT (name) 
-DO NOTHING;
-
--- Then run the following query to test. It should return the "test_point".
--- SELECT id, name
--- FROM dummy
--- WHERE ST_DWithin(
---   geom,
---   ST_GeomFromText('POINT(0 0)', 26910),
---   1000
--- );

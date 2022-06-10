@@ -33,7 +33,8 @@ export class DataImportStack extends Construct {
           CREDENTIALS_SECRET: credentialsSecret.secretArn,
           DATABASE_NAME: db,
         },
-        timeout: Duration.minutes(5),
+        memorySize: 512,
+        timeout: Duration.minutes(15),
         bundling: {
           externalModules: ['aws-sdk'],
           nodeModules: ['csv-parser', '@databases/pg'],
@@ -53,10 +54,32 @@ export class DataImportStack extends Construct {
           CREDENTIALS_SECRET: credentialsSecret.secretArn,
           DATABASE_NAME: db,
         },
-        timeout: Duration.minutes(5),
+        memorySize: 512,
+        timeout: Duration.minutes(15),
         bundling: {
           externalModules: ['aws-sdk'],
           nodeModules: ['stream-json', '@databases/pg', 'stream-chain'],
+        },
+      },
+    );
+
+    const writeViolationsDataFunction = new lambda.NodejsFunction(
+      this,
+      'write-violations-data-handler',
+      {
+        entry: `${path.resolve(__dirname)}/write-violations-data.handler.ts`,
+        handler: 'handler',
+        vpc: vpc,
+        vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+        environment: {
+          CREDENTIALS_SECRET: credentialsSecret.secretArn,
+          DATABASE_NAME: db,
+        },
+        memorySize: 512,
+        timeout: Duration.minutes(15),
+        bundling: {
+          externalModules: ['aws-sdk'],
+          nodeModules: ['stream-json', '@databases/pg'],
         },
       },
     );
@@ -74,6 +97,7 @@ export class DataImportStack extends Construct {
     const lambda_functions: lambda.NodejsFunction[] = [
       writeDemographicDataFunction,
       writeWaterSystemsDataFunction,
+      writeViolationsDataFunction,
     ];
 
     for (let f of lambda_functions) {
