@@ -1,51 +1,53 @@
 import { DataSourceType, GeoJsonDataLayer, LegendInfo, PopupInfo } from '@/model/data_layer';
-import { FillLayer } from 'mapbox-gl';
+import { Expression, FillLayer } from 'mapbox-gl';
+import { colorMapToBuckets } from '@/util/data_layer_util';
 
 const ID: string = 'epa-lead-and-copper-violations';
 
-const LEGEND_COLOR_MAP = {
-  0: '#FFEAE5',
-  25: '#FFAB99',
-  50: '#FF9680',
-  75: '#FF8166',
-  100: '#FF5733',
+const LEGEND_COLOR_MAPPING = [
+  0,
+  '#FFEAE5',
+  25,
+  '#FFAB99',
+  50,
+  '#FF9680',
+  75,
+  '#FF8166',
+  100,
+  '#FF5733',
+];
+
+/**
+ * Directions on how to map violations count to a bucket and color on the map.
+ */
+const leadAndCopperViolationsInterpolation: Expression = [
+  'interpolate',
+  ['linear'],
+  ['get', 'Lead and Copper Rule'],
+  ...LEGEND_COLOR_MAPPING,
+];
+
+const legendInfo: LegendInfo = {
+  title: 'Number of violations',
+  bucketMap: colorMapToBuckets(LEGEND_COLOR_MAPPING),
 };
 
-const STYLE_LAYER: FillLayer = {
+const styleLayer: FillLayer = {
   id: `${ID}-style`,
   source: ID,
   type: 'fill',
   paint: {
-    'fill-color': [
-      'interpolate',
-      ['linear'],
-      ['get', 'Lead and Copper Rule'],
-      0,
-      LEGEND_COLOR_MAP[0],
-      25,
-      LEGEND_COLOR_MAP[25],
-      50,
-      LEGEND_COLOR_MAP[50],
-      75,
-      LEGEND_COLOR_MAP[75],
-      100,
-      LEGEND_COLOR_MAP[100],
-    ],
+    'fill-color': leadAndCopperViolationsInterpolation,
     'fill-opacity': 0.75,
     'fill-outline-color': '#B2391F',
   },
   layout: {
-    // Make the layer visible by default.
-    visibility: 'visible',
+    // Make the layer hidden by default.
+    visibility: 'none',
   },
 };
 
-const LEGEND_INFO: LegendInfo = {
-  title: 'Number of violations',
-  bucketMap: new Map(Object.entries(LEGEND_COLOR_MAP)),
-};
-
-const POPUP_INFO: PopupInfo = {
+const popupInfo: PopupInfo = {
   title: 'County',
   subtitle: '320 estimated lead service lines',
   detailsTitle: 'Lead & Copper Rule Violations',
@@ -60,7 +62,7 @@ export const leadAndCopperViolationsByCountyDataLayer: GeoJsonDataLayer = {
     type: DataSourceType.GeoJson,
     data: '',
   },
-  legendInfo: LEGEND_INFO,
-  popupInfo: POPUP_INFO,
-  styleLayer: STYLE_LAYER,
+  legendInfo: legendInfo,
+  popupInfo: popupInfo,
+  styleLayer: styleLayer,
 };

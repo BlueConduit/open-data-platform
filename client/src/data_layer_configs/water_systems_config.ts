@@ -1,7 +1,6 @@
 import { DataSourceType, LegendInfo, PopupInfo, TileDataLayer } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
-
-const LOCALHOST = 'localhost';
+import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
 const ID: string = 'water-systems';
 const DEFAULT_NULL_COLOR = '#d3d3d3';
@@ -83,32 +82,3 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   popupInfo: popupInfo,
   styleLayer: styleLayer,
 };
-
-/**
- * Converts list of legend pairs (alternating numerical key, string hex color
- * value) to a map of legend key : color hex.
- * @param colorMapping the list of legend pairs
- *
- * Example:
- * [0, '#9fcd7c', 10000, '#f7e5af'] => {'0' :  '#9fcd7c', '10000', '#f7e5af'}
- */
-function colorMapToBuckets(colorMapping: any[]): Map<string, string> {
-  const listOfLegendPairs: [string, string][] = [];
-  for (let index = 0; index < LEGEND_COLOR_MAPPING.length; index++) {
-    if (index % 2 != 0) {
-      listOfLegendPairs.push([LEGEND_COLOR_MAPPING[index - 1].toString(), colorMapping[index]]);
-    }
-  }
-  return new Map(listOfLegendPairs);
-}
-
-/**
- * Hostname of tileserver to be passed to mapbox.
- *
- * Returns location.hostname unless app is being run locally.
- */
-function tileServerHost() {
-  return location.hostname == LOCALHOST
-    ? process.env.VUE_APP_DEFAULT_TILESERVER_HOST
-    : location.hostname;
-}

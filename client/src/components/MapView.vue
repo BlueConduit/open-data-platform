@@ -73,7 +73,7 @@ export default defineComponent({
     /**
      * Updates layer visibility based on current data layer.
      */
-    toggleLayerVisibility(newDataLayer: DataLayer, oldDataLayer: DataLayer): void {
+    toggleLayerVisibility(newDataLayer: DataLayer | null, oldDataLayer: DataLayer | null): void {
       if (this.map == null) return;
       if (this.popup != null) {
         this.popup.remove();
@@ -93,7 +93,7 @@ export default defineComponent({
      * This will create a map if it does not exist and there is new data, or change the visual
      * layer if the currentDataLayer changes.
      */
-    updateMapOnDataLayerChange(newDataLayer: DataLayer, oldDataLayer: DataLayer): void {
+    updateMapOnDataLayerChange(newDataLayer: DataLayer | null, oldDataLayer: DataLayer | null): void {
       if (this.map == null) {
         const source = newDataLayer?.source;
         const dataLoaded =
