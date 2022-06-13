@@ -11,7 +11,7 @@ import MapPopupContent from '@/components/MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { DataSourceType } from '../model/data_layer';
+import { DataLayer, DataSourceType } from '../model/data_layer';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -36,6 +36,7 @@ export default defineComponent({
   data() {
     return {
       map: null as mapboxgl.Map | null,
+      popup: null as mapboxgl.Popup | null,
     };
   },
   props: {
@@ -52,26 +53,49 @@ export default defineComponent({
   },
   methods: {
     /**
-     * Updates layer visibility based on current data layer.
+     * Sets the visibility of the layer with the given styleLayerId to.
      */
-    toggleLayerVisibility(updatedState: State): void {
+    setDataLayerVisible(styleLayerId: string, visible: boolean): void {
       if (this.map == null) return;
 
-      updatedState.dataLayers.forEach(layer => {
-        const visibility = layer == updatedState.currentDataLayer ? 'visible' : 'none';
-        this.map?.setLayoutProperty(layer.styleLayer.id, 'visibility', visibility);
-      });
+      const visibility = visible ? 'visible' : 'none';
+      this.map.setLayoutProperty(styleLayerId, 'visibility', visibility);
     },
 
     /**
-     * Updates map when injected State changes.
+     * Returns whether the layer corresponding to the given stylerLayerId is visible.
+     */
+    isDataLayerVisible(styleLayerId: string): boolean {
+      return this.map != null
+        && this.map.getLayoutProperty(styleLayerId, 'visibility') == 'visible';
+    },
+
+    /**
+     * Updates layer visibility based on current data layer.
+     */
+    toggleLayerVisibility(newDataLayer: DataLayer, oldDataLayer: DataLayer): void {
+      if (this.map == null) return;
+      if (this.popup != null) {
+        this.popup.remove();
+      }
+
+      if (newDataLayer != null && !this.isDataLayerVisible(newDataLayer.styleLayer.id)) {
+        this.setDataLayerVisible(newDataLayer.styleLayer.id, true);
+      }
+      if (oldDataLayer != null && this.isDataLayerVisible(oldDataLayer.styleLayer.id)) {
+        this.setDataLayerVisible(oldDataLayer.styleLayer.id, false);
+      }
+    },
+
+    /**
+     * Updates map when injected State's currentDataLayer changes.
      *
      * This will create a map if it does not exist and there is new data, or change the visual
      * layer if the currentDataLayer changes.
      */
-    updateMapOnStateChange(newState: State): void {
+    updateMapOnDataLayerChange(newDataLayer: DataLayer, oldDataLayer: DataLayer): void {
       if (this.map == null) {
-        const source = newState.currentDataLayer?.source;
+        const source = newDataLayer?.source;
         const dataLoaded =
           (source?.type == DataSourceType.GeoJson && source?.data != null) ||
           (source?.type == DataSourceType.Vector && source?.tiles != null);
@@ -79,7 +103,7 @@ export default defineComponent({
           this.createMap();
         }
       } else {
-        this.toggleLayerVisibility(newState);
+        this.toggleLayerVisibility(newDataLayer, oldDataLayer);
       }
     },
 
@@ -91,7 +115,7 @@ export default defineComponent({
      */
     createMapPopup(lngLat: LngLatLike, popupData: Record<string, any>): void {
       if (this.map == null) return;
-      new mapbox.Popup(
+      this.popup = new mapbox.Popup(
         { className: 'mapbox-popup' })
         .setLngLat(lngLat)
         .setHTML(POPUP_CONTENT_BASE_HTML) // Add basic div to mount to.
@@ -202,13 +226,8 @@ export default defineComponent({
     },
   },
   watch: {
-    state: {
-      // TODO(kailamjeter): experiment with watching different properties of state to avoid deep.
-      handler(newState: State): void {
-        this.updateMapOnStateChange(newState);
-      },
-      // Make watcher deep, meaning that this will be triggered on a change to any nested field of state.
-      deep: true,
+    'state.currentDataLayer': function(newDataLayer: DataLayer, oldDataLayer: DataLayer) {
+      this.updateMapOnDataLayerChange(newDataLayer, oldDataLayer);
     },
   },
 });
