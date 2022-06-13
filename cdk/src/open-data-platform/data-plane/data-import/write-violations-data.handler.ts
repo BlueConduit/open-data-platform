@@ -61,11 +61,12 @@ async function insertRows(db: ConnectionPool, rows: ViolationsTableRow[]): Promi
 function parseS3IntoViolationsTableRow(
   s3Params: AWS.S3.GetObjectRequest,
   db: ConnectionPool,
+  startIndex: number,
   numberOfRowsToWrite = DEFAULT_NUMBER_ROWS_TO_INSERT,
 ): Promise<number> {
   return new Promise(function (resolve, reject) {
     const batchSize = 10;
-    let numberRows = 0;
+    let numberRowsParsed = 0;
     let results: ViolationsTableRow[] = [];
 
     const fileStream = S3.getObject(s3Params).createReadStream();
@@ -77,10 +78,11 @@ function parseS3IntoViolationsTableRow(
     ]);
 
     pipeline
-      .on('data', async (batch: any[]) => {
-        if (numberRows < numberOfRowsToWrite) {
-          for (const row of batch) {
-            const value = row.value;
+      .on('data', async (row: any[]) => {
+        const endIndex = startIndex + numberOfRowsToWrite;
+        if (numberRowsParsed >= startIndex && numberRowsParsed <= endIndex) {
+          for (const data of row) {
+            const value = data.value;
             const properties = value.properties;
 
             // Skip violations outside of Lead and Copper Rule violations.
@@ -97,7 +99,7 @@ function parseS3IntoViolationsTableRow(
                 .build();
               results.push(violationsRow);
 
-              // Every batch size, write into the db.
+              // Every row size, write into the db.
               if (results.length == batchSize) {
                 // Pause reads while inserting into db.
                 fileStream.pause();
@@ -107,21 +109,21 @@ function parseS3IntoViolationsTableRow(
               }
             }
           }
-        } else {
+        } else if (numberRowsParsed > endIndex) {
           // Stop reading stream if numberOfRowsToWrite has been met.
-          fileStream.destroy();
+          pipeline.destroy();
         }
-        numberRows += batch.length;
+        numberRowsParsed += row.length;
       })
       .on('error', (error: Error) => {
         reject(error);
       })
       // Gets called by pipeline.destroy()
       .on('close', async (_: Error) => {
-        resolve(numberRows);
+        resolve(numberRowsParsed);
       })
       .on('end', async () => {
-        resolve(numberRows);
+        resolve(numberRowsParsed);
       });
   });
 }
@@ -134,6 +136,8 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
   const numberRowsToWrite: number = parseInt(
     process.env.numberRows ?? `${DEFAULT_NUMBER_ROWS_TO_INSERT}`,
   );
+
+  const startIndex = parseInt(process.env.startIndex ?? '0');
 
   const s3Params = {
     Bucket: 'opendataplatformapistaticdata',
@@ -149,7 +153,12 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       throw Error('Unable to connect to db');
     }
 
-    const numberRows = await parseS3IntoViolationsTableRow(s3Params, db, numberRowsToWrite);
+    const numberRows = await parseS3IntoViolationsTableRow(
+      s3Params,
+      db,
+      startIndex,
+      numberRowsToWrite,
+    );
     return {
       statusCode: 200,
       body: JSON.stringify({ 'Added rows': numberRows }),
