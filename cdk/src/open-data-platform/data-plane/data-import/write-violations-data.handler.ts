@@ -71,7 +71,7 @@ async function deleteRows(db: ConnectionPool): Promise<any[]> {
 /**
  * Reads the S3 CSV file and the number of rows successfully written.
  */
-function parseS3IntoLeadServiceLinesTableRow(
+function parseS3IntoViolationsTableRow(
   s3Params: AWS.S3.GetObjectRequest,
   db: ConnectionPool,
   numberOfRowsToWrite = DEFAULT_NUMBER_ROWS_TO_INSERT,
@@ -165,7 +165,7 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
     // Remove existing rows before inserting new ones.
     await deleteRows(db);
-    const numberRows = await parseS3IntoLeadServiceLinesTableRow(s3Params, db, numberRowsToWrite);
+    const numberRows = await parseS3IntoViolationsTableRow(s3Params, db, numberRowsToWrite);
     return {
       statusCode: 200,
       body: JSON.stringify({ 'Added rows': numberRows }),
