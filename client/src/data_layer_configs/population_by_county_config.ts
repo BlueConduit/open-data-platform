@@ -1,37 +1,26 @@
-import { DataLayer, LegendInfo } from '@/model/data_layer';
+import { DataLayer, DataSourceType, LegendInfo } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 
 const ID: string = 'epa-population-by-county';
 
-const LEGEND_COLOR_MAP =
-  {
-    0:
-      '#E1F5FE',
-    10000:
-      '#B3E5FC',
-    25000:
-      '#81D4FA',
-    50000:
-      '#4FC3F7',
-    100000:
-      '#29B6F6',
-    200000:
-      '#0288D1',
-    500000:
-      '#01579B',
-    750000:
-      '#0D47A1',
-    1000000:
-      '#303F9F',
-    2000000:
-      '#1A237E',
-  };
+const LEGEND_COLOR_MAP = {
+  0: '#E1F5FE',
+  10000: '#B3E5FC',
+  25000: '#81D4FA',
+  50000: '#4FC3F7',
+  100000: '#29B6F6',
+  200000: '#0288D1',
+  500000: '#01579B',
+  750000: '#0D47A1',
+  1000000: '#303F9F',
+  2000000: '#1A237E',
+};
 
 const STYLE_LAYER: FillLayer = {
-  'id': `${ID}-style`,
-  'source': ID,
-  'type': 'fill',
-  'paint': {
+  id: `${ID}-style`,
+  source: ID,
+  type: 'fill',
+  paint: {
     'fill-color': [
       'interpolate',
       ['linear'],
@@ -60,9 +49,9 @@ const STYLE_LAYER: FillLayer = {
     'fill-opacity': 0.75,
     'fill-outline-color': '#164E87',
   },
-  'layout': {
+  layout: {
     // Make the layer hidden by default.
-    'visibility': 'none',
+    visibility: 'none',
   },
 };
 
@@ -74,7 +63,10 @@ const LEGEND_INFO: LegendInfo = {
 export const populationByCountyDataLayer: DataLayer = {
   id: ID,
   name: 'Population',
-  data: '',
+  source: {
+    type: DataSourceType.GeoJson,
+    data: '',
+  },
   legendInfo: LEGEND_INFO,
   styleLayer: STYLE_LAYER,
 };

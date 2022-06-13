@@ -62,6 +62,14 @@ export class FrontendStack extends Stack {
         protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
       },
     );
+
+    const prefixTrimFunction = new cloudfront.Function(this, 'ViewerResponseFunction', {
+      functionName: `${id}-tileServerPrefixTrim`,
+      code: cloudfront.FunctionCode.fromInline(handler.toString()),
+      comment: `Trim "${prefixes.tileServer}" prefix from URL`,
+    });
+    this.distribution.node.addDependency(prefixTrimFunction);
+
     this.distribution.addBehavior(`${prefixes.tileServer}/*`, tileServerOrigin, {
       allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
       responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
@@ -72,11 +80,7 @@ export class FrontendStack extends Stack {
         // Since CloudFront is instantiated in us-east-1, so must this function:
         // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/monitoring-functions.htmltions/tileServerPrefixTrim?tab=test
         {
-          function: new cloudfront.Function(this, 'ViewerResponseFunction', {
-            functionName: `${id}-tileServerPrefixTrim`,
-            code: cloudfront.FunctionCode.fromInline(handler.toString()),
-            comment: `Trim "${prefixes.tileServer}" prefix from URL`,
-          }),
+          function: prefixTrimFunction,
           eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
         },
       ],

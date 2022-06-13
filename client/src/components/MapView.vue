@@ -5,12 +5,13 @@
 
 <script lang='ts'>
 import mapboxgl from 'mapbox-gl';
-import mapbox, { GeoJSONSourceRaw, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
+import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from '@/components/MapLegend.vue';
 import MapPopupContent from '@/components/MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
+import { DataSourceType } from '../model/data_layer';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -55,7 +56,7 @@ export default defineComponent({
      */
     toggleLayerVisibility(updatedState: State): void {
       if (this.map == null) return;
-      
+
       updatedState.dataLayers.forEach(layer => {
         const visibility = layer == updatedState.currentDataLayer ? 'visible' : 'none';
         this.map?.setLayoutProperty(layer.styleLayer.id, 'visibility', visibility);
@@ -70,7 +71,11 @@ export default defineComponent({
      */
     updateMapOnStateChange(newState: State): void {
       if (this.map == null) {
-        if (newState.currentDataLayer?.data != null) {
+        const source = newState.currentDataLayer?.source;
+        const dataLoaded =
+          (source?.type == DataSourceType.GeoJson && source?.data != null) ||
+          (source?.type == DataSourceType.Vector && source?.tiles != null);
+        if (dataLoaded) {
           this.createMap();
         }
       } else {
@@ -124,6 +129,32 @@ export default defineComponent({
     },
 
     /**
+     * Set up map controls.
+     *
+     * This currently consists of the GeolocateControl which sets up
+     * functionality to pan to the user's current location.
+     */
+    setUpControls(): void {
+      if (this.map == null) return;
+
+      // Add geolocate control to the map.
+      this.map.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: {
+            // If enabled, gets the best possible results. Can result in slower response times or
+            // increased power consumption so set to false for now.
+            enableHighAccuracy: false,
+          },
+          // Receive updates to the device's location as it changes.
+          trackUserLocation: true,
+        }),
+      );
+
+      // Add zoom in / zoom out buttons to map.
+      this.map.addControl(new mapboxgl.NavigationControl());
+    },
+
+    /**
      * Configure data layers and interaction handlers on the map.
      */
     configureMap(): void {
@@ -131,15 +162,13 @@ export default defineComponent({
 
       this.state.map = this.map;
       this.state.dataLayers?.forEach(layer => {
-        const source: GeoJSONSourceRaw = {
-          type: 'geojson',
-          data: layer.data,
-        };
-        this.map?.addSource(layer.id, source);
+        this.map?.addSource(layer.id, layer.source);
         this.map?.addLayer(layer.styleLayer);
+
       });
 
       this.setUpInteractionHandlers();
+      this.setUpControls();
     },
 
     /**

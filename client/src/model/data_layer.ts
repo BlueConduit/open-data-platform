@@ -1,4 +1,4 @@
-import { AnyLayer } from 'mapbox-gl';
+import { AnyLayer, AnySourceData, GeoJSONSourceRaw, VectorSource } from 'mapbox-gl';
 
 /**
  * A data layer on the map.
@@ -12,12 +12,28 @@ export interface DataLayer {
   id: string;
   // Name of this data layer that is displayed in search bar.
   name: string;
-  // Pointer to data. For GeoJSON source this will be a string to the GeoJSON file in the S3 bucket.
-  data: string;
   // Layer which specifies the styling of this data layer.
   styleLayer: AnyLayer;
   // Information to display in the map legend when this layer is visible.
   legendInfo: LegendInfo;
+  // Data source for the layer.
+  source: AnySourceData;
+}
+
+/**
+ * Data layers where the source is a tile server,
+ */
+export interface TileDataLayer extends DataLayer {
+  // The endpoint to the tileserver.
+  source: VectorSource;
+}
+
+/**
+ * Data layers where the source is a geoJSON file,
+ */
+export interface GeoJsonDataLayer extends DataLayer {
+  // The GeoJSON file in the S3 bucket
+  source: GeoJSONSourceRaw;
 }
 
 /**
@@ -30,3 +46,12 @@ export interface LegendInfo {
   bucketMap: Map<string, string>;
 }
 
+/**
+ * Data source type. Required by Mapbox.
+ * See: https://docs.mapbox.com/mapbox-gl-js/style-spec/sources/
+ */
+export enum DataSourceType {
+  Unknown = 'unknown',
+  GeoJson = 'geojson',
+  Vector = 'vector',
+}
