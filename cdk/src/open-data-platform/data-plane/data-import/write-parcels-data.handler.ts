@@ -1,12 +1,12 @@
 import { ConnectionPool } from '@databases/pg';
-import { geoJsonHanderFactory } from './hander-factory';
+import { geoJsonHandlerFactory } from './handler-factory';
 
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata',
   Key: 'toledo_parcel_preds.geojson',
 };
 
-export const handler = geoJsonHanderFactory(
+export const handler = geoJsonHandlerFactory(
   s3Params,
   async (row: any, _: ConnectionPool) => {
     console.log('Row:', row);

@@ -15,13 +15,13 @@ const S3 = new AWS.S3();
  * Builds a lambda handler that parses a GeoJSON file and executes a callback.
  * @param s3Params - Details for how to get the GeoJSON file.
  * @param callback - Function that operates on a single element from the file.
- * @param numberOfRowsToWrite - Row limit, which can be used for testing.
+ * @param rowLimit - Number of rows to process, which can be used for testing.
  * @returns
  */
-export const geoJsonHanderFactory = (
+export const geoJsonHandlerFactory = (
   s3Params: AWS.S3.GetObjectRequest,
   callback: (row: any, db: ConnectionPool) => Promise<void>,
-  numberOfRowsToWrite: number = Infinity,
+  rowLimit: number = Infinity,
 ): ((event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => {
   /**
    * Reads an GeoJSON file and performs the callback on each element. This does not handle any
@@ -50,21 +50,23 @@ export const geoJsonHanderFactory = (
       pipeline
         .on('data', async (batch: any[]) => {
           console.log(`Processing batch. ${numberRows} rows have been read so far.`);
-          if (numberRows < numberOfRowsToWrite) {
-            // Pause reads while inserting into db.
-            pipeline.pause();
-            await Promise.all(
-              batch.map(async (data) => {
-                await callback(data, db);
-                ++numberRows;
-              }),
-            );
-            pipeline.resume();
-          } else {
-            // Stop reading stream if numberOfRowsToWrite has been met.
-            console.log('Stopping after row write limit:', numberOfRowsToWrite);
-            pipeline.destroy();
-          }
+          // Pause reads while inserting into db.
+          pipeline.pause();
+          await Promise.all(
+            batch.map(async (row: any) => {
+              // Stop processing if at the limit.
+              if (numberRows >= rowLimit) {
+                console.log('Stopping after row write limit:', rowLimit);
+                pipeline.destroy();
+                return;
+              }
+              // Multiple rows may be processed concurrently, so increment and check the limit
+              // before starting the processing step.
+              ++numberRows;
+              await callback(row, db);
+            }),
+          );
+          pipeline.resume();
         })
         .on('error', (error: Error) => {
           reject(error);
@@ -88,10 +90,9 @@ export const geoJsonHanderFactory = (
     }
     let numberRows = 0;
     try {
-      // Remove existing rows before inserting new ones.
       numberRows = await readGeoJsonFile(db);
     } catch (error) {
-      console.log('Error:' + error);
+      console.log(`Error after processing ${numberRows} rows:`, error);
       throw error;
     } finally {
       console.log('Disconnecting from db...');
