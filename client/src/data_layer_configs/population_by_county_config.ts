@@ -27,6 +27,12 @@ const LEGEND_COLOR_MAPPING = [
   '#1A237E',
 ];
 
+/**
+ * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
+ * results for the map.
+ *
+ *  See https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#interpolate.
+ */
 const populationInterpolation: Expression = [
   'interpolate',
   ['linear'],

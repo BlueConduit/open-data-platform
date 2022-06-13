@@ -18,7 +18,10 @@ const LEGEND_COLOR_MAPPING = [
 ];
 
 /**
- * Directions on how to map violations count to a bucket and color on the map.
+ * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
+ * results for the map.
+ *
+ *  See https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#interpolate.
  */
 const leadAndCopperViolationsInterpolation: Expression = [
   'interpolate',
