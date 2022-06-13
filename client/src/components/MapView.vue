@@ -53,9 +53,9 @@ export default defineComponent({
   },
   methods: {
     /**
-     * Sets the visibility of the layer with the given styleLayerId to.
+     * Sets the visibility of the layer with the given styleLayerId.
      */
-    setDataLayerVisible(styleLayerId: string, visible: boolean): void {
+    setDataLayerVisibility(styleLayerId: string, visible: boolean): void {
       if (this.map == null) return;
 
       const visibility = visible ? 'visible' : 'none';
@@ -80,10 +80,10 @@ export default defineComponent({
       }
 
       if (newDataLayer != null && !this.isDataLayerVisible(newDataLayer.styleLayer.id)) {
-        this.setDataLayerVisible(newDataLayer.styleLayer.id, true);
+        this.setDataLayerVisibility(newDataLayer.styleLayer.id, true);
       }
       if (oldDataLayer != null && this.isDataLayerVisible(oldDataLayer.styleLayer.id)) {
-        this.setDataLayerVisible(oldDataLayer.styleLayer.id, false);
+        this.setDataLayerVisibility(oldDataLayer.styleLayer.id, false);
       }
     },
 
