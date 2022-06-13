@@ -27,19 +27,18 @@ export default defineComponent({
       displayedProperties: new Map<string, string>(),
     };
   },
-  // TODO(kaila): remove defaults when content is finalized.
   props: {
     title: {
       type: String,
-      default: 'County',
+      required: true,
     },
     subtitle: {
       type: String,
-      default: '320 estimated lead service lines',
+      required: true,
     },
     detailsTitle: {
       type: String,
-      default: 'Lead & Copper Rule Violations',
+      required: true,
     },
     featurePropertyLabelMap: {
       type: Map as PropType<Map<string, string>>,
@@ -66,10 +65,10 @@ export default defineComponent({
         Array.from(this.featurePropertyLabelMap.entries());
 
       for (let entry of featurePropertiesToDisplay) {
-        const label = entry[1];
         const featurePropertyKey = entry[0];
+        const label = entry[1];
+        const propertyValue = this.properties.get(featurePropertyKey) ?? '';
 
-        const propertyValue = this.properties.get(featurePropertyKey) as string;
         this.displayedProperties.set(label, propertyValue);
       }
     }
