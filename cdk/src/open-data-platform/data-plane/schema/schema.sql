@@ -55,19 +55,9 @@ CREATE TABLE IF NOT EXISTS epa_violations(
     violation_code varchar(255) NOT NULL,
     compliance_status varchar(255) NOT NULL,
     start_date DATE NOT NULL,
-    pws_id varchar(255) NOT NULL,
-    geom GEOMETRY(Geometry, 4326),
+    pws_id varchar(255) NOT NULL REFERENCES water_systems(pws_id),
     PRIMARY KEY(violation_id)
     );
-
-CREATE INDEX IF NOT EXISTS geom_index
-    ON epa_violations
-    USING GIST (geom);
-
--- Ensure faster reads on PWS id --
-CREATE INDEX IF NOT EXISTS pws_id_index
-    ON epa_violations
-    USING GIST (pws_id);
 
 -- Parcel-level data
 

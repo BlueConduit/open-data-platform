@@ -40,32 +40,19 @@ const COMPLIANCE_STATUS_MAP = new Map([
  */
 async function insertRows(db: ConnectionPool, rows: ViolationsTableRow[]): Promise<any[]> {
   return db.query(sql`INSERT INTO epa_violations (violation_id,
-                                                 pws_id,
-                                                 violation_code,
-                                                 compliance_status,
-                                                 start_date, geom)
+                                                  pws_id,
+                                                  violation_code,
+                                                  compliance_status,
+                                                  start_date)
                       VALUES ${sql.join(
                         rows.map((row: ViolationsTableRow) => {
-                          return sql`(${row.violation_id}, 
-                                      ${row.pws_id}, 
-                                      ${row.violation_code}, 
-                                      ${row.compliance_status}, 
-                                      ${row.start_date},
-                                      ${sql.__dangerous__rawValue(
-                                        `ST_AsText(ST_GeomFromGeoJSON('${row.geom}'))`,
-                                      )})`;
+                          return sql`(${row.violation_id}, ${row.pws_id},
+                                                 ${row.violation_code},
+                                                 ${row.compliance_status},
+                                                 ${row.start_date})`;
                         }),
                         ',',
-                      )};`);
-}
-
-/**
- * Inserts all rows into the violations table.
- */
-async function deleteRows(db: ConnectionPool): Promise<any[]> {
-  return db.query(sql`DELETE
-                      FROM epa_violations
-                      WHERE violation_id IS NOT NULL`);
+                      )} ON CONFLICT (violation_id) DO UPDATE;`);
 }
 
 /**
@@ -92,14 +79,14 @@ function parseS3IntoViolationsTableRow(
     pipeline
       .on('data', async (batch: any[]) => {
         if (numberRows < numberOfRowsToWrite) {
-          for (const data of batch) {
-            const value = data.value;
+          for (const row of batch) {
+            const value = row.value;
             const properties = value.properties;
 
-            console.log(properties);
+            // Skip violations outside of Lead and Copper Rule violations.
             if (LEAD_AND_COPPER_VIOLATIONS.has(properties[VIOLATION_CODE])) {
               const startDate = moment(properties[COMPL_PER_BEGIN_DATE], 'DD-MMM-YY');
-              const row = new ViolationsTableRowBuilder()
+              const violationsRow = new ViolationsTableRowBuilder()
                 .violationId(properties[VIOLATION_ID])
                 .pwsId(properties[PWSID])
                 .violationCode(properties[VIOLATION_CODE])
@@ -107,9 +94,8 @@ function parseS3IntoViolationsTableRow(
                   COMPLIANCE_STATUS_MAP.get(properties[COMPLIANCE_STATUS_CODE]) ?? '',
                 )
                 .startDate(startDate.format('YYYY-MM-DD'))
-                .geom(JSON.stringify(value.geometry))
                 .build();
-              results.push(row);
+              results.push(violationsRow);
 
               // Every batch size, write into the db.
               if (results.length == batchSize) {
@@ -163,8 +149,6 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       throw Error('Unable to connect to db');
     }
 
-    // Remove existing rows before inserting new ones.
-    await deleteRows(db);
     const numberRows = await parseS3IntoViolationsTableRow(s3Params, db, numberRowsToWrite);
     return {
       statusCode: 200,
@@ -195,8 +179,6 @@ class ViolationsTableRow {
   compliance_status: string;
   // Date the violation began in the form of YYYY-mm-dd.
   start_date: string;
-  // GeoJSON representation of the water system boundaries.
-  geom: string;
 
   constructor(
     pws_id: string,
@@ -204,13 +186,11 @@ class ViolationsTableRow {
     violation_code: string,
     compliance_status: string,
     start_date: string,
-    geom: string,
   ) {
     this.pws_id = pws_id;
     this.violation_id = violation_id;
     this.violation_code = violation_code;
     this.start_date = start_date;
-    this.geom = geom;
   }
 }
 
@@ -246,11 +226,6 @@ class ViolationsTableRowBuilder {
 
   startDate(startDate: string): ViolationsTableRowBuilder {
     this._row.start_date = startDate;
-    return this;
-  }
-
-  geom(geom: string): ViolationsTableRowBuilder {
-    this._row.geom = geom;
     return this;
   }
 
