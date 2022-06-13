@@ -84,6 +84,22 @@ export class DataImportStack extends Construct {
       },
     );
 
+    const writeParcelDataFunction = new lambda.NodejsFunction(this, 'write-parcels-data-handler', {
+      entry: `${path.resolve(__dirname)}/write-parcels-data.handler.ts`,
+      handler: 'handler',
+      vpc: vpc,
+      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+      environment: {
+        CREDENTIALS_SECRET: credentialsSecret.secretArn,
+        DATABASE_NAME: db,
+      },
+      timeout: Duration.minutes(5),
+      bundling: {
+        externalModules: ['aws-sdk'],
+        nodeModules: ['stream-json', '@databases/pg', 'stream-chain'],
+      },
+    });
+
     // Allow reads to all S3 buckets in account.
     const s3GetObjectPolicy = new iam.PolicyStatement({
       actions: ['s3:GetObject'],
@@ -98,6 +114,7 @@ export class DataImportStack extends Construct {
       writeDemographicDataFunction,
       writeWaterSystemsDataFunction,
       writeViolationsDataFunction,
+      writeParcelDataFunction,
     ];
 
     for (let f of lambda_functions) {

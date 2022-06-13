@@ -68,18 +68,20 @@ function parseS3IntoLeadServiceLinesTableRow(
           batch.forEach((data) => {
             const value = data.value;
             const properties = value.properties;
+            const lead_connections =
+              properties.lead_connections != 'NaN' ? properties.lead_connections : 0;
 
             const row = new WaterSystemsTableRowBuilder()
               .pwsId(properties.pwsid)
               // Sometimes this number is negative because it is based on a
               // regression.
-              .leadConnectionsCount(Math.max(parseFloat(properties.lead_connections), 0))
+              .leadConnectionsCount(Math.max(parseFloat(lead_connections), 0))
               // Keep JSON formatting. Post-GIS helpers depend on this.
               .geom(JSON.stringify(value.geometry))
               .build();
             results.push(row);
-            ++numberRows;
           });
+          numberRows += batch.length;
 
           // Pause reads while inserting into db.
           pipeline.pause();

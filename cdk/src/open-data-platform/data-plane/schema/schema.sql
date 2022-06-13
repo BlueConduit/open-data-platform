@@ -69,9 +69,16 @@ CREATE TABLE IF NOT EXISTS parcels (
     sl_path geometry(Geometry, 4326),
     lead_prediction float
 );
+ALTER TABLE parcels
+    ADD COLUMN IF NOT EXISTS lead_prediction_public float,
+    -- Private-side predictive data don't exist for all parcels, but store it anyway.
+    ADD COLUMN IF NOT EXISTS lead_prediction_private float,
+    -- Can be used to determine if the row needs updating with a new dataset.
+    ADD COLUMN IF NOT EXISTS last_updated_time timestamp;
 -- Either of these might be used for searching.
 CREATE INDEX IF NOT EXISTS sl_geometry_index ON parcels USING GIST (sl_path);
-CREATE INDEX IF NOT EXISTS addres_index ON parcels(address);
+-- Uniqueness will prevent multiple rows for the same address from being re-imported.
+CREATE UNIQUE INDEX IF NOT EXISTS address_index ON parcels(address);
 
 ----------------------
 -- Roles and Grants --
