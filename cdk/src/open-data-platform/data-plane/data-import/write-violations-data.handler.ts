@@ -7,6 +7,7 @@ const { chain } = require('stream-chain');
 const { streamArray } = require('stream-json/streamers/StreamArray');
 const Batch = require('stream-json/utils/Batch');
 const Pick = require('stream-json/filters/Pick');
+const moment = require('moment');
 
 const S3 = new AWS.S3();
 
@@ -20,29 +21,29 @@ const COMPLIANCE_STATUS_CODE = `${VIOLATION}.COMPLIANCE_STATUS_CODE`;
 const COMPL_PER_BEGIN_DATE = `${VIOLATION}.COMPL_PER_BEGIN_DATE`;
 
 /**
+ * Status codes that indicate a Lead and Copper Rule violation.
  * See https://www.epa.gov/sites/default/files/2019-07/documents/environments-and-contaminants-methods-drinking-water.pdf
  * Page 4.
  */
 const LEAD_AND_COPPER_VIOLATIONS = new Set(['57', '58', '59', '63', '65']);
 
-/**
- * According to EPA officials, “known” means the violation is not open but
- * the system has not yet been designated as returned to compliance.
- */
 const COMPLIANCE_STATUS_MAP = new Map([
+  // Indicates the violation is not open but the system has not yet been
+  // designated as returned to compliance.
   ['K', 'Known'],
   ['O', 'Open'],
+  ['R', 'Return to compliance'],
 ]);
 
 /**
  * Inserts all rows into the violations table.
  */
 async function insertRows(db: ConnectionPool, rows: ViolationsTableRow[]): Promise<any[]> {
-  return db.query(sql`INSERT INTO epa_violation (violation_id,
+  return db.query(sql`INSERT INTO epa_violations (violation_id,
                                                  pws_id,
                                                  violation_code,
-                                                 compliance_status_code,
-                                                 start_date)
+                                                 compliance_status,
+                                                 start_date, geom)
                       VALUES ${sql.join(
                         rows.map((row: ViolationsTableRow) => {
                           return sql`(${row.violation_id}, 
@@ -63,8 +64,8 @@ async function insertRows(db: ConnectionPool, rows: ViolationsTableRow[]): Promi
  */
 async function deleteRows(db: ConnectionPool): Promise<any[]> {
   return db.query(sql`DELETE
-                      FROM water_systems
-                      WHERE pws_id IS NOT NULL`);
+                      FROM epa_violations
+                      WHERE violation_id IS NOT NULL`);
 }
 
 /**
@@ -92,19 +93,23 @@ function parseS3IntoLeadServiceLinesTableRow(
       .on('data', async (batch: any[]) => {
         if (numberRows < numberOfRowsToWrite) {
           for (const data of batch) {
-            console.log(data);
-            if (data[VIOLATION_CODE] in LEAD_AND_COPPER_VIOLATIONS) {
+            const value = data.value;
+            const properties = value.properties;
+
+            console.log(properties);
+            if (LEAD_AND_COPPER_VIOLATIONS.has(properties[VIOLATION_CODE])) {
+              const startDate = moment(properties[COMPL_PER_BEGIN_DATE], 'DD-MMM-YY');
               const row = new ViolationsTableRowBuilder()
-                .violationId(data[VIOLATION_ID])
-                .pwsId(data[PWSID])
-                .violationCode(data[VIOLATION_CODE])
-                .complianceStatus(COMPLIANCE_STATUS_MAP.get(data[COMPLIANCE_STATUS_CODE]) ?? '')
-                .startDate(data[COMPL_PER_BEGIN_DATE])
-                .geom('')
+                .violationId(properties[VIOLATION_ID])
+                .pwsId(properties[PWSID])
+                .violationCode(properties[VIOLATION_CODE])
+                .complianceStatus(
+                  COMPLIANCE_STATUS_MAP.get(properties[COMPLIANCE_STATUS_CODE]) ?? '',
+                )
+                .startDate(startDate.format('YYYY-MM-DD'))
+                .geom(JSON.stringify(value.geometry))
                 .build();
               results.push(row);
-
-              numberRows++;
 
               // Every batch size, write into the db.
               if (results.length == batchSize) {
@@ -120,6 +125,7 @@ function parseS3IntoLeadServiceLinesTableRow(
           // Stop reading stream if numberOfRowsToWrite has been met.
           fileStream.destroy();
         }
+        numberRows += batch.length;
       })
       .on('error', (error: Error) => {
         reject(error);
@@ -189,7 +195,7 @@ class ViolationsTableRow {
   compliance_status: string;
   // Date the violation began in the form of YYYY-mm-dd.
   start_date: string;
-  // GeoJSON representation of the boundaries.
+  // GeoJSON representation of the water system boundaries.
   geom: string;
 
   constructor(
