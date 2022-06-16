@@ -34,6 +34,7 @@ export default defineComponent({
   flex-direction: row;
   align-items: flex-start;
   margin-left: 15px;
+  min-width: fit-content;
 }
 
 .selected {
