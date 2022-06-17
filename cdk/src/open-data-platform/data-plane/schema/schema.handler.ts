@@ -4,6 +4,7 @@
 
 import createConnectionPool, { ConnectionPool, ConnectionPoolConfig, sql } from '@databases/pg';
 import { SecretsManager } from '@aws-sdk/client-secrets-manager';
+import { throws } from 'assert';
 
 const CREDENTIALS_SECRET = process.env.CREDENTIALS_SECRET ?? '';
 const DATABASE_NAME = process.env.DATABASE_NAME ?? '';
@@ -112,7 +113,7 @@ async function runSchemaFile(file: string, db: ConnectionPool) {
 /**
  * Fetches database credentials based on the CREDENTIALS_SECRET
  */
-async function createDatabaseConfig(): Promise<ConnectionPoolConfig> {
+export async function createDatabaseConfig(): Promise<ConnectionPoolConfig> {
   console.log('Fetching db credentials...');
   const { host, port, username, password } = await getCredentials(CREDENTIALS_SECRET);
   return {
@@ -157,5 +158,7 @@ export function database(config: ConnectionPoolConfig): ConnectionPool {
     onQueryError: (_query: any, { text }, err) => {
       console.log(`${new Date().toISOString()} ERROR QUERY ${text} - ${err.message}`);
     },
+    idleTimeoutMilliseconds: 0,
+    ssl: { rejectUnauthorized: false },
   });
 }

@@ -1,55 +1,80 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { ConnectionPool, sql } from '@databases/pg';
 import * as AWS from 'aws-sdk';
-import { connectToDb } from '../schema/schema.handler';
+import { Pool, PoolClient, QueryArrayResult } from 'pg';
+import { createDatabaseConfig } from '../schema/schema.handler';
+import { Readable } from 'stream';
 
 const { chain } = require('stream-chain');
 const { streamArray } = require('stream-json/streamers/StreamArray');
+const format = require('pg-format');
 const Batch = require('stream-json/utils/Batch');
 const Pick = require('stream-json/filters/Pick');
 
 const S3 = new AWS.S3();
 
-const DEFAULT_NUMBER_ROWS_TO_INSERT = 10;
+const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
 
 /**
  * Inserts all rows into the water systems table.
+ * @param db: Database to use
+ * @param rows: Rows to write into the db
  */
-async function insertRows(db: ConnectionPool, rows: WaterSystemsTableRow[]): Promise<any[]> {
-  return db.query(sql`INSERT INTO water_systems (pws_id,
-                                                 lead_connections_count,
-                                                 geom)
-                      VALUES ${sql.join(
-                        rows.map((row: WaterSystemsTableRow) => {
-                          return sql`(${row.pws_id}, ${
-                            row.lead_connections_count
-                          }, ${sql.__dangerous__rawValue(
-                            `ST_AsText(ST_GeomFromGeoJSON('${row.geom}'))`,
-                          )})`;
-                        }),
-                        ',',
-                      )};`);
+async function insertRows(db: PoolClient, rows: WaterSystemsTableRow[]): Promise<QueryArrayResult> {
+  const valuesToInsert: any[][] = [];
+
+  for (let row of rows) {
+    valuesToInsert.push([
+      `'${row.pws_id}'`,
+      row.lead_connections_count,
+      `ST_AsText(ST_GeomFromGeoJSON('${row.geom}'))`,
+    ]);
+  }
+
+  // Format function below needs these to be %s (string literals) or else
+  // it produces invalid geometries.
+  const insertIntoStatement =
+    'INSERT INTO water_systems (pws_id, lead_connections_count, geom) ' +
+    'VALUES %s ON CONFLICT (pws_id) DO NOTHING';
+
+  try {
+    await db.query('BEGIN');
+    const queryResult = await db.query(format(insertIntoStatement, valuesToInsert), []);
+    await db.query('COMMIT');
+    return queryResult;
+  } catch (error) {
+    await db.query('ROLLBACK');
+    throw error;
+  }
 }
 
 /**
- * Inserts all rows into the water systems table.
+ * Pause the filestream in order to insert rows in the db.
+ * @param db: Database to write to
+ * @param pipeline Filestream to pause / resume
+ * @param results: Rows to write
  */
-async function deleteRows(db: ConnectionPool): Promise<any[]> {
-  return db.query(sql`DELETE
-                      FROM water_systems
-                      WHERE pws_id IS NOT NULL`);
+async function pauseAndInsert(db: PoolClient, pipeline: Readable, results: WaterSystemsTableRow[]) {
+  // Pause reads while inserting into db.
+  pipeline.pause();
+  await insertRows(db, results);
+  pipeline.resume();
 }
 
 /**
- * Reads the S3 CSV file and the number of rows successfully written.
+ * Reads the S3 file and the number of rows successfully written.
+ * @param s3Params: Params that identity the s3 bucket
+ * @param db: Database to write to.
+ * @param startIndex: The row to begin writes with
+ * @param numberOfRowsToWrite: The number of entries to write to the db
  */
-function parseS3IntoLeadServiceLinesTableRow(
+async function parseS3IntoLeadServiceLinesTableRow(
   s3Params: AWS.S3.GetObjectRequest,
-  db: ConnectionPool,
+  db: PoolClient,
+  startIndex = 0,
   numberOfRowsToWrite = DEFAULT_NUMBER_ROWS_TO_INSERT,
 ): Promise<number> {
   return new Promise(function (resolve, reject) {
-    const batchSize = 10;
+    const batchSize = 1000;
     let numberRows = 0;
 
     const fileStream = S3.getObject(s3Params).createReadStream();
@@ -60,18 +85,20 @@ function parseS3IntoLeadServiceLinesTableRow(
       new Batch({ batchSize: batchSize }),
     ]);
 
+    const endIndex = startIndex + numberOfRowsToWrite;
     pipeline
-      .on('data', async (batch: any[]) => {
-        if (numberRows < numberOfRowsToWrite) {
-          const results: WaterSystemsTableRow[] = [];
-
-          batch.forEach((data) => {
-            const value = data.value;
+      .on('data', async (rows: any[]) => {
+        const results: WaterSystemsTableRow[] = [];
+        if (numberRows >= startIndex && numberRows < endIndex) {
+          for (let row of rows) {
+            const value = row.value;
             const properties = value.properties;
             const lead_connections =
-              properties.lead_connections != 'NaN' ? properties.lead_connections : 0;
+              properties.lead_connections != 'NaN' && properties.lead_connections != null
+                ? properties.lead_connections
+                : 0.0;
 
-            const row = new WaterSystemsTableRowBuilder()
+            const tableRowToInsert = new WaterSystemsTableRowBuilder()
               .pwsId(properties.pwsid)
               // Sometimes this number is negative because it is based on a
               // regression.
@@ -79,20 +106,25 @@ function parseS3IntoLeadServiceLinesTableRow(
               // Keep JSON formatting. Post-GIS helpers depend on this.
               .geom(JSON.stringify(value.geometry))
               .build();
-            results.push(row);
-          });
-          numberRows += batch.length;
+            results.push(tableRowToInsert);
+          }
 
-          // Pause reads while inserting into db.
-          pipeline.pause();
-          await insertRows(db, results);
-          pipeline.resume();
-        } else {
+          // Every batch size, write into the db.
+          if (results.length == batchSize) {
+            await pauseAndInsert(db, pipeline, results);
+          }
+        } else if (numberRows >= endIndex) {
+          // If there are any results left, write those.
+          if (results.length > 0) {
+            await pauseAndInsert(db, pipeline, results);
+          }
+
           // Stop reading stream if numberOfRowsToWrite has been met.
           pipeline.destroy();
         }
+        numberRows += rows.length;
       })
-      .on('error', (error: Error) => {
+      .on('error', async (error: Error) => {
         reject(error);
       })
       // Gets called by pipeline.destroy()
@@ -119,18 +151,28 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     Key: 'pwsid_lead_connections.geojson',
   };
 
-  let db: ConnectionPool | undefined;
-
-  // Read CSV file and write to water systems table.
+  // TODO(breuch): Update helpers to use new library.
+  const config = await createDatabaseConfig();
   try {
-    db = await connectToDb();
-    if (db == undefined) {
-      throw Error('Unable to connect to db');
-    }
+    const pool = new Pool({
+      user: config.user,
+      host: config.host as string,
+      database: config.database,
+      password: config.password,
+      port: config.port as number,
+      connectionTimeoutMillis: 900000,
+    });
 
-    // Remove existing rows before inserting new ones.
-    await deleteRows(db);
-    const numberRows = await parseS3IntoLeadServiceLinesTableRow(s3Params, db, numberRowsToWrite);
+    const db = await pool.connect();
+
+    // Read CSV file and write to water systems table.
+    const numberRows = await parseS3IntoLeadServiceLinesTableRow(
+      s3Params,
+      db,
+      0,
+      numberRowsToWrite,
+    );
+
     return {
       statusCode: 200,
       body: JSON.stringify({ 'Added rows': numberRows }),
@@ -138,9 +180,6 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
   } catch (error) {
     console.log('Error:' + error);
     throw error;
-  } finally {
-    console.log('Disconnecting from db...');
-    await db?.dispose();
   }
 }
 

@@ -58,7 +58,7 @@ export class DataImportStack extends Construct {
         timeout: Duration.minutes(15),
         bundling: {
           externalModules: ['aws-sdk'],
-          nodeModules: ['stream-json', '@databases/pg', 'stream-chain'],
+          nodeModules: ['stream-json', 'pg', '@types/pg', 'stream-chain', 'pg-format'],
         },
       },
     );
@@ -79,7 +79,7 @@ export class DataImportStack extends Construct {
         timeout: Duration.minutes(15),
         bundling: {
           externalModules: ['aws-sdk'],
-          nodeModules: ['stream-json', '@databases/pg', 'moment'],
+          nodeModules: ['stream-json', 'pg', 'pg-format', 'moment'],
         },
       },
     );

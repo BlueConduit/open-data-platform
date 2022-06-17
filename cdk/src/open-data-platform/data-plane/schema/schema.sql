@@ -55,9 +55,20 @@ CREATE TABLE IF NOT EXISTS epa_violations(
     violation_code varchar(255) NOT NULL,
     compliance_status varchar(255) NOT NULL,
     start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
     pws_id varchar(255) NOT NULL REFERENCES water_systems(pws_id),
     PRIMARY KEY(violation_id)
     );
+
+-- Violation counts --
+CREATE VIEW violation_counts AS
+SELECT
+    pws_id,
+    geom,
+    COUNT(violation_id)
+FROM epa_violations
+JOIN water_systems USING (pws_id)
+GROUP BY pws_id, geom;
 
 -- Parcel-level data
 
