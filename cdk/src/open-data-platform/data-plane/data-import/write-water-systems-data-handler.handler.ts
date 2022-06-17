@@ -48,19 +48,6 @@ async function insertRows(db: PoolClient, rows: WaterSystemsTableRow[]): Promise
 }
 
 /**
- * Pause the filestream in order to insert rows in the db.
- * @param db: Database to write to
- * @param pipeline Filestream to pause / resume
- * @param results: Rows to write
- */
-async function pauseAndInsert(db: PoolClient, pipeline: Readable, results: WaterSystemsTableRow[]) {
-  // Pause reads while inserting into db.
-  pipeline.pause();
-  await insertRows(db, results);
-  pipeline.resume();
-}
-
-/**
  * Reads the S3 file and the number of rows successfully written.
  * @param s3Params: Params that identity the s3 bucket
  * @param db: Database to write to.
@@ -74,8 +61,9 @@ async function parseS3IntoLeadServiceLinesTableRow(
   numberOfRowsToWrite = DEFAULT_NUMBER_ROWS_TO_INSERT,
 ): Promise<number> {
   return new Promise(function (resolve, reject) {
-    const batchSize = 1000;
-    let numberRows = 0;
+    const batchSize = 10000;
+    let numberRowsParsed = 0;
+    const promises: Promise<QueryArrayResult>[] = [];
 
     const fileStream = S3.getObject(s3Params).createReadStream();
     let pipeline = chain([
@@ -86,10 +74,10 @@ async function parseS3IntoLeadServiceLinesTableRow(
     ]);
 
     const endIndex = startIndex + numberOfRowsToWrite;
+    let results: WaterSystemsTableRow[] = [];
     pipeline
       .on('data', async (rows: any[]) => {
-        const results: WaterSystemsTableRow[] = [];
-        if (numberRows >= startIndex && numberRows < endIndex) {
+        if (numberRowsParsed >= startIndex && numberRowsParsed < endIndex) {
           for (let row of rows) {
             const value = row.value;
             const properties = value.properties;
@@ -108,31 +96,35 @@ async function parseS3IntoLeadServiceLinesTableRow(
               .build();
             results.push(tableRowToInsert);
           }
-
           // Every batch size, write into the db.
           if (results.length == batchSize) {
-            await pauseAndInsert(db, pipeline, results);
+            promises.push(insertRows(db, results));
+            results = [];
           }
-        } else if (numberRows >= endIndex) {
+        } else if (numberRowsParsed >= endIndex) {
           // If there are any results left, write those.
           if (results.length > 0) {
-            await pauseAndInsert(db, pipeline, results);
+            promises.push(insertRows(db, results));
           }
 
           // Stop reading stream if numberOfRowsToWrite has been met.
           pipeline.destroy();
         }
-        numberRows += rows.length;
+        numberRowsParsed += rows.length;
+        console.log(`Parsed ${numberRowsParsed}`);
       })
       .on('error', async (error: Error) => {
+        await Promise.all(promises);
         reject(error);
       })
       // Gets called by pipeline.destroy()
       .on('close', async (_: Error) => {
-        resolve(numberRows);
+        await Promise.all(promises);
+        resolve(numberRowsParsed);
       })
       .on('end', async () => {
-        resolve(numberRows);
+        await Promise.all(promises);
+        resolve(numberRowsParsed);
       });
   });
 }
