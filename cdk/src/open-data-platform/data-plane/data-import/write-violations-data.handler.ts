@@ -89,7 +89,7 @@ function parseS3IntoViolationsTableRow(
   numberOfRowsToWrite = DEFAULT_NUMBER_ROWS_TO_INSERT,
 ): Promise<number> {
   return new Promise(async function (resolve, reject) {
-    const batchSize = 10000;
+    const batchSize = 2500;
     let numberRowsParsed = 0;
     const promises: Promise<QueryArrayResult>[] = [];
 

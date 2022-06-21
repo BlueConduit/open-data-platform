@@ -37,12 +37,10 @@ async function insertRows(db: PoolClient, rows: WaterSystemsTableRow[]): Promise
     'VALUES %s ON CONFLICT (pws_id) DO NOTHING';
 
   try {
-    await db.query('BEGIN');
     const queryResult = await db.query(format(insertIntoStatement, valuesToInsert), []);
-    await db.query('COMMIT');
     return queryResult;
   } catch (error) {
-    await db.query('ROLLBACK');
+    console.log(`Error in writing rows to db ${error}`);
     throw error;
   }
 }
@@ -61,7 +59,7 @@ async function parseS3IntoLeadServiceLinesTableRow(
   numberOfRowsToWrite = DEFAULT_NUMBER_ROWS_TO_INSERT,
 ): Promise<number> {
   return new Promise(function (resolve, reject) {
-    const batchSize = 10000;
+    const batchSize = 10;
     let numberRowsParsed = 0;
     const promises: Promise<QueryArrayResult>[] = [];
 
