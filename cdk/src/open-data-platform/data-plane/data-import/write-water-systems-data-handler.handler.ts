@@ -85,6 +85,12 @@ function parseS3IntoLeadServiceLinesTableRows(
 async function insertBatch(rdsService: RDSDataService, rows: WaterSystemsTableRow[]): Promise<BatchExecuteStatementResponse | null> {
   return new Promise(function(resolve, reject) {
     const rowsAsParameterArray: SqlParameterSets = rows.map(rowToSqlParameterList);
+    if (process.env.RESOURCE_ARN == undefined) {
+      console.log('Error: empty RESOURCE_ARN.');
+    }
+    if (process.env.SECRET_ARN == undefined) {
+      console.log('Error: empty SECRET_ARN.');
+    }
     try {
       const batchExecuteParams: BatchExecuteStatementRequest = {
         database: process.env.DATABASE_NAME,
