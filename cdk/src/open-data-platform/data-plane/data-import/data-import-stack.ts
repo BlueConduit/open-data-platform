@@ -53,6 +53,8 @@ export class DataImportStack extends Construct {
         environment: {
           CREDENTIALS_SECRET: credentialsSecret.secretArn,
           DATABASE_NAME: db,
+          RESOURCE_ARN: cluster.clusterArn,
+          SECRET_ARN: cluster.secret?.secretArn ?? '',
         },
         memorySize: 512,
         timeout: Duration.minutes(15),
