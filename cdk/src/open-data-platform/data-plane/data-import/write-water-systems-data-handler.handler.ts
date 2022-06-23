@@ -10,7 +10,9 @@ const Pick = require('stream-json/filters/Pick');
 
 const S3 = new AWS.S3();
 
-// SQL to insert rows into the DB. If row is already in the DB, row is skipped.
+const RESOURCE_ARN = process.env.RESOURCE_ARN;
+const SECRET_ARN = process.env.SECRET_ARN;
+
 const INSERT_ROWS_SQL = `INSERT INTO water_systems (pws_id,
                                                     lead_connections_count,
                                                     geom)
@@ -23,16 +25,13 @@ const INSERT_ROWS_SQL = `INSERT INTO water_systems (pws_id,
 function parseS3IntoLeadServiceLinesTableRows(
   s3Params: AWS.S3.GetObjectRequest,
   rdsDataService: RDSDataService,
-  numberOfRowsToWrite: number,
+  numberOfRowsToWrite: number = 30000,
 ): Promise<WaterSystemsTableRow[]> {
 
   return new Promise(function(resolve, reject) {
-    // List of inserted rows. This is used to log the number of successful inserts when the parsing
-    // is complete.
-    const insertedRows: WaterSystemsTableRow[] = [];
-    // Number of rows per read batch.
+    const rows: WaterSystemsTableRow[] = [];
     const batchSize = 5;
-    let parsedRowsCount = 0;
+    let numberRows = 0;
 
     const fileStream = S3.getObject(s3Params).createReadStream();
     let pipeline = chain([
@@ -43,22 +42,34 @@ function parseS3IntoLeadServiceLinesTableRows(
     ]);
     pipeline
       .on('data', async (batch: any[]) => {
-        if (parsedRowsCount < numberOfRowsToWrite) {
-          const batchRows: WaterSystemsTableRow[] = batch.map(waterSystemsTableRowFromGeoJSON);
+        if (numberRows < numberOfRowsToWrite) {
+          // Rows to insert in this batch.
+          const batchRows: WaterSystemsTableRow[] = [];
 
-          // Pause read while inserting.
-          pipeline.pause();
+          batch.forEach((readableRow) => {
+            const feature = readableRow.value;
+            const properties = feature.properties;
+            const lead_connections =
+              (properties.lead_connections == 'NaN' || properties.lead_connections == null)
+                ? 0 : properties.lead_connections;
 
-          // Call to insert rows into DB.
+            const row = new WaterSystemsTableRowBuilder()
+              .pwsId(properties.pwsid)
+              // Sometimes this number is negative because it is based on a
+              // regression.
+              .leadConnectionsCount(Math.max(parseFloat(lead_connections), 0))
+              // Keep JSON formatting. Post-GIS helpers depend on this.
+              .geom(JSON.stringify(feature.geometry))
+              .build();
+            batchRows.push(row);
+          });
+          // Call to insert rows
           insertBatch(rdsDataService, batchRows).then(() => {
-            insertedRows.push(...batchRows);
+            rows.push(...batchRows);
           }).catch(() => {
             console.log('Batch failed to insert.');
           });
-          parsedRowsCount += batch.length;
-
-          // Resume readstream.
-          pipeline.resume();
+          numberRows += batch.length;
         } else {
           // Stop reading stream if numberOfRowsToWrite has been met.
           pipeline.destroy();
@@ -70,10 +81,10 @@ function parseS3IntoLeadServiceLinesTableRows(
       })
       // Gets called by pipeline.destroy()
       .on('close', async (_: Error) => {
-        resolve(insertedRows);
+        resolve(rows);
       })
       .on('end', async () => {
-        resolve(insertedRows);
+        resolve(rows);
       });
   });
 }
@@ -84,20 +95,14 @@ function parseS3IntoLeadServiceLinesTableRows(
  */
 async function insertBatch(rdsService: RDSDataService, rows: WaterSystemsTableRow[]): Promise<BatchExecuteStatementResponse | null> {
   return new Promise(function(resolve, reject) {
-    const rowsAsParameterArray: SqlParameterSets = rows.map(rowToSqlParameterList);
-    if (process.env.RESOURCE_ARN == undefined) {
-      console.log('Error: empty RESOURCE_ARN.');
-    }
-    if (process.env.SECRET_ARN == undefined) {
-      console.log('Error: empty SECRET_ARN.');
-    }
+    const rowsAsParameterArray: SqlParameterSets = parseWaterSystemsTableRowsToParameterSet(rows);
     try {
       const batchExecuteParams: BatchExecuteStatementRequest = {
-        database: process.env.DATABASE_NAME,
+        database: 'postgres', // TODO replace.
         parameterSets: rowsAsParameterArray,
-        resourceArn: process.env.RESOURCE_ARN ?? '',
-        schema: 'public',
-        secretArn: process.env.SECRET_ARN ?? '',
+        resourceArn: RESOURCE_ARN ?? '',// TODO get from db config?
+        schema: 'public', // TODO clarify
+        secretArn: SECRET_ARN ?? '', // TODO get from secrets manager.
         sql: INSERT_ROWS_SQL,
       };
 
@@ -117,54 +122,6 @@ async function insertBatch(rdsService: RDSDataService, rows: WaterSystemsTableRo
   });
 }
 
-/**
- * Parses S3 'pwsid_lead_connections.geojson' file and writes rows
- * to water systems table in the MainCluster postgres db.
- */
-export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  const s3Params = {
-    Bucket: 'opendataplatformapistaticdata',
-    Key: 'pwsid_lead_connections.geojson',
-  };
-
-  const rdsService = new AWS.RDSDataService();
-  let numberRowsToWrite = Infinity;
-  if (process.env.numberRows) {
-    numberRowsToWrite = parseInt(process.env.numberRows);
-  }
-
-  const rows = await parseS3IntoLeadServiceLinesTableRows(s3Params, rdsService, numberRowsToWrite);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(`Successful insert of ${rows.length} rows.`),
-  };
-}
-
-/**
- * Converts parsed GeoJSON row into a WaterSystemsTableRow.
- */
-function waterSystemsTableRowFromGeoJSON(row: any) {
-  const feature = row.value;
-  const properties = feature.properties;
-  const lead_connections =
-    (properties.lead_connections == 'NaN' || properties.lead_connections == null)
-      ? 0 : properties.lead_connections;
-
-  return new WaterSystemsTableRowBuilder()
-    .pwsId(properties.pwsid)
-    // Sometimes this number is negative because it is based on a
-    // regression.
-    .leadConnectionsCount(Math.max(parseFloat(lead_connections), 0))
-    // Keep JSON formatting. Post-GIS helpers depend on this.
-    .geom(JSON.stringify(feature.geometry))
-    .build();
-}
-
-/**
- * Maps WaterSystemsTableRow to SqlParametersList which contains array of key/value pairs which
- * are the db columns to insert and the row's value for those columns.
- */
 function rowToSqlParameterList(row: WaterSystemsTableRow): SqlParametersList {
   return [
     {
@@ -180,6 +137,29 @@ function rowToSqlParameterList(row: WaterSystemsTableRow): SqlParametersList {
       value: { stringValue: row.geom.toString() },
     },
   ];
+}
+
+function parseWaterSystemsTableRowsToParameterSet(rows: WaterSystemsTableRow[]): SqlParameterSets {
+  return rows.map(rowToSqlParameterList);
+}
+
+/**
+ * Parses S3 'pwsid_lead_connections.geojson' file and writes rows
+ * to water systems table in the MainCluster postgres db.
+ */
+export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+  const s3Params = {
+    Bucket: 'opendataplatformapistaticdata',
+    Key: 'pwsid_lead_connections_even_smaller.geojson',
+  };
+
+  const rdsService = new AWS.RDSDataService();
+  const rows = await parseS3IntoLeadServiceLinesTableRows(s3Params, rdsService); // TODO: parse from bucket into WaterSystemsTableRow array.
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(`Successful insert of ${rows.length} rows.`),
+  };
 }
 
 /**
