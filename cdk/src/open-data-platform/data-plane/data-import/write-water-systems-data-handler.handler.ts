@@ -18,13 +18,19 @@ const { parser } = require('stream-json/Parser');
 const { streamArray } = require('stream-json/streamers/StreamArray');
 const Batch = require('stream-json/utils/Batch');
 
-const RESOURCE_ARN =
-  'arn:aws:rds:us-east-2:036999211278:cluster:breuch-opendataplatformdatapl-maincluster834123e8-wxi60mcf08md';
+// Number of rows to write at once.
+const BATCH_SIZE = 10;
+const RESOURCE_ARN = process.env.RESOURCE_ARN ?? '';
 
 const S3 = new AWS.S3();
-
 const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
 
+/**
+ *  Writes rows into the water systems table.
+ * @param dbConfig  Configs to use for connecting to the db.
+ * @param rdsService: RDS service to connect to the db.
+ * @param rows: Rows to write to the db.
+ */
 async function insertBatch(
   dbConfig: ConnectionPoolConfig,
   rdsService: RDSDataService,
@@ -33,7 +39,7 @@ async function insertBatch(
   const batchExecuteParams: BatchExecuteStatementRequest = {
     database: dbConfig.database,
     parameterSets: rows,
-    resourceArn: RESOURCE_ARN, // TODO get from db config?
+    resourceArn: RESOURCE_ARN,
     schema: 'public',
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO water_systems (pws_id,
@@ -61,11 +67,11 @@ function getValueOrDefault(field: string): number {
 
 /**
  * Reads the S3 file and the number of rows successfully written.
- * @param s3Params: Params that identity the s3 bucket
- * @param dbConfig
- * @param rdsDataService
- * @param startIndex: The row to begin writes with
- * @param numberOfRowsToWrite: The number of entries to write to the db
+ * @param s3Params: Params that identity the s3 bucket.
+ * @param dbConfig: Configs to use for connecting to the db.
+ * @param rdsDataService: RDS service to connect to the db.
+ * @param startIndex: The row with which to begin writes.
+ * @param numberOfRowsToWrite: The number of entries to write to the db.
  */
 async function parseS3IntoLeadServiceLinesTableRow(
   s3Params: AWS.S3.GetObjectRequest,
@@ -75,7 +81,6 @@ async function parseS3IntoLeadServiceLinesTableRow(
   numberOfRowsToWrite = DEFAULT_NUMBER_ROWS_TO_INSERT,
 ): Promise<number> {
   return new Promise(function (resolve, reject) {
-    const batchSize = 10;
     let numberRowsParsed = 0;
     const promises: Promise<BatchExecuteStatementResponse | null>[] = [];
     const fileStream = S3.getObject(s3Params).createReadStream();
@@ -85,52 +90,39 @@ async function parseS3IntoLeadServiceLinesTableRow(
       parser(),
       pick({ filter: 'features' }),
       streamArray(),
-      new Batch({ batchSize }),
+      new Batch({ batchSize: BATCH_SIZE }),
     ]);
 
     const endIndex = startIndex + numberOfRowsToWrite;
-    let results: SqlParametersList[] = [];
-    let errorCount = 0;
     try {
       pipeline
         .on('data', async (rows: any[]) => {
+          let tableRows: SqlParametersList[] = [];
           if (numberRowsParsed >= startIndex && numberRowsParsed < endIndex) {
-            for (let row of rows) {
+            tableRows = rows.map((row) => {
               const value = row.value;
               const properties = value.properties;
-
-              const tableRowToInsert = new WaterSystemsTableRowBuilder()
-                .pwsId(properties.pwsid)
-                .pwsName(properties.pws_name)
-                .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
-                .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
-                .populationServed(getValueOrDefault(properties.population_served_count))
-                // Keep JSON formatting. Post-GIS helpers depend on this.
-                .geom(JSON.stringify(value.geometry))
-                .build();
-
-              results.push(tableRowToInsert);
-            }
-            // Every batch size, write into the db.
-            if (results.length == batchSize) {
-              const promise = insertBatch(dbConfig, rdsDataService, results);
-              promise.catch((e) => console.log('caught error', e, errorCount++)); // Suppress unhandled rejection.
-              promises.push(promise);
-              results = [];
-            }
-          } else if (numberRowsParsed >= endIndex) {
-            // If there are any results left, write those.
-            if (results.length > 0) {
-              const promise = insertBatch(dbConfig, rdsDataService, results);
-              promise.catch((e) => console.log('caught error', e, errorCount++)); // Suppress unhandled rejection.
-              promises.push(promise);
-            }
-
-            // Stop reading stream if numberOfRowsToWrite has been met.
-            pipeline.destroy();
+              return (
+                new WaterSystemsTableRowBuilder()
+                  .pwsId(properties.pwsid)
+                  .pwsName(properties.pws_name ?? '')
+                  .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
+                  .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
+                  .populationServed(getValueOrDefault(properties.population_served_count))
+                  // Keep JSON formatting. Post-GIS helpers depend on this.
+                  .geom(JSON.stringify(value.geometry))
+                  .build()
+              );
+            });
           }
           numberRowsParsed += rows.length;
-          console.log(`Parsed ${numberRowsParsed} to ${numberRowsParsed + rows.length}`);
+          console.log(`Parsed ${numberRowsParsed} rows`);
+          executeBatchOfRows(dbConfig, rdsDataService, tableRows, promises);
+
+          // Stop reading stream if numberOfRowsToWrite has been met.
+          if (numberRowsParsed >= endIndex) {
+            pipeline.destroy();
+          }
         })
         .on('error', async (error: Error) => {
           reject(error);
@@ -151,18 +143,37 @@ async function parseS3IntoLeadServiceLinesTableRow(
 }
 
 /**
+ * Writes the table rows to the db and adds execution to list of promises.
+ *
+ * @param dbConfig: Configs to use for connecting to the db.
+ * @param rdsDataService: RDS service to connect to the db.
+ * @param tableRows: Rows to write to the db.
+ * @param promises: List of promises collecting db executions.
+ */
+function executeBatchOfRows(
+  dbConfig: ConnectionPoolConfig,
+  rdsDataService: RDSDataService,
+  tableRows: SqlParametersList[],
+  promises: Promise<BatchExecuteStatementResponse | null>[],
+) {
+  if (tableRows.length > 0) {
+    const promise = insertBatch(dbConfig, rdsDataService, tableRows);
+    promise.catch((_) => {}); // Suppress unhandled rejection.
+    promises.push(promise);
+  }
+}
+
+/**
  * Logs number and details of errors that occurred for all inserts.
  * @param promises of SQL executions.
  */
 async function handleEndOfFilestream(promises: Promise<BatchExecuteStatementResponse | null>[]) {
   const result = await Promise.allSettled(promises);
   const errors = result.filter((p) => p.status == 'rejected') as PromiseRejectedResult[];
-  console.log(`Total errors: ${errors.length}`);
+  console.log(`Number errors during insert: ${errors.length}`);
 
   // Log all the rejected promises to diagnose issues.
-  for (const error of errors) {
-    console.log(error.reason);
-  }
+  errors.forEach((error) => console.log(error.reason));
 }
 
 /**
@@ -189,7 +200,7 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       config,
       rdsService,
       0,
-      30000,
+      numberRowsToWrite,
     );
 
     return {
