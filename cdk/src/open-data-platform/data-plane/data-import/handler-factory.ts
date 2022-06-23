@@ -9,6 +9,12 @@ const { streamArray } = require('stream-json/streamers/StreamArray');
 const Batch = require('stream-json/utils/Batch');
 const Pick = require('stream-json/filters/Pick');
 
+interface ImportResult {
+  processedBatchCount: number;
+  sucessfulBatchCount: number;
+  erroredBatchCount: number;
+}
+
 const S3 = new AWS.S3();
 
 /**
@@ -20,7 +26,7 @@ const S3 = new AWS.S3();
  */
 export const geoJsonHandlerFactory = (
   s3Params: AWS.S3.GetObjectRequest,
-  callback: (row: any, db: ConnectionPool) => Promise<void>,
+  callback: (rows: any[], db: ConnectionPool) => Promise<void>,
   rowLimit: number = Infinity,
 ): ((event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => {
   /**
@@ -32,12 +38,17 @@ export const geoJsonHandlerFactory = (
    * @param db - Connection pool to the DB, made available to the callback.
    * @returns
    */
-  const readGeoJsonFile = (db: ConnectionPool): Promise<number> =>
+  const readGeoJsonFile = (db: ConnectionPool): Promise<ImportResult> =>
     new Promise((resolve, reject) => {
       const batchSize = 10;
-      let numberRows = 0;
+      let processedRowCount = 0;
 
       console.log('Starting to process file in S3:', s3Params);
+
+      // Store all of the promises returned by the callback so the Lambda waits for their resolution
+      // before exiting. They will start to execute before they are awaited and run asynchonously
+      // in-parallel with no guarantee of order.
+      const promises: Promise<any>[] = [];
 
       const fileStream = S3.getObject(s3Params).createReadStream();
       let pipeline = chain([
@@ -48,37 +59,50 @@ export const geoJsonHandlerFactory = (
       ]);
 
       pipeline
-        .on('data', async (batch: any[]) => {
-          console.log(`Processing batch. ${numberRows} rows have been read so far.`);
-          // Pause reads while inserting into db.
-          pipeline.pause();
-          await Promise.all(
-            batch.map(async (row: any) => {
-              // Stop processing if at the limit.
-              if (numberRows >= rowLimit) {
-                console.log('Stopping after row write limit:', rowLimit);
-                pipeline.destroy();
-                return;
-              }
-              // Multiple rows may be processed concurrently, so increment and check the limit
-              // before starting the processing step.
-              ++numberRows;
-              await callback(row, db);
-            }),
-          );
-          pipeline.resume();
+        .on('data', async (rows: any[]) => {
+          console.log(`Processing batch of ${rows.length} rows.`);
+          const promise = callback(rows, db);
+          promises.push(promise);
+          await promise;
+          processedRowCount += rows.length;
+          console.log(`${processedRowCount} rows have been processed so far.`);
+          // Stop reading stream if this would exceed number of rows to write.
+          // This check is done at the end because it doesn't know how many rows are currently
+          // being processed in parallel.
+          if (processedRowCount > rowLimit) {
+            console.log('Stopping after row write limit:', rowLimit);
+            pipeline.destroy();
+            return;
+          }
         })
         .on('error', (error: Error) => {
           reject(error);
         })
         // Gets called by pipeline.destroy()
-        .on('close', async (_: Error) => {
-          resolve(numberRows);
-        })
-        .on('end', async () => {
-          resolve(numberRows);
-        });
+        .on('close', async (_: Error) => resolve(await handleEndOfFilestream(promises)))
+        .on('end', async () => resolve(await handleEndOfFilestream(promises)));
     });
+
+  /**
+   * Logs number and details of errors that occurred for all inserts.
+   * @param promises of SQL executions.
+   */
+  const handleEndOfFilestream = async (promises: Promise<any>[]): Promise<ImportResult> => {
+    // Unlike Promise.all(), which rejects when a single promise rejects, Promise.allSettled
+    // allows all promises to finish regardless of status and aggregated the results.
+    const result = await Promise.allSettled(promises);
+    const errors = result.filter((p) => p.status == 'rejected') as PromiseRejectedResult[];
+    console.log(`Number errors during insert: ${errors.length}`);
+
+    // Log all the rejected promises to diagnose issues.
+    errors.forEach((error) => console.log('Failed to process row:', error.reason));
+
+    return {
+      processedBatchCount: promises.length,
+      erroredBatchCount: errors.length,
+      sucessfulBatchCount: promises.length - errors.length,
+    };
+  };
 
   /**
    * Constructed handler that imports GeoJSON data to a DB.
@@ -88,11 +112,15 @@ export const geoJsonHandlerFactory = (
     if (db == undefined) {
       throw Error('Unable to connect to db');
     }
-    let numberRows = 0;
+    let results: ImportResult = {
+      processedBatchCount: 0,
+      sucessfulBatchCount: 0,
+      erroredBatchCount: 0,
+    };
     try {
-      numberRows = await readGeoJsonFile(db);
+      results = await readGeoJsonFile(db);
     } catch (error) {
-      console.log(`Error after processing ${numberRows} rows:`, error);
+      console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
       throw error;
     } finally {
       console.log('Disconnecting from db...');
@@ -100,7 +128,7 @@ export const geoJsonHandlerFactory = (
     }
     return {
       statusCode: 200,
-      body: JSON.stringify({ 'Added rows': numberRows }),
+      body: JSON.stringify(results),
     };
   };
 
