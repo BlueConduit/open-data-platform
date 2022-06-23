@@ -25,6 +25,8 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE IF NOT EXISTS demographics(
     census_geo_id varchar(255) NOT NULL,
     total_population real,
+    under_five_population real,
+    poverty_total real,
     black_percentage real,
     white_percentage real,
     geom GEOMETRY(Geometry, 4326),

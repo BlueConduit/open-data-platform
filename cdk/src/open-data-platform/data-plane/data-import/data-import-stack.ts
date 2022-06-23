@@ -32,12 +32,13 @@ export class DataImportStack extends Construct {
         environment: {
           CREDENTIALS_SECRET: credentialsSecret.secretArn,
           DATABASE_NAME: db,
+          RESOURCE_ARN: cluster.clusterArn,
         },
         memorySize: 512,
         timeout: Duration.minutes(15),
         bundling: {
           externalModules: ['aws-sdk'],
-          nodeModules: ['csv-parser', '@databases/pg'],
+          nodeModules: ['stream-json', 'stream-chain', 'pg', 'pg-format'],
         },
       },
     );
