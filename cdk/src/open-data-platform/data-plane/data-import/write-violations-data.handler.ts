@@ -2,17 +2,18 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { createDatabaseConfig } from '../schema/schema.handler';
 import { Pool, PoolClient, QueryArrayResult } from 'pg';
-import { Readable } from 'stream';
 
 const { chain } = require('stream-chain');
+const { pick } = require('stream-json/filters/Pick');
+const { parser } = require('stream-json/Parser');
 const { streamArray } = require('stream-json/streamers/StreamArray');
 const format = require('pg-format');
 const Batch = require('stream-json/utils/Batch');
-const Pick = require('stream-json/filters/Pick');
 const moment = require('moment');
 
 const S3 = new AWS.S3();
 
+const BATCH_SIZE = 10;
 const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
 const POSTGRESQL_DATE_FORMAT = 'YYYY-MM-DD';
 const EPA_API_DATE_FORMAT = 'DD-MMM-YY';
@@ -64,15 +65,7 @@ async function insertRows(db: PoolClient, rows: ViolationsTableRow[]): Promise<Q
     'INSERT INTO epa_violations (violation_id, pws_id,violation_code, compliance_status, start_date) ' +
     'VALUES %L ON CONFLICT (violation_id) DO NOTHING';
 
-  try {
-    await db.query('BEGIN');
-    const queryResult = await db.query(format(insertIntoStatement, valuesToInsert), []);
-    await db.query('COMMIT');
-    return queryResult;
-  } catch (error) {
-    await db.query('ROLLBACK');
-    throw error;
-  }
+  return db.query(format(insertIntoStatement, valuesToInsert), []);
 }
 
 /**
@@ -89,21 +82,21 @@ function parseS3IntoViolationsTableRow(
   numberOfRowsToWrite = DEFAULT_NUMBER_ROWS_TO_INSERT,
 ): Promise<number> {
   return new Promise(async function (resolve, reject) {
-    const batchSize = 2500;
     let numberRowsParsed = 0;
     const promises: Promise<QueryArrayResult>[] = [];
 
     const fileStream = S3.getObject(s3Params).createReadStream();
     let pipeline = chain([
       fileStream,
-      Pick.withParser({ filter: 'features' }),
+      parser(),
+      pick({ filter: 'features' }),
       streamArray(),
-      new Batch({ batchSize: batchSize }),
+      new Batch({ batchSize: BATCH_SIZE }),
     ]);
 
-    let results: ViolationsTableRow[] = [];
     pipeline
       .on('data', async (rows: any[]) => {
+        let tableRows: ViolationsTableRow[] = [];
         const endIndex = startIndex + numberOfRowsToWrite;
         if (numberRowsParsed >= startIndex && numberRowsParsed <= endIndex) {
           for (const row of rows) {
@@ -124,39 +117,66 @@ function parseS3IntoViolationsTableRow(
                 .startDate(startDate.format(POSTGRESQL_DATE_FORMAT))
                 .endDate(endDate.format(POSTGRESQL_DATE_FORMAT))
                 .build();
-              results.push(tableRowToInsert);
-            }
-            // Every batch size, write into the db.
-            if (results.length == batchSize) {
-              promises.push(insertRows(db, results));
-              results = [];
-            }
-          }
-        } else if (numberRowsParsed > endIndex) {
-          // If there are any results left, write those.
-          if (results.length > 0) {
-            promises.push(insertRows(db, results));
-          }
 
-          // Stop reading stream if numberOfRowsToWrite has been met.
-          pipeline.destroy();
+              tableRows.push(tableRowToInsert);
+            }
+          }
         }
+
         numberRowsParsed += rows.length;
         console.log(`Parsed ${numberRowsParsed}`);
+        executeBatchOfRows(db, tableRows, promises);
+
+        // Stop reading stream if numberOfRowsToWrite has been met.
+        if (numberRowsParsed > endIndex) {
+          pipeline.destroy();
+        }
       })
       .on('error', (error: Error) => {
         reject(error);
       })
       // Gets called by pipeline.destroy()
       .on('close', async (_: Error) => {
-        await Promise.all(promises);
+        await handleEndOfFilestream(promises);
         resolve(numberRowsParsed);
       })
       .on('end', async () => {
-        await Promise.all(promises);
+        await handleEndOfFilestream(promises);
         resolve(numberRowsParsed);
       });
   });
+}
+
+/**
+ * Writes the table rows to the db and adds execution to list of promises.
+ *
+ * @param db: Database to write to.
+ * @param tableRows: Rows to write to the db.
+ * @param promises: List of promises collecting db executions.
+ */
+function executeBatchOfRows(
+  db: PoolClient,
+  tableRows: ViolationsTableRow[],
+  promises: Promise<QueryArrayResult>[],
+) {
+  if (tableRows.length > 0) {
+    const promise = insertRows(db, tableRows);
+    promise.catch((_) => {}); // Suppress unhandled rejection.
+    promises.push(promise);
+  }
+}
+
+/**
+ * Logs number and details of errors that occurred for all inserts.
+ * @param promises of SQL executions.
+ */
+async function handleEndOfFilestream(promises: Promise<QueryArrayResult>[]) {
+  const result = await Promise.allSettled(promises);
+  const errors = result.filter((p) => p.status == 'rejected') as PromiseRejectedResult[];
+  console.log(`Number errors during insert: ${errors.length}`);
+
+  // Log all the rejected promises to diagnose issues.
+  errors.forEach((error) => console.log(error.reason));
 }
 
 /**

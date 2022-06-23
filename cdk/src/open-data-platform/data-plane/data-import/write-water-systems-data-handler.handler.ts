@@ -20,10 +20,10 @@ const Batch = require('stream-json/utils/Batch');
 
 // Number of rows to write at once.
 const BATCH_SIZE = 10;
+const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
 const RESOURCE_ARN = process.env.RESOURCE_ARN ?? '';
 
 const S3 = new AWS.S3();
-const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
 
 /**
  *  Writes rows into the water systems table.
