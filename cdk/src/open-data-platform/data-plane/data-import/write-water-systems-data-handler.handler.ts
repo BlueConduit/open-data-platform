@@ -143,10 +143,8 @@ async function parseS3IntoLeadServiceLinesTableRow(
 /**
  * Writes the table rows to the db and adds execution to list of promises.
  *
- * @param dbConfig: Configs to use for connecting to the db.
  * @param rdsDataService: RDS service to connect to the db.
  * @param tableRows: Rows to write to the db.
- * @param promises: List of promises collecting db executions.
  */
 function executeBatchOfRows(
   rdsDataService: RDSDataService,
