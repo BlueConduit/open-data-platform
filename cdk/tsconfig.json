@@ -4,6 +4,7 @@
     "module": "commonjs",
     "lib": [
       "es2018",
+      // Need this for Promise.allSettled()
       "ES2020.Promise"
     ],
     "declaration": true,
