@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS epa_violations(
     );
 
 -- Violation counts per water system --
+
 CREATE VIEW violation_counts AS
 SELECT
     pws_id,
