@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS demographics(
     total_population real,
     black_percentage real,
     white_percentage real,
-    geom TYPE GEOMETRY(Geometry, 4326)
+    geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(census_geo_id)
 );
 
@@ -39,7 +39,10 @@ CREATE INDEX IF NOT EXISTS geom_index
 
 CREATE TABLE IF NOT EXISTS water_systems(
     pws_id varchar(255) NOT NULL,
+    pws_name varchar(255),
     lead_connections_count real,
+    service_connections_count real,
+    population_served real,
     geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(pws_id)
     );
