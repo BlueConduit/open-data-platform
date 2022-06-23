@@ -108,19 +108,19 @@ async function parseS3IntoLeadServiceLinesTableRow(
     try {
       pipeline
         .on('data', async (rows: any[]) => {
+          // Stop reading stream if this would exceed number of rows to write.
+          if (numberRowsParsed + rows.length > endIndex) {
+            pipeline.destroy();
+          }
+
           let tableRows: SqlParametersList[] = [];
-          const shouldWriteRow = numberRowsParsed >= startIndex && numberRowsParsed < endIndex;
+          const shouldWriteRow = numberRowsParsed >= startIndex && numberRowsParsed <= endIndex;
           if (shouldWriteRow) {
             tableRows = rows.map(getTableRowFromRow);
           }
 
           promises.push(executeBatchOfRows(rdsDataService, tableRows));
           numberRowsParsed += rows.length;
-
-          // Stop reading stream if numberOfRowsToWrite has been met.
-          if (numberRowsParsed >= endIndex) {
-            pipeline.destroy();
-          }
         })
         .on('error', async (error: Error) => {
           reject(error);
