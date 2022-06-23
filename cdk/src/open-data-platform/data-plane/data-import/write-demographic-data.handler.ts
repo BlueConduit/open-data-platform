@@ -1,78 +1,81 @@
 // asset-input/src/open-data-platform/lambda/write-demographic-data-handler.js
-import { SecretsManager } from '@aws-sdk/client-secrets-manager';
-import createConnectionPool, {
-  ConnectionPool,
-  ConnectionPoolConfig,
-  Queryable,
-  sql,
-} from '@databases/pg';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import { connectToDb } from '../schema/schema.handler';
+import { RDSDataService } from 'aws-sdk';
+import { BatchExecuteStatementRequest, BatchExecuteStatementResponse, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 
 // We have to import it this way, otherwise typescript doesn't like using it as a function.
 const parse = require('csv-parser');
+const { chain } = require('stream-chain');
+const { ignore } = require('stream-json/filters/Ignore');
+const { pick } = require('stream-json/filters/Pick');
+const { parser } = require('stream-json/Parser');
+const { streamArray } = require('stream-json/streamers/StreamArray');
+const Batch = require('stream-json/utils/Batch');
+
 const S3 = new AWS.S3();
 
-const GEO_ID = 'GEOID';
-const RACE_TOTAL = 'RaceTotal';
-const WHITE_POPULATION = 'Estimate!!Total:!!White alone';
-const BLACK_POPULATION = 'Estimate!!Total:!!Black or African American alone';
+// Number of rows to write at once.
+const BATCH_SIZE = 10;
 
 /**
- * Inserts all rows into the demographics table.
+ *  Writes rows into the demographics table.
+ * @param rdsService: RDS service to connect to the db.
+ * @param rows: Rows to write to the db.
  */
-async function insertRows(db: Queryable, rows: DemographicsTableRow[]): Promise<any[]> {
-  // TODO(breuch): Replace with geom from new file.
-  // This is a random polygon taken from an unmapped s3 file.
-  const geometry = sql.__dangerous__rawValue(
-    "ST_GeometryFromText('POLYGON((-122.76199734299996 " +
-      '47.34350314200003, -122.76248119999997 47.342854930000044, ' +
-      '-122.76257080699997 47.34285604200005, -122.76259517499994 ' +
-      '47.34266843300003, -122.76260856299996 47.34256536000004, ' +
-      '-122.76286629299995 47.34250175600005, -122.76295867599998 ' +
-      '47.34242223000007, -122.76328431199994 47.34202772300006, ' +
-      '-122.763359015 47.34188063000005, -122.76359184199998 ' +
-      '47.34185498100004, -122.76392923599997 47.34181781500007, ' +
-      '-122.76392897999995 47.34183731100006, -122.76390878299998 ' +
-      '47.341839519000075, -122.76390520999996 47.34211214900006, ' +
-      '-122.76390440899996 47.342173262000074, -122.763924584 ' +
-      '47.34217272700005, -122.763921139 47.342407894000075, ' +
-      '-122.76391819399998 47.342471904000035, -122.76390565499997 ' +
-      '47.34257032900007, -122.76390536899999 47.342571914000075, ' +
-      '-122.76388240099999 47.34267173100005, -122.76388191899997 ' +
-      '47.34267343500005, -122.76386218299996 47.34273572600006, ' +
-      '-122.76383851199995 47.34279737900005, -122.76383805499995 ' +
-      '47.34279846700008, -122.76380443699998 47.34287143500006, ' +
-      '-122.76376811299997 47.34293827000005, -122.763727072 ' +
-      '47.343003846000045, -122.76372118599994 47.34301258000005, ' +
-      '-122.763375968 47.34352033700003, -122.76328781999996 ' +
-      '47.343519239000045, -122.76310988499995 47.343517020000036, ' +
-      "-122.76199734299996 47.34350314200003))')",
-  );
-
-  return db.query(sql`INSERT INTO demographics (census_geo_id, total_population,
-                                                black_percentage,
-                                                white_percentage, geom)
-                      VALUES ${sql.join(
-                        rows.map((row: DemographicsTableRow) => {
-                          return sql`(
-                                         ${row.census_geo_id}, ${row.total_population},
-                                         ${row.black_percentage},
-                                         ${row.white_percentage},
-                                         ${geometry})`;
-                        }),
-                        ',',
-                      )};`);
+async function insertBatch(
+  rdsService: RDSDataService,
+  rows: SqlParametersList[],
+): Promise<RDSDataService.BatchExecuteStatementResponse> {
+  const batchExecuteParams: BatchExecuteStatementRequest = {
+    database: process.env.DATABASE_NAME ?? 'postgres',
+    parameterSets: rows,
+    resourceArn: process.env.RESOURCE_ARN ?? '',
+    schema: 'public',
+    secretArn: process.env.CREDENTIALS_SECRET ?? '',
+    sql: `INSERT INTO demographics (census_geo_id, total_population,
+                                    under_five_population, poverty_total,
+                                    black_percentage,
+                                    white_percentage, geom)
+          VALUES (:census_geo_id,
+                  :total_population,
+                  :under_five_population,
+                  :poverty_total,
+                  :black_percentage,
+                  :white_percentage,
+                  ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (census_geo_id) DO NOTHING`,
+  };
+  return rdsService.batchExecuteStatement(batchExecuteParams).promise();
 }
 
 /**
- * Inserts all rows into the demographics table.
+ * Sometimes these fields are negative because they are based on a regression.
  */
-async function deleteRows(db: Queryable): Promise<any[]> {
-  return db.query(sql`DELETE
-                      FROM demographics
-                      WHERE census_geo_id IS NOT NULL`);
+function getValueOrDefault(field: string): number {
+  return Math.max(parseFloat(field == 'NaN' || field == null ? '0' : field), 0);
+}
+
+/**
+ * Maps a data row to a table row ready to write to the db.
+ * @param row: row with all data needed to build a [WaterSystemsTableRow].
+ */
+function getTableRowFromRow(row: any): SqlParametersList {
+  const value = row.value;
+  const properties = value.properties;
+
+  // TODO(kailamjeter): modify field names when file is fixed.
+  return (
+    new DemographicsTableRowBuilder()
+      .censusGeoId(properties.GEOID)
+      .underFivePopulation(getValueOrDefault(properties.age_under5))
+      .povertyTotal(getValueOrDefault(properties.PovertyTot))
+      .totalPopulation(getValueOrDefault(properties.RaceTotal))
+      .blackPopulation(getValueOrDefault(properties.Estimate_1))
+      .whitePopulation(getValueOrDefault(properties.Estimate!!)) // This converts to 'Estimate' when minified so this is always null as of now.
+      // Keep JSON formatting. Post-GIS helpers depend on this.
+      .geom(JSON.stringify(value.geometry))
+      .build()
+  );
 }
 
 /**
@@ -80,70 +83,129 @@ async function deleteRows(db: Queryable): Promise<any[]> {
  */
 function parseS3IntoDemographicsTableRow(
   s3Params: AWS.S3.GetObjectRequest,
-  numberRowsToWrite = 10,
-): Promise<Array<DemographicsTableRow>> {
-  const results: DemographicsTableRow[] = [];
-  return new Promise(function (resolve, reject) {
-    let count = 0;
+  rdsDataService: RDSDataService,
+  startIndex = 0,
+  numberOfRowsToWrite = 10,
+): Promise<number> {
+  return new Promise(function(resolve, reject) {
+    let numberRowsParsed = 0;
+    const promises: Promise<BatchExecuteStatementResponse | null>[] = [];
     const fileStream = S3.getObject(s3Params).createReadStream();
-    fileStream
-      .pipe(parse())
-      .on('data', (dataRow: any) => {
-        // Pause to allow for processing.
-        fileStream.pause();
-        if (count < numberRowsToWrite) {
-          const row = new DemographicsTableRowBuilder()
-            .censusGeoId(dataRow[GEO_ID])
-            .totalPopulation(parseInt(dataRow[RACE_TOTAL]))
-            .blackPopulation(parseInt(dataRow[BLACK_POPULATION]))
-            .whitePopulation(parseInt(dataRow[WHITE_POPULATION]))
-            .build();
-          results.push(row);
-        }
-        count += 1;
-        fileStream.resume();
-      })
-      .on('error', (error: Error) => {
-        reject(error);
-      })
-      .on('end', () => {
-        console.log('Parsed ' + results.length + ' rows.');
-        resolve(results);
-      });
+
+    let pipeline = chain([
+      fileStream,
+      parser(),
+      pick({ filter: 'features' }),
+      streamArray(),
+      new Batch({ batchSize: BATCH_SIZE }),
+    ]);
+
+    const endIndex = startIndex + numberOfRowsToWrite;
+    try {
+      pipeline
+        .on('data', (rows: any[]) => {
+          // Stop reading stream if this would exceed number of rows to write.
+          if (numberRowsParsed + rows.length > endIndex) {
+            pipeline.destroy();
+          }
+
+          let tableRows: SqlParametersList[] = [];
+          const shouldWriteRow = numberRowsParsed >= startIndex && numberRowsParsed <= endIndex;
+
+          if (shouldWriteRow) {
+            tableRows = rows.map(getTableRowFromRow);
+          }
+
+          promises.push(executeBatchOfRows(rdsDataService, tableRows));
+          numberRowsParsed += rows.length;
+        })
+        .on('error', (error: Error) => {
+          reject(error);
+        })
+        // Gets called by pipeline.destroy()
+        .on('close', async (_: Error) => {
+          await handleEndOfFilestream(promises);
+          resolve(numberRowsParsed);
+        })
+        .on('end', async () => {
+          await handleEndOfFilestream(promises);
+          resolve(numberRowsParsed);
+        });
+    } catch (error) {
+      reject(error);
+    }
   });
 }
+
+/**
+ * Writes the table rows to the db and adds execution to list of promises.
+ *
+ * @param rdsDataService: RDS service to connect to the db.
+ * @param tableRows: Rows to write to the db.
+ */
+function executeBatchOfRows(
+  rdsDataService: RDSDataService,
+  tableRows: SqlParametersList[],
+): Promise<BatchExecuteStatementResponse | null> {
+  let promise: Promise<BatchExecuteStatementResponse | null> = Promise.resolve(null);
+  if (tableRows.length > 0) {
+    promise = insertBatch(rdsDataService, tableRows);
+    promise.catch((_) => {
+    }); // Suppress unhandled rejection.
+  }
+  return promise;
+}
+
+/**
+ * Logs number and details of errors that occurred for all inserts.
+ * @param promises of SQL executions.
+ */
+async function handleEndOfFilestream(promises: Promise<BatchExecuteStatementResponse | null>[]) {
+  // Unlike Promise.all(), which rejects when a single promise rejects, Promise.allSettled
+  // allows all promises to finish regardless of status and aggregated the results.
+  const result = await Promise.allSettled(promises);
+  const errors = result.filter((p) => p.status == 'rejected') as PromiseRejectedResult[];
+  console.log(`Number errors during insert: ${errors.length}`);
+
+  // Log all the rejected promises to diagnose issues.
+  errors.forEach((error) => console.log(error.reason));
+}
+
 
 /**
  * Parses S3 'alabama_acs_data.csv' file and writes rows
  * to demographics table in the MainCluster postgres db.
  */
 export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  const numberRowsToWrite: number = parseInt(process.env.numberRows ?? '10');
+  const numberRowsToWrite = 10; // TODO use env variable.
+  const startIndex = 0; // TODO remove once files are split.
 
   const s3Params = {
     Bucket: 'opendataplatformapistaticdata',
-    Key: 'alabama_acs_data.csv',
+    // TODO replace with broken up file
+    Key: 'blocks_acs_geo_smaller.json',
   };
-
-  let db: ConnectionPool | undefined;
 
   // Read CSV file and write to demographics table.
   try {
-    const rows = await parseS3IntoDemographicsTableRow(s3Params, numberRowsToWrite);
-    console.log('Found rows: ' + JSON.stringify(rows));
+    // See https://docs.aws.amazon.com/rds/index.html.
+    const rdsService = new AWS.RDSDataService();
 
-    db = await connectToDb();
+    const numberRows = await parseS3IntoDemographicsTableRow(
+      s3Params,
+      rdsService,
+      startIndex,
+      numberRowsToWrite,
+    );
+    console.log(`Parsed ${numberRows} rows`);
 
-    // Remove existing rows before inserting new ones.
-    await deleteRows(db);
-    const data = await insertRows(db, rows);
-    return { statusCode: 200, body: JSON.stringify(data) };
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ 'Added rows': numberRows }),
+    };
   } catch (error) {
+    console.log('Error:' + error);
     throw error;
-  } finally {
-    // This is wrapped in a try-catch-finally block so the connection can be disposed of.
-    console.log('Disconnecting from db...');
-    await db?.dispose();
   }
 }
 
@@ -153,6 +215,8 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 class DemographicsTableRow {
   // Field formatting conforms to rows in the db. Requires less transformations.
   census_geo_id: string;
+  under_five_population: number;
+  poverty_total: number;
   total_population: number;
   black_population: number;
   white_population: number;
@@ -204,6 +268,16 @@ class DemographicsTableRowBuilder {
     return this;
   }
 
+  underFivePopulation(underFivePopulation: number): DemographicsTableRowBuilder {
+    this._row.under_five_population = underFivePopulation;
+    return this;
+  }
+
+  povertyTotal(povertyTotal: number): DemographicsTableRowBuilder {
+    this._row.poverty_total = povertyTotal;
+    return this;
+  }
+
   totalPopulation(totalPopulation: number): DemographicsTableRowBuilder {
     this._row.total_population = totalPopulation;
     return this;
@@ -219,7 +293,43 @@ class DemographicsTableRowBuilder {
     return this;
   }
 
-  build(): DemographicsTableRow {
-    return this._row;
+  geom(geom: string): DemographicsTableRowBuilder {
+    this._row.geom = geom;
+    return this;
+  }
+
+  // TODO clarify these are the right types (double?)
+  build(): SqlParametersList {
+    return [
+      {
+        name: 'census_geo_id',
+        value: { stringValue: this._row.census_geo_id.toString() },
+      },
+      {
+        name: 'total_population',
+        value: { doubleValue: this._row.total_population },
+      },
+      {
+        name: 'under_five_population',
+        value: { doubleValue: this._row.under_five_population },
+      },
+      {
+        // TODO(kailamjeter) make this a percentage
+        name: 'poverty_total',
+        value: { doubleValue: this._row.poverty_total },
+      },
+      {
+        name: 'black_percentage',
+        value: { doubleValue: this._row.black_percentage },
+      },
+      {
+        name: 'white_percentage',
+        value: { doubleValue: this._row.white_percentage },
+      },
+      {
+        name: 'geom',
+        value: { stringValue: this._row.geom.toString() },
+      },
+    ];
   }
 }

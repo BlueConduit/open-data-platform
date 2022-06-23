@@ -269,7 +269,7 @@ class ViolationsTableRowBuilder {
   private readonly _row: ViolationsTableRow;
 
   constructor() {
-    this._row = new ViolationsTableRow('', '', '', '', '', '');
+    this._row = new ViolationsTableRow('', '', '', '', '');
   }
 
   violationId(violationId: string): ViolationsTableRowBuilder {
