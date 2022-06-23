@@ -116,7 +116,6 @@ async function parseS3IntoLeadServiceLinesTableRow(
 
           promises.push(executeBatchOfRows(rdsDataService, tableRows));
           numberRowsParsed += rows.length;
-          console.log(`Parsed ${numberRowsParsed} rows`);
 
           // Stop reading stream if numberOfRowsToWrite has been met.
           if (numberRowsParsed >= endIndex) {
@@ -204,6 +203,7 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       0,
       numberRowsToWrite,
     );
+    console.log(`Parsed ${numberRows} rows`);
 
     return {
       statusCode: 200,
