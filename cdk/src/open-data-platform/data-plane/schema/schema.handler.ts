@@ -4,7 +4,6 @@
 
 import createConnectionPool, { ConnectionPool, ConnectionPoolConfig, sql } from '@databases/pg';
 import { SecretsManager } from '@aws-sdk/client-secrets-manager';
-import { throws } from 'assert';
 
 const CREDENTIALS_SECRET = process.env.CREDENTIALS_SECRET ?? '';
 const DATABASE_NAME = process.env.DATABASE_NAME ?? '';

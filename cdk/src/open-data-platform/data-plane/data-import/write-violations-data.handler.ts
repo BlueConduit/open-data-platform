@@ -176,7 +176,7 @@ async function handleEndOfFilestream(promises: Promise<QueryArrayResult>[]) {
   console.log(`Number errors during insert: ${errors.length}`);
 
   // Log all the rejected promises to diagnose issues.
-  errors.forEach((error) => console.log(error.reason));
+  errors.forEach((error) => console.log('Insert error:', error.reason));
 }
 
 /**
