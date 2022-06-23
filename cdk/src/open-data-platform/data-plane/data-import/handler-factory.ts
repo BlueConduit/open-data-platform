@@ -1,5 +1,4 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { ConnectionPool } from '@databases/pg';
 import * as AWS from 'aws-sdk';
 import { connectToDb } from '../schema/schema.handler';
 
@@ -26,7 +25,7 @@ const S3 = new AWS.S3();
  */
 export const geoJsonHandlerFactory = (
   s3Params: AWS.S3.GetObjectRequest,
-  callback: (rows: any[], db: ConnectionPool) => Promise<void>,
+  callback: (rows: any[], db: AWS.RDSDataService) => Promise<void>,
   rowLimit: number = Infinity,
 ): ((event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => {
   /**
@@ -38,7 +37,7 @@ export const geoJsonHandlerFactory = (
    * @param db - Connection pool to the DB, made available to the callback.
    * @returns
    */
-  const readGeoJsonFile = (db: ConnectionPool): Promise<ImportResult> =>
+  const readGeoJsonFile = (db: AWS.RDSDataService): Promise<ImportResult> =>
     new Promise((resolve, reject) => {
       const batchSize = 10;
       let processedRowCount = 0;
@@ -70,7 +69,7 @@ export const geoJsonHandlerFactory = (
           // This check is done at the end because it doesn't know how many rows are currently
           // being processed in parallel.
           if (processedRowCount > rowLimit) {
-            console.log('Stopping after row write limit:', rowLimit);
+            console.log('Stopping after passing row limit:', rowLimit);
             pipeline.destroy();
             return;
           }
@@ -108,10 +107,7 @@ export const geoJsonHandlerFactory = (
    * Constructed handler that imports GeoJSON data to a DB.
    */
   const handler = async (_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const db = await connectToDb();
-    if (db == undefined) {
-      throw Error('Unable to connect to db');
-    }
+    const db = new AWS.RDSDataService();
     let results: ImportResult = {
       processedBatchCount: 0,
       sucessfulBatchCount: 0,
@@ -122,9 +118,6 @@ export const geoJsonHandlerFactory = (
     } catch (error) {
       console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
       throw error;
-    } finally {
-      console.log('Disconnecting from db...');
-      await db?.dispose();
     }
     return {
       statusCode: 200,

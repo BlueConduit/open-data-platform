@@ -1,4 +1,4 @@
-import { ConnectionPool } from '@databases/pg';
+import { RDSDataService } from 'aws-sdk';
 import { geoJsonHandlerFactory } from './handler-factory';
 
 const s3Params = {
@@ -8,7 +8,7 @@ const s3Params = {
 
 export const handler = geoJsonHandlerFactory(
   s3Params,
-  async (rows: any[], _: ConnectionPool) => {
+  async (rows: any[], _: RDSDataService) => {
     console.log('Rows:', rows);
   },
   20, // limit to 20 rows for testing.
