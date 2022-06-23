@@ -68,7 +68,7 @@ CREATE VIEW violation_counts AS
 SELECT
     pws_id,
     geom,
-    COUNT(violation_id)
+    COUNT(violation_id) AS violation_count
 FROM epa_violations
 JOIN water_systems USING (pws_id)
 GROUP BY pws_id, geom;
