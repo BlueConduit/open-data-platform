@@ -7,10 +7,6 @@ import {
   SqlParametersList,
 } from 'aws-sdk/clients/rdsdataservice';
 
-//import { Pool, PoolClient, QueryArrayResult } from 'pg';
-import { createDatabaseConfig } from '../schema/schema.handler';
-import { ConnectionPoolConfig } from '@databases/pg';
-
 const { chain } = require('stream-chain');
 const { ignore } = require('stream-json/filters/Ignore');
 const { pick } = require('stream-json/filters/Pick');
@@ -21,25 +17,22 @@ const Batch = require('stream-json/utils/Batch');
 // Number of rows to write at once.
 const BATCH_SIZE = 10;
 const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
-const RESOURCE_ARN = process.env.RESOURCE_ARN ?? '';
 
 const S3 = new AWS.S3();
 
 /**
  *  Writes rows into the water systems table.
- * @param dbConfig  Configs to use for connecting to the db.
  * @param rdsService: RDS service to connect to the db.
  * @param rows: Rows to write to the db.
  */
 async function insertBatch(
-  dbConfig: ConnectionPoolConfig,
   rdsService: RDSDataService,
   rows: SqlParametersList[],
 ): Promise<RDSDataService.BatchExecuteStatementResponse> {
   const batchExecuteParams: BatchExecuteStatementRequest = {
-    database: dbConfig.database,
+    database: process.env.DATABASE_NAME ?? 'postgres',
     parameterSets: rows,
-    resourceArn: RESOURCE_ARN,
+    resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: 'public',
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO water_systems (pws_id,
@@ -48,10 +41,10 @@ async function insertBatch(
                                      service_connections_count,
                                      population_served,
                                      geom)
-          VALUES (:pws_id, 
-                  :pws_name, 
+          VALUES (:pws_id,
+                  :pws_name,
                   :lead_connections_count,
-                  :service_connections_count, 
+                  :service_connections_count,
                   :population_served,
                   ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (pws_id) DO NOTHING`,
   };
@@ -62,20 +55,38 @@ async function insertBatch(
  * Sometimes these fields are negative because they are based on a regression.
  */
 function getValueOrDefault(field: string): number {
-  return Math.max(parseFloat(field != 'NaN' && field != null ? field : '0'), 0);
+  return Math.max(parseFloat(field == 'NaN' || field == null ? '0' : field), 0);
+}
+
+/**
+ * Maps a data row to a table row ready to write to the db.
+ * @param row: row with all data needed to build a [WaterSystemsTableRow].
+ */
+function getTableRowFromRow(row: any): SqlParametersList {
+  const value = row.value;
+  const properties = value.properties;
+  return (
+    new WaterSystemsTableRowBuilder()
+      .pwsId(properties.pwsid)
+      .pwsName(properties.pws_name ?? '')
+      .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
+      .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
+      .populationServed(getValueOrDefault(properties.population_served_count))
+      // Keep JSON formatting. Post-GIS helpers depend on this.
+      .geom(JSON.stringify(value.geometry))
+      .build()
+  );
 }
 
 /**
  * Reads the S3 file and the number of rows successfully written.
  * @param s3Params: Params that identity the s3 bucket.
- * @param dbConfig: Configs to use for connecting to the db.
  * @param rdsDataService: RDS service to connect to the db.
  * @param startIndex: The row with which to begin writes.
  * @param numberOfRowsToWrite: The number of entries to write to the db.
  */
 async function parseS3IntoLeadServiceLinesTableRow(
   s3Params: AWS.S3.GetObjectRequest,
-  dbConfig: ConnectionPoolConfig,
   rdsDataService: RDSDataService,
   startIndex = 0,
   numberOfRowsToWrite = DEFAULT_NUMBER_ROWS_TO_INSERT,
@@ -98,26 +109,14 @@ async function parseS3IntoLeadServiceLinesTableRow(
       pipeline
         .on('data', async (rows: any[]) => {
           let tableRows: SqlParametersList[] = [];
-          if (numberRowsParsed >= startIndex && numberRowsParsed < endIndex) {
-            tableRows = rows.map((row) => {
-              const value = row.value;
-              const properties = value.properties;
-              return (
-                new WaterSystemsTableRowBuilder()
-                  .pwsId(properties.pwsid)
-                  .pwsName(properties.pws_name ?? '')
-                  .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
-                  .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
-                  .populationServed(getValueOrDefault(properties.population_served_count))
-                  // Keep JSON formatting. Post-GIS helpers depend on this.
-                  .geom(JSON.stringify(value.geometry))
-                  .build()
-              );
-            });
+          const shouldWriteRow = numberRowsParsed >= startIndex && numberRowsParsed < endIndex;
+          if (shouldWriteRow) {
+            tableRows = rows.map(getTableRowFromRow);
           }
+
+          promises.push(executeBatchOfRows(rdsDataService, tableRows));
           numberRowsParsed += rows.length;
           console.log(`Parsed ${numberRowsParsed} rows`);
-          executeBatchOfRows(dbConfig, rdsDataService, tableRows, promises);
 
           // Stop reading stream if numberOfRowsToWrite has been met.
           if (numberRowsParsed >= endIndex) {
@@ -151,16 +150,15 @@ async function parseS3IntoLeadServiceLinesTableRow(
  * @param promises: List of promises collecting db executions.
  */
 function executeBatchOfRows(
-  dbConfig: ConnectionPoolConfig,
   rdsDataService: RDSDataService,
   tableRows: SqlParametersList[],
-  promises: Promise<BatchExecuteStatementResponse | null>[],
-) {
+): Promise<BatchExecuteStatementResponse | null> {
+  let promise: Promise<BatchExecuteStatementResponse | null> = Promise.resolve(null);
   if (tableRows.length > 0) {
-    const promise = insertBatch(dbConfig, rdsDataService, tableRows);
+    promise = insertBatch(rdsDataService, tableRows);
     promise.catch((_) => {}); // Suppress unhandled rejection.
-    promises.push(promise);
   }
+  return promise;
 }
 
 /**
@@ -168,6 +166,8 @@ function executeBatchOfRows(
  * @param promises of SQL executions.
  */
 async function handleEndOfFilestream(promises: Promise<BatchExecuteStatementResponse | null>[]) {
+  // Unlike Promise.all(), which rejects when a single promise rejects, Promise.allSettled
+  // allows all promises to finish regardless of status and aggregated the results.
   const result = await Promise.allSettled(promises);
   const errors = result.filter((p) => p.status == 'rejected') as PromiseRejectedResult[];
   console.log(`Number errors during insert: ${errors.length}`);
@@ -177,7 +177,7 @@ async function handleEndOfFilestream(promises: Promise<BatchExecuteStatementResp
 }
 
 /**
- * Parses S3 'pwsid_lead_connections.geojson' file and writes rows
+ * Parses S3 'pwsid_lead_connections_even_smaller.geojson' file and writes rows
  * to water systems table in the MainCluster postgres db.
  */
 export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
@@ -187,17 +187,19 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
   const s3Params = {
     Bucket: 'opendataplatformapistaticdata',
+    // The geometries have been simplified. This file also only includes
+    // the rows we currently write to the db to avoid large javascript
+    // objects from being created on streamArray().
     Key: 'pwsid_lead_connections_even_smaller.geojson',
   };
 
   try {
+    // See https://docs.aws.amazon.com/rds/index.html.
     const rdsService = new AWS.RDSDataService();
 
     // Read geojson file and write to water systems table.
-    const config = await createDatabaseConfig();
     const numberRows = await parseS3IntoLeadServiceLinesTableRow(
       s3Params,
-      config,
       rdsService,
       0,
       numberRowsToWrite,
