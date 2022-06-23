@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS demographics(
     total_population real,
     black_percentage real,
     white_percentage real,
-    geom TYPE GEOMETRY(Geometry, 4326)
+    geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(census_geo_id)
 );
 
@@ -39,7 +39,10 @@ CREATE INDEX IF NOT EXISTS geom_index
 
 CREATE TABLE IF NOT EXISTS water_systems(
     pws_id varchar(255) NOT NULL,
+    pws_name varchar(255),
     lead_connections_count real,
+    service_connections_count real,
+    population_served real,
     geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(pws_id)
     );
@@ -55,9 +58,21 @@ CREATE TABLE IF NOT EXISTS epa_violations(
     violation_code varchar(255) NOT NULL,
     compliance_status varchar(255) NOT NULL,
     start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
     pws_id varchar(255) NOT NULL REFERENCES water_systems(pws_id),
     PRIMARY KEY(violation_id)
     );
+
+-- Violation counts per water system --
+
+CREATE VIEW violation_counts AS
+SELECT
+    pws_id,
+    geom,
+    COUNT(violation_id) AS violation_count
+FROM epa_violations
+JOIN water_systems USING (pws_id)
+GROUP BY pws_id, geom;
 
 -- Parcel-level data
 
