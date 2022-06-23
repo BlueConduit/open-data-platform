@@ -10,9 +10,14 @@ const Pick = require('stream-json/filters/Pick');
 
 const S3 = new AWS.S3();
 
-const RESOURCE_ARN = process.env.RESOURCE_ARN;
-const SECRET_ARN = process.env.SECRET_ARN;
+// Amazon resource names (ARN) of resource to access and secret to access that resource.
+const RESOURCE_ARN = process.env.RESOURCE_ARN ?? '';
+const SECRET_ARN = process.env.SECRET_ARN ?? '';
 
+// Name of the DB to insert into.
+const DB_NAME = process.env.DATABASE_NAME ?? '';
+
+// SQL to insert rows into the DB. If row is already in the DB, row is skipped.
 const INSERT_ROWS_SQL = `INSERT INTO water_systems (pws_id,
                                                     lead_connections_count,
                                                     geom)
@@ -27,7 +32,6 @@ function parseS3IntoLeadServiceLinesTableRows(
   rdsDataService: RDSDataService,
   numberOfRowsToWrite: number = 30000,
 ): Promise<WaterSystemsTableRow[]> {
-
   return new Promise(function(resolve, reject) {
     const rows: WaterSystemsTableRow[] = [];
     const batchSize = 5;
@@ -44,25 +48,8 @@ function parseS3IntoLeadServiceLinesTableRows(
       .on('data', async (batch: any[]) => {
         if (numberRows < numberOfRowsToWrite) {
           // Rows to insert in this batch.
-          const batchRows: WaterSystemsTableRow[] = [];
+          const batchRows: WaterSystemsTableRow[] = batch.map(waterSystemsTableRowFromGeoJSON);
 
-          batch.forEach((readableRow) => {
-            const feature = readableRow.value;
-            const properties = feature.properties;
-            const lead_connections =
-              (properties.lead_connections == 'NaN' || properties.lead_connections == null)
-                ? 0 : properties.lead_connections;
-
-            const row = new WaterSystemsTableRowBuilder()
-              .pwsId(properties.pwsid)
-              // Sometimes this number is negative because it is based on a
-              // regression.
-              .leadConnectionsCount(Math.max(parseFloat(lead_connections), 0))
-              // Keep JSON formatting. Post-GIS helpers depend on this.
-              .geom(JSON.stringify(feature.geometry))
-              .build();
-            batchRows.push(row);
-          });
           // Call to insert rows
           insertBatch(rdsDataService, batchRows).then(() => {
             rows.push(...batchRows);
@@ -95,14 +82,14 @@ function parseS3IntoLeadServiceLinesTableRows(
  */
 async function insertBatch(rdsService: RDSDataService, rows: WaterSystemsTableRow[]): Promise<BatchExecuteStatementResponse | null> {
   return new Promise(function(resolve, reject) {
-    const rowsAsParameterArray: SqlParameterSets = parseWaterSystemsTableRowsToParameterSet(rows);
+    const rowsAsParameterArray: SqlParameterSets = rows.map(rowToSqlParameterList);
     try {
       const batchExecuteParams: BatchExecuteStatementRequest = {
-        database: 'postgres', // TODO replace.
+        database: DB_NAME,
         parameterSets: rowsAsParameterArray,
-        resourceArn: RESOURCE_ARN ?? '',// TODO get from db config?
-        schema: 'public', // TODO clarify
-        secretArn: SECRET_ARN ?? '', // TODO get from secrets manager.
+        resourceArn: RESOURCE_ARN,
+        schema: 'public', // All DBs are in the public schema.
+        secretArn: SECRET_ARN,
         sql: INSERT_ROWS_SQL,
       };
 
@@ -122,6 +109,30 @@ async function insertBatch(rdsService: RDSDataService, rows: WaterSystemsTableRo
   });
 }
 
+/**
+ * Converts parsed GeoJSON row into a WaterSystemsTableRow.
+ */
+function waterSystemsTableRowFromGeoJSON(row: any) {
+  const feature = row.value;
+  const properties = feature.properties;
+  const lead_connections =
+    (properties.lead_connections == 'NaN' || properties.lead_connections == null)
+      ? 0 : properties.lead_connections;
+
+  return new WaterSystemsTableRowBuilder()
+    .pwsId(properties.pwsid)
+    // Sometimes this number is negative because it is based on a
+    // regression.
+    .leadConnectionsCount(Math.max(parseFloat(lead_connections), 0))
+    // Keep JSON formatting. Post-GIS helpers depend on this.
+    .geom(JSON.stringify(feature.geometry))
+    .build();
+}
+
+/**
+ * Maps WaterSystemsTableRow to SqlParametersList which contains array of key/value pairs which
+ * are the db columns to insert and the row's value for those columns.
+ */
 function rowToSqlParameterList(row: WaterSystemsTableRow): SqlParametersList {
   return [
     {
@@ -137,10 +148,6 @@ function rowToSqlParameterList(row: WaterSystemsTableRow): SqlParametersList {
       value: { stringValue: row.geom.toString() },
     },
   ];
-}
-
-function parseWaterSystemsTableRowsToParameterSet(rows: WaterSystemsTableRow[]): SqlParameterSets {
-  return rows.map(rowToSqlParameterList);
 }
 
 /**
