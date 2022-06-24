@@ -35,7 +35,8 @@ async function determineRowsWritten(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    sql: `SELECT COUNT(*) FROM water_systems;`,
+    sql: `SELECT COUNT(*)
+          FROM water_systems;`,
   };
   return rdsService.executeStatement(params).promise();
 }
