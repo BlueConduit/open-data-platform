@@ -17,7 +17,7 @@ const Batch = require('stream-json/utils/Batch');
 
 // Number of rows to write at once.
 const BATCH_SIZE = 10;
-const DEFAULT_NUMBER_ROWS_TO_INSERT = 30000;
+const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
 const NUMBER_ROWS_BUMPER = 300;
 const SCHEMA = 'public';
 
