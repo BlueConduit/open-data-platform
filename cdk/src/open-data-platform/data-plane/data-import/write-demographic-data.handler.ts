@@ -5,7 +5,6 @@ import { RDSDataService } from 'aws-sdk';
 import { BatchExecuteStatementRequest, BatchExecuteStatementResponse, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 
 // We have to import it this way, otherwise typescript doesn't like using it as a function.
-const parse = require('csv-parser');
 const { chain } = require('stream-chain');
 const { ignore } = require('stream-json/filters/Ignore');
 const { pick } = require('stream-json/filters/Pick');
@@ -34,15 +33,15 @@ async function insertBatch(
     schema: 'public',
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO demographics (census_geo_id, total_population,
-                                    under_five_population, poverty_total,
-                                    black_percentage,
-                                    white_percentage, geom)
+                                    under_five_population, poverty_population,
+                                    black_population,
+                                    white_population, geom)
           VALUES (:census_geo_id,
                   :total_population,
                   :under_five_population,
-                  :poverty_total,
-                  :black_percentage,
-                  :white_percentage,
+                  :poverty_population,
+                  :black_population,
+                  :white_population,
                   ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (census_geo_id) DO NOTHING`,
   };
   return rdsService.batchExecuteStatement(batchExecuteParams).promise();
@@ -68,7 +67,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
     new DemographicsTableRowBuilder()
       .censusGeoId(properties.GEOID)
       .underFivePopulation(getValueOrDefault(properties.age_under5))
-      .povertyTotal(getValueOrDefault(properties.PovertyTot))
+      .povertyPopulation(getValueOrDefault(properties.PovertyTot))
       .totalPopulation(getValueOrDefault(properties.RaceTotal))
       .blackPopulation(getValueOrDefault(properties.Estimate_1))
       .whitePopulation(getValueOrDefault(properties.Estimate!!)) // This converts to 'Estimate' when minified so this is always null as of now.
@@ -215,9 +214,9 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 class DemographicsTableRow {
   // Field formatting conforms to rows in the db. Requires less transformations.
   census_geo_id: string;
-  under_five_population: number;
-  poverty_total: number;
   total_population: number;
+  under_five_population: number;
+  poverty_population: number;
   black_population: number;
   white_population: number;
   geom: string;
@@ -225,31 +224,19 @@ class DemographicsTableRow {
   constructor(
     censusGeoId: string,
     totalPopulation: number,
+    under_five_population: number,
+    poverty_population: number,
     blackPopulation: number,
     whitePopulation: number,
     geom: string,
   ) {
     this.census_geo_id = censusGeoId;
     this.total_population = totalPopulation;
+    this.under_five_population = under_five_population;
+    this.poverty_population = poverty_population;
     this.black_population = blackPopulation;
     this.white_population = whitePopulation;
     this.geom = geom;
-  }
-
-  // Returns black population : total population.
-  get black_percentage(): number {
-    if (this.total_population == 0 || this.black_population == 0) {
-      return 0;
-    }
-    return this.black_population / this.total_population;
-  }
-
-  // Returns white population : total population.
-  get white_percentage(): number {
-    if (this.total_population == 0 || this.white_population == 0) {
-      return 0;
-    }
-    return this.white_population / this.total_population;
   }
 }
 
@@ -260,11 +247,16 @@ class DemographicsTableRowBuilder {
   private readonly _row: DemographicsTableRow;
 
   constructor() {
-    this._row = new DemographicsTableRow('', 0, 0, 0, '');
+    this._row = new DemographicsTableRow('', 0, 0, 0, 0, 0, '');
   }
 
   censusGeoId(censusGeoId: string): DemographicsTableRowBuilder {
     this._row.census_geo_id = censusGeoId;
+    return this;
+  }
+
+  totalPopulation(totalPopulation: number): DemographicsTableRowBuilder {
+    this._row.total_population = totalPopulation;
     return this;
   }
 
@@ -273,13 +265,8 @@ class DemographicsTableRowBuilder {
     return this;
   }
 
-  povertyTotal(povertyTotal: number): DemographicsTableRowBuilder {
-    this._row.poverty_total = povertyTotal;
-    return this;
-  }
-
-  totalPopulation(totalPopulation: number): DemographicsTableRowBuilder {
-    this._row.total_population = totalPopulation;
+  povertyPopulation(povertyTotal: number): DemographicsTableRowBuilder {
+    this._row.poverty_population = povertyTotal;
     return this;
   }
 
@@ -298,7 +285,6 @@ class DemographicsTableRowBuilder {
     return this;
   }
 
-  // TODO clarify these are the right types (double?)
   build(): SqlParametersList {
     return [
       {
@@ -314,17 +300,16 @@ class DemographicsTableRowBuilder {
         value: { doubleValue: this._row.under_five_population },
       },
       {
-        // TODO(kailamjeter) make this a percentage
-        name: 'poverty_total',
-        value: { doubleValue: this._row.poverty_total },
+        name: 'poverty_population',
+        value: { doubleValue: this._row.poverty_population },
       },
       {
-        name: 'black_percentage',
-        value: { doubleValue: this._row.black_percentage },
+        name: 'black_population',
+        value: { doubleValue: this._row.black_population },
       },
       {
-        name: 'white_percentage',
-        value: { doubleValue: this._row.white_percentage },
+        name: 'white_population',
+        value: { doubleValue: this._row.white_population },
       },
       {
         name: 'geom',
