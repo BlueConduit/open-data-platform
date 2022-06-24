@@ -4,6 +4,7 @@ import { RDSDataService } from 'aws-sdk';
 import {
   BatchExecuteStatementRequest,
   BatchExecuteStatementResponse,
+  ExecuteStatementRequest,
   SqlParametersList,
 } from 'aws-sdk/clients/rdsdataservice';
 
@@ -17,8 +18,28 @@ const Batch = require('stream-json/utils/Batch');
 // Number of rows to write at once.
 const BATCH_SIZE = 10;
 const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
+const NUMBER_ROWS_BUMPER = 300;
+const SCHEMA = 'public';
 
 const S3 = new AWS.S3();
+
+/**
+ *  Counts rows in the db.
+ * @param rdsService: RDS service to connect to the db.
+ */
+async function determineRowsWritten(
+  rdsService: RDSDataService,
+): Promise<RDSDataService.ExecuteStatementResponse> {
+  const params: ExecuteStatementRequest = {
+    database: process.env.DATABASE_NAME ?? 'postgres',
+    resourceArn: process.env.RESOURCE_ARN ?? '',
+    schema: SCHEMA,
+    secretArn: process.env.CREDENTIALS_SECRET ?? '',
+    sql: `SELECT COUNT(*)
+          FROM water_systems;`,
+  };
+  return rdsService.executeStatement(params).promise();
+}
 
 /**
  *  Writes rows into the water systems table.
@@ -33,7 +54,7 @@ async function insertBatch(
     database: process.env.DATABASE_NAME ?? 'postgres',
     parameterSets: rows,
     resourceArn: process.env.RESOURCE_ARN ?? '',
-    schema: 'public',
+    schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO water_systems (pws_id,
                                      pws_name,
@@ -181,6 +202,7 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
   const numberRowsToWrite: number = parseInt(
     process.env.numberRows ?? `${DEFAULT_NUMBER_ROWS_TO_INSERT}`,
   );
+  let startIndex = 0;
 
   const s3Params = {
     Bucket: 'opendataplatformapistaticdata',
@@ -194,11 +216,20 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     // See https://docs.aws.amazon.com/rds/index.html.
     const rdsService = new AWS.RDSDataService();
 
+    try {
+      const rowsInDb = (await determineRowsWritten(rdsService)).records[0][0].longValue;
+      startIndex = Math.max(parseInt(rowsInDb) - NUMBER_ROWS_BUMPER, startIndex);
+
+      console.log(`Table already has ${rowsInDb} rows. Starting writes at ${startIndex}`);
+    } catch (error) {
+      console.log(`Error reading db: ${error}`);
+    }
+
     // Read geojson file and write to water systems table.
     const numberRows = await parseS3IntoLeadServiceLinesTableRow(
       s3Params,
       rdsService,
-      0,
+      startIndex,
       numberRowsToWrite,
     );
     console.log(`Parsed ${numberRows} rows`);

@@ -39,13 +39,15 @@ CREATE INDEX IF NOT EXISTS geom_index
 
 CREATE TABLE IF NOT EXISTS water_systems(
     pws_id varchar(255) NOT NULL,
-    pws_name varchar(255),
     lead_connections_count real,
-    service_connections_count real,
-    population_served real,
     geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(pws_id)
     );
+
+ALTER TABLE water_systems
+    ADD COLUMN IF NOT EXISTS pws_name varchar(255),
+    ADD COLUMN IF NOT EXISTS service_connections_count real,
+    ADD COLUMN IF NOT EXISTS population_served real;
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON water_systems
@@ -65,7 +67,7 @@ CREATE TABLE IF NOT EXISTS epa_violations(
 
 -- Violation counts per water system --
 
-CREATE VIEW violation_counts AS
+CREATE OR REPLACE VIEW violation_counts AS
 SELECT
     pws_id,
     geom,
