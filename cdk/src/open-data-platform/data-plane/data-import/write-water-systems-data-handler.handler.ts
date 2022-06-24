@@ -20,8 +20,7 @@ const { parser } = require('stream-json/Parser');
 const { streamArray } = require('stream-json/streamers/StreamArray');
 const Batch = require('stream-json/utils/Batch');
 
-// Number of rows to write at once.
-const BATCH_SIZE = 10;
+// This can safely complete before the lambda times out.
 const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
 
 const S3 = new AWS.S3();
@@ -141,6 +140,7 @@ async function insertBatch(
   rdsService: RDSDataService,
   rows: SqlParametersList[],
 ): Promise<RDSDataService.BatchExecuteStatementResponse> {
+  console.log('Inserting batch to DB:', process.env.RESOURCE_ARN);
   const batchExecuteParams: BatchExecuteStatementRequest = {
     database: process.env.DATABASE_NAME ?? 'postgres',
     parameterSets: rows,
@@ -200,5 +200,7 @@ export const handler = geoJsonHandlerFactory(
     const tableRows = rows.map(getTableRowFromRow);
     insertBatch(rdsDataService, tableRows);
   },
+  // TODO: make this dynamic or settable via lambda params so we don't have to rebuild every time.
+  13000,
   DEFAULT_NUMBER_ROWS_TO_INSERT,
 );

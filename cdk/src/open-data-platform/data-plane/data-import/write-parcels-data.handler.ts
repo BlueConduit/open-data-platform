@@ -11,5 +11,6 @@ export const handler = geoJsonHandlerFactory(
   async (rows: any[], _: RDSDataService) => {
     console.log('Rows:', rows);
   },
+  0,
   20, // limit to 20 rows for testing.
 );

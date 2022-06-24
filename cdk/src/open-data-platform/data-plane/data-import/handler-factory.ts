@@ -20,12 +20,14 @@ const S3 = new AWS.S3();
  * Builds a lambda handler that parses a GeoJSON file and executes a callback.
  * @param s3Params - Details for how to get the GeoJSON file.
  * @param callback - Function that operates on a single element from the file.
- * @param rowLimit - Number of rows to process, which can be used for testing.
+ * @param rowOffset - Number of rows to skip before processing.
+ * @param rowLimit - Number of rows to process.
  * @returns
  */
 export const geoJsonHandlerFactory = (
   s3Params: AWS.S3.GetObjectRequest,
   callback: (rows: any[], db: AWS.RDSDataService) => Promise<void>,
+  rowOffset: number = 0,
   rowLimit: number = Infinity,
 ): ((event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => {
   /**
@@ -41,6 +43,7 @@ export const geoJsonHandlerFactory = (
     new Promise((resolve, reject) => {
       const batchSize = 10;
       let processedRowCount = 0;
+      let skippedRowCount = 0;
 
       console.log('Starting to process file in S3:', s3Params);
 
@@ -59,6 +62,15 @@ export const geoJsonHandlerFactory = (
 
       pipeline
         .on('data', async (rows: any[]) => {
+          // Skip rows up to offset.
+          if (skippedRowCount + batchSize <= rowOffset) {
+            skippedRowCount += batchSize;
+            console.log(
+              `Skipping batch of ${rows.length} rows. ${skippedRowCount}/${rowOffset} offset rows have been skipped so far.`,
+            );
+            return;
+          }
+
           console.log(`Processing batch of ${rows.length} rows.`);
           const promise = callback(rows, db);
           promises.push(promise);
