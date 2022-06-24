@@ -26,9 +26,9 @@ CREATE TABLE IF NOT EXISTS demographics(
     census_geo_id varchar(255) NOT NULL,
     total_population real,
     under_five_population real,
-    poverty_total real,
-    black_percentage real,
-    white_percentage real,
+    poverty_population real,
+    black_population real,
+    white_population real,
     geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(census_geo_id)
 );
