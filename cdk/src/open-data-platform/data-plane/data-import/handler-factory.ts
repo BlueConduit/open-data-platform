@@ -50,7 +50,7 @@ export const geoJsonHandlerFactory = (
    * Reads an GeoJSON file and performs the callback on each element. This does not handle any
    * processing of the data itself, but provides a DB connection to the callback to process it.
    *
-   * TODO: track how many rows were processed and avoid re-importing the old rows.
+   * TODO: track how many batches are running in parallel and stop after a limit.
    *
    * @param db - Connection pool to the DB, made available to the callback.
    * @returns
