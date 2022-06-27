@@ -17,7 +17,8 @@ const Batch = require('stream-json/utils/Batch');
 
 // Number of rows to write at once.
 const BATCH_SIZE = 10;
-const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
+// This file contains < 145k rows
+const DEFAULT_NUMBER_ROWS_TO_INSERT = 50000;
 const SCHEMA = 'schema';
 
 const S3 = new AWS.S3();
@@ -78,7 +79,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
  * Reads the S3 file and the number of rows successfully written.
  * @param s3Params: Params that identity the s3 bucket.
  * @param rdsDataService: RDS service to connect to the db.
- * @param startIndex: The row with which to begin writes.
+ * @param startIndex: The row with which to begin writes (inclusive).
  * @param numberOfRowsToWrite: The number of entries to write to the db.
  */
 async function writeS3FileToTable(
@@ -171,7 +172,7 @@ async function handleEndOfFilestream(promises: Promise<BatchExecuteStatementResp
   console.log(`Number errors during insert: ${errors.length}`);
 
   // Log all the rejected promises to diagnose issues.
-  errors.forEach((error) => console.log(error.reason));
+  errors.forEach((error) => console.log(`Insert error: ${error.reason}`));
 }
 
 /**
