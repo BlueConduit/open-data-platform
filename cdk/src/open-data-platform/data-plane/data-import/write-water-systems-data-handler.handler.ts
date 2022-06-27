@@ -11,6 +11,8 @@ const s3Params = {
 
 // This can safely complete before the lambda times out.
 const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
+const NUMBER_ROWS_BUMPER = 300;
+const SCHEMA = 'public';
 
 const S3 = new AWS.S3();
 

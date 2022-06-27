@@ -16,41 +16,42 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
-
-const FEATURE_PROPERTY_LABELS_KEYS_MAP = new Map<string, string>(
-    [['Lead & Copper Rule Violations', 'Lead and Copper Rule'],]);
+import { FeatureProperty } from '../model/data_layer';
 
 /**
  * Map popup component.
  */
 export default defineComponent({
-  name: "MapPopupContent.vue",
+  name: 'MapPopupContent',
   data() {
     return {
       displayedProperties: new Map<string, string>(),
-    }
+    };
   },
-  // TODO(kaila): remove defaults when content is finalized.
   props: {
     title: {
       type: String,
-      default: 'County',
+      required: true,
     },
     subtitle: {
       type: String,
-      default: '320 estimated lead service lines',
+      required: true,
     },
     detailsTitle: {
       type: String,
-      default: 'Lead & Copper Rule Violations',
+      required: true,
+    },
+    featureProperties: {
+      // There is no constructor function for an Array of declared type, so use
+      // generic Array here and cast to PropType of a FeatureProperty[].
+      // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
+      type: Array as PropType<FeatureProperty[]>,
+      required: true,
     },
     properties: {
-      // There is no constructor function for a Map of declared type, so use
-      // generic Map here and cast to PropType of a Map<string, string>.
-      // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
       type: Map as PropType<Map<string, string>>,
       required: true,
-    }
+    },
   },
   methods: {
     /**
@@ -61,14 +62,12 @@ export default defineComponent({
      */
     updateDisplayedProperties(): void {
       this.displayedProperties.clear();
-      const featurePropertiesToDisplay =
-          Array.from(FEATURE_PROPERTY_LABELS_KEYS_MAP.entries());
 
-      for (let entry of featurePropertiesToDisplay) {
-        const label = entry[0];
-        const featurePropertyKey = entry[1];
+      for (let entry of this.featureProperties) {
+        const featurePropertyKey = entry.name;
+        const label = entry.label;
+        const propertyValue = this.properties.get(featurePropertyKey) ?? '';
 
-        const propertyValue = this.properties.get(featurePropertyKey) as string;
         this.displayedProperties.set(label, propertyValue);
       }
     }

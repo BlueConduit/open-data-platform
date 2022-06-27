@@ -24,9 +24,12 @@ $$ LANGUAGE plpgsql;
 
 CREATE TABLE IF NOT EXISTS demographics(
     census_geo_id varchar(255) NOT NULL,
+    census_block_name varchar(255),
     total_population real,
-    black_percentage real,
-    white_percentage real,
+    under_five_population real,
+    poverty_population real,
+    black_population real,
+    white_population real,
     geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(census_geo_id)
 );
@@ -39,13 +42,15 @@ CREATE INDEX IF NOT EXISTS geom_index
 
 CREATE TABLE IF NOT EXISTS water_systems(
     pws_id varchar(255) NOT NULL,
-    pws_name varchar(255),
     lead_connections_count real,
-    service_connections_count real,
-    population_served real,
     geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(pws_id)
     );
+
+ALTER TABLE water_systems
+    ADD COLUMN IF NOT EXISTS pws_name varchar(255),
+    ADD COLUMN IF NOT EXISTS service_connections_count real,
+    ADD COLUMN IF NOT EXISTS population_served real;
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON water_systems
@@ -65,7 +70,7 @@ CREATE TABLE IF NOT EXISTS epa_violations(
 
 -- Violation counts per water system --
 
-CREATE VIEW violation_counts AS
+CREATE OR REPLACE VIEW violation_counts AS
 SELECT
     pws_id,
     geom,

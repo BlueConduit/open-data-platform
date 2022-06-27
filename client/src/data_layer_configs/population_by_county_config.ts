@@ -1,51 +1,51 @@
-import { DataLayer, DataSourceType, LegendInfo } from '@/model/data_layer';
-import { FillLayer } from 'mapbox-gl';
+import { DataLayer, DataSourceType, LegendInfo, PopupInfo } from '@/model/data_layer';
+import { Expression, FillLayer } from 'mapbox-gl';
+import { colorMapToBuckets } from '@/util/data_layer_util';
 
 const ID: string = 'epa-population-by-county';
 
-const LEGEND_COLOR_MAP = {
-  0: '#E1F5FE',
-  10000: '#B3E5FC',
-  25000: '#81D4FA',
-  50000: '#4FC3F7',
-  100000: '#29B6F6',
-  200000: '#0288D1',
-  500000: '#01579B',
-  750000: '#0D47A1',
-  1000000: '#303F9F',
-  2000000: '#1A237E',
-};
+const LEGEND_COLOR_MAPPING = [
+  0,
+  '#E1F5FE',
+  10000,
+  '#B3E5FC',
+  25000,
+  '#81D4FA',
+  50000,
+  '#4FC3F7',
+  100000,
+  '#29B6F6',
+  200000,
+  '#0288D1',
+  500000,
+  '#01579B',
+  750000,
+  '#0D47A1',
+  1000000,
+  '#303F9F',
+  2000000,
+  '#1A237E',
+];
 
-const STYLE_LAYER: FillLayer = {
+/**
+ * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
+ * results for the map.
+ *
+ *  See https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#interpolate.
+ */
+const populationInterpolation: Expression = [
+  'interpolate',
+  ['linear'],
+  ['get', 'population_served_count'],
+  ...LEGEND_COLOR_MAPPING,
+];
+
+const styleLayer: FillLayer = {
   id: `${ID}-style`,
   source: ID,
   type: 'fill',
   paint: {
-    'fill-color': [
-      'interpolate',
-      ['linear'],
-      ['get', 'population_served_count'],
-      0,
-      LEGEND_COLOR_MAP[0],
-      10000,
-      LEGEND_COLOR_MAP[10000],
-      25000,
-      LEGEND_COLOR_MAP[25000],
-      50000,
-      LEGEND_COLOR_MAP[50000],
-      100000,
-      LEGEND_COLOR_MAP[100000],
-      200000,
-      LEGEND_COLOR_MAP[200000],
-      500000,
-      LEGEND_COLOR_MAP[500000],
-      750000,
-      LEGEND_COLOR_MAP[750000],
-      1000000,
-      LEGEND_COLOR_MAP[1000000],
-      2000000,
-      LEGEND_COLOR_MAP[2000000],
-    ],
+    'fill-color': populationInterpolation,
     'fill-opacity': 0.75,
     'fill-outline-color': '#164E87',
   },
@@ -55,9 +55,20 @@ const STYLE_LAYER: FillLayer = {
   },
 };
 
-const LEGEND_INFO: LegendInfo = {
+const legendInfo: LegendInfo = {
   title: 'Population Served',
-  bucketMap: new Map(Object.entries(LEGEND_COLOR_MAP)),
+  bucketMap: colorMapToBuckets(LEGEND_COLOR_MAPPING),
+};
+
+// TODO: replace with actual popup values.
+const popupInfo: PopupInfo = {
+  title: 'County',
+  subtitle: '320 estimated lead service lines',
+  detailsTitle: 'Lead & Copper Rule Violations',
+  featureProperties:
+    [
+      { label: 'Lead & Copper Rule Violations', name: 'Lead and Copper Rule' },
+    ],
 };
 
 export const populationByCountyDataLayer: DataLayer = {
@@ -67,6 +78,7 @@ export const populationByCountyDataLayer: DataLayer = {
     type: DataSourceType.GeoJson,
     data: '',
   },
-  legendInfo: LEGEND_INFO,
-  styleLayer: STYLE_LAYER,
+  legendInfo: legendInfo,
+  popupInfo: popupInfo,
+  styleLayer: styleLayer,
 };

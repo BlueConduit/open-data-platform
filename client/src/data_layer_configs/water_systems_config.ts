@@ -1,7 +1,6 @@
-import { DataSourceType, LegendInfo, TileDataLayer } from '@/model/data_layer';
+import { DataSourceType, LegendInfo, PopupInfo, TileDataLayer } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
-
-const LOCALHOST = 'localhost';
+import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
 const ID: string = 'water-systems';
 const DEFAULT_NULL_COLOR = '#d3d3d3';
@@ -25,8 +24,10 @@ const LEGEND_COLOR_MAPPING = [
 ];
 
 /**
- * Directions on how to map lead_connections count to a bucket and color
- * on the map.
+ * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
+ * results for the map.
+ *
+ *  See https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#interpolate.
  */
 const leadConnectionLegendInterpolation = [
   'interpolate',
@@ -61,6 +62,17 @@ export const styleLayer: FillLayer = {
   },
 };
 
+const popupInfo: PopupInfo = {
+  title: 'Water system',
+  subtitle: 'Estimated lead service lines',
+  detailsTitle: 'Water system information',
+  featureProperties:
+    [
+      { label: 'Number of lead connections', name: 'lead_connections_count' },
+      { label: 'PWSID', name: 'pws_id' },
+    ],
+};
+
 export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
@@ -69,34 +81,6 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   id: ID,
   name: 'Water systems',
   legendInfo: legendInfo,
+  popupInfo: popupInfo,
   styleLayer: styleLayer,
 };
-
-/**
- * Converts list of legend pairs (alternating numerical key, string hex color
- * value) to a map of legend key : color hex.
- * @param colorMapping the list of legend pairs
- *
- * Example:
- * [0, '#9fcd7c', 10000, '#f7e5af'] => {'0' :  '#9fcd7c', '10000', '#f7e5af'}
- */
-function colorMapToBuckets(colorMapping: any[]): Map<string, string> {
-  const listOfLegendPairs: [string, string][] = [];
-  for (let index = 0; index < LEGEND_COLOR_MAPPING.length; index++) {
-    if (index % 2 != 0) {
-      listOfLegendPairs.push([LEGEND_COLOR_MAPPING[index - 1].toString(), colorMapping[index]]);
-    }
-  }
-  return new Map(listOfLegendPairs);
-}
-
-/**
- * Hostname of tileserver to be passed to mapbox.
- *
- * Returns location.hostname unless app is being run locally.
- */
-function tileServerHost() {
-  return location.hostname == LOCALHOST
-    ? process.env.VUE_APP_DEFAULT_TILESERVER_HOST
-    : location.hostname;
-}
