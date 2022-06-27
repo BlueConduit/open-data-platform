@@ -23,6 +23,19 @@ const S3 = new AWS.S3();
 
 /**
  * Builds a lambda handler that parses a GeoJSON file and executes a callback.
+ *
+ * The callback takes in a set of rows and should insert them into the DB using the provided db
+ * instance.
+ *
+ * You can invoke the lambda via the web console and provide an ImportRequest to skip a set of rows
+ * or limit the import to a max number. The lambda will attempt to honor the limit, but it may
+ * exceed it due to how it proccesses rows in parallel. Example:
+ *
+ * {
+ *   "rowOffset": 0,
+ *   "rowLimit": 27000
+ * }
+ *
  * @param s3Params - Details for how to get the GeoJSON file.
  * @param callback - Function that operates on a single element from the file.
  * @returns
