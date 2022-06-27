@@ -81,7 +81,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
  * @param startIndex: The row with which to begin writes.
  * @param numberOfRowsToWrite: The number of entries to write to the db.
  */
-async function parseS3IntoLeadServiceLinesTableRow(
+async function writeS3FileToTable(
   s3Params: AWS.S3.GetObjectRequest,
   rdsDataService: RDSDataService,
   startIndex = 0,
@@ -196,12 +196,7 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     const rdsService = new AWS.RDSDataService();
 
     // Read geojson file and write to parcel table.
-    const numberRows = await parseS3IntoLeadServiceLinesTableRow(
-      s3Params,
-      rdsService,
-      0,
-      numberRowsToWrite,
-    );
+    const numberRows = await writeS3FileToTable(s3Params, rdsService, 0, numberRowsToWrite);
     console.log(`Parsed ${numberRows} rows`);
 
     return {
