@@ -54,6 +54,7 @@ export class DataImportStack extends Construct {
         environment: {
           CREDENTIALS_SECRET: credentialsSecret.secretArn,
           DATABASE_NAME: db,
+          RESOURCE_ARN: cluster.clusterArn,
         },
         memorySize: 512,
         timeout: Duration.minutes(15),
@@ -93,6 +94,7 @@ export class DataImportStack extends Construct {
       environment: {
         CREDENTIALS_SECRET: credentialsSecret.secretArn,
         DATABASE_NAME: db,
+        RESOURCE_ARN: cluster.clusterArn,
       },
       timeout: Duration.minutes(5),
       bundling: {
