@@ -113,12 +113,11 @@ async function writeS3FileToTable(
           let tableRows: SqlParametersList[] = [];
           const shouldWriteRows = numberRowsParsed >= startIndex && numberRowsParsed <= endIndex;
           if (shouldWriteRows) {
-            tableRows = rows.reduce(function (result, row) {
+            for (const row of rows) {
               if (row.value.properties.address != '' && row.value.properties.address != null) {
-                result.push(getTableRowFromRow(row));
+                tableRows.push(getTableRowFromRow(row));
               }
-              return result;
-            }, []);
+            }
           }
 
           promises.push(executeBatchOfRows(rdsDataService, tableRows));
