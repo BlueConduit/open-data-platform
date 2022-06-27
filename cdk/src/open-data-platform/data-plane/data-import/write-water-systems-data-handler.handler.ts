@@ -1,24 +1,12 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
-import {
-  BatchExecuteStatementRequest,
-  BatchExecuteStatementResponse,
-  SqlParametersList,
-} from 'aws-sdk/clients/rdsdataservice';
+import { BatchExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 import { geoJsonHandlerFactory } from './handler-factory';
 
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata',
-  Key: 'parcels/toledo_parcel_preds.geojson',
+  Key: 'pwsid_lead_connections_even_smaller.geojson',
 };
-
-const { chain } = require('stream-chain');
-const { ignore } = require('stream-json/filters/Ignore');
-const { pick } = require('stream-json/filters/Pick');
-const { parser } = require('stream-json/Parser');
-const { streamArray } = require('stream-json/streamers/StreamArray');
-const Batch = require('stream-json/utils/Batch');
 
 // This can safely complete before the lambda times out.
 const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
@@ -105,7 +93,7 @@ class WaterSystemsTableRowBuilder {
     return [
       {
         name: 'pws_id',
-        value: { stringValue: this._row.pws_id },
+        value: { stringValue: this._row.pws_id }, // FIGURE OUT WHY THIS IS EMPTY
       },
       {
         name: 'pws_name',
@@ -140,7 +128,6 @@ async function insertBatch(
   rdsService: RDSDataService,
   rows: SqlParametersList[],
 ): Promise<RDSDataService.BatchExecuteStatementResponse> {
-  console.log('Inserting batch to DB:', process.env.RESOURCE_ARN);
   const batchExecuteParams: BatchExecuteStatementRequest = {
     database: process.env.DATABASE_NAME ?? 'postgres',
     parameterSets: rows,
@@ -197,10 +184,6 @@ function getTableRowFromRow(row: any): SqlParametersList {
 export const handler = geoJsonHandlerFactory(
   s3Params,
   async (rows: any[], rdsDataService: RDSDataService) => {
-    const tableRows = rows.map(getTableRowFromRow);
-    insertBatch(rdsDataService, tableRows);
+    await insertBatch(rdsDataService, rows.map(getTableRowFromRow));
   },
-  // TODO: make this dynamic or settable via lambda params so we don't have to rebuild every time.
-  13000,
-  DEFAULT_NUMBER_ROWS_TO_INSERT,
 );

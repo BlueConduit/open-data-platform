@@ -1,12 +1,16 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import { connectToDb } from '../schema/schema.handler';
 
 // These libraries don't have types, so they are imported in a different way.
 const { chain } = require('stream-chain');
 const { streamArray } = require('stream-json/streamers/StreamArray');
 const Batch = require('stream-json/utils/Batch');
 const Pick = require('stream-json/filters/Pick');
+
+export interface ImportRequest {
+  rowOffset?: number;
+  rowLimit?: number;
+}
 
 interface ImportResult {
   processedBatchCount: number;
@@ -20,16 +24,12 @@ const S3 = new AWS.S3();
  * Builds a lambda handler that parses a GeoJSON file and executes a callback.
  * @param s3Params - Details for how to get the GeoJSON file.
  * @param callback - Function that operates on a single element from the file.
- * @param rowOffset - Number of rows to skip before processing.
- * @param rowLimit - Number of rows to process.
  * @returns
  */
 export const geoJsonHandlerFactory = (
   s3Params: AWS.S3.GetObjectRequest,
   callback: (rows: any[], db: AWS.RDSDataService) => Promise<void>,
-  rowOffset: number = 0,
-  rowLimit: number = Infinity,
-): ((event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => {
+): ((event: ImportRequest) => Promise<APIGatewayProxyResult>) => {
   /**
    * Reads an GeoJSON file and performs the callback on each element. This does not handle any
    * processing of the data itself, but provides a DB connection to the callback to process it.
@@ -39,7 +39,11 @@ export const geoJsonHandlerFactory = (
    * @param db - Connection pool to the DB, made available to the callback.
    * @returns
    */
-  const readGeoJsonFile = (db: AWS.RDSDataService): Promise<ImportResult> =>
+  const readGeoJsonFile = (
+    db: AWS.RDSDataService,
+    rowOffset: number = 0,
+    rowLimit: number = Infinity,
+  ): Promise<ImportResult> =>
     new Promise((resolve, reject) => {
       const batchSize = 10;
       let processedRowCount = 0;
@@ -73,10 +77,15 @@ export const geoJsonHandlerFactory = (
 
           console.log(`Processing batch of ${rows.length} rows.`);
           const promise = callback(rows, db);
+          promise.catch((_) => {}); // Supress unhandled rejections here.
           promises.push(promise);
-          await promise;
-          processedRowCount += rows.length;
-          console.log(`${processedRowCount} rows have been processed so far.`);
+          try {
+            await promise;
+            processedRowCount += rows.length;
+            console.log(`${processedRowCount} rows have been processed so far.`);
+          } catch (error) {
+            // Error will be caught in aggregate.
+          }
           // Stop reading stream if this would exceed number of rows to write.
           // This check is done at the end because it doesn't know how many rows are currently
           // being processed in parallel.
@@ -118,7 +127,11 @@ export const geoJsonHandlerFactory = (
   /**
    * Constructed handler that imports GeoJSON data to a DB.
    */
-  const handler = async (_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  const handler = async (event: ImportRequest): Promise<APIGatewayProxyResult> => {
+    const rowOffset = event.rowOffset ?? 0;
+    const rowLimit = event.rowLimit ?? Infinity;
+    console.log('Starting import:', { rowLimit, rowOffset, s3Params });
+
     const db = new AWS.RDSDataService();
     let results: ImportResult = {
       processedBatchCount: 0,
@@ -126,7 +139,7 @@ export const geoJsonHandlerFactory = (
       erroredBatchCount: 0,
     };
     try {
-      results = await readGeoJsonFile(db);
+      results = await readGeoJsonFile(db, rowOffset, rowLimit);
     } catch (error) {
       console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
       throw error;
