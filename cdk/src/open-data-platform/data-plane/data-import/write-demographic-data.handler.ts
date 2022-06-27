@@ -60,7 +60,7 @@ function getValueOrDefault(field: string): number {
 
 /**
  * Maps a data row to a table row ready to write to the db.
- * @param row: row with all data needed to build a [WaterSystemsTableRow].
+ * @param row: row with all data needed to build a [DemographicsTableRow].
  */
 function getTableRowFromRow(row: any): SqlParametersList {
   const value = row.value;
