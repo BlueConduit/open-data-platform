@@ -15,7 +15,9 @@ const Batch = require('stream-json/utils/Batch');
 const S3 = new AWS.S3();
 
 // Number of rows to write at once.
-const BATCH_SIZE = 10;
+const BATCH_SIZE = 5;
+// Default number of rows to insert in total. This is the number of rows in each file.
+const DEFAULT_NUMBER_ROWS_TO_INSERT = 47841;
 
 /**
  *  Writes rows into the demographics table.
@@ -32,11 +34,13 @@ async function insertBatch(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: 'public',
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    sql: `INSERT INTO demographics (census_geo_id, total_population,
+    sql: `INSERT INTO demographics (census_geo_id, census_block_name,
+                                    total_population,
                                     under_five_population, poverty_population,
                                     black_population,
                                     white_population, geom)
           VALUES (:census_geo_id,
+                  :census_block_name,
                   :total_population,
                   :under_five_population,
                   :poverty_population,
@@ -62,15 +66,15 @@ function getTableRowFromRow(row: any): SqlParametersList {
   const value = row.value;
   const properties = value.properties;
 
-  // TODO(kailamjeter): modify field names when file is fixed.
   return (
     new DemographicsTableRowBuilder()
       .censusGeoId(properties.GEOID)
+      .name(properties.NAME)
       .underFivePopulation(getValueOrDefault(properties.age_under5))
       .povertyPopulation(getValueOrDefault(properties.PovertyTot))
       .totalPopulation(getValueOrDefault(properties.RaceTotal))
-      .blackPopulation(getValueOrDefault(properties.Estimate_1))
-      .whitePopulation(getValueOrDefault(properties.Estimate!!)) // This converts to 'Estimate' when minified so this is always null as of now.
+      .blackPopulation(getValueOrDefault(properties.black_population))
+      .whitePopulation(getValueOrDefault(properties.white_population))
       // Keep JSON formatting. Post-GIS helpers depend on this.
       .geom(JSON.stringify(value.geometry))
       .build()
@@ -83,8 +87,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
 function parseS3IntoDemographicsTableRow(
   s3Params: AWS.S3.GetObjectRequest,
   rdsDataService: RDSDataService,
-  startIndex = 0,
-  numberOfRowsToWrite = 10,
+  numberOfRowsToWrite: number,
 ): Promise<number> {
   return new Promise(function(resolve, reject) {
     let numberRowsParsed = 0;
@@ -99,19 +102,18 @@ function parseS3IntoDemographicsTableRow(
       new Batch({ batchSize: BATCH_SIZE }),
     ]);
 
-    const endIndex = startIndex + numberOfRowsToWrite;
     try {
       pipeline
         .on('data', (rows: any[]) => {
           // Stop reading stream if this would exceed number of rows to write.
-          if (numberRowsParsed + rows.length > endIndex) {
+          if (numberRowsParsed + rows.length > numberOfRowsToWrite) {
             pipeline.destroy();
           }
 
           let tableRows: SqlParametersList[] = [];
-          const shouldWriteRow = numberRowsParsed >= startIndex && numberRowsParsed <= endIndex;
+          const shouldWriteRows = numberRowsParsed < numberOfRowsToWrite;
 
-          if (shouldWriteRow) {
+          if (shouldWriteRows) {
             tableRows = rows.map(getTableRowFromRow);
           }
 
@@ -176,13 +178,15 @@ async function handleEndOfFilestream(promises: Promise<BatchExecuteStatementResp
  * to demographics table in the MainCluster postgres db.
  */
 export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  const numberRowsToWrite = 10; // TODO use env variable.
-  const startIndex = 0; // TODO remove once files are split.
+  const numberRowsToWrite: number = parseInt(
+    process.env.numberRows ?? `${DEFAULT_NUMBER_ROWS_TO_INSERT}`,
+  );
 
   const s3Params = {
-    Bucket: 'opendataplatformapistaticdata',
-    // TODO replace with broken up file
-    Key: 'blocks_acs_geo_smaller.json',
+    Bucket: 'opendataplatformapistaticdata/demographics',
+    // There are 5 total files containing demographic data. Replace '0' here with any number between
+    // 0 and 4 (inclusive).
+    Key: 'block_acs_data_0.geojson',
   };
 
   // Read CSV file and write to demographics table.
@@ -193,7 +197,6 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     const numberRows = await parseS3IntoDemographicsTableRow(
       s3Params,
       rdsService,
-      startIndex,
       numberRowsToWrite,
     );
     console.log(`Parsed ${numberRows} rows`);
@@ -214,6 +217,7 @@ export async function handler(_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 class DemographicsTableRow {
   // Field formatting conforms to rows in the db. Requires less transformations.
   census_geo_id: string;
+  name: string;
   total_population: number;
   under_five_population: number;
   poverty_population: number;
@@ -223,6 +227,7 @@ class DemographicsTableRow {
 
   constructor(
     censusGeoId: string,
+    name: string,
     totalPopulation: number,
     under_five_population: number,
     poverty_population: number,
@@ -231,6 +236,7 @@ class DemographicsTableRow {
     geom: string,
   ) {
     this.census_geo_id = censusGeoId;
+    this.name = name;
     this.total_population = totalPopulation;
     this.under_five_population = under_five_population;
     this.poverty_population = poverty_population;
@@ -247,11 +253,16 @@ class DemographicsTableRowBuilder {
   private readonly _row: DemographicsTableRow;
 
   constructor() {
-    this._row = new DemographicsTableRow('', 0, 0, 0, 0, 0, '');
+    this._row = new DemographicsTableRow('', '', 0, 0, 0, 0, 0, '');
   }
 
   censusGeoId(censusGeoId: string): DemographicsTableRowBuilder {
     this._row.census_geo_id = censusGeoId;
+    return this;
+  }
+
+  name(name: string): DemographicsTableRowBuilder {
+    this._row.name = name;
     return this;
   }
 
@@ -290,6 +301,10 @@ class DemographicsTableRowBuilder {
       {
         name: 'census_geo_id',
         value: { stringValue: this._row.census_geo_id.toString() },
+      },
+      {
+        name: 'census_block_name',
+        value: { stringValue: this._row.name },
       },
       {
         name: 'total_population',
