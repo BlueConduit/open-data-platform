@@ -12,6 +12,8 @@ import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import { DataLayer, DataSourceType, FeatureProperty } from '../model/data_layer';
+import router from '../router';
+
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -39,6 +41,11 @@ export default defineComponent({
       popup: null as mapboxgl.Popup | null,
     };
   },
+  computed: {
+    routerLayer () {
+      return router.currentRoute.value.query.layer ?? null;
+    }
+  },
   props: {
     /**
      * Where to load the initial map. Defaults to center of continental US.
@@ -59,6 +66,11 @@ export default defineComponent({
       if (this.map == null) return;
 
       this.map?.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
+
+      // Update the router params when toggling layers to visible.
+      if (visible && router.currentRoute.value.query.layer != styleLayerId) {
+        router.push({ query: Object.assign({}, router.currentRoute.value.query, { layer: styleLayerId }) });
+      }
     },
 
     /**
@@ -95,9 +107,7 @@ export default defineComponent({
     updateMapOnDataLayerChange(newDataLayer: DataLayer | null, oldDataLayer: DataLayer | null): void {
       if (this.map == null) {
         const source = newDataLayer?.source;
-        const dataLoaded =
-          (source?.type == DataSourceType.GeoJson && source?.data != null) ||
-          (source?.type == DataSourceType.Vector && source?.tiles != null);
+        const dataLoaded = source?.type == DataSourceType.Vector && source?.tiles != null;
         if (dataLoaded) {
           this.createMap();
         }
@@ -226,6 +236,9 @@ export default defineComponent({
   watch: {
     'state.currentDataLayer': function(newDataLayer: DataLayer, oldDataLayer: DataLayer) {
       this.updateMapOnDataLayerChange(newDataLayer, oldDataLayer);
+    },
+    'routerLayer': function(newLayer: string) {
+      this.setDataLayerVisibility(newLayer, true);
     },
   },
 });
