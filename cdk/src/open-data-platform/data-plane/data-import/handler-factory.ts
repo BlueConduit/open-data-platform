@@ -46,6 +46,7 @@ export const geoJsonHandlerFactory = (
   ): Promise<ImportResult> =>
     new Promise((resolve, reject) => {
       const batchSize = 10;
+      let bactchId = 0;
       let processedRowCount = 0;
       let skippedRowCount = 0;
 
@@ -70,19 +71,22 @@ export const geoJsonHandlerFactory = (
           if (skippedRowCount + batchSize <= rowOffset) {
             skippedRowCount += batchSize;
             console.log(
-              `Skipping batch of ${rows.length} rows. ${skippedRowCount}/${rowOffset} offset rows have been skipped so far.`,
+              `batch${bactchId}: Skipping batch of ${rows.length} rows. ${skippedRowCount}/${rowOffset} offset rows have been skipped so far.`,
             );
             return;
           }
 
-          console.log(`Processing batch of ${rows.length} rows.`);
+          console.log(`batch${bactchId}:Processing batch of ${rows.length} rows.`);
           const promise = callback(rows, db);
-          promise.catch((_) => {}); // Supress unhandled rejections here.
+          // TODO: send these rows to a dead letter queue to be re-processed.
+          promise.catch((reason) =>
+            console.log(`batch${bactchId}: Rows failed to insert:`, rows, reason),
+          ); // Supress unhandled rejections here.
           promises.push(promise);
           try {
             await promise;
             processedRowCount += rows.length;
-            console.log(`${processedRowCount} rows have been processed so far.`);
+            console.log(`batch${bactchId}: ${processedRowCount} rows have been processed so far.`);
           } catch (error) {
             // Error will be caught in aggregate.
           }
@@ -90,7 +94,7 @@ export const geoJsonHandlerFactory = (
           // This check is done at the end because it doesn't know how many rows are currently
           // being processed in parallel.
           if (processedRowCount > rowLimit) {
-            console.log('Stopping after passing row limit:', rowLimit);
+            console.log(`batch${bactchId}: Stopping after passing row limit:`, rowLimit);
             pipeline.destroy();
             return;
           }
