@@ -11,6 +11,7 @@ const Pick = require('stream-json/filters/Pick');
 export interface ImportRequest {
   rowOffset?: number;
   rowLimit?: number;
+  batchSize?: number;
 }
 
 interface ImportResult {
@@ -33,7 +34,8 @@ const S3 = new AWS.S3();
  *
  * {
  *   "rowOffset": 0,
- *   "rowLimit": 27000
+ *   "rowLimit": 27000,
+ *   "batchSize": 10
  * }
  *
  * @param s3Params - Details for how to get the GeoJSON file.
@@ -55,11 +57,11 @@ export const geoJsonHandlerFactory = (
    */
   const readGeoJsonFile = (
     db: AWS.RDSDataService,
-    rowOffset: number = 0,
-    rowLimit: number = Infinity,
+    rowOffset: number,
+    rowLimit: number,
+    batchSize: number,
   ): Promise<ImportResult> =>
     new Promise((resolve, reject) => {
-      const batchSize = 10;
       let bactchId = 0;
       let processedRowCount = 0;
       let skippedRowCount = 0;
@@ -163,9 +165,11 @@ export const geoJsonHandlerFactory = (
    * Constructed handler that imports GeoJSON data to a DB.
    */
   const handler = async (event: ImportRequest): Promise<APIGatewayProxyResult> => {
+    // Use arguments or defaults.
     const rowOffset = event.rowOffset ?? 0;
     const rowLimit = event.rowLimit ?? Infinity;
-    console.log('Starting import:', { rowLimit, rowOffset, s3Params });
+    const batchSize = event.batchSize ?? 10;
+    console.log('Starting import:', { rowLimit, rowOffset, batchSize, s3Params });
 
     const db = new AWS.RDSDataService();
     let results: ImportResult = {
@@ -173,12 +177,14 @@ export const geoJsonHandlerFactory = (
       sucessfulBatchCount: 0,
       erroredBatchCount: 0,
     };
+
     try {
-      results = await readGeoJsonFile(db, rowOffset, rowLimit);
+      results = await readGeoJsonFile(db, rowOffset, rowLimit, batchSize);
     } catch (error) {
       console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
       throw error;
     }
+
     return {
       statusCode: 200,
       body: JSON.stringify(results),
