@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
+import { AnyLengthString } from 'aws-sdk/clients/comprehendmedical';
 
 // These libraries don't have types, so they are imported in a different way.
 const { chain } = require('stream-chain');
@@ -68,6 +69,7 @@ export const geoJsonHandlerFactory = (
       pipeline
         .on('data', async (rows: any[]) => {
           const id = bactchId++;
+
           // Skip rows up to offset.
           if (skippedRowCount + batchSize <= rowOffset) {
             skippedRowCount += batchSize;
@@ -77,24 +79,35 @@ export const geoJsonHandlerFactory = (
             return;
           }
 
-          console.log(`batch${id}:Processing batch of ${rows.length} rows.`);
+          // Start processing the row.
+          console.log(`batch${id}: Processing batch of ${rows.length} rows.`);
           const promise = callback(rows, db);
-          // TODO: send these rows to a dead letter queue to be re-processed.
-          promise.catch((reason) =>
-            console.log(
-              `batch${id}: Rows failed to insert:`,
-              reason,
-              rows.map((r) => r.value?.properties),
-            ),
-          ); // Supress unhandled rejections here.
           promises.push(promise);
+
+          // Reprocess errored rows individually. This may catch transient errors, or at least let
+          // other rows in the batch succeed.
+          promise.catch((_) =>
+            rows.forEach((row) => {
+              console.log(
+                `batch${id}: Reprocessing errored row individually.`,
+                row.value?.properties,
+              );
+              const rePromise = callback([row], db);
+              rePromise.catch((reason) => console.log(`batch${id}: Reprocessing failed`, reason));
+              promises.push(rePromise);
+            }),
+          ); // Supress unhandled rejections here.
+
           try {
+            // Await this batches so we know whether to increment the row count.
+            // This does not block other batches from being processed in parallel.
             await promise;
             processedRowCount += rows.length;
             console.log(`batch${id}: ${processedRowCount} rows have been processed so far.`);
           } catch (error) {
-            // Error will be caught in aggregate.
+            // Handle in the promise.
           }
+
           // Stop reading stream if this would exceed number of rows to write.
           // This check is done at the end because it doesn't know how many rows are currently
           // being processed in parallel.
