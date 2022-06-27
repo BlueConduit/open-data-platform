@@ -1,4 +1,3 @@
-import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { BatchExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 import { geoJsonHandlerFactory } from './handler-factory';
@@ -9,12 +8,7 @@ const s3Params = {
   Key: 'pwsid_lead_connections_even_smaller.geojson',
 };
 
-// This can safely complete before the lambda times out.
-const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
-const NUMBER_ROWS_BUMPER = 300;
 const SCHEMA = 'public';
-
-const S3 = new AWS.S3();
 
 /**
  * Single row for water systems table.
@@ -135,7 +129,7 @@ async function insertBatch(
     database: process.env.DATABASE_NAME ?? 'postgres',
     parameterSets: rows,
     resourceArn: process.env.RESOURCE_ARN ?? '',
-    schema: 'public',
+    schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO water_systems (pws_id,
                                      pws_name,
