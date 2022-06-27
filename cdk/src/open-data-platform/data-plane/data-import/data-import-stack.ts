@@ -93,11 +93,13 @@ export class DataImportStack extends Construct {
       environment: {
         CREDENTIALS_SECRET: credentialsSecret.secretArn,
         DATABASE_NAME: db,
+        RESOURCE_ARN:
+          'arn:aws:rds:us-east-2:036999211278:cluster:breuch-opendataplatformdatapl-maincluster834123e8-wxi60mcf08md',
       },
       timeout: Duration.minutes(5),
       bundling: {
         externalModules: ['aws-sdk'],
-        nodeModules: ['stream-json', '@databases/pg', 'stream-chain'],
+        nodeModules: ['stream-json', 'stream-chain'],
       },
     });
 

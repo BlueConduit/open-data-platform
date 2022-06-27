@@ -16,6 +16,14 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION update_last_update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+NEW.last_updated = now();
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 ------------
 -- Tables --
 ------------
@@ -82,23 +90,24 @@ GROUP BY pws_id, geom;
 -- Parcel-level data
 
 CREATE TABLE IF NOT EXISTS parcels (
-    id serial PRIMARY KEY,
     -- TODO: consider standardizing addresses into a PostGIS type once we have data.
     -- https://postgis.net/docs/manual-2.5/Address_Standardizer.html
     address text,
-    sl_path geometry(Geometry, 4326),
-    lead_prediction float
-);
-ALTER TABLE parcels
-    ADD COLUMN IF NOT EXISTS lead_prediction_public float,
+    public_lead_prediction float,
     -- Private-side predictive data don't exist for all parcels, but store it anyway.
-    ADD COLUMN IF NOT EXISTS lead_prediction_private float,
+    private_lead_prediction float,
     -- Can be used to determine if the row needs updating with a new dataset.
-    ADD COLUMN IF NOT EXISTS last_updated_time timestamp;
+    last_updated timestamp default current_timestamp,
+    geom geometry(Geometry, 4326),
+    PRIMARY KEY (address)
+);
+
 -- Either of these might be used for searching.
-CREATE INDEX IF NOT EXISTS sl_geometry_index ON parcels USING GIST (sl_path);
--- Uniqueness will prevent multiple rows for the same address from being re-imported.
-CREATE UNIQUE INDEX IF NOT EXISTS address_index ON parcels(address);
+CREATE INDEX IF NOT EXISTS geom_index ON parcels USING GIST (geom);
+
+CREATE TRIGGER update_last_update_timestamp BEFORE UPDATE ON parcels
+    FOR EACH ROW EXECUTE PROCEDURE update_last_update_timestamp();
+
 
 ----------------------
 -- Roles and Grants --
