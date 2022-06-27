@@ -66,11 +66,12 @@ const popupInfo: PopupInfo = {
   title: 'Water system',
   subtitle: 'Estimated lead service lines',
   detailsTitle: 'Water system information',
-  featureProperties:
-    [
-      { label: 'Number of lead connections', name: 'lead_connections_count' },
-      { label: 'PWSID', name: 'pws_id' },
-    ],
+  featureProperties: [
+    { label: 'Number of lead connections', name: 'lead_connections_count' },
+    { label: 'Number of service lines', name: 'service_connections_count' },
+    { label: 'Population served by water system', name: 'population_served' },
+    { label: 'EPA identifier for water system', name: 'pws_id' },
+  ],
 };
 
 export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {

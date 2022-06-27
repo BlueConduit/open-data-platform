@@ -1,6 +1,6 @@
-import { DataSourceType, GeoJsonDataLayer, LegendInfo, PopupInfo } from '@/model/data_layer';
+import { DataSourceType, LegendInfo, PopupInfo, TileDataLayer } from '@/model/data_layer';
 import { Expression, FillLayer } from 'mapbox-gl';
-import { colorMapToBuckets } from '@/util/data_layer_util';
+import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
 const ID: string = 'epa-lead-and-copper-violations';
 
@@ -26,7 +26,7 @@ const LEGEND_COLOR_MAPPING = [
 const leadAndCopperViolationsInterpolation: Expression = [
   'interpolate',
   ['linear'],
-  ['get', 'Lead and Copper Rule'],
+  ['get', 'violations_per_service_line'],
   ...LEGEND_COLOR_MAPPING,
 ];
 
@@ -38,6 +38,8 @@ const legendInfo: LegendInfo = {
 const styleLayer: FillLayer = {
   id: `${ID}-style`,
   source: ID,
+  // Corresponds to the table in the database.
+  'source-layer': 'public.violation_counts',
   type: 'fill',
   paint: {
     'fill-color': leadAndCopperViolationsInterpolation,
@@ -50,24 +52,25 @@ const styleLayer: FillLayer = {
   },
 };
 
-// TODO: replace with actual popup values.
 const popupInfo: PopupInfo = {
-  title: 'County',
+  title: 'Water system',
   subtitle: '320 estimated lead service lines',
   detailsTitle: 'Lead & Copper Rule Violations',
-  featureProperties:
-    [
-      { label: 'Lead & Copper Rule Violations', name: 'Lead and Copper Rule' },
-    ],
+  featureProperties: [
+    {
+      label: 'Lead & Copper Rule Violations Per Service Line',
+      name: 'violations_per_service_line',
+    },
+  ],
 };
 
-export const leadAndCopperViolationsByCountyDataLayer: GeoJsonDataLayer = {
+export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
+  source: {
+    type: DataSourceType.Vector,
+    tiles: [`https://${tileServerHost()}/tiles/v1/public.violation_counts/{z}/{x}/{y}.pbf`],
+  },
   id: ID,
   name: 'Lead & Copper Rule Violations',
-  source: {
-    type: DataSourceType.GeoJson,
-    data: '',
-  },
   legendInfo: legendInfo,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
