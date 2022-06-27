@@ -66,11 +66,11 @@ const popupInfo: PopupInfo = {
   title: 'Water system',
   subtitle: 'Estimated lead service lines',
   detailsTitle: 'Water system information',
-  featurePropertyLabelMap: new Map<string, string>(
+  featureProperties:
     [
-      ['lead_connections_count', 'Number of lead connections'],
-      ['pws_id', 'PWSID'],
-    ]),
+      { label: 'Number of lead connections', name: 'lead_connections_count' },
+      { label: 'PWSID', name: 'pws_id' },
+    ],
 };
 
 export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {

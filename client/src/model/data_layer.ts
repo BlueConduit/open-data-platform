@@ -60,8 +60,15 @@ export interface PopupInfo {
   subtitle: string;
   // Popup details title.
   detailsTitle: string;
-  // Map of feature property name to the label that is displayed for that feature in the popup.
-  featurePropertyLabelMap: Map<string, string>;
+  // Array of feature property objects. This info will be displayed in the map popup.
+  featureProperties: FeatureProperty[];
+}
+
+export interface FeatureProperty {
+  // Label that is displayed when this property is displayed in the UI.
+  label: string;
+  // Name of this feature property.
+  name: string;
 }
 
 /**

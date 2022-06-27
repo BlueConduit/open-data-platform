@@ -11,7 +11,7 @@ import MapPopupContent from '@/components/MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { DataLayer, DataSourceType } from '../model/data_layer';
+import { DataLayer, DataSourceType, FeatureProperty } from '../model/data_layer';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -58,8 +58,7 @@ export default defineComponent({
     setDataLayerVisibility(styleLayerId: string, visible: boolean): void {
       if (this.map == null) return;
 
-      const visibility = visible ? 'visible' : 'none';
-      this.map.setLayoutProperty(styleLayerId, 'visibility', visibility);
+      this.map?.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
     },
 
     /**
@@ -151,8 +150,7 @@ export default defineComponent({
                   title: popupInfo?.title ?? '',
                   subtitle: popupInfo?.subtitle ?? '',
                   detailsTitle: popupInfo?.detailsTitle ?? '',
-                  featurePropertyLabelMap:
-                    popupInfo?.featurePropertyLabelMap ?? new Map<string, string>(),
+                  featureProperties: popupInfo?.featureProperties ?? [] as FeatureProperty[],
                   properties: new Map(Object.entries(clickedFeatureProperties)),
                 });
             }

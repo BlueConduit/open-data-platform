@@ -16,6 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
+import { FeatureProperty } from '../model/data_layer';
 
 /**
  * Map popup component.
@@ -40,14 +41,14 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    featurePropertyLabelMap: {
-      type: Map as PropType<Map<string, string>>,
+    featureProperties: {
+      // There is no constructor function for an Array of declared type, so use
+      // generic Array here and cast to PropType of a FeatureProperty[].
+      // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
+      type: Array as PropType<FeatureProperty[]>,
       required: true,
     },
     properties: {
-      // There is no constructor function for a Map of declared type, so use
-      // generic Map here and cast to PropType of a Map<string, string>.
-      // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
       type: Map as PropType<Map<string, string>>,
       required: true,
     },
@@ -61,12 +62,10 @@ export default defineComponent({
      */
     updateDisplayedProperties(): void {
       this.displayedProperties.clear();
-      const featurePropertiesToDisplay =
-        Array.from(this.featurePropertyLabelMap.entries());
 
-      for (let entry of featurePropertiesToDisplay) {
-        const featurePropertyKey = entry[0];
-        const label = entry[1];
+      for (let entry of this.featureProperties) {
+        const featurePropertyKey = entry.name;
+        const label = entry.label;
         const propertyValue = this.properties.get(featurePropertyKey) ?? '';
 
         this.displayedProperties.set(label, propertyValue);
