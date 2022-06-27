@@ -14,6 +14,8 @@ const Batch = require('stream-json/utils/Batch');
 
 const S3 = new AWS.S3();
 
+// Schema name where table lives.
+const SCHEMA = 'public';
 // Number of rows to write at once.
 const BATCH_SIZE = 5;
 // Default number of rows to insert in total. This is the number of rows in each file.
@@ -32,7 +34,7 @@ async function insertBatch(
     database: process.env.DATABASE_NAME ?? 'postgres',
     parameterSets: rows,
     resourceArn: process.env.RESOURCE_ARN ?? '',
-    schema: 'public',
+    schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO demographics (census_geo_id, census_block_name,
                                     total_population,
@@ -68,7 +70,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
 
   return (
     new DemographicsTableRowBuilder()
-      .censusGeoId(properties.GEOID)
+      .censusGeoId(properties.GEOID.toString())
       .name(properties.NAME)
       .underFivePopulation(getValueOrDefault(properties.age_under5))
       .povertyPopulation(getValueOrDefault(properties.PovertyTot))
@@ -169,7 +171,7 @@ async function handleEndOfFilestream(promises: Promise<BatchExecuteStatementResp
   console.log(`Number errors during insert: ${errors.length}`);
 
   // Log all the rejected promises to diagnose issues.
-  errors.forEach((error) => console.log(error.reason));
+  errors.forEach((error) => console.log(`Insert error: ${error}`));
 }
 
 
@@ -300,7 +302,7 @@ class DemographicsTableRowBuilder {
     return [
       {
         name: 'census_geo_id',
-        value: { stringValue: this._row.census_geo_id.toString() },
+        value: { stringValue: this._row.census_geo_id },
       },
       {
         name: 'census_block_name',
