@@ -11,17 +11,17 @@ const TABLE_NAME = 'public.demographics';
  */
 const LEGEND_COLOR_MAPPING = [
   0,
-  '#9fcd7c',
-  10000,
-  '#f7e5af',
-  25000,
-  '#f9bd64',
-  50000,
-  '#f4a163',
-  100000,
-  '#ff5934',
-  150000,
-  '#d73819',
+  '#ECE5FF',
+  800,
+  '#D8CCFF',
+  1200,
+  '#B299FF',
+  1700,
+  '#9E80FF',
+  2200,
+  '#8B66FF',
+  2700,
+  '#774DFF',
 ];
 
 /**
@@ -56,6 +56,7 @@ export const styleLayer: FillLayer = {
       legendInterpolation,
     ],
     'fill-opacity': 0.75,
+    'fill-outline-color': '#6433FF',
   },
   layout: {
     // Make the layer hidden by default.
@@ -63,7 +64,7 @@ export const styleLayer: FillLayer = {
   },
 };
 
-// TODO change to percentage when we are using function sources.
+// TODO(kailamjeter): change to percentage when we are using function sources.
 const popupInfo: PopupInfo = {
   title: 'Census block',
   subtitle: 'ACS Census block data',
@@ -86,7 +87,7 @@ export const populationDataByCensusBlockLayer: TileDataLayer = {
     tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
   },
   id: ID,
-  name: 'Population by census block',
+  name: 'Population',
   legendInfo: legendInfo,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
