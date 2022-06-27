@@ -50,12 +50,15 @@ const styleLayer: FillLayer = {
   },
 };
 
+// TODO: replace with actual popup values.
 const popupInfo: PopupInfo = {
   title: 'County',
   subtitle: '320 estimated lead service lines',
   detailsTitle: 'Lead & Copper Rule Violations',
-  featurePropertyLabelMap: new Map<string, string>(
-    [['Lead and Copper Rule', 'Lead & Copper Rule Violations']]),
+  featureProperties:
+    [
+      { label: 'Lead & Copper Rule Violations', name: 'Lead and Copper Rule' },
+    ],
 };
 
 export const leadAndCopperViolationsByCountyDataLayer: GeoJsonDataLayer = {
