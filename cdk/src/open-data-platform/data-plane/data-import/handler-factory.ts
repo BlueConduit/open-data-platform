@@ -67,26 +67,31 @@ export const geoJsonHandlerFactory = (
 
       pipeline
         .on('data', async (rows: any[]) => {
+          const id = bactchId++;
           // Skip rows up to offset.
           if (skippedRowCount + batchSize <= rowOffset) {
             skippedRowCount += batchSize;
             console.log(
-              `batch${bactchId}: Skipping batch of ${rows.length} rows. ${skippedRowCount}/${rowOffset} offset rows have been skipped so far.`,
+              `batch${id}: Skipping batch of ${rows.length} rows. ${skippedRowCount}/${rowOffset} offset rows have been skipped so far.`,
             );
             return;
           }
 
-          console.log(`batch${bactchId}:Processing batch of ${rows.length} rows.`);
+          console.log(`batch${id}:Processing batch of ${rows.length} rows.`);
           const promise = callback(rows, db);
           // TODO: send these rows to a dead letter queue to be re-processed.
           promise.catch((reason) =>
-            console.log(`batch${bactchId}: Rows failed to insert:`, rows, reason),
+            console.log(
+              `batch${id}: Rows failed to insert:`,
+              reason,
+              rows.map((r) => r.value?.properties),
+            ),
           ); // Supress unhandled rejections here.
           promises.push(promise);
           try {
             await promise;
             processedRowCount += rows.length;
-            console.log(`batch${bactchId}: ${processedRowCount} rows have been processed so far.`);
+            console.log(`batch${id}: ${processedRowCount} rows have been processed so far.`);
           } catch (error) {
             // Error will be caught in aggregate.
           }
@@ -94,7 +99,7 @@ export const geoJsonHandlerFactory = (
           // This check is done at the end because it doesn't know how many rows are currently
           // being processed in parallel.
           if (processedRowCount > rowLimit) {
-            console.log(`batch${bactchId}: Stopping after passing row limit:`, rowLimit);
+            console.log(`batch${id}: Stopping after passing row limit:`, rowLimit);
             pipeline.destroy();
             return;
           }

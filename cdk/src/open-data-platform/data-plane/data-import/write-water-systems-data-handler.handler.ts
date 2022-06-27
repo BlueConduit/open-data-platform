@@ -3,6 +3,7 @@ import { RDSDataService } from 'aws-sdk';
 import { BatchExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 import { geoJsonHandlerFactory } from './handler-factory';
 
+// As of 2022-06-27, this should have 26010 rows.
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata',
   Key: 'pwsid_lead_connections_even_smaller.geojson',
