@@ -241,6 +241,12 @@ export default defineComponent({
       this.setDataLayerVisibility(newLayer, true);
     },
   },
+
+  events: {
+    dataLoaded: function () {
+      // logic
+    },
+  },
 });
 </script>
 

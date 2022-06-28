@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, provide, reactive } from 'vue';
+import { defineComponent, onMounted, provide, reactive } from 'vue';
 import '@blueconduit/copper/dist/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
 import { State } from './model/state';
@@ -24,20 +24,20 @@ export default defineComponent({
     // Create and provide default state. This is updated once API data is fetched.
     const state = reactive(new State([]));
 
+    onMounted(() => {
+      console.log('on mounted');
+      const dataLayers = [leadServiceLinesByWaterSystemLayer, leadAndCopperViolationsByCountyDataLayer];
+
+      state.currentDataLayer = dataLayers[0];
+      state.dataLayers = dataLayers;
+
+    });
+
     provide(stateKey, state);
 
     return {
       state,
     };
-  },
-  mounted() {
-    // Fetch data needed to render data layers and update state.
-    if (this.state != null) {
-      const dataLayers = [leadServiceLinesByWaterSystemLayer, leadAndCopperViolationsByCountyDataLayer];
-
-      this.state.currentDataLayer = dataLayers[0];
-      this.state.dataLayers = dataLayers;
-    }
   },
 });
 
