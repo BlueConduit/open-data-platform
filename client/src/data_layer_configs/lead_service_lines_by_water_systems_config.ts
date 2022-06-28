@@ -38,6 +38,7 @@ const LEGEND_COLOR_MAPPING = [
 const leadConnectionLegendInterpolation = [
   'interpolate',
   ['linear'],
+  // Provides ratio of lead service lines : total service lines.
   ['/', ['get', 'lead_connections_count'], ['get', 'service_connections_count']],
   ...LEGEND_COLOR_MAPPING,
 ];

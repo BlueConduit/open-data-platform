@@ -41,6 +41,10 @@ export default defineComponent({
     };
   },
   computed: {
+    /**
+     * Represents the current layer that should be shown based on the url
+     * query parameter.
+     */
     routerLayer () {
       return router.currentRoute.value.query.layer ?? null;
     }
@@ -105,9 +109,7 @@ export default defineComponent({
      */
     updateMapOnDataLayerChange(newDataLayer: DataLayer | null, oldDataLayer: DataLayer | null): void {
       if (this.map == null) {
-        const source = newDataLayer?.source;
-        const dataLoaded = source?.type == DataSourceType.Vector && source?.tiles != null;
-        if (dataLoaded) {
+        if (newDataLayer?.source?.tiles != null) {
           this.createMap();
         }
       } else {

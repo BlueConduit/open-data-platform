@@ -1,4 +1,4 @@
-import { AnyLayer, AnySourceData, GeoJSONSourceRaw, VectorSource } from 'mapbox-gl';
+import { AnyLayer, AnySourceData, VectorSource } from 'mapbox-gl';
 
 /**
  * A data layer on the map.
@@ -29,14 +29,6 @@ export interface DataLayer {
 export interface TileDataLayer extends DataLayer {
   // The endpoint to the tileserver.
   source: VectorSource;
-}
-
-/**
- * Data layers where the source is a geoJSON file,
- */
-export interface GeoJsonDataLayer extends DataLayer {
-  // The GeoJSON file in the S3 bucket
-  source: GeoJSONSourceRaw;
 }
 
 /**
