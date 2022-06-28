@@ -1,4 +1,10 @@
-import { DataLayer, DataSourceType, LegendInfo, PopupInfo } from '@/model/data_layer';
+import {
+  DataLayer,
+  DataSourceType,
+  FeaturePropertyDataType,
+  LegendInfo,
+  PopupInfo,
+} from '@/model/data_layer';
 import { Expression, FillLayer } from 'mapbox-gl';
 import { colorMapToBuckets } from '@/util/data_layer_util';
 
@@ -65,10 +71,13 @@ const popupInfo: PopupInfo = {
   title: 'County',
   subtitle: '320 estimated lead service lines',
   detailsTitle: 'Lead & Copper Rule Violations',
-  featureProperties:
-    [
-      { label: 'Lead & Copper Rule Violations', name: 'Lead and Copper Rule' },
-    ],
+  featureProperties: [
+    {
+      label: 'Lead & Copper Rule Violations',
+      name: 'Lead and Copper Rule',
+      dataType: FeaturePropertyDataType.Number,
+    },
+  ],
 };
 
 export const populationByCountyDataLayer: DataLayer = {

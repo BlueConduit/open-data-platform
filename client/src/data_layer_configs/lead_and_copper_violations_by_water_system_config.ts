@@ -1,4 +1,10 @@
-import { DataSourceType, LegendInfo, PopupInfo, TileDataLayer } from '@/model/data_layer';
+import {
+  DataSourceType,
+  FeaturePropertyDataType,
+  LegendInfo,
+  PopupInfo,
+  TileDataLayer,
+} from '@/model/data_layer';
 import { Expression, FillLayer } from 'mapbox-gl';
 import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
@@ -60,6 +66,7 @@ const popupInfo: PopupInfo = {
     {
       label: 'Lead & Copper Rule Violations Per Service Line',
       name: 'violations_per_service_line',
+      dataType: FeaturePropertyDataType.Number,
     },
   ],
 };

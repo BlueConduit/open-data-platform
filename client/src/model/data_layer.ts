@@ -69,6 +69,8 @@ export interface FeatureProperty {
   label: string;
   // Name of this feature property.
   name: string;
+  /// Type of data to configure parsing
+  dataType: FeaturePropertyDataType;
 }
 
 /**
@@ -79,4 +81,15 @@ export enum DataSourceType {
   Unknown = 'unknown',
   GeoJson = 'geojson',
   Vector = 'vector',
+}
+
+/**
+ * Type for a feature property to determine how to parse it.
+ */
+export enum FeaturePropertyDataType {
+  Unknown = 'unknown',
+  String = 'string',
+  Number = 'number',
+  Date = 'date',
+  Address = 'address',
 }

@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
-import { FeatureProperty } from '../model/data_layer';
+import { FeatureProperty, FeaturePropertyDataType } from '../model/data_layer';
 
 /**
  * Map popup component.
@@ -64,9 +64,24 @@ export default defineComponent({
       this.displayedProperties.clear();
 
       for (let entry of this.featureProperties) {
+        console.log(this.featureProperties);
         const featurePropertyKey = entry.name;
         const label = entry.label;
-        const propertyValue = this.properties.get(featurePropertyKey) ?? '';
+        let propertyValue = this.properties.get(featurePropertyKey);
+        switch(entry.dataType) {
+          case FeaturePropertyDataType.String: {
+            propertyValue = propertyValue ?? '';
+            break;
+          }
+          case FeaturePropertyDataType.Number: {
+            propertyValue = parseFloat(propertyValue ?? '0').toLocaleString() ;
+            break;
+          }
+          default: {
+            propertyValue = propertyValue ?? 'N/A';
+            break;
+          }
+        }
 
         this.displayedProperties.set(label, propertyValue);
       }

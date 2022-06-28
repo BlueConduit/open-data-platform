@@ -1,4 +1,10 @@
-import { DataSourceType, LegendInfo, PopupInfo, TileDataLayer } from '@/model/data_layer';
+import {
+  DataSourceType,
+  FeaturePropertyDataType,
+  LegendInfo,
+  PopupInfo,
+  TileDataLayer,
+} from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
@@ -67,10 +73,26 @@ const popupInfo: PopupInfo = {
   subtitle: 'Estimated lead service lines',
   detailsTitle: 'Water system information',
   featureProperties: [
-    { label: 'Number of lead connections', name: 'lead_connections_count' },
-    { label: 'Number of service lines', name: 'service_connections_count' },
-    { label: 'Population served by water system', name: 'population_served' },
-    { label: 'EPA identifier for water system', name: 'pws_id' },
+    {
+      label: 'Number of lead connections',
+      name: 'lead_connections_count',
+      dataType: FeaturePropertyDataType.Number,
+    },
+    {
+      label: 'Number of service lines',
+      name: 'service_connections_count',
+      dataType: FeaturePropertyDataType.Number,
+    },
+    {
+      label: 'Population served by water system',
+      name: 'population_served',
+      dataType: FeaturePropertyDataType.Number,
+    },
+    {
+      label: 'EPA identifier for water system',
+      name: 'pws_id',
+      dataType: FeaturePropertyDataType.String,
+    },
   ],
 };
 
