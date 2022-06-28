@@ -94,11 +94,12 @@ export class DataImportStack extends Construct {
       environment: {
         CREDENTIALS_SECRET: credentialsSecret.secretArn,
         DATABASE_NAME: db,
+        RESOURCE_ARN: cluster.clusterArn,
       },
       timeout: Duration.minutes(5),
       bundling: {
         externalModules: ['aws-sdk'],
-        nodeModules: ['stream-json', '@databases/pg', 'stream-chain'],
+        nodeModules: ['stream-json', 'stream-chain'],
       },
     });
 

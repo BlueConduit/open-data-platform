@@ -9,10 +9,10 @@ import NavigationBar from './components/NavigationBar.vue';
 import { DataLayer, DataSourceType } from './model/data_layer';
 import { State } from './model/state';
 import axios from 'axios';
-import { populationByCountyDataLayer } from './data_layer_configs/population_by_county_config';
 import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_county_config';
 import { stateKey } from './injection_keys';
 import { leadServiceLinesByWaterSystemLayer } from './data_layer_configs/water_systems_config';
+import { populationDataByCensusBlockLayer } from './data_layer_configs/population_by_census_block_config';
 
 // Base URL for REST API in Amazon API Gateway.
 // See https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-call-api.html.
@@ -36,7 +36,11 @@ export default defineComponent({
   async mounted() {
     // Fetch data needed to render data layers and update state.
     if (this.state != null) {
-      const dataLayers = [leadServiceLinesByWaterSystemLayer, leadAndCopperViolationsByCountyDataLayer, populationByCountyDataLayer];
+      const dataLayers = [
+        leadServiceLinesByWaterSystemLayer,
+        leadAndCopperViolationsByCountyDataLayer,
+        populationDataByCensusBlockLayer,
+      ];
       await this.fetchInitialData(dataLayers);
 
       this.state.currentDataLayer = dataLayers[0];
