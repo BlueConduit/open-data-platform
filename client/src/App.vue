@@ -12,6 +12,8 @@ import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/l
 import { leadServiceLinesByWaterSystemLayer } from './data_layer_configs/lead_service_lines_by_water_systems_config';
 import { stateKey } from './injection_keys';
 
+const DATA_LAYERS = [leadServiceLinesByWaterSystemLayer, leadAndCopperViolationsByCountyDataLayer];
+
 // Base URL for REST API in Amazon API Gateway.
 // See https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-call-api.html.
 
@@ -23,15 +25,8 @@ export default defineComponent({
   setup() {
     // Create and provide default state. This is updated once API data is fetched.
     const state = reactive(new State([]));
-
-    onMounted(() => {
-      console.log('on mounted');
-      const dataLayers = [leadServiceLinesByWaterSystemLayer, leadAndCopperViolationsByCountyDataLayer];
-
-      state.currentDataLayer = dataLayers[0];
-      state.dataLayers = dataLayers;
-
-    });
+    state.currentDataLayer = DATA_LAYERS[0];
+    state.dataLayers = DATA_LAYERS;
 
     provide(stateKey, state);
 

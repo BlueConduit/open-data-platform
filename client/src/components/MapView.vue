@@ -14,7 +14,6 @@ import { stateKey } from '../injection_keys';
 import { DataLayer, DataSourceType, FeatureProperty } from '../model/data_layer';
 import router from '../router';
 
-
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
 const POPUP_CONTENT_BASE_ID = 'popup-content';
@@ -232,6 +231,10 @@ export default defineComponent({
         console.log('Error: ', err);
       }
     },
+  },
+  mounted() {
+    // Show current data layer on init.
+    this.updateMapOnDataLayerChange(this.state.currentDataLayer, null);
   },
   watch: {
     'state.currentDataLayer': function(newDataLayer: DataLayer, oldDataLayer: DataLayer) {
