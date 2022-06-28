@@ -98,9 +98,10 @@ const readGeoJsonFile = (
   batchSize: number,
 ): Promise<ImportResult> =>
   new Promise((resolve, reject) => {
-    let batchId = 0;
-    let processedRowCount = 0;
-    let skippedRowCount = 0;
+    let batchId = 0; // Not-necessarily-sequential ID used to group logs.
+    let processedRowCount = 0; // Number of rows processed, either successfully or with errors.
+    let skippedRowCount = 0; // Number of rows skipped due to offset.
+    let inProcessRowCount = 0; // Number of rows currently being proccessed.
 
     console.log('Starting to process file in S3:', s3Params);
 
@@ -130,6 +131,18 @@ const readGeoJsonFile = (
           return;
         }
 
+        // Stop reading stream if proccessing this batch would exceed number of rows to write.
+        inProcessRowCount += rows.length;
+        if (processedRowCount + inProcessRowCount >= rowLimit) {
+          console.log(
+            `${id}: Stopping processing after` +
+              ` ${processedRowCount} rows proccessed + ${inProcessRowCount} rows in progress` +
+              ` >= ${rowLimit} limit`,
+          );
+          pipeline.destroy();
+          return;
+        }
+
         // Start processing the row.
         console.log(`${id}: Processing batch of ${rows.length} rows.`);
         const promise = callback(rows, db);
@@ -154,20 +167,11 @@ const readGeoJsonFile = (
           console.log(`${id}: ${processedRowCount} rows have been processed so far.`);
         } catch (error) {
           // Handle in the promise.
-        }
-
-        // Stop reading stream if this would exceed number of rows to write.
-        // This check is done at the end because it doesn't know how many rows are currently
-        // being processed in parallel.
-        if (processedRowCount > rowLimit) {
-          console.log(`${id}: Stopping after passing row limit:`, rowLimit);
-          pipeline.destroy();
-          return;
+        } finally {
+          inProcessRowCount -= rows.length;
         }
       })
-      .on('error', (error: Error) => {
-        reject(error);
-      })
+      .on('error', (error: Error) => reject(error))
       // Gets called by pipeline.destroy()
       .on('close', async (_: Error) => resolve(await handleEndOfFilestream(promises)))
       .on('end', async () => resolve(await handleEndOfFilestream(promises)));

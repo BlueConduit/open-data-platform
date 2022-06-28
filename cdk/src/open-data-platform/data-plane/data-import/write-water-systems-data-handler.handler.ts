@@ -90,7 +90,7 @@ class WaterSystemsTableRowBuilder {
     return [
       {
         name: 'pws_id',
-        value: { stringValue: this._row.pws_id }, // FIGURE OUT WHY THIS IS EMPTY
+        value: { stringValue: this._row.pws_id },
       },
       {
         name: 'pws_name',
