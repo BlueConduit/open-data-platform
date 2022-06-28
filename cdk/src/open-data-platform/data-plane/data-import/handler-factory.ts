@@ -8,21 +8,21 @@ const { streamArray } = require('stream-json/streamers/StreamArray');
 const Batch = require('stream-json/utils/Batch');
 const Pick = require('stream-json/filters/Pick');
 
-export interface ImportRequest {
+export interface ProcessRequest {
   rowOffset?: number;
   rowLimit?: number;
   batchSize?: number;
 }
 
-interface ImportResult {
+interface ProcessResult {
   processedBatchCount: number;
   sucessfulBatchCount: number;
   erroredBatchCount: number;
 }
 
 // These are defined here because the geoJsonHandlerFactory function signature was unreadable.
-type ImportCallback = (rows: any[], db: AWS.RDSDataService) => Promise<void>;
-type ImportHandler = (event: ImportRequest) => Promise<APIGatewayProxyResult>;
+type ProcessCallback = (rows: any[], db: AWS.RDSDataService) => Promise<void>;
+type ProcessHandler = (event: ProcessRequest) => Promise<APIGatewayProxyResult>;
 
 const S3 = new AWS.S3();
 
@@ -32,8 +32,8 @@ const S3 = new AWS.S3();
  * The callback takes in a set of rows and should insert them into the DB using the provided db
  * instance.
  *
- * You can invoke the lambda via the web console and provide an ImportRequest to skip a set of rows
- * or limit the import to a max number. The lambda will attempt to honor the limit, but it may
+ * You can invoke the lambda via the web console and provide an ProcessRequest to skip a set of rows
+ * or limit the process to a max number. The lambda will attempt to honor the limit, but it may
  * exceed it due to how it proccesses rows in parallel. Example:
  *
  * {
@@ -47,8 +47,8 @@ const S3 = new AWS.S3();
  * @returns
  */
 export const geoJsonHandlerFactory =
-  (s3Params: AWS.S3.GetObjectRequest, callback: ImportCallback): ImportHandler =>
-  async (event: ImportRequest): Promise<APIGatewayProxyResult> => {
+  (s3Params: AWS.S3.GetObjectRequest, callback: ProcessCallback): ProcessHandler =>
+  async (event: ProcessRequest): Promise<APIGatewayProxyResult> => {
     // Use arguments or defaults.
     const rowOffset = event.rowOffset ?? 0;
     const rowLimit = event.rowLimit ?? Infinity;
@@ -56,7 +56,7 @@ export const geoJsonHandlerFactory =
     console.log('Starting import:', { rowLimit, rowOffset, batchSize, s3Params });
 
     const db = new AWS.RDSDataService();
-    let results: ImportResult = {
+    let results: ProcessResult = {
       processedBatchCount: 0,
       sucessfulBatchCount: 0,
       erroredBatchCount: 0,
@@ -96,7 +96,7 @@ const readGeoJsonFile = (
   rowOffset: number,
   rowLimit: number,
   batchSize: number,
-): Promise<ImportResult> =>
+): Promise<ProcessResult> =>
   new Promise((resolve, reject) => {
     let batchId = 0; // Not-necessarily-sequential ID used to group logs.
     let processedRowCount = 0; // Number of rows processed, either successfully or with errors.
@@ -178,15 +178,15 @@ const readGeoJsonFile = (
   });
 
 /**
- * Logs number and details of errors that occurred for all inserts.
+ * Logs number and details of errors that occurred for all rows.
  * @param promises of SQL executions.
  */
-const handleEndOfFilestream = async (promises: Promise<any>[]): Promise<ImportResult> => {
+const handleEndOfFilestream = async (promises: Promise<any>[]): Promise<ProcessResult> => {
   // Unlike Promise.all(), which rejects when a single promise rejects, Promise.allSettled
   // allows all promises to finish regardless of status and aggregated the results.
   const result = await Promise.allSettled(promises);
   const errors = result.filter((p) => p.status == 'rejected') as PromiseRejectedResult[];
-  console.log(`Number errors during insert: ${errors.length}`);
+  console.log(`Number errors during processing: ${errors.length}`);
 
   // Log all the rejected promises to diagnose issues.
   errors.forEach((error) => console.log('Failed to process row:', error.reason));
