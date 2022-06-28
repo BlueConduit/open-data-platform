@@ -64,7 +64,7 @@ export const styleLayer: FillLayer = {
   },
 };
 
-// TODO(kailamjeter): finalize fields formatting and remove excess content.
+// TODO(kailamjeter): finalize content https://app.shortcut.com/blueconduit/story/5682/cleanup-fe.
 const popupInfo: PopupInfo = {
   title: 'Census block',
   subtitle: 'ACS Census block data',
