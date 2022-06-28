@@ -237,19 +237,15 @@ export default defineComponent({
     this.updateMapOnDataLayerChange(this.state.currentDataLayer, null);
   },
   watch: {
+    // Listens to app state to toggle layers.
     'state.currentDataLayer': function(newDataLayer: DataLayer, oldDataLayer: DataLayer) {
       this.updateMapOnDataLayerChange(newDataLayer, oldDataLayer);
     },
+    // Listens to query param to toggle layers.
     'routerLayer': function(newLayer: string) {
       this.setDataLayerVisibility(newLayer, true);
     },
-  },
-
-  events: {
-    dataLoaded: function () {
-      // logic
-    },
-  },
+  }
 });
 </script>
 

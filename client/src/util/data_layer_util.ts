@@ -24,5 +24,7 @@ const LOCALHOST = 'localhost';
  * Returns location.hostname unless app is being run locally.
  */
 export function tileServerHost() {
-  return location.hostname == LOCALHOST ? 'd1u8e52u3wqvp1.cloudfront.net' : location.hostname;
+  return location.hostname == LOCALHOST
+    ? process.env.VUE_APP_DEFAULT_TILESERVER_HOST
+    : location.hostname;
 }
