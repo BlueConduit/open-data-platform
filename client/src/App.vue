@@ -10,9 +10,10 @@ import { State } from './model/state';
 
 import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_water_system_config';
 import { leadServiceLinesByWaterSystemLayer } from './data_layer_configs/lead_service_lines_by_water_systems_config';
+import { populationDataByCensusBlockLayer } from './data_layer_configs/population_by_census_block_config';
 import { stateKey } from './injection_keys';
 
-const DATA_LAYERS = [leadServiceLinesByWaterSystemLayer, leadAndCopperViolationsByCountyDataLayer];
+const DATA_LAYERS = [leadServiceLinesByWaterSystemLayer, leadAndCopperViolationsByCountyDataLayer, populationDataByCensusBlockLayer];
 
 // Base URL for REST API in Amazon API Gateway.
 // See https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-call-api.html.

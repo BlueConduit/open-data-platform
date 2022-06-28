@@ -258,8 +258,10 @@ export default defineComponent({
 
 .mapboxgl-popup-content {
   border-radius: 8px;
-  width: 258px;
-  height: 256px;
+  min-width: 258px;
+  width: fit-content;
+  min-height: 256px;
+  height: fit-content;
   padding: 18px;
 }
 
