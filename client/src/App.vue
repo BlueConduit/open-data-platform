@@ -39,7 +39,6 @@ export default defineComponent({
       const dataLayers = [
         leadServiceLinesByWaterSystemLayer,
         leadAndCopperViolationsByCountyDataLayer,
-        // populationByCountyDataLayer,
         populationDataByCensusBlockLayer,
       ];
       await this.fetchInitialData(dataLayers);
