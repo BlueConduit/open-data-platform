@@ -64,7 +64,7 @@ export const styleLayer: FillLayer = {
   },
 };
 
-// TODO(kailamjeter): change to percentage when we are using function sources.
+// TODO(kailamjeter): finalize fields formatting and remove excess content.
 const popupInfo: PopupInfo = {
   title: 'Census block',
   subtitle: 'ACS Census block data',
