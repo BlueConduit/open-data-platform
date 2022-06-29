@@ -123,6 +123,24 @@ CREATE TABLE IF NOT EXISTS counties (
 
 CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 
+-- States
+
+CREATE TABLE IF NOT EXISTS states(
+    census_geo_id varchar(255) NOT NULL,
+    aff_geo_id varchar(255),
+    name varchar(255),
+    state_fips varchar(255),
+    state_ansi varchar(255),
+    st_usps varchar(255),
+    lsad varchar(255),
+    aland real,
+    awater real,
+    geom GEOMETRY(Geometry, 4326),
+    PRIMARY KEY(census_geo_id)
+    );
+
+CREATE INDEX IF NOT EXISTS geom_index ON states USING GIST (geom);
+
 ----------------------
 -- Roles and Grants --
 ----------------------
