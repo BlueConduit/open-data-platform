@@ -2,13 +2,13 @@ import {
   DataSourceType,
   FeaturePropertyDataType,
   LegendInfo,
+  MapLayer,
   PopupInfo,
   TileDataLayer,
 } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
-const ID: string = 'lead-service-lines';
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 
 /**
@@ -49,8 +49,8 @@ const legendInfo: LegendInfo = {
 };
 
 export const styleLayer: FillLayer = {
-  id: `${ID}-style`,
-  source: ID,
+  id: `${MapLayer.LeadServiceLineByWaterSystem}-style`,
+  source: MapLayer.LeadServiceLineByWaterSystem,
   // Corresponds to the table in the database.
   'source-layer': 'public.water_systems',
   type: 'fill',
@@ -102,7 +102,7 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
     type: DataSourceType.Vector,
     tiles: [`https://${tileServerHost()}/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
   },
-  id: ID,
+  id: MapLayer.LeadServiceLineByWaterSystem,
   name: 'Lead Service Lines',
   legendInfo: legendInfo,
   popupInfo: popupInfo,

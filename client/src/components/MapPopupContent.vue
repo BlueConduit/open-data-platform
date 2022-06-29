@@ -64,7 +64,6 @@ export default defineComponent({
       this.displayedProperties.clear();
 
       for (let entry of this.featureProperties) {
-        console.log(this.featureProperties);
         const featurePropertyKey = entry.name;
         const label = entry.label;
         let propertyValue = this.properties.get(featurePropertyKey);

@@ -71,7 +71,6 @@ export interface FeatureProperty {
  */
 export enum DataSourceType {
   Unknown = 'unknown',
-  GeoJson = 'geojson',
   Vector = 'vector',
 }
 
@@ -84,4 +83,14 @@ export enum FeaturePropertyDataType {
   Number = 'number',
   Date = 'date',
   Address = 'address',
+}
+
+/**
+ * Identifiers for map layers.
+ */
+export enum MapLayer {
+  Unknown = 'unknown',
+  LeadServiceLineByWaterSystem = 'lead-service-lines-by-water-system',
+  LeadAndCopperRuleViolationsByWaterSystem = 'epa-lead-and-copper-violations-by-water-system',
+  PopulationByCensusBlock = 'population-by-census-block',
 }

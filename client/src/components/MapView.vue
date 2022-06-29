@@ -109,7 +109,7 @@ export default defineComponent({
      */
     updateMapOnDataLayerChange(newDataLayer: DataLayer | null, oldDataLayer: DataLayer | null): void {
       if (this.map == null) {
-        if (newDataLayer?.source?.tiles != null) {
+        if (newDataLayer?.source?.type == DataSourceType.Vector && newDataLayer?.source?.tiles != null) {
           this.createMap();
         }
       } else {
@@ -146,8 +146,7 @@ export default defineComponent({
      */
     setUpInteractionHandlers(): void {
       if (this.map == null) return;
-
-      this.state.dataLayers?.forEach(layer => {
+      for (const layer of this.state.dataLayers) {
         // Use MapBox's custom click handler, which takes the style layer that we
         // want to set up a handler for as a parameter.
         this.map?.on('click', layer.styleLayer.id,
@@ -166,7 +165,7 @@ export default defineComponent({
                 });
             }
           });
-      });
+      }
     },
 
     /**
@@ -202,11 +201,10 @@ export default defineComponent({
       if (this.map == null) return;
 
       this.state.map = this.map;
-      this.state.dataLayers?.forEach(layer => {
+      for (const layer of this.state.dataLayers) {
         this.map?.addSource(layer.id, layer.source);
         this.map?.addLayer(layer.styleLayer);
-
-      });
+      }
 
       this.setUpInteractionHandlers();
       this.setUpControls();

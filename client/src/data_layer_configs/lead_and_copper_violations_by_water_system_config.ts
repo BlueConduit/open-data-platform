@@ -2,13 +2,12 @@ import {
   DataSourceType,
   FeaturePropertyDataType,
   LegendInfo,
+  MapLayer,
   PopupInfo,
   TileDataLayer,
 } from '@/model/data_layer';
 import { Expression, FillLayer } from 'mapbox-gl';
 import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
-
-const ID: string = 'epa-lead-and-copper-violations';
 
 const LEGEND_COLOR_MAPPING = [
   0,
@@ -42,8 +41,8 @@ const legendInfo: LegendInfo = {
 };
 
 const styleLayer: FillLayer = {
-  id: `${ID}-style`,
-  source: ID,
+  id: `${MapLayer.LeadAndCopperRuleViolationsByWaterSystem}-style`,
+  source: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   // Corresponds to the table in the database.
   'source-layer': 'public.violation_counts',
   type: 'fill',
@@ -76,7 +75,7 @@ export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
     type: DataSourceType.Vector,
     tiles: [`https://${tileServerHost()}/tiles/v1/public.violation_counts/{z}/{x}/{y}.pbf`],
   },
-  id: ID,
+  id: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   name: 'Lead & Copper Rule Violations',
   legendInfo: legendInfo,
   popupInfo: popupInfo,

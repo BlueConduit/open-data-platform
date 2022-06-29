@@ -1,8 +1,14 @@
-import { DataSourceType, LegendInfo, PopupInfo, TileDataLayer } from '@/model/data_layer';
+import {
+  DataSourceType,
+  FeaturePropertyDataType,
+  LegendInfo,
+  MapLayer,
+  PopupInfo,
+  TileDataLayer,
+} from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
-const ID: string = 'population-by-census-block';
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 const TABLE_NAME = 'public.demographics';
 
@@ -43,8 +49,8 @@ const legendInfo: LegendInfo = {
 };
 
 export const styleLayer: FillLayer = {
-  id: `${ID}-style`,
-  source: ID,
+  id: `${MapLayer.PopulationByCensusBlock}-style`,
+  source: MapLayer.PopulationByCensusBlock,
   // Corresponds to the table in the database.
   'source-layer': TABLE_NAME,
   type: 'fill',
@@ -69,16 +75,39 @@ const popupInfo: PopupInfo = {
   title: 'Census block',
   subtitle: 'ACS Census block data',
   detailsTitle: 'Demographic information',
-  featureProperties:
-    [
-      { label: 'Geographic identifier (GEOID)', name: 'census_geo_id' },
-      { label: 'Block name', name: 'census_block_name' },
-      { label: 'Total population', name: 'total_population' },
-      { label: 'Population under the age of 5', name: 'under_five_population' },
-      { label: 'White population', name: 'white_population' },
-      { label: 'Black population', name: 'black_population' },
-      { label: 'Population in poverty', name: 'poverty_population' },
-    ],
+  featureProperties: [
+    {
+      label: 'Geographic identifier (GEOID)',
+      name: 'census_geo_id',
+      dataType: FeaturePropertyDataType.String,
+    },
+    { label: 'Block name', name: 'census_block_name', dataType: FeaturePropertyDataType.String },
+    {
+      label: 'Total population',
+      name: 'total_population',
+      dataType: FeaturePropertyDataType.Number,
+    },
+    {
+      label: 'Population under the age of 5',
+      name: 'under_five_population',
+      dataType: FeaturePropertyDataType.Number,
+    },
+    {
+      label: 'White population',
+      name: 'white_population',
+      dataType: FeaturePropertyDataType.Number,
+    },
+    {
+      label: 'Black population',
+      name: 'black_population',
+      dataType: FeaturePropertyDataType.Number,
+    },
+    {
+      label: 'Population in poverty',
+      name: 'poverty_population',
+      dataType: FeaturePropertyDataType.Number,
+    },
+  ],
 };
 
 export const populationDataByCensusBlockLayer: TileDataLayer = {
@@ -86,7 +115,7 @@ export const populationDataByCensusBlockLayer: TileDataLayer = {
     type: DataSourceType.Vector,
     tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
   },
-  id: ID,
+  id: MapLayer.PopulationByCensusBlock,
   name: 'Population',
   legendInfo: legendInfo,
   popupInfo: popupInfo,
