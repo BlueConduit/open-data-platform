@@ -111,12 +111,12 @@ CREATE TRIGGER update_last_update_timestamp BEFORE UPDATE ON parcels
 -- Counties
 CREATE TABLE IF NOT EXISTS counties (
     census_geo_id varchar(255) NOT NULL,
-    county_fips varchar(255) NOT NULL,
+    fips varchar(255) NOT NULL,
     state_fips varchar(255) NOT NULL,
-    county_ansi varchar(255) NOT NULL,
+    ansi varchar(255) NOT NULL,
     aff_geo_id varchar(255),
     name varchar(255),
-    name_with_description varchar(255),
+    lsad varchar(255),
     geom geometry(Geometry, 4326),
     PRIMARY KEY (census_geo_id)
 );

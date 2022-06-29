@@ -9,37 +9,36 @@ export class CountiesTableRow {
   // Federal geo-identifier.
   census_geo_id: string;
   // County FIPS code.
-  county_fips: string;
+  fips: string;
   // State FIPS code.
   state_fips: string;
   // ANSI code.
-  county_ansi: string;
+  ansi: string;
   // American FactFinder summary level code + geovariant code + '00US' + GEOID.
   aff_geo_id: string;
   // Name of the county.
   name: string;
-  // The current name of the county or equivalent entity, along with the
-  // associated legal/statistical area description (county, parish, borough, etc).
-  name_with_description: string;
+  // Current legal/statistical area description code for state.
+  lsad: string;
   // GeoJSON representation of the boundaries.
   geom: string;
 
   constructor(
     census_geo_id: string,
-    county_fips: string,
+    fips: string,
     state_fips: string,
-    county_ansi: string,
+    ansi: string,
     aff_geo_id: string,
     name: string,
-    name_with_description: string,
+    lsad: string,
     geom: string,
   ) {
     this.census_geo_id = census_geo_id;
-    this.county_fips = county_fips;
+    this.fips = fips;
     this.state_fips = state_fips;
-    this.county_ansi = county_ansi;
+    this.ansi = ansi;
     this.aff_geo_id = aff_geo_id;
-    this.name_with_description = name_with_description;
+    this.lsad = lsad;
     this.geom = geom;
   }
 }
@@ -59,8 +58,8 @@ export class CountiesTableRowBuilder {
     return this;
   }
 
-  countyFips(countyFips: string): CountiesTableRowBuilder {
-    this._row.county_fips = countyFips;
+  fips(fips: string): CountiesTableRowBuilder {
+    this._row.fips = fips;
     return this;
   }
 
@@ -69,8 +68,8 @@ export class CountiesTableRowBuilder {
     return this;
   }
 
-  countyAnsi(countyAnsi: string): CountiesTableRowBuilder {
-    this._row.county_ansi = countyAnsi;
+  ansi(ansi: string): CountiesTableRowBuilder {
+    this._row.ansi = ansi;
     return this;
   }
 
@@ -84,8 +83,8 @@ export class CountiesTableRowBuilder {
     return this;
   }
 
-  nameWithDescription(nameWithDescription: string): CountiesTableRowBuilder {
-    this._row.name_with_description = nameWithDescription;
+  lsad(lsad: string): CountiesTableRowBuilder {
+    this._row.lsad = lsad;
     return this;
   }
 
@@ -101,16 +100,16 @@ export class CountiesTableRowBuilder {
         value: { stringValue: this._row.census_geo_id },
       },
       {
-        name: 'county_fips',
-        value: { stringValue: this._row.county_fips },
+        name: 'gips',
+        value: { stringValue: this._row.fips },
       },
       {
         name: 'state_fips',
         value: { stringValue: this._row.state_fips },
       },
       {
-        name: 'county_ansi',
-        value: { stringValue: this._row.county_ansi },
+        name: 'ansi',
+        value: { stringValue: this._row.ansi },
       },
       {
         name: 'aff_geo_id',
@@ -121,8 +120,8 @@ export class CountiesTableRowBuilder {
         value: { stringValue: this._row.name },
       },
       {
-        name: 'name_with_description',
-        value: { stringValue: this._row.name_with_description },
+        name: 'lsad',
+        value: { stringValue: this._row.lsad },
       },
       {
         name: 'geom',

@@ -27,20 +27,20 @@ async function insertBatch(
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO counties (census_geo_id,
-                                     county_fips,
+                                     fips,
                                      state_fips,
-                                     county_ansi,
+                                     ansi,
                                      aff_geo_id,
                                      name,
-                                     name_with_description,
+                                     lsad,
                                      geom)
           VALUES (:census_geo_id,
-                  :county_fips,
+                  :fips,
                   :state_fips,
-                  :county_ansi,
+                  :ansi,
                   :aff_geo_id,
                   :name,
-                  :name_with_description,
+                  :lsad,
                   ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (census_geo_id) DO NOTHING`,
   };
   return rdsService.batchExecuteStatement(batchExecuteParams).promise();
@@ -57,12 +57,12 @@ function getTableRowFromRow(row: any): SqlParametersList {
   return (
     new CountiesTableRowBuilder()
       .censusGeoId(properties.GEOID)
-      .countyFips(properties.COUNTYFP)
+      .fips(properties.COUNTYFP)
       .stateFips(properties.STATEFP)
       .affGeoId(properties.AFFGEOID ?? '')
-      .countyAnsi(properties.COUNTYNS)
+      .ansi(properties.COUNTYNS)
       .name(properties.NAME)
-      .nameWithDescription(properties.NAMELSAD)
+      .lsad(properties.LSAD)
       // Keep JSON formatting. Post-GIS helpers depend on this.
       .geom(JSON.stringify(value.geometry))
       .build()
