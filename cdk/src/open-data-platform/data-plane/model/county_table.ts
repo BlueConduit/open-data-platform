@@ -74,8 +74,8 @@ export class CountiesTableRowBuilder {
     return this;
   }
 
-  affGeoId(addGeoId: string): CountiesTableRowBuilder {
-    this._row.aff_geo_id = addGeoId;
+  affGeoId(affGeoId: string): CountiesTableRowBuilder {
+    this._row.aff_geo_id = affGeoId;
     return this;
   }
 
