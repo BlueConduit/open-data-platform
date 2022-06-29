@@ -1,6 +1,5 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import { AnyLengthString } from 'aws-sdk/clients/comprehendmedical';
 
 // These libraries don't have types, so they are imported in a different way.
 const { chain } = require('stream-chain');
