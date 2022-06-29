@@ -60,6 +60,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
       .countyFips(properties.COUNTYFP)
       .stateFips(properties.STATEFP)
       .affGeoId(properties.AFFGEOID ?? '')
+      .countyAnsi(properties.COUNTYNS)
       .name(properties.NAME)
       .nameWithDescription(properties.NAMELSAD)
       // Keep JSON formatting. Post-GIS helpers depend on this.
