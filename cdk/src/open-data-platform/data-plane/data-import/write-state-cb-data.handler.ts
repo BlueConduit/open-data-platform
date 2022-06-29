@@ -13,41 +13,43 @@ const SCHEMA = 'public';
 /**
  * Single row for states table.
  */
-class StateRow {
+class StateTableRow {
   // Field formatting conforms to rows in the db. Requires less transformations.
 
-  statefp: string;
-  statens: string;
-  aff_geoid: string;
-  geoid: string;
-  st_usps: string;
+  // Federal geo-identifier.
+  census_geo_id: string;
+  // State FIPS code.
+  fips: string;
+  // State ANSI code.
+  ansi: string;
+  // American FactFinder summary level code + geovariant code + '00US' + GEOID.
+  aff_geo_id: string;
+  // USPS State abbreviation.
+  usps: string;
+  // Name of the state.
   name: string;
+  // Current legal/statistical area description code for state.
   lsad: string;
-  aland: number;
-  awater: number;
+  // GeoJSON representation of the state boundaries.
   geom: string;
 
   constructor(
-    statefp: string,
-    statens: string,
-    aff_geoid: string,
-    geoid: string,
+    census_geo_id: string,
+    state_fips: string,
+    state_ansi: string,
+    aff_geo_id: string,
     st_usps: string,
     name: string,
     lsad: string,
-    aland: number,
-    awater: number,
     geom: string,
   ) {
-    this.statefp = statefp;
-    this.statens = statens;
-    this.aff_geoid = aff_geoid;
-    this.geoid = geoid;
-    this.st_usps = st_usps;
+    this.census_geo_id = census_geo_id;
+    this.fips = state_fips;
+    this.ansi = state_ansi;
+    this.aff_geo_id = aff_geo_id;
+    this.usps = st_usps;
     this.name = name;
     this.lsad = lsad;
-    this.aland = aland;
-    this.awater = awater;
     this.geom = geom;
   }
 }
@@ -55,59 +57,49 @@ class StateRow {
 /**
  * Builder utility for rows of the states table.
  */
-class StateRowBuilder {
-  private readonly _row: StateRow;
+class StateTableRowBuilder {
+  private readonly _row: StateTableRow;
 
   constructor() {
-    this._row = new StateRow('', '', '', '', '', '', '', 0, 0, '');
+    this._row = new StateTableRow('', '', '', '', '', '', '', '');
   }
 
-  statefp(statefp: string): StateRowBuilder {
-    this._row.statefp = statefp;
+  censusGeoId(censusGeoId: string): StateTableRowBuilder {
+    this._row.census_geo_id = censusGeoId;
     return this;
   }
 
-  statens(statens: string): StateRowBuilder {
-    this._row.statens = statens;
+  fips(fips: string): StateTableRowBuilder {
+    this._row.fips = fips;
     return this;
   }
 
-  affGeoid(aff_geoid: string): StateRowBuilder {
-    this._row.aff_geoid = aff_geoid;
+  ansi(ansi: string): StateTableRowBuilder {
+    this._row.ansi = ansi;
     return this;
   }
 
-  geoid(geoid: string): StateRowBuilder {
-    this._row.geoid = geoid;
+  affGeoId(affGeoId: string): StateTableRowBuilder {
+    this._row.aff_geo_id = affGeoId;
     return this;
   }
 
-  stUsps(st_usps: string): StateRowBuilder {
-    this._row.st_usps = st_usps;
+  usps(usps: string): StateTableRowBuilder {
+    this._row.usps = usps;
     return this;
   }
 
-  name(name: string): StateRowBuilder {
+  name(name: string): StateTableRowBuilder {
     this._row.name = name;
     return this;
   }
 
-  lsad(lsad: string): StateRowBuilder {
+  lsad(lsad: string): StateTableRowBuilder {
     this._row.lsad = lsad;
     return this;
   }
 
-  aland(aland: number): StateRowBuilder {
-    this._row.aland = aland;
-    return this;
-  }
-
-  awater(awater: number): StateRowBuilder {
-    this._row.awater = awater;
-    return this;
-  }
-
-  geom(geom: string): StateRowBuilder {
+  geom(geom: string): StateTableRowBuilder {
     this._row.geom = geom;
     return this;
   }
@@ -115,24 +107,24 @@ class StateRowBuilder {
   build(): SqlParametersList {
     return [
       {
-        name: 'statefp',
-        value: { stringValue: this._row.statefp },
+        name: 'census_geo_id',
+        value: { stringValue: this._row.census_geo_id },
       },
       {
-        name: 'statens',
-        value: { stringValue: this._row.statens },
+        name: 'fips',
+        value: { stringValue: this._row.fips },
       },
       {
-        name: 'aff_geoid',
-        value: { stringValue: this._row.aff_geoid },
+        name: 'ansi',
+        value: { stringValue: this._row.ansi },
       },
       {
-        name: 'geoid',
-        value: { stringValue: this._row.geoid },
+        name: 'aff_geo_id',
+        value: { stringValue: this._row.aff_geo_id },
       },
       {
-        name: 'st_usps',
-        value: { stringValue: this._row.st_usps },
+        name: 'usps',
+        value: { stringValue: this._row.usps },
       },
       {
         name: 'name',
@@ -141,14 +133,6 @@ class StateRowBuilder {
       {
         name: 'lsad',
         value: { stringValue: this._row.lsad },
-      },
-      {
-        name: 'aland',
-        value: { doubleValue: this._row.aland },
-      },
-      {
-        name: 'awater',
-        value: { doubleValue: this._row.awater },
       },
       {
         name: 'geom',
@@ -174,54 +158,41 @@ async function insertBatch(
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO states (census_geo_id,
+                              fips,
+                              ansi,
                               aff_geo_id,
+                              usps,
                               name,
-                              state_fips,
-                              state_ansi,
-                              st_usps,
                               lsad,
-                              aland,
-                              awater,
                               geom)
-          VALUES (:geoid,
-                  :aff_geoid,
+          VALUES (:census_geo_id,
+                  :fips,
+                  :ansi,
+                  :aff_geo_id,
+                  :usps,
                   :name,
-                  :statefp,
-                  :statens,
-                  :st_usps,
                   :lsad,
-                  :aland,
-                  :awater,
                   ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (census_geo_id) DO NOTHING`,
   };
   return rdsService.batchExecuteStatement(batchExecuteParams).promise();
 }
 
 /**
- * Sometimes these fields are negative because they are based on a regression.
- */
-function getValueOrDefault(field: string): number {
-  return Math.max(parseFloat(field == 'NaN' || field == null ? '0' : field), 0);
-}
-
-/**
  * Maps a data row to a table row ready to write to the db.
- * @param row: row with all data needed to build a [StateRow].
+ * @param row: row with all data needed to build a [StateTableRow].
  */
 function getTableRowFromRow(row: any): SqlParametersList {
   const value = row.value;
   const properties = value.properties;
   return (
-    new StateRowBuilder()
-      .statefp(properties.STATEFP)
-      .statens(properties.STATENS)
-      .affGeoid(properties.AFFGEOID)
-      .geoid(properties.GEOID)
-      .stUsps(properties.STUSPS)
+    new StateTableRowBuilder()
+      .censusGeoId(properties.GEOID)
+      .fips(properties.STATEFP)
+      .ansi(properties.STATENS)
+      .affGeoId(properties.AFFGEOID ?? '')
+      .usps(properties.STUSPS)
       .name(properties.NAME)
       .lsad(properties.LSAD)
-      .aland(getValueOrDefault(properties.ALAND))
-      .awater(getValueOrDefault(properties.AWATER))
       // Keep JSON formatting. Post-GIS helpers depend on this.
       .geom(JSON.stringify(value.geometry))
       .build()
