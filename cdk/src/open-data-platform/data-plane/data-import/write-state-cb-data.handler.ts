@@ -200,7 +200,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
 }
 
 /**
- * Parses S3 'pwsid_lead_connections_even_smaller.geojson' file and writes rows
+ * Parses S3 'cb_2021_us_state_500k.geojson' file and writes rows
  * to states table in the MainCluster postgres db.
  */
 export const handler = geoJsonHandlerFactory(
