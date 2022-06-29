@@ -35,19 +35,19 @@ class StateTableRow {
 
   constructor(
     census_geo_id: string,
-    state_fips: string,
-    state_ansi: string,
+    fips: string,
+    ansi: string,
     aff_geo_id: string,
-    st_usps: string,
+    usps: string,
     name: string,
     lsad: string,
     geom: string,
   ) {
     this.census_geo_id = census_geo_id;
-    this.fips = state_fips;
-    this.ansi = state_ansi;
+    this.fips = fips;
+    this.ansi = ansi;
     this.aff_geo_id = aff_geo_id;
-    this.usps = st_usps;
+    this.usps = usps;
     this.name = name;
     this.lsad = lsad;
     this.geom = geom;
