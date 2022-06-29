@@ -6,9 +6,9 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { ResourceInitializer } from '../../../resource-initializer';
+import { lambdaFactory } from './lambda_function_factory';
 
-interface SchemaProps {
+export interface SchemaProps {
   cluster: rds.ServerlessCluster;
   vpc: ec2.IVpc;
   db: string;
@@ -20,50 +20,6 @@ export class DataImportStack extends Construct {
     super(scope, id);
 
     const { cluster, vpc, db, credentialsSecret } = props;
-
-    const writeDemographicDataFunction = new lambda.NodejsFunction(
-      this,
-      'write-demographic-data-handler',
-      {
-        entry: `${path.resolve(__dirname)}/write-demographic-data.handler.ts`,
-        handler: 'handler',
-        vpc: vpc,
-        vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
-        environment: {
-          CREDENTIALS_SECRET: credentialsSecret.secretArn,
-          DATABASE_NAME: db,
-          RESOURCE_ARN: cluster.clusterArn,
-        },
-        memorySize: 512,
-        timeout: Duration.minutes(15),
-        bundling: {
-          externalModules: ['aws-sdk'],
-          nodeModules: ['stream-json', 'stream-chain', 'pg', 'pg-format'],
-        },
-      },
-    );
-
-    const writeWaterSystemsDataFunction = new lambda.NodejsFunction(
-      this,
-      'write-water-systems-data-handler',
-      {
-        entry: `${path.resolve(__dirname)}/write-water-systems-data-handler.handler.ts`,
-        handler: 'handler',
-        vpc: vpc,
-        vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
-        environment: {
-          CREDENTIALS_SECRET: credentialsSecret.secretArn,
-          DATABASE_NAME: db,
-          RESOURCE_ARN: cluster.clusterArn,
-        },
-        memorySize: 512,
-        timeout: Duration.minutes(15),
-        bundling: {
-          externalModules: ['aws-sdk'],
-          nodeModules: ['stream-json', 'stream-chain', 'pg', 'pg-format'],
-        },
-      },
-    );
 
     const writeViolationsDataFunction = new lambda.NodejsFunction(
       this,
@@ -86,23 +42,6 @@ export class DataImportStack extends Construct {
       },
     );
 
-    const writeParcelDataFunction = new lambda.NodejsFunction(this, 'write-parcels-data-handler', {
-      entry: `${path.resolve(__dirname)}/write-parcels-data.handler.ts`,
-      handler: 'handler',
-      vpc: vpc,
-      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
-      environment: {
-        CREDENTIALS_SECRET: credentialsSecret.secretArn,
-        DATABASE_NAME: db,
-        RESOURCE_ARN: cluster.clusterArn,
-      },
-      timeout: Duration.minutes(5),
-      bundling: {
-        externalModules: ['aws-sdk'],
-        nodeModules: ['stream-json', 'stream-chain'],
-      },
-    });
-
     // Allow reads to all S3 buckets in account.
     const s3GetObjectPolicy = new iam.PolicyStatement({
       actions: ['s3:GetObject'],
@@ -114,10 +53,11 @@ export class DataImportStack extends Construct {
     });
 
     const lambda_functions: lambda.NodejsFunction[] = [
-      writeDemographicDataFunction,
-      writeWaterSystemsDataFunction,
+      lambdaFactory(this, props, 'write-demographic-data'),
+      lambdaFactory(this, props, 'write-water-systems-data'),
       writeViolationsDataFunction,
-      writeParcelDataFunction,
+      lambdaFactory(this, props, 'write-parcels-data'),
+      lambdaFactory(this, props, 'write-county-data'),
     ];
 
     for (let f of lambda_functions) {
@@ -130,14 +70,6 @@ export class DataImportStack extends Construct {
         let role = iam.Role.fromRoleArn(scope, id + '-' + f, f.role.roleArn);
         cluster.grantDataApiAccess(role);
       }
-    }
-
-    // Import the data on CDK deploy.
-    // TODO: enable this once it is ready to use.
-    if (false) {
-      new ResourceInitializer(this, 'ImportDemographicData', {
-        initFunction: writeDemographicDataFunction,
-      });
     }
   }
 }
