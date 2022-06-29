@@ -10,8 +10,7 @@ new OpenDataPlatformStack(app, util.stackName(util.StackId.Root), {
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 
   // Development account.
-  // TODO: replace with AWSGoogleSandbox account.
   env: { account: '036999211278', region: 'us-east-2' },
 
-  tags: { Project: util.projectName },
+  tags: { Project: util.projectName, Environment: util.getEnv() },
 });
