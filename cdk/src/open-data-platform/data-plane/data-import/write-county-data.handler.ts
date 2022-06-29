@@ -12,7 +12,7 @@ const s3Params = {
 const SCHEMA = 'public';
 
 /**
- *  Writes rows into the water systems table.
+ *  Writes rows into the counties table.
  * @param rdsService: RDS service to connect to the db.
  * @param rows: Rows to write to the db.
  */
@@ -71,7 +71,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
 
 /**
  * Parses S3 'cb_2021_us_county_500k.geojson' file and writes rows
- * to water systems table in the MainCluster postgres db.
+ * to counties table in the MainCluster postgres db.
  */
 export const handler = geoJsonHandlerFactory(
   s3Params,
