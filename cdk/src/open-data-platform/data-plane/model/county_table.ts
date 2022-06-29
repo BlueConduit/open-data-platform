@@ -6,6 +6,7 @@ import { SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 export class CountiesTableRow {
   // Field formatting conforms to rows in the db. Requires less transformations.
 
+  // Federal geo-identifier.
   census_geo_id: string;
   // County FIPS code.
   county_fips: string;
@@ -13,12 +14,12 @@ export class CountiesTableRow {
   state_fips: string;
   // ANSI code.
   county_ansi: string;
-  // American FactFinder summary level code + geovariant code + '00US' + GEOID
+  // American FactFinder summary level code + geovariant code + '00US' + GEOID.
   aff_geo_id: string;
-  // Name of the county
+  // Name of the county.
   name: string;
   // The current name of the county or equivalent entity, along with the
-  // associated legal/statistical area description (county, parish, borough, etc)
+  // associated legal/statistical area description (county, parish, borough, etc).
   name_with_description: string;
   // GeoJSON representation of the boundaries.
   geom: string;

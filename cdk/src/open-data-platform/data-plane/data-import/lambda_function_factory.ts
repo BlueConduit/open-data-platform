@@ -6,6 +6,12 @@ import { Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { SchemaProps } from './data-import-stack';
 
+/**
+ * Produces a lambda function that requires db access to import data.
+ * @param scope: the construct under which to provision resource.
+ * @param props: schema identifiers passed to the function when writing data.
+ * @param id: ID to assign resource.
+ */
 export const lambdaFactory = (
   scope: Construct,
   props: SchemaProps,
