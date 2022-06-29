@@ -100,7 +100,7 @@ export class CountiesTableRowBuilder {
         value: { stringValue: this._row.census_geo_id },
       },
       {
-        name: 'gips',
+        name: 'fips',
         value: { stringValue: this._row.fips },
       },
       {
