@@ -1,8 +1,14 @@
-import { DataSourceType, LegendInfo, PopupInfo, TileDataLayer } from '@/model/data_layer';
+import {
+  DataSourceType,
+  FeaturePropertyDataType,
+  LegendInfo,
+  MapLayer,
+  PopupInfo,
+  TileDataLayer,
+} from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
-const ID: string = 'water-systems';
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 
 /**
@@ -11,15 +17,15 @@ const DEFAULT_NULL_COLOR = '#d3d3d3';
 const LEGEND_COLOR_MAPPING = [
   0,
   '#9fcd7c',
-  10000,
+  0.25,
   '#f7e5af',
-  25000,
+  0.33,
   '#f9bd64',
-  50000,
+  0.5,
   '#f4a163',
-  100000,
+  0.6,
   '#ff5934',
-  150000,
+  0.75,
   '#d73819',
 ];
 
@@ -32,18 +38,19 @@ const LEGEND_COLOR_MAPPING = [
 const leadConnectionLegendInterpolation = [
   'interpolate',
   ['linear'],
-  ['get', 'lead_connections_count'],
+  // Provides ratio of lead service lines : total service lines.
+  ['/', ['get', 'lead_connections_count'], ['get', 'service_connections_count']],
   ...LEGEND_COLOR_MAPPING,
 ];
 
 const legendInfo: LegendInfo = {
-  title: 'Number of lead service lines',
+  title: 'Proportion of lead lines to all service lines',
   bucketMap: colorMapToBuckets(LEGEND_COLOR_MAPPING),
 };
 
 export const styleLayer: FillLayer = {
-  id: `${ID}-style`,
-  source: ID,
+  id: `${MapLayer.LeadServiceLineByWaterSystem}-style`,
+  source: MapLayer.LeadServiceLineByWaterSystem,
   // Corresponds to the table in the database.
   'source-layer': 'public.water_systems',
   type: 'fill',
@@ -66,11 +73,28 @@ const popupInfo: PopupInfo = {
   title: 'Water system',
   subtitle: 'Estimated lead service lines',
   detailsTitle: 'Water system information',
-  featureProperties:
-    [
-      { label: 'Number of lead connections', name: 'lead_connections_count' },
-      { label: 'PWSID', name: 'pws_id' },
-    ],
+  featureProperties: [
+    {
+      label: 'Number of lead connections',
+      name: 'lead_connections_count',
+      dataType: FeaturePropertyDataType.Number,
+    },
+    {
+      label: 'Number of service lines',
+      name: 'service_connections_count',
+      dataType: FeaturePropertyDataType.Number,
+    },
+    {
+      label: 'Population served by water system',
+      name: 'population_served',
+      dataType: FeaturePropertyDataType.Number,
+    },
+    {
+      label: 'EPA identifier for water system',
+      name: 'pws_id',
+      dataType: FeaturePropertyDataType.String,
+    },
+  ],
 };
 
 export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
@@ -78,8 +102,8 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
     type: DataSourceType.Vector,
     tiles: [`https://${tileServerHost()}/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
   },
-  id: ID,
-  name: 'Water systems',
+  id: MapLayer.LeadServiceLineByWaterSystem,
+  name: 'Lead Service Lines',
   legendInfo: legendInfo,
   popupInfo: popupInfo,
   styleLayer: styleLayer,

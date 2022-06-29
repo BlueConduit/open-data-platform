@@ -1,4 +1,4 @@
-import { AnyLayer, AnySourceData, GeoJSONSourceRaw, VectorSource } from 'mapbox-gl';
+import { AnyLayer, AnySourceData, VectorSource } from 'mapbox-gl';
 
 /**
  * A data layer on the map.
@@ -32,14 +32,6 @@ export interface TileDataLayer extends DataLayer {
 }
 
 /**
- * Data layers where the source is a geoJSON file,
- */
-export interface GeoJsonDataLayer extends DataLayer {
-  // The GeoJSON file in the S3 bucket
-  source: GeoJSONSourceRaw;
-}
-
-/**
  * Information to be displayed in the map legend when this layer is visible.
  */
 export interface LegendInfo {
@@ -69,6 +61,8 @@ export interface FeatureProperty {
   label: string;
   // Name of this feature property.
   name: string;
+  /// Type of data to configure parsing
+  dataType: FeaturePropertyDataType;
 }
 
 /**
@@ -77,6 +71,26 @@ export interface FeatureProperty {
  */
 export enum DataSourceType {
   Unknown = 'unknown',
-  GeoJson = 'geojson',
   Vector = 'vector',
+}
+
+/**
+ * Type for a feature property to determine how to parse it.
+ */
+export enum FeaturePropertyDataType {
+  Unknown = 'unknown',
+  String = 'string',
+  Number = 'number',
+  Date = 'date',
+  Address = 'address',
+}
+
+/**
+ * Identifiers for map layers.
+ */
+export enum MapLayer {
+  Unknown = 'unknown',
+  LeadServiceLineByWaterSystem = 'lead-service-lines-by-water-system',
+  LeadAndCopperRuleViolationsByWaterSystem = 'epa-lead-and-copper-violations-by-water-system',
+  PopulationByCensusBlock = 'population-by-census-block',
 }
