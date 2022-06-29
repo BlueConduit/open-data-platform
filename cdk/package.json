@@ -7,15 +7,16 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest",
-    "cdk": "cdk"
+    "test": "ENV_TYPE=Sandbox jest",
+    "cdk": "cdk",
+    "cdk:dev": "ENV_TYPE=Development cdk deploy --all --require-approval never"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.78.0",
     "@types/aws-lambda": "^8.10.97",
     "@types/jest": "^26.0.10",
     "@types/node": "^10.17.27",
-    "aws-cdk": "2.21.1",
+    "aws-cdk": "2.29.1",
     "esbuild": "^0.14.39",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
