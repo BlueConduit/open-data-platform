@@ -7,9 +7,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "ENV_TYPE=Sandbox jest",
-    "cdk": "cdk",
-    "cdk:dev": "ENV_TYPE=Development cdk deploy --all --require-approval never"
+    "test": "jest",
+    "cdk": "cdk"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.78.0",

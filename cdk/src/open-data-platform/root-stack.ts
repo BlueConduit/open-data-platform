@@ -9,22 +9,27 @@ import { FrontendStack } from './frontend/frontend-stack';
 import { AppPlaneStack } from './app-plane/app-plane-stack';
 
 export class OpenDataPlatformStack extends Stack {
-  constructor(scope: Construct, id: string, props?: util.CommonProps) {
+  constructor(scope: Construct, id: string, props: util.CommonProps) {
     super(scope, id, props);
+    const { envType } = props;
 
-    const networkStack = new NetworkStack(scope, util.stackName(util.StackId.Network), {
+    const networkStack = new NetworkStack(scope, util.stackName(util.StackId.Network, envType), {
       ...props,
     });
-    const dataPlaneStack = new DataPlaneStack(scope, util.stackName(util.StackId.DataPlane), {
-      ...props,
-      vpc: networkStack.vpc,
-    });
-    const appPlaneStack = new AppPlaneStack(scope, util.stackName(util.StackId.AppPlane), {
+    const dataPlaneStack = new DataPlaneStack(
+      scope,
+      util.stackName(util.StackId.DataPlane, envType),
+      {
+        ...props,
+        vpc: networkStack.vpc,
+      },
+    );
+    const appPlaneStack = new AppPlaneStack(scope, util.stackName(util.StackId.AppPlane, envType), {
       ...props,
       dataPlaneStack,
       networkStack,
     });
-    const frontendStack = new FrontendStack(scope, util.stackName(util.StackId.Frontend), {
+    const frontendStack = new FrontendStack(scope, util.stackName(util.StackId.Frontend, envType), {
       ...props,
       appPlaneStack,
     });
