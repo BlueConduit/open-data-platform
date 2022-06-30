@@ -35,7 +35,7 @@ export class ParcelsTableRowBuilder {
   private readonly _row: ParcelsTableRow;
 
   constructor() {
-    this._row = new ParcelsTableRow('', '', 0, 0, 0, '', '');
+    this._row = new ParcelsTableRow('', 0, 0, '');
   }
 
   address(address: string): ParcelsTableRowBuilder {
