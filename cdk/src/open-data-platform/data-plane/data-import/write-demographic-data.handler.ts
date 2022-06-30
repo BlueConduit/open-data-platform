@@ -76,7 +76,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
 }
 
 /**
- * Parses S3 'alabama_acs_data.csv' file and writes rows
+ * Parses S3 'opendataplatformapistaticdata/demographics' files and writes rows
  * to demographics table in the MainCluster postgres db.
  */
 export const handler = geoJsonHandlerFactory(
