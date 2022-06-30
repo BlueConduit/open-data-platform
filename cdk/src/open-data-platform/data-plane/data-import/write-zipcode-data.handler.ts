@@ -4,7 +4,7 @@ import { geoJsonHandlerFactory } from './handler-factory';
 import { CountiesTableRowBuilder } from '../model/county_table';
 import { ZipcodeTableRowBuilder } from '../model/zipcode_table';
 
-// As of 2022-06-29, this should have 33,792 rows.
+// As of 2022-06-29, this should have 33,791 rows.
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata',
   Key: 'cb_2020_us_zcta520_500k.geojson',
