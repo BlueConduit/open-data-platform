@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS epa_violations(
     violation_code varchar(255) NOT NULL,
     compliance_status varchar(255) NOT NULL,
     start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    pws_id varchar(255) NOT NULL REFERENCES water_systems(pws_id),
+    end_date DATE,
+    pws_id varchar(255) NOT NULL,
     PRIMARY KEY(violation_id)
     );
 
