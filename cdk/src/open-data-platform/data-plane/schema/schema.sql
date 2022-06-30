@@ -138,6 +138,27 @@ CREATE TABLE IF NOT EXISTS counties (
 
 CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 
+CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
+DECLARE
+    mvt bytea;
+BEGIN
+    SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
+        SELECT ST_AsMVTGeom(joined_data.geom, ST_TileEnvelope(z, x, y), 4096, 64, true) AS geom
+        FROM (
+                 SELECT counties.geom as geom,
+                        demographics.census_geo_id,
+                        demographics.black_population,
+                        demographics.white_population,
+                        counties.name
+                 FROM demographics JOIN counties
+                     ON ST_Intersects(demographics.geom, counties.geom)
+             ) AS joined_data
+
+   ) as tile WHERE geom IS NOT NULL;
+    RETURN mvt;
+END
+$$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
+
 ----------------------
 -- Roles and Grants --
 ----------------------
