@@ -127,7 +127,7 @@ CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 CREATE TABLE IF NOT EXISTS zipcodes (
     census_geo_id varchar(255) NOT NULL,
     zipcode varchar(255) NOT NULL,
-    description varchar(255) NOT NULL,
+    lsad varchar(255) NOT NULL,
     aff_geo_id varchar(255),
     geom geometry(Geometry, 4326),
     PRIMARY KEY (census_geo_id)

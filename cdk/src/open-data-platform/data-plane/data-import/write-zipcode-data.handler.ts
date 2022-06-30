@@ -29,12 +29,12 @@ async function insertBatch(
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO zipcodes (census_geo_id,
                                 zipcode,
-                                description,
+                                lsad,
                                 aff_geo_id,
                                 geom)
           VALUES (:census_geo_id,
                   :zipcode,
-                  :description,
+                  :lsad,
                   :aff_geo_id,
                   ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (census_geo_id) DO NOTHING`,
   };
@@ -53,7 +53,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
       .censusGeoId(properties.GEOID20)
       .zipcode(properties.ZCTA5CE20)
       .affGeoId(properties.AFFGEOID ?? '')
-      .description(properties.LSAD20)
+      .lsad(properties.LSAD20)
       // Keep JSON formatting. Post-GIS helpers depend on this.
       .geom(JSON.stringify(value.geometry))
       .build()

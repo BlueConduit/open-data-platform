@@ -11,7 +11,7 @@ export class ZipcodeTableRow {
 
   zipcode: string;
   // 2020 Census legal/statistical area description code for county.
-  description: string;
+  lsad: string;
   // American FactFinder summary level code + geovariant code + '00US' + GEOID.
   aff_geo_id: string;
   // GeoJSON representation of the boundaries.
@@ -20,13 +20,13 @@ export class ZipcodeTableRow {
   constructor(
     census_geo_id: string,
     zipcode: string,
-    description: string,
+    lsad: string,
     aff_geo_id: string,
     geom: string,
   ) {
     this.census_geo_id = census_geo_id;
     this.zipcode = zipcode;
-    this.description = description;
+    this.lsad = lsad;
     this.aff_geo_id = aff_geo_id;
     this.geom = geom;
   }
@@ -52,8 +52,8 @@ export class ZipcodeTableRowBuilder {
     return this;
   }
 
-  description(description: string): ZipcodeTableRowBuilder {
-    this._row.description = description;
+  lsad(lsad: string): ZipcodeTableRowBuilder {
+    this._row.lsad = lsad;
     return this;
   }
 
@@ -82,8 +82,8 @@ export class ZipcodeTableRowBuilder {
         value: { stringValue: this._row.aff_geo_id },
       },
       {
-        name: 'description',
-        value: { stringValue: this._row.description },
+        name: 'lsad',
+        value: { stringValue: this._row.lsad },
       },
       {
         name: 'geom',
