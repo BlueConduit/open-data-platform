@@ -4,11 +4,16 @@
   "bin": {
     "cdk": "bin/cdk.js"
   },
+  "config": {
+    "pipelineCdkApp": "npx ts-node --prefer-ts-exts src/pipeline.ts"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "pipeline-synth": "cdk synth --app '$npm_package_config_pipelineCdkApp'",
+    "pipeline-deploy": "npx aws-cdk deploy --app '$npm_package_config_pipelineCdkApp' --profile deployments"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.78.0",

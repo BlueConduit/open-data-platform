@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+
+// CDK entry point for the application.
+
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { OpenDataPlatformStack } from './open-data-platform/root-stack';
