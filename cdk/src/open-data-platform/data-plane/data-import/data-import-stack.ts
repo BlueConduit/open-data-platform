@@ -6,7 +6,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { lambdaFactory } from './lambda_function_factory';
+import { lambdaFactory } from './lambda-function-factory';
 
 export interface SchemaProps {
   cluster: rds.ServerlessCluster;
