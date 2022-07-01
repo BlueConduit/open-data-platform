@@ -10,6 +10,7 @@ import { FillLayer } from 'mapbox-gl';
 import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
+//const TABLE_NAME = 'public.demographics';
 const TABLE_NAME = 'public.demographics_function_source';
 
 /**
@@ -111,14 +112,14 @@ const popupInfo: PopupInfo = {
 };
 
 export const populationDataByCensusBlockLayer: TileDataLayer = {
-  source: {
-    type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/public.demographics/{z}/{x}/{y}.pbf`],
-  },
   // source: {
   //   type: DataSourceType.Vector,
-  //   tiles: [`https://${tileServerHost()}/tiles/v1/rpc/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
+  //   tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
   // },
+  source: {
+    type: DataSourceType.Vector,
+    tiles: [`https://${tileServerHost()}/tiles/v1/rpc/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
+  },
   id: MapLayer.PopulationByCensusBlock,
   name: 'Population',
   legendInfo: legendInfo,

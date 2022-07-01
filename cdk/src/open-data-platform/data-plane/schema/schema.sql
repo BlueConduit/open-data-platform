@@ -138,23 +138,40 @@ CREATE TABLE IF NOT EXISTS counties (
 
 CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 
+CREATE OR REPLACE FUNCTION public.violations_function_source(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
+DECLARE
+    mvt bytea;
+BEGIN
+    SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source', 4096, 'geom') FROM (
+       SELECT
+           ST_AsMVTGeom(ST_Transform(s.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
+           s.name as state_name,
+           count(v.violation_count) as violation_count
+       FROM violation_counts v
+                RIGHT JOIN states s
+                           ON ST_Intersects(v.geom, s.geom)
+       WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
+       group by s.geom, s.name
+   ) as tile WHERE geom IS NOT NULL;
+
+    RETURN mvt;
+END
+$$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
+
 CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
 DECLARE
     mvt bytea;
 BEGIN
     SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
-        SELECT ST_AsMVTGeom(joined_data.geom, ST_TileEnvelope(z, x, y), 4096, 64, true) AS geom
-        FROM (
-                 SELECT counties.geom as geom,
-                        demographics.census_geo_id,
-                        demographics.black_population,
-                        demographics.white_population,
-                        counties.name
-                 FROM demographics JOIN counties
-                     ON ST_Intersects(demographics.geom, counties.geom)
-             ) AS joined_data
-
-   ) as tile WHERE geom IS NOT NULL;
+         SELECT
+             ST_AsMVTGeom(ST_Transform(counties.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
+             counties.name,
+             COUNT(demographics.black_population),
+             COUNT(demographics.white_population)
+         FROM demographics RIGHT JOIN counties ON ST_Intersects(demographics.geom, counties.geom)
+         WHERE ST_Transform(counties.geom, 3857) && ST_TileEnvelope(z, x, y)
+         GROUP BY counties.geom, counties.name
+    ) AS tile WHERE geom IS NOT NULL;
     RETURN mvt;
 END
 $$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
