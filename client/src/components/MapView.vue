@@ -153,7 +153,7 @@ export default defineComponent({
           async (e: MapLayerMouseEvent): Promise<void> => {
             if (e.features != undefined) {
               const clickedFeatureProperties: { [name: string]: any; } = e.features[0].properties as {};
-              console.log(`CLICKED FEATURE PROPERTIES: ${clickedFeatureProperties}`);
+              console.log(clickedFeatureProperties);
               const popupInfo = this.state?.currentDataLayer?.popupInfo;
 
               this.createMapPopup(e.lngLat, /* popupData= */

@@ -160,12 +160,16 @@ BEGIN
 SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source', 4096, 'geom') FROM (
     select * from (
         SELECT
-            ST_Transform(s.geom, 3857) AS geom, s.name as state_name, v.violation_count as violation_count
+            ST_AsMVTGeom(ST_Transform(s.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
+            s.name as state_name,
+            count(v.violation_count) as violation_count
         FROM violation_counts v
         JOIN states s
-        ON ST_Intersects(v.geom, s.geom) group by s.geom, s.name, v.violation_count
+        ON ST_Intersects(v.geom, s.geom)
+        WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
+        group by s.geom, s.name
     ) as bounded_states
-    WHERE geom && ST_TileEnvelope(z, x, y)
+    where geom is not null
     ) as tile WHERE geom IS NOT NULL;
 
 RETURN mvt;
