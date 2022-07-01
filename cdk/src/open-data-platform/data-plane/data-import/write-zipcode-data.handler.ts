@@ -43,7 +43,7 @@ async function insertBatch(
 
 /**
  * Maps a data row to a table row ready to write to the db.
- * @param row: row with all data needed to build a [CountiesTableRow].
+ * @param row: row with all data needed to build a [ZipcodeTableRow].
  */
 function getTableRowFromRow(row: any): SqlParametersList {
   const value = row.value;
