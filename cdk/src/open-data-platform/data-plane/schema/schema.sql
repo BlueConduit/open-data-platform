@@ -151,6 +151,27 @@ CREATE TABLE IF NOT EXISTS zipcodes (
 CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 CREATE UNIQUE INDEX IF NOT EXISTS zipcode_index ON zipcodes (zipcode);
 
+-- Function source experimentation
+
+CREATE OR REPLACE FUNCTION public.violations_function_source(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
+DECLARE
+mvt bytea;
+BEGIN
+SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source', 4096, 'geom') FROM (
+    select * from (
+        SELECT
+            ST_Transform(s.geom, 3857) AS geom, s.name as state_name, v.violation_count as violation_count
+        FROM violation_counts v
+        JOIN states s
+        ON ST_Intersects(v.geom, s.geom) group by s.geom, s.name, v.violation_count
+    ) as bounded_states
+    WHERE geom && ST_TileEnvelope(z, x, y)
+    ) as tile WHERE geom IS NOT NULL;
+
+RETURN mvt;
+END
+$$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
+
 ----------------------
 -- Roles and Grants --
 ----------------------

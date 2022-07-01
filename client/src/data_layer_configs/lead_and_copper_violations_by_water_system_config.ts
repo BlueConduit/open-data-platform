@@ -1,11 +1,4 @@
-import {
-  DataSourceType,
-  FeaturePropertyDataType,
-  LegendInfo,
-  MapLayer,
-  PopupInfo,
-  TileDataLayer,
-} from '@/model/data_layer';
+import { DataSourceType, FeaturePropertyDataType, LegendInfo, MapLayer, PopupInfo, TileDataLayer } from '@/model/data_layer';
 import { Expression, FillLayer } from 'mapbox-gl';
 import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
@@ -44,16 +37,16 @@ const styleLayer: FillLayer = {
   id: `${MapLayer.LeadAndCopperRuleViolationsByWaterSystem}-style`,
   source: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   // Corresponds to the table in the database.
-  'source-layer': 'public.violation_counts',
+  'source-layer': 'public.violations_function_source', // maybe change?
   type: 'fill',
   paint: {
-    'fill-color': leadAndCopperViolationsInterpolation,
+    'fill-color': '#FFEAE5',
     'fill-opacity': 0.75,
     'fill-outline-color': '#B2391F',
   },
   layout: {
     // Make the layer hidden by default.
-    visibility: 'none',
+    visibility: 'visible',
   },
 };
 
@@ -73,7 +66,7 @@ const popupInfo: PopupInfo = {
 export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/public.violation_counts/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/tiles/v1/rpc/public.violations_function_source/{z}/{x}/{y}.mvt`], // maybe change to .mvt?
   },
   id: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   name: 'Lead & Copper Rule Violations',

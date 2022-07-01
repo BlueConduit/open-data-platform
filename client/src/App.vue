@@ -3,21 +3,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, provide, reactive } from 'vue';
+import { defineComponent, provide, reactive } from 'vue';
 import '@blueconduit/copper/dist/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
 import { State } from './model/state';
 
 import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_water_system_config';
-import { leadServiceLinesByWaterSystemLayer } from './data_layer_configs/lead_service_lines_by_water_systems_config';
-import { populationDataByCensusBlockLayer } from './data_layer_configs/population_by_census_block_config';
 import { stateKey } from './injection_keys';
 import { DataLayer, MapLayer } from './model/data_layer';
 
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([
-  [MapLayer.LeadServiceLineByWaterSystem, leadServiceLinesByWaterSystemLayer],
+  // [MapLayer.LeadServiceLineByWaterSystem, leadServiceLinesByWaterSystemLayer],
   [MapLayer.LeadAndCopperRuleViolationsByWaterSystem, leadAndCopperViolationsByCountyDataLayer],
-  [MapLayer.PopulationByCensusBlock, populationDataByCensusBlockLayer]
+  // [MapLayer.PopulationByCensusBlock, populationDataByCensusBlockLayer]
 ]);
 
 // Base URL for REST API in Amazon API Gateway.
@@ -31,7 +29,7 @@ export default defineComponent({
   setup() {
     // Create and provide default state. This is updated once API data is fetched.
     const state = reactive(new State([]));
-    state.currentDataLayer = leadServiceLinesByWaterSystemLayer;
+    state.currentDataLayer = leadAndCopperViolationsByCountyDataLayer;
     state.dataLayers = Array.from(DATA_LAYERS.values());
 
     provide(stateKey, state);
