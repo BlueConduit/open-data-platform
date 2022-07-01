@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS epa_violations(
     violation_code varchar(255) NOT NULL,
     compliance_status varchar(255) NOT NULL,
     start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    pws_id varchar(255) NOT NULL REFERENCES water_systems(pws_id),
+    end_date DATE,
+    pws_id varchar(255) NOT NULL,
     PRIMARY KEY(violation_id)
     );
 
@@ -108,11 +108,26 @@ CREATE INDEX IF NOT EXISTS geom_index ON parcels USING GIST (geom);
 CREATE TRIGGER update_last_update_timestamp BEFORE UPDATE ON parcels
     FOR EACH ROW EXECUTE PROCEDURE update_last_update_timestamp();
 
+-- States
+CREATE TABLE IF NOT EXISTS states(
+    census_geo_id varchar(255) NOT NULL,
+    fips varchar(255) UNIQUE,
+    ansi varchar(255),
+    aff_geo_id varchar(255),
+    usps varchar(255),
+    name varchar(255),
+    lsad varchar(255),
+    geom GEOMETRY(Geometry, 4326),
+    PRIMARY KEY(census_geo_id)
+    );
+
+CREATE INDEX IF NOT EXISTS geom_index ON states USING GIST (geom);
+
 -- Counties
 CREATE TABLE IF NOT EXISTS counties (
     census_geo_id varchar(255) NOT NULL,
     fips varchar(255) NOT NULL,
-    state_fips varchar(255) NOT NULL,
+    state_fips varchar(255) NOT NULL references states(fips),
     ansi varchar(255) NOT NULL,
     aff_geo_id varchar(255),
     name varchar(255),
