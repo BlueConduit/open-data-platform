@@ -58,6 +58,7 @@ export class DataImportStack extends Construct {
       writeViolationsDataFunction,
       lambdaFactory(this, props, 'write-parcels-data'),
       lambdaFactory(this, props, 'write-county-data'),
+      lambdaFactory(this, props, 'write-zipcode-data'),
       lambdaFactory(this, props, 'write-state-data'),
     ];
 

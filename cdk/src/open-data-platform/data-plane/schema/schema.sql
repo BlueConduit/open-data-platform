@@ -138,31 +138,41 @@ CREATE TABLE IF NOT EXISTS counties (
 
 CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 
-CREATE OR REPLACE FUNCTION public.violations_function_source(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
+-- Zipcodes
+CREATE TABLE IF NOT EXISTS zipcodes (
+    census_geo_id varchar(255) NOT NULL,
+    zipcode varchar(255) NOT NULL,
+    lsad varchar(255) NOT NULL,
+    aff_geo_id varchar(255),
+    geom geometry(Geometry, 4326),
+    PRIMARY KEY (census_geo_id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS zipcode_index ON zipcodes (zipcode);
+
+
+CREATE OR REPLACE FUNCTION public.violations_function_source_states(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
 DECLARE
     mvt bytea;
 BEGIN
-    SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source', 4096, 'geom') FROM (
-       SELECT
+    SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source_states', 4096, 'geom') FROM (
+        SELECT
            ST_AsMVTGeom(ST_Transform(s.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
            s.name as state_name,
-           count(v.violation_count) as violation_count
-       FROM violation_counts v
-                RIGHT JOIN states s
-                           ON ST_Intersects(v.geom, s.geom)
-       WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
-       group by s.geom, s.name
-   ) as tile WHERE geom IS NOT NULL;
-
+           COUNT(v.violation_count) as violation_count
+        FROM violation_counts v RIGHT JOIN states s ON ST_Intersects(v.geom, s.geom)
+        WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
+        GROUP BY s.geom, s.name
+    ) as tile WHERE geom IS NOT NULL;
     RETURN mvt;
 END
 $$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
 
-CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
+CREATE OR REPLACE FUNCTION public.demographics_function_source_counties(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
 DECLARE
     mvt bytea;
 BEGIN
-    SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
+    SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source_counties', 4096, 'geom') FROM (
          SELECT
              ST_AsMVTGeom(ST_Transform(counties.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
              counties.name,
@@ -175,6 +185,25 @@ BEGIN
     RETURN mvt;
 END
 $$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
+
+CREATE OR REPLACE FUNCTION public.demographics_function_source_states(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
+DECLARE
+    mvt bytea;
+BEGIN
+    SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source_states', 4096, 'geom') FROM (
+      SELECT
+          ST_AsMVTGeom(ST_Transform(states.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
+          states.name,
+          COUNT(demographics.black_population),
+          COUNT(demographics.white_population)
+      FROM demographics RIGHT JOIN states ON ST_Intersects(demographics.geom, states.geom)
+      WHERE ST_Transform(states.geom, 3857) && ST_TileEnvelope(z, x, y)
+      GROUP BY states.geom, states.name
+    ) AS tile WHERE geom IS NOT NULL;
+    RETURN mvt;
+END
+$$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
+
 
 ----------------------
 -- Roles and Grants --
