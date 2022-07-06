@@ -12,6 +12,7 @@ import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import { DataLayer, DataSourceType, FeatureProperty } from '../model/data_layer';
+import router from '../router';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -39,6 +40,15 @@ export default defineComponent({
       popup: null as mapboxgl.Popup | null,
     };
   },
+  computed: {
+    /**
+     * Represents the current layer that should be shown based on the url
+     * query parameter.
+     */
+    routerLayer () {
+      return router.currentRoute.value.query.layer ?? null;
+    }
+  },
   props: {
     /**
      * Where to load the initial map. Defaults to center of continental US.
@@ -59,6 +69,11 @@ export default defineComponent({
       if (this.map == null) return;
 
       this.map?.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
+
+      // Update the router params when toggling layers to visible.
+      if (visible && router.currentRoute.value.query.layer != styleLayerId) {
+        router.push({ query: Object.assign({}, router.currentRoute.value.query, { layer: styleLayerId }) });
+      }
     },
 
     /**
@@ -94,11 +109,7 @@ export default defineComponent({
      */
     updateMapOnDataLayerChange(newDataLayer: DataLayer | null, oldDataLayer: DataLayer | null): void {
       if (this.map == null) {
-        const source = newDataLayer?.source;
-        const dataLoaded =
-          (source?.type == DataSourceType.GeoJson && source?.data != null) ||
-          (source?.type == DataSourceType.Vector && source?.tiles != null);
-        if (dataLoaded) {
+        if (newDataLayer?.source?.type == DataSourceType.Vector && newDataLayer?.source?.tiles != null) {
           this.createMap();
         }
       } else {
@@ -135,8 +146,7 @@ export default defineComponent({
      */
     setUpInteractionHandlers(): void {
       if (this.map == null) return;
-
-      this.state.dataLayers?.forEach(layer => {
+      for (const layer of this.state.dataLayers) {
         // Use MapBox's custom click handler, which takes the style layer that we
         // want to set up a handler for as a parameter.
         this.map?.on('click', layer.styleLayer.id,
@@ -155,7 +165,7 @@ export default defineComponent({
                 });
             }
           });
-      });
+      }
     },
 
     /**
@@ -191,11 +201,10 @@ export default defineComponent({
       if (this.map == null) return;
 
       this.state.map = this.map;
-      this.state.dataLayers?.forEach(layer => {
+      for (const layer of this.state.dataLayers) {
         this.map?.addSource(layer.id, layer.source);
         this.map?.addLayer(layer.styleLayer);
-
-      });
+      }
 
       this.setUpInteractionHandlers();
       this.setUpControls();
@@ -223,11 +232,20 @@ export default defineComponent({
       }
     },
   },
+  mounted() {
+    // Show current data layer on init.
+    this.updateMapOnDataLayerChange(this.state.currentDataLayer, null);
+  },
   watch: {
+    // Listens to app state to toggle layers.
     'state.currentDataLayer': function(newDataLayer: DataLayer, oldDataLayer: DataLayer) {
       this.updateMapOnDataLayerChange(newDataLayer, oldDataLayer);
     },
-  },
+    // Listens to query param to toggle layers.
+    'routerLayer': function(newLayer: string) {
+      this.setDataLayerVisibility(newLayer, true);
+    },
+  }
 });
 </script>
 

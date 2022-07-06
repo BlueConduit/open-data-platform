@@ -1,21 +1,18 @@
 import { RDSDataService } from 'aws-sdk';
 import { BatchExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
-import { ParcelsTableRowBuilder } from '../model/parcels-table';
 import { geoJsonHandlerFactory } from './handler-factory';
+import { WaterSystemsTableRowBuilder } from '../model/water-systems-table';
 
-const SCHEMA = 'schema';
-
-// This file contains < 145k rows
+// As of 2022-06-27, this should have 26010 rows.
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata',
-  // The geometries have been simplified. This file also only includes
-  // the rows we currently write to the db to avoid large javascript
-  // objects from being created on streamArray().
-  Key: 'parcels/toledo_parcel_preds.geojson',
+  Key: 'pwsid_lead_connections_even_smaller.geojson',
 };
 
+const SCHEMA = 'public';
+
 /**
- *  Writes rows into the parcel table.
+ *  Writes rows into the water systems table.
  * @param rdsService: RDS service to connect to the db.
  * @param rows: Rows to write to the db.
  */
@@ -29,14 +26,18 @@ async function insertBatch(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    sql: `INSERT INTO parcels (address,
-                               public_lead_prediction,
-                               private_lead_prediction,
-                               geom)
-          VALUES (:address,
-                  :public_lead_prediction,
-                  :private_lead_prediction,
-                  ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (address) DO NOTHING`,
+    sql: `INSERT INTO water_systems (pws_id,
+                                     pws_name,
+                                     lead_connections_count,
+                                     service_connections_count,
+                                     population_served,
+                                     geom)
+          VALUES (:pws_id,
+                  :pws_name,
+                  :lead_connections_count,
+                  :service_connections_count,
+                  :population_served,
+                  ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (pws_id) DO NOTHING`,
   };
   return rdsService.batchExecuteStatement(batchExecuteParams).promise();
 }
@@ -56,10 +57,12 @@ function getTableRowFromRow(row: any): SqlParametersList {
   const value = row.value;
   const properties = value.properties;
   return (
-    new ParcelsTableRowBuilder()
-      .address(properties.address)
-      .publicLeadPrediction(getValueOrDefault(properties.y_score_pub))
-      .privateLeadPrediction(getValueOrDefault(properties.y_score_priv))
+    new WaterSystemsTableRowBuilder()
+      .pwsId(properties.pwsid)
+      .pwsName(properties.pws_name ?? '')
+      .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
+      .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
+      .populationServed(getValueOrDefault(properties.population_served_count))
       // Keep JSON formatting. Post-GIS helpers depend on this.
       .geom(JSON.stringify(value.geometry))
       .build()
@@ -67,8 +70,8 @@ function getTableRowFromRow(row: any): SqlParametersList {
 }
 
 /**
- * Parses S3 'parcels/toledo_parcel_preds.geojson' file and writes rows
- * to parcels in the MainCluster postgres db.
+ * Parses S3 'pwsid_lead_connections_even_smaller.geojson' file and writes rows
+ * to water systems table in the MainCluster postgres db.
  */
 export const handler = geoJsonHandlerFactory(
   s3Params,

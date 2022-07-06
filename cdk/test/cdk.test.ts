@@ -2,12 +2,13 @@ import { App } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import { DataPlaneStack } from '../src/open-data-platform/data-plane/data-plane-stack';
 import { NetworkStack } from '../src/open-data-platform/network/network-stack';
-import * as util from '../src/util';
+import { EnvType, stackName, StackId } from '../src/util';
 import { FrontendStack } from '../src/open-data-platform/frontend/frontend-stack';
 import { AppPlaneStack } from '../src/open-data-platform/app-plane/app-plane-stack';
 
 // Inspired by https://github.com/aws/aws-cdk/blob/master/packages/%40aws-cdk/aws-iam/test/policy.test.ts
 describe('Full stack', () => {
+  const envType = EnvType.UnitTest;
   let app: App;
   let networkStack: NetworkStack;
   let dataPlaneStack: DataPlaneStack;
@@ -18,15 +19,18 @@ describe('Full stack', () => {
     app = new App();
     // Set up stacks in dependency order. This has to be done before any `Template.fronStack` calls,
     // due to https://github.com/aws/aws-cdk/issues/18847#issuecomment-1121980507
-    networkStack = new NetworkStack(app, util.stackName(util.StackId.Network), {});
-    dataPlaneStack = new DataPlaneStack(app, util.stackName(util.StackId.DataPlane), {
+    networkStack = new NetworkStack(app, stackName(StackId.Network, envType), { envType });
+    dataPlaneStack = new DataPlaneStack(app, stackName(StackId.DataPlane, envType), {
+      envType,
       vpc: networkStack.vpc,
     });
-    appPlaneStack = new AppPlaneStack(app, util.stackName(util.StackId.AppPlane), {
+    appPlaneStack = new AppPlaneStack(app, stackName(StackId.AppPlane, envType), {
+      envType,
       networkStack,
       dataPlaneStack,
     });
-    frontendStack = new FrontendStack(app, util.stackName(util.StackId.Frontend), {
+    frontendStack = new FrontendStack(app, stackName(StackId.Frontend, envType), {
+      envType,
       appPlaneStack,
     });
   });

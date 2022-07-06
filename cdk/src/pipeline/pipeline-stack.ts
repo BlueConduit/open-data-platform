@@ -1,7 +1,7 @@
 // Create a pipeline that deployes to a general "dev" instance. We'll use that for "prod" until we
 // have access to another account.
 
-import { Stack, StackProps, Stage } from 'aws-cdk-lib';
+import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as pipelines from 'aws-cdk-lib/pipelines';
 import * as util from '../util';
