@@ -9,7 +9,7 @@ export enum StackId {
   AppPlane = 'AppPlane',
 }
 export enum EnvType {
-  UnitTest = 'UNITTEST', // Non-deployed
+  UnitTest = 'UNITTEST', // Non-deployed environment for testing.
   Sandbox = 'SANDBOX', // Developers' individual environments.
   Development = 'DEV', // Single shared dev environment.
   Production = 'PROD', // Not yet implemented.
@@ -25,7 +25,7 @@ export interface CommonProps extends StackProps {
 
 export const stackName = (id: StackId, e: EnvType): string => {
   const base = `${projectName}${StackId[id]}`;
-  // Network stuff should be shared across environments within a given AWS account, so use a
+  // Network stuff should be shared across all instances within a given AWS account, so use a
   // common name for the network stack.
   if (id === StackId.Network) return base;
   if (e == EnvType.Sandbox && process.env.USER) return `${process.env.USER}-${base}`;
