@@ -66,7 +66,9 @@ CREATE TABLE IF NOT EXISTS water_systems
 ALTER TABLE water_systems
     ADD COLUMN IF NOT EXISTS pws_name                  varchar(255),
     ADD COLUMN IF NOT EXISTS service_connections_count real,
-    ADD COLUMN IF NOT EXISTS population_served         real;
+    ADD COLUMN IF NOT EXISTS population_served         real,
+    ADD COLUMN IF NOT EXISTS state_geo_id              varchar(255),
+    ADD COLUMN IF NOT EXISTS county_geo_id             varchar(255);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON water_systems
@@ -94,10 +96,11 @@ ALTER TABLE epa_violations
 CREATE OR REPLACE VIEW violation_counts AS
 SELECT pws_id,
        geom,
-       COUNT(violation_id) AS violation_count
+       COUNT(violation_id) AS violation_count,
+       state_geo_id
 FROM epa_violations
          JOIN water_systems USING (pws_id)
-GROUP BY pws_id, geom;
+GROUP BY pws_id, geom, state_geo_id;
 
 -- Parcel-level data
 
@@ -310,6 +313,68 @@ $$ LANGUAGE plpgsql IMMUTABLE
                     STRICT
                     PARALLEL SAFE;
 
+-- Violations by state function source
+
+CREATE OR REPLACE FUNCTION public.violations_by_state_function_source(z integer,
+                                                                      x integer,
+                                                                      y integer,
+                                                                      query_params json) RETURNS bytea AS
+$$
+DECLARE
+    mvt bytea;
+BEGIN
+    SELECT INTO mvt ST_AsMVT(tile, 'public.violations_by_state_function_source',
+                             4096, 'geom')
+    FROM (
+             SELECT ST_AsMVTGeom(ST_Transform(s.geom, 3857),
+                                 ST_TileEnvelope(z, x, y)) AS geom,
+                    s.name                                 as state_name,
+                    count(v.violation_count)               as violation_count
+             FROM violation_counts v
+                      RIGHT JOIN states s
+                                 ON v.state_geo_id = s.census_geo_id
+             WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
+             group by s.geom, s.name
+         ) as tile
+    WHERE geom IS NOT NULL;
+
+    RETURN mvt;
+END
+$$ LANGUAGE plpgsql IMMUTABLE
+                    STRICT
+                    PARALLEL SAFE;
+
+-- Lead connections by state function source
+
+CREATE OR REPLACE FUNCTION public.lead_connections_by_state_function_source(z integer,
+                                                                            x integer,
+                                                                            y integer,
+                                                                            query_params json) RETURNS bytea AS
+$$
+DECLARE
+    mvt bytea;
+BEGIN
+    SELECT INTO mvt ST_AsMVT(tile,
+                             'public.lead_connections_by_state_function_source',
+                             4096, 'geom')
+    FROM (
+             SELECT ST_AsMVTGeom(ST_Transform(s.geom, 3857),
+                                 ST_TileEnvelope(z, x, y)) AS geom,
+                    s.name                                 as state_name,
+                    count(w.lead_connections_count)        as lead_connections_count
+             FROM water_systems w
+                      RIGHT JOIN states s
+                                 ON w.state_geo_id = s.census_geo_id
+             WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
+             group by s.geom, s.name
+         ) as tile
+    WHERE geom IS NOT NULL;
+
+    RETURN mvt;
+END
+$$ LANGUAGE plpgsql IMMUTABLE
+                    STRICT
+                    PARALLEL SAFE;
 
 ----------------------
 -- Roles and Grants --
