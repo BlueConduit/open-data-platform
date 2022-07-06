@@ -85,6 +85,10 @@ CREATE TABLE IF NOT EXISTS epa_violations
     PRIMARY KEY (violation_id)
 );
 
+ALTER TABLE epa_violations
+    ADD COLUMN IF NOT EXISTS state_geo_id varchar(255),
+    ADD COLUMN IF NOT EXISTS county_geo_id varchar(255);
+
 -- Violation counts per water system --
 
 CREATE OR REPLACE VIEW violation_counts AS
