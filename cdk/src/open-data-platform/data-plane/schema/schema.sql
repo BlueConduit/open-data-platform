@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS zipcodes (
 CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 CREATE UNIQUE INDEX IF NOT EXISTS zipcode_index ON zipcodes (zipcode);
 
--- Function source experimentation
+-- State agg function source
 
 CREATE OR REPLACE FUNCTION public.violations_function_source(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
 DECLARE
@@ -172,6 +172,29 @@ SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source', 4096, 'geom'
 RETURN mvt;
 END
 $$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
+
+-- Violations by county testing
+
+CREATE OR REPLACE FUNCTION public.violations_by_county_function_source(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
+DECLARE
+mvt bytea;
+BEGIN
+SELECT INTO mvt ST_AsMVT(tile, 'public.violations_by_county_function_source', 4096, 'geom') FROM (
+    SELECT
+    ST_AsMVTGeom(ST_Transform(s.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
+    s.name as state_name,
+    count(v.violation_count) as violation_count
+    FROM violation_counts v
+    RIGHT JOIN counties s
+    ON v.geom && s.geom
+    WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
+    group by s.geom, s.name
+    ) as tile WHERE geom IS NOT NULL;
+
+RETURN mvt;
+END
+$$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
+
 
 ----------------------
 -- Roles and Grants --
