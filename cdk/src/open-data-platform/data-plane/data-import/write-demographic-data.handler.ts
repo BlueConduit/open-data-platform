@@ -28,12 +28,18 @@ async function insertBatch(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    sql: `INSERT INTO demographics (census_geo_id, census_block_name,
+    sql: `INSERT INTO demographics (census_geo_id,
+                                    census_state_geo_id,
+                                    census_county_geo_id,
+                                    census_block_name,
                                     total_population,
-                                    under_five_population, poverty_population,
+                                    under_five_population, 
+                                    poverty_population,
                                     black_population,
                                     white_population, geom)
           VALUES (:census_geo_id,
+                  :census_state_geo_id,
+                  :census_county_geo_id,
                   :census_block_name,
                   :total_population,
                   :under_five_population,
@@ -59,10 +65,15 @@ function getValueOrDefault(field: string): number {
 function getTableRowFromRow(row: any): SqlParametersList {
   const value = row.value;
   const properties = value.properties;
+  const geoId = properties.GEOID.toString();
 
   return (
     new DemographicsTableRowBuilder()
-      .censusGeoId(properties.GEOID.toString())
+      .censusGeoId(geoId)
+      // Indexes based on:
+      // https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html
+      .stateGeoId(geoId.substring(0, 2))
+      .countyGeoId(geoId.substring(2, 6))
       .name(properties.NAME)
       .underFivePopulation(getValueOrDefault(properties.age_under5))
       .povertyPopulation(getValueOrDefault(properties.PovertyTot))
