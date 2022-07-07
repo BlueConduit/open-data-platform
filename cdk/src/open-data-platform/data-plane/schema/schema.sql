@@ -37,12 +37,14 @@ CREATE TABLE IF NOT EXISTS demographics(
     under_five_population real,
     poverty_population real,
     black_population real,
-    census_state_geo_id varchar(255) NOT NULL,
-    census_county_geo_id varchar(255) NOT NULL,
+    census_state_geo_id varchar(255) NOT NULL references states(census_geo_id),
+    census_county_geo_id varchar(255) NOT NULL references counties(census_geo_id),
     white_population real,
     geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(census_geo_id)
 );
+CREATE UNIQUE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (census_state_geo_id);
+
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
@@ -196,9 +198,9 @@ BEGIN
       SELECT
           ST_AsMVTGeom(ST_Transform(states.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
           states.name,
-          COUNT(demographics.black_population),
-          COUNT(demographics.white_population)
-      FROM demographics RIGHT JOIN states ON ST_Intersects(demographics.geom, states.geom)
+          SUM(demographics.black_population),
+          SUM(demographics.white_population)
+      FROM demographics RIGHT JOIN states ON demographics.census_state_geo_id = states.census_geo_id
       WHERE ST_Transform(states.geom, 3857) && ST_TileEnvelope(z, x, y)
       GROUP BY states.geom, states.name
     ) AS tile WHERE geom IS NOT NULL;
