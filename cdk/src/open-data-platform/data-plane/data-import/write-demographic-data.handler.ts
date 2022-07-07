@@ -70,6 +70,8 @@ function getTableRowFromRow(row: any): SqlParametersList {
   return (
     new DemographicsTableRowBuilder()
       .censusGeoId(geoId)
+      // Indexes based on:
+      // https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html
       .stateGeoId(geoId.substring(0, 2))
       .countyGeoId(geoId.substring(2, 6))
       .name(properties.NAME)
