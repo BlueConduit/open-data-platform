@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS demographics(
     geom GEOMETRY(Geometry, 4326),
     PRIMARY KEY(census_geo_id)
 );
-CREATE UNIQUE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (census_state_geo_id);
+CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (census_state_geo_id);
+CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON demographics (census_county_geo_id);
 
 
 CREATE INDEX IF NOT EXISTS geom_index
@@ -154,37 +155,90 @@ CREATE TABLE IF NOT EXISTS zipcodes (
 
 CREATE UNIQUE INDEX IF NOT EXISTS zipcode_index ON zipcodes (zipcode);
 
+CREATE TABLE IF NOT EXISTS demographics_by_state(
+    census_geo_id varchar(255) NOT NULL,
+    name varchar(255) NOT NULL,
+    black_population float,
+    white_population float,
+    total_population real,
+    under_five_population real,
+    poverty_population real,
+    geom geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON demographics_by_state USING GIST (geom);
 
-CREATE OR REPLACE FUNCTION public.violations_function_source_states(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
-DECLARE
-    mvt bytea;
-BEGIN
-    SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source_states', 4096, 'geom') FROM (
-        SELECT
-           ST_AsMVTGeom(ST_Transform(s.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
-           s.name as state_name,
-           COUNT(v.violation_count) as violation_count
-        FROM violation_counts v RIGHT JOIN states s ON ST_Intersects(v.geom, s.geom)
-        WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
-        GROUP BY s.geom, s.name
-    ) as tile WHERE geom IS NOT NULL;
-    RETURN mvt;
-END
-$$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
+CREATE TABLE IF NOT EXISTS demographics_by_county(
+    census_geo_id varchar(255) NOT NULL,
+    name varchar(255) NOT NULL,
+    black_population float,
+    white_population float,
+    total_population real,
+    under_five_population real,
+    poverty_population real,
+    geom geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON demographics_by_county USING GIST (geom);
+
+CREATE TABLE IF NOT EXISTS demographics_by_zipcode(
+    census_geo_id varchar(255) NOT NULL,
+    zipcode varchar(255) NOT NULL,
+    black_population float,
+    white_population float,
+    total_population real,
+    under_five_population real,
+    poverty_population real,
+    geom geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON demographics_by_zipcode USING GIST (geom);
+
+
+INSERT INTO demographics_by_state(census_geo_id, geom, name, black_population, white_population)
+SELECT
+    states.census_geo_id as census_geo_id,
+    ST_Transform(states.geom, 3857) AS geom,
+    states.name AS name,
+    SUM(black_population) AS black_population,
+    SUM(white_population) AS white_population,
+    SUM(total_population) AS total_population,
+    SUM(under_five_population) AS under_five_population,
+    SUM(poverty_population) AS poverty_population
+FROM states LEFT JOIN demographics ON demographics.census_state_geo_id = states.census_geo_id
+GROUP BY states.census_geo_id, states.name, states.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
+INSERT INTO demographics_by_county(census_geo_id, geom, name, black_population, white_population, total_population, under_five_population, poverty_population)
+SELECT
+    counties.fips as census_geo_id,
+    ST_Transform(counties.geom, 3857) AS geom,
+    counties.name AS name,
+    SUM(black_population) AS black_population,
+    SUM(white_population) AS white_population,
+    SUM(total_population) AS total_population,
+    SUM(under_five_population) AS under_five_population,
+    SUM(poverty_population) AS poverty_population
+FROM counties LEFT JOIN demographics ON demographics.census_county_geo_id = counties.fips
+GROUP BY counties.census_geo_id, counties.name, counties.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
 
 CREATE OR REPLACE FUNCTION public.demographics_function_source_counties(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
 DECLARE
     mvt bytea;
 BEGIN
     SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source_counties', 4096, 'geom') FROM (
-         SELECT
-             ST_AsMVTGeom(ST_Transform(counties.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
-             counties.name,
-             COUNT(demographics.black_population),
-             COUNT(demographics.white_population)
-         FROM demographics RIGHT JOIN counties ON ST_Intersects(demographics.geom, counties.geom)
-         WHERE ST_Transform(counties.geom, 3857) && ST_TileEnvelope(z, x, y)
-         GROUP BY counties.geom, counties.name
+        SELECT
+            ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+            name,
+            black_population,
+            white_population,
+            total_population,
+            under_five_population,
+            poverty_population
+        FROM demographics_by_state
+        WHERE geom && ST_TileEnvelope(z, x, y)
     ) AS tile WHERE geom IS NOT NULL;
     RETURN mvt;
 END
@@ -195,14 +249,16 @@ DECLARE
     mvt bytea;
 BEGIN
     SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source_states', 4096, 'geom') FROM (
-      SELECT
-          ST_AsMVTGeom(ST_Transform(states.geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
-          states.name,
-          SUM(demographics.black_population),
-          SUM(demographics.white_population)
-      FROM demographics RIGHT JOIN states ON demographics.census_state_geo_id = states.census_geo_id
-      WHERE ST_Transform(states.geom, 3857) && ST_TileEnvelope(z, x, y)
-      GROUP BY states.geom, states.name
+        SELECT
+           ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+           name,
+           black_population,
+           white_population,
+           total_population,
+           under_five_population,
+           poverty_population
+        FROM demographics_by_county
+        WHERE geom && ST_TileEnvelope(z, x, y)
     ) AS tile WHERE geom IS NOT NULL;
     RETURN mvt;
 END

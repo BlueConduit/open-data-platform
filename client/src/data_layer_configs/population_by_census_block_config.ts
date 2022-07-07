@@ -11,7 +11,7 @@ import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 //const TABLE_NAME = 'public.demographics';
-const TABLE_NAME = 'public.demographics_function_source_states';
+const TABLE_NAME = 'public.demographics_function_source_counties';
 
 /**
  * Maps legend buckets to the hex values.
@@ -68,7 +68,7 @@ export const styleLayer: FillLayer = {
   },
   layout: {
     // Make the layer hidden by default.
-    visibility: 'none',
+    visibility: 'visible',
   },
 };
 
