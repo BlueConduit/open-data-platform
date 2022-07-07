@@ -12,6 +12,8 @@ class DemographicsTableRow {
   poverty_population: number;
   black_population: number;
   white_population: number;
+  census_state_geo_id: string;
+  census_county_geo_id: string;
   geom: string;
 
   constructor(
@@ -22,6 +24,8 @@ class DemographicsTableRow {
     poverty_population: number,
     blackPopulation: number,
     whitePopulation: number,
+    censusStateGeoId: string,
+    censusCountyGeoId: string,
     geom: string,
   ) {
     this.census_geo_id = censusGeoId;
@@ -31,6 +35,8 @@ class DemographicsTableRow {
     this.poverty_population = poverty_population;
     this.black_population = blackPopulation;
     this.white_population = whitePopulation;
+    this.census_state_geo_id = censusStateGeoId;
+    this.census_county_geo_id = censusCountyGeoId;
     this.geom = geom;
   }
 }
@@ -42,11 +48,21 @@ export class DemographicsTableRowBuilder {
   private readonly _row: DemographicsTableRow;
 
   constructor() {
-    this._row = new DemographicsTableRow('', '', 0, 0, 0, 0, 0, '');
+    this._row = new DemographicsTableRow('', '', 0, 0, 0, 0, 0, '', '', '');
   }
 
   censusGeoId(censusGeoId: string): DemographicsTableRowBuilder {
     this._row.census_geo_id = censusGeoId;
+    return this;
+  }
+
+  stateGeoId(stateGeoId: string): DemographicsTableRowBuilder {
+    this._row.census_state_geo_id = stateGeoId;
+    return this;
+  }
+
+  countyGeoId(countyGeoId: string): DemographicsTableRowBuilder {
+    this._row.census_county_geo_id = countyGeoId;
     return this;
   }
 
@@ -114,6 +130,14 @@ export class DemographicsTableRowBuilder {
       {
         name: 'white_population',
         value: { doubleValue: this._row.white_population },
+      },
+      {
+        name: 'census_county_geo_id',
+        value: { stringValue: this._row.census_county_geo_id },
+      },
+      {
+        name: 'census_state_geo_id',
+        value: { stringValue: this._row.census_state_geo_id },
       },
       {
         name: 'geom',
