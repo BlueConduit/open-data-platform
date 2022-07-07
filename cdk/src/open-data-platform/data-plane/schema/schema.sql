@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS demographics(
    geom GEOMETRY(Geometry, 4326),
    PRIMARY KEY(census_geo_id)
 );
-CREATE UNIQUE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (census_state_geo_id);
-
+CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (census_state_geo_id);
+CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON demographics (census_county_geo_id);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
