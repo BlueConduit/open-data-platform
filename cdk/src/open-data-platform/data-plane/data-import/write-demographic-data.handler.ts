@@ -29,8 +29,8 @@ async function insertBatch(
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO demographics (census_geo_id,
-                                    census_state_geo_id,
-                                    census_county_geo_id,
+                                    state_census_geo_id,
+                                    county_census_geo_id,
                                     census_block_name,
                                     total_population,
                                     under_five_population, 
@@ -38,9 +38,9 @@ async function insertBatch(
                                     black_population,
                                     white_population, geom)
           VALUES (:census_geo_id,
-                  :census_state_geo_id,
+                  :state_census_geo_id,
                   :census_county_geo_id,
-                  :census_block_name,
+                  :county_census_geo_id,
                   :total_population,
                   :under_five_population,
                   :poverty_population,
@@ -72,8 +72,8 @@ function getTableRowFromRow(row: any): SqlParametersList {
       .censusGeoId(geoId)
       // Indexes based on:
       // https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html
-      .stateGeoId(geoId.substring(0, 2))
-      .countyGeoId(geoId.substring(0, 5))
+      .stateCensusGeoId(geoId.substring(0, 2))
+      .countyCensusGeoId(geoId.substring(0, 5))
       .name(properties.NAME)
       .underFivePopulation(getValueOrDefault(properties.age_under5))
       .povertyPopulation(getValueOrDefault(properties.PovertyTot))

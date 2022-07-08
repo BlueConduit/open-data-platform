@@ -12,8 +12,8 @@ class DemographicsTableRow {
   poverty_population: number;
   black_population: number;
   white_population: number;
-  census_state_geo_id: string;
-  census_county_geo_id: string;
+  state_census_geo_id: string;
+  county_census_geo_id: string;
   geom: string;
 
   constructor(
@@ -24,8 +24,8 @@ class DemographicsTableRow {
     poverty_population: number,
     blackPopulation: number,
     whitePopulation: number,
-    censusStateGeoId: string,
-    censusCountyGeoId: string,
+    stateCensusGeoId: string,
+    countyCensusGeoId: string,
     geom: string,
   ) {
     this.census_geo_id = censusGeoId;
@@ -35,8 +35,8 @@ class DemographicsTableRow {
     this.poverty_population = poverty_population;
     this.black_population = blackPopulation;
     this.white_population = whitePopulation;
-    this.census_state_geo_id = censusStateGeoId;
-    this.census_county_geo_id = censusCountyGeoId;
+    this.state_census_geo_id = stateCensusGeoId;
+    this.county_census_geo_id = countyCensusGeoId;
     this.geom = geom;
   }
 }
@@ -56,13 +56,13 @@ export class DemographicsTableRowBuilder {
     return this;
   }
 
-  stateGeoId(stateGeoId: string): DemographicsTableRowBuilder {
-    this._row.census_state_geo_id = stateGeoId;
+  stateCensusGeoId(stateGeoId: string): DemographicsTableRowBuilder {
+    this._row.state_census_geo_id = stateGeoId;
     return this;
   }
 
-  countyGeoId(countyGeoId: string): DemographicsTableRowBuilder {
-    this._row.census_county_geo_id = countyGeoId;
+  countyCensusGeoId(countyGeoId: string): DemographicsTableRowBuilder {
+    this._row.county_census_geo_id = countyGeoId;
     return this;
   }
 
@@ -132,12 +132,12 @@ export class DemographicsTableRowBuilder {
         value: { doubleValue: this._row.white_population },
       },
       {
-        name: 'census_county_geo_id',
-        value: { stringValue: this._row.census_county_geo_id },
+        name: 'county_census_geo_id',
+        value: { stringValue: this._row.county_census_geo_id },
       },
       {
-        name: 'census_state_geo_id',
-        value: { stringValue: this._row.census_state_geo_id },
+        name: 'state_census_geo_id',
+        value: { stringValue: this._row.state_census_geo_id },
       },
       {
         name: 'geom',

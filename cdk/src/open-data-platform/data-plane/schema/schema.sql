@@ -31,21 +31,20 @@ $$ LANGUAGE plpgsql;
 -- Census-block-level data. TODO: consider renaming the table.
 
 CREATE TABLE IF NOT EXISTS demographics(
-    census_geo_id varchar(255) NOT NULL,
-    census_block_name varchar(255),
-    total_population real,
-    under_five_population real,
-    poverty_population real,
-    black_population real,
-    census_state_geo_id varchar(255) NOT NULL references states(census_geo_id),
-    census_county_geo_id varchar(255) NOT NULL references counties(census_geo_id),
-    white_population real,
-    geom GEOMETRY(Geometry, 4326),
-    PRIMARY KEY(census_geo_id)
+   census_geo_id varchar(255) NOT NULL,
+   census_block_name varchar(255),
+   total_population real,
+   under_five_population real,
+   poverty_population real,
+   black_population real,
+   white_population real,
+   state_census_geo_id varchar(255) NOT NULL references states(census_geo_id),
+   county_census_geo_id varchar(255) NOT NULL references counties(census_geo_id),
+   geom GEOMETRY(Geometry, 4326),
+   PRIMARY KEY(census_geo_id)
 );
-CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (census_state_geo_id);
-CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON demographics (census_county_geo_id);
-
+CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (state_census_geo_id);
+CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON demographics (county_census_geo_id);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
@@ -206,7 +205,7 @@ SELECT
     SUM(total_population) AS total_population,
     SUM(under_five_population) AS under_five_population,
     SUM(poverty_population) AS poverty_population
-FROM states LEFT JOIN demographics ON demographics.census_state_geo_id = states.census_geo_id
+FROM states LEFT JOIN demographics ON demographics.state_census_geo_id = states.census_geo_id
 GROUP BY states.census_geo_id, states.name, states.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
@@ -222,7 +221,7 @@ SELECT
     SUM(total_population) AS total_population,
     SUM(under_five_population) AS under_five_population,
     SUM(poverty_population) AS poverty_population
-FROM counties LEFT JOIN demographics ON demographics.census_county_geo_id = counties.census_geo_id
+FROM counties LEFT JOIN demographics ON demographics.county_census_geo_id = counties.census_geo_id
 GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
