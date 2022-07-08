@@ -12,10 +12,7 @@ import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/l
 import { leadServiceLinesByWaterSystemLayer } from './data_layer_configs/lead_service_lines_by_water_systems_config';
 import { populationDataByCensusBlockLayer } from './data_layer_configs/population_by_census_block_config';
 import { stateKey } from './injection_keys';
-import { DataLayer, MapLayer, TileDataLayer } from './model/data_layer';
-import router from './router';
-
-const DATA_LAYERS_AS_LIST  = [leadServiceLinesByWaterSystemLayer, leadAndCopperViolationsByCountyDataLayer, populationDataByCensusBlockLayer];
+import { DataLayer, MapLayer } from './model/data_layer';
 
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([
   [MapLayer.LeadServiceLineByWaterSystem, leadServiceLinesByWaterSystemLayer],
@@ -34,13 +31,8 @@ export default defineComponent({
   setup() {
     // Create and provide default state. This is updated once API data is fetched.
     const state = reactive(new State([]));
-    // if (router.currentRoute.value.query.layer != null) {
-    //   state.currentDataLayer = DATA_LAYERS_AS_LIST.find(layer => layer.styleLayer.id == router.currentRoute.value.query.layer) as TileDataLayer;
-    // } else {
-    //   state.currentDataLayer = leadServiceLinesByWaterSystemLayer;
-    // }
-    state.currentDataLayer = populationDataByCensusBlockLayer
-    state.dataLayers = [populationDataByCensusBlockLayer]
+    state.currentDataLayer = leadServiceLinesByWaterSystemLayer;
+    state.dataLayers = Array.from(DATA_LAYERS.values());
 
     provide(stateKey, state);
 

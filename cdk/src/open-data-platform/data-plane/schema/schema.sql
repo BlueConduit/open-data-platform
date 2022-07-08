@@ -168,6 +168,8 @@ CREATE TABLE IF NOT EXISTS demographics_by_state(
 );
 CREATE INDEX IF NOT EXISTS geom_index ON demographics_by_state USING GIST (geom);
 
+-- Precomputed table is required to ensure acceptable latency for the
+-- tileserver.
 CREATE TABLE IF NOT EXISTS demographics_by_county(
     census_geo_id varchar(255) NOT NULL,
     name varchar(255) NOT NULL,
@@ -181,6 +183,8 @@ CREATE TABLE IF NOT EXISTS demographics_by_county(
 );
 CREATE INDEX IF NOT EXISTS geom_index ON demographics_by_county USING GIST (geom);
 
+-- Precomputed table is required to ensure acceptable latency for the
+-- tileserver.
 CREATE TABLE IF NOT EXISTS demographics_by_zipcode(
     census_geo_id varchar(255) NOT NULL,
     zipcode varchar(255) NOT NULL,
@@ -199,8 +203,8 @@ CREATE INDEX IF NOT EXISTS geom_index ON demographics_by_zipcode USING GIST (geo
 INSERT INTO demographics_by_state(census_geo_id, geom, name, black_population, white_population, total_population, under_five_population, poverty_population)
 SELECT
     states.census_geo_id as census_geo_id,
-    ST_Transform(states.geom, 3857) AS geom,
     states.name AS name,
+    ST_Transform(states.geom, 3857) AS geom,
     SUM(black_population) AS black_population,
     SUM(white_population) AS white_population,
     SUM(total_population) AS total_population,
@@ -215,8 +219,8 @@ ON CONFLICT (census_geo_id) DO NOTHING;
 INSERT INTO demographics_by_county(census_geo_id, geom, name, black_population, white_population, total_population, under_five_population, poverty_population)
 SELECT
     counties.census_geo_id as census_geo_id,
-    ST_Transform(counties.geom, 3857) AS geom,
     counties.name AS name,
+    ST_Transform(counties.geom, 3857) AS geom,
     SUM(black_population) AS black_population,
     SUM(white_population) AS white_population,
     SUM(total_population) AS total_population,
@@ -230,6 +234,7 @@ CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer, x inte
 DECLARE
     mvt bytea;
 BEGIN
+    -- If the zoom is low, show state-level demographics. Otherwise, county-level.
     IF (z <= 4) THEN
         SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
              SELECT
