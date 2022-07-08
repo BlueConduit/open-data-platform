@@ -243,19 +243,19 @@ BEGIN
              FROM demographics_by_state
              WHERE geom && ST_TileEnvelope(z, x, y)
          ) AS tile WHERE geom IS NOT NULL;
-    ELSIF z < 8 THEN
-        SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
-             SELECT
-                 ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
-                 name,
-                 black_population,
-                 white_population,
-                 total_population,
-                 under_five_population,
-                 poverty_population
-             FROM demographics_by_county
-             WHERE geom && ST_TileEnvelope(z, x, y)
-         ) AS tile WHERE geom IS NOT NULL;
+--     ELSIF z < 8 THEN
+--         SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
+--              SELECT
+--                  ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+--                  name,
+--                  black_population,
+--                  white_population,
+--                  total_population,
+--                  under_five_population,
+--                  poverty_population
+--              FROM demographics_by_county
+--              WHERE geom && ST_TileEnvelope(z, x, y)
+--         ) AS tile WHERE geom IS NOT NULL;
     ELSE
         SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
             SELECT

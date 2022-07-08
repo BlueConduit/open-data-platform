@@ -35,7 +35,7 @@ const LEGEND_COLOR_MAPPING = [
  * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
  * results for the map.
  *
- *  See https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#interpolate.
+ *  See: https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#interpolate.
  */
 const legendInterpolation = [
   'interpolate',
