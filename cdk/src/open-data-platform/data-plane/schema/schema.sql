@@ -155,6 +155,8 @@ CREATE TABLE IF NOT EXISTS zipcodes (
 CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 CREATE UNIQUE INDEX IF NOT EXISTS zipcode_index ON zipcodes (zipcode);
 
+-- Precomputed table is required to ensure acceptable latency for the
+-- tileserver.
 CREATE TABLE IF NOT EXISTS demographics_by_state(
     census_geo_id varchar(255) NOT NULL,
     name varchar(255) NOT NULL,
