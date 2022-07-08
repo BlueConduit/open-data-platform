@@ -73,7 +73,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
       // Indexes based on:
       // https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html
       .stateGeoId(geoId.substring(0, 2))
-      .countyGeoId(geoId.substring(2, 5))
+      .countyGeoId(geoId.substring(0, 5))
       .name(properties.NAME)
       .underFivePopulation(getValueOrDefault(properties.age_under5))
       .povertyPopulation(getValueOrDefault(properties.PovertyTot))

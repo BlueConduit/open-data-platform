@@ -194,8 +194,9 @@ CREATE TABLE IF NOT EXISTS demographics_by_zipcode(
 );
 CREATE INDEX IF NOT EXISTS geom_index ON demographics_by_zipcode USING GIST (geom);
 
-
-INSERT INTO demographics_by_state(census_geo_id, geom, name, black_population, white_population)
+-- Pre-computed demographic data by state
+-- Only to be used by the function source
+INSERT INTO demographics_by_state(census_geo_id, geom, name, black_population, white_population, total_population, under_five_population, poverty_population)
 SELECT
     states.census_geo_id as census_geo_id,
     ST_Transform(states.geom, 3857) AS geom,
@@ -209,9 +210,11 @@ FROM states LEFT JOIN demographics ON demographics.census_state_geo_id = states.
 GROUP BY states.census_geo_id, states.name, states.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
+-- Pre-computed demographic data by county
+-- Only to be used by the function source
 INSERT INTO demographics_by_county(census_geo_id, geom, name, black_population, white_population, total_population, under_five_population, poverty_population)
 SELECT
-    counties.fips as census_geo_id,
+    counties.census_geo_id as census_geo_id,
     ST_Transform(counties.geom, 3857) AS geom,
     counties.name AS name,
     SUM(black_population) AS black_population,
@@ -219,48 +222,56 @@ SELECT
     SUM(total_population) AS total_population,
     SUM(under_five_population) AS under_five_population,
     SUM(poverty_population) AS poverty_population
-FROM counties LEFT JOIN demographics ON demographics.census_county_geo_id = counties.fips
+FROM counties LEFT JOIN demographics ON demographics.census_county_geo_id = counties.census_geo_id
 GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
-
-CREATE OR REPLACE FUNCTION public.demographics_function_source_counties(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
+CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
 DECLARE
     mvt bytea;
 BEGIN
-    SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source_counties', 4096, 'geom') FROM (
-        SELECT
-            ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
-            name,
-            black_population,
-            white_population,
-            total_population,
-            under_five_population,
-            poverty_population
-        FROM demographics_by_state
-        WHERE geom && ST_TileEnvelope(z, x, y)
-    ) AS tile WHERE geom IS NOT NULL;
-    RETURN mvt;
-END
-$$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
-
-CREATE OR REPLACE FUNCTION public.demographics_function_source_states(z integer, x integer, y integer, query_params json) RETURNS bytea AS $$
-DECLARE
-    mvt bytea;
-BEGIN
-    SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source_states', 4096, 'geom') FROM (
-        SELECT
-           ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
-           name,
-           black_population,
-           white_population,
-           total_population,
-           under_five_population,
-           poverty_population
-        FROM demographics_by_county
-        WHERE geom && ST_TileEnvelope(z, x, y)
-    ) AS tile WHERE geom IS NOT NULL;
-    RETURN mvt;
+    IF (z <= 4) THEN
+        SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
+             SELECT
+                 ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                 name,
+                 black_population,
+                 white_population,
+                 total_population,
+                 under_five_population,
+                 poverty_population
+             FROM demographics_by_state
+             WHERE geom && ST_TileEnvelope(z, x, y)
+         ) AS tile WHERE geom IS NOT NULL;
+    ELSIF z < 8 THEN
+        SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
+             SELECT
+                 ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                 name,
+                 black_population,
+                 white_population,
+                 total_population,
+                 under_five_population,
+                 poverty_population
+             FROM demographics_by_county
+             WHERE geom && ST_TileEnvelope(z, x, y)
+         ) AS tile WHERE geom IS NOT NULL;
+    ELSE
+        SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
+            SELECT
+                -- This needs an additional transformation in order to work with ST_TileEnvelope
+                ST_AsMVTGeom(ST_Transform(geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
+                census_block_name AS name,
+                black_population,
+                white_population,
+                total_population,
+                under_five_population,
+                poverty_population
+            FROM demographics
+            WHERE ST_Transform(geom, 3857) && ST_TileEnvelope(z, x, y)
+        ) AS tile WHERE geom IS NOT NULL;
+    END IF;
+RETURN mvt;
 END
 $$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
 

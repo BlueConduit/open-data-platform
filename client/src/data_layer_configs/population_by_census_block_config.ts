@@ -11,7 +11,7 @@ import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 //const TABLE_NAME = 'public.demographics';
-const TABLE_NAME = 'public.demographics_function_source_counties';
+const TABLE_NAME = 'public.demographics_function_source';
 
 /**
  * Maps legend buckets to the hex values.
@@ -56,13 +56,12 @@ export const styleLayer: FillLayer = {
   'source-layer': TABLE_NAME,
   type: 'fill',
   paint: {
-    'fill-color': '#71b2f0',
-    //   [
-    //   'case',
-    //   ['==', ['get', 'total_population'], null],
-    //   DEFAULT_NULL_COLOR,
-    //   legendInterpolation,
-    // ],
+    'fill-color': [
+      'case',
+      ['==', ['get', 'total_population'], null],
+      DEFAULT_NULL_COLOR,
+      legendInterpolation,
+    ],
     'fill-opacity': 0.75,
     'fill-outline-color': '#6433FF',
   },

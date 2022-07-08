@@ -53,7 +53,7 @@ async function insertBatch(
 function getTableRowFromRow(row: any): SqlParametersList {
   const value = row.value;
   const properties = value.properties;
-  console.log(properties);
+
   return (
     new CountiesTableRowBuilder()
       .censusGeoId(properties.GEOID)
