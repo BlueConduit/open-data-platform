@@ -6,6 +6,7 @@ import { Construct } from 'constructs';
 import * as pipelines from 'aws-cdk-lib/pipelines';
 import * as util from '../util';
 import { OpenDataPlatformStage } from './stage';
+import { BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 
 const CODE_REPO = 'BlueConduit/open-data-platform';
 const CODE_CONNECTION_ARN =
@@ -38,6 +39,22 @@ export class PipelineStack extends Stack {
         ],
         primaryOutputDirectory: 'cdk/cdk.out',
       }),
+      synthCodeBuildDefaults: {
+        buildEnvironment: {
+          // TODO: update to a build image which supports node 16 on next CDK release
+          buildImage: LinuxBuildImage.STANDARD_5_0
+        },
+        partialBuildSpec: BuildSpec.fromObject({
+          phases: {
+            install: {
+              "runtime-versions": {
+                // TODO: update to node 16 once new codebuild images are available in next CDK release
+                nodejs: 14
+              }
+            }
+          }
+        })
+      }
     });
 
     pipeline.addStage(
