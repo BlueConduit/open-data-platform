@@ -152,6 +152,7 @@ CREATE TABLE IF NOT EXISTS zipcodes (
     PRIMARY KEY (census_geo_id)
 );
 
+CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 CREATE UNIQUE INDEX IF NOT EXISTS zipcode_index ON zipcodes (zipcode);
 
 CREATE TABLE IF NOT EXISTS demographics_by_state(
@@ -242,32 +243,18 @@ BEGIN
              FROM demographics_by_state
              WHERE geom && ST_TileEnvelope(z, x, y)
          ) AS tile WHERE geom IS NOT NULL;
---     ELSIF z < 8 THEN
---         SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
---              SELECT
---                  ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
---                  name,
---                  black_population,
---                  white_population,
---                  total_population,
---                  under_five_population,
---                  poverty_population
---              FROM demographics_by_county
---              WHERE geom && ST_TileEnvelope(z, x, y)
---         ) AS tile WHERE geom IS NOT NULL;
     ELSE
         SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source', 4096, 'geom') FROM (
-            SELECT
-                -- This needs an additional transformation in order to work with ST_TileEnvelope
-                ST_AsMVTGeom(ST_Transform(geom, 3857), ST_TileEnvelope(z, x, y)) AS geom,
-                census_block_name AS name,
-                black_population,
-                white_population,
-                total_population,
-                under_five_population,
-                poverty_population
-            FROM demographics
-            WHERE ST_Transform(geom, 3857) && ST_TileEnvelope(z, x, y)
+             SELECT
+                 ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                 name,
+                 black_population,
+                 white_population,
+                 total_population,
+                 under_five_population,
+                 poverty_population
+             FROM demographics_by_county
+             WHERE geom && ST_TileEnvelope(z, x, y)
         ) AS tile WHERE geom IS NOT NULL;
     END IF;
 RETURN mvt;
