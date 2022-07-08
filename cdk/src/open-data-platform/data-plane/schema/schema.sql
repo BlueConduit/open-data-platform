@@ -31,16 +31,20 @@ $$ LANGUAGE plpgsql;
 -- Census-block-level data. TODO: consider renaming the table.
 
 CREATE TABLE IF NOT EXISTS demographics(
-    census_geo_id varchar(255) NOT NULL,
-    census_block_name varchar(255),
-    total_population real,
-    under_five_population real,
-    poverty_population real,
-    black_population real,
-    white_population real,
-    geom GEOMETRY(Geometry, 4326),
-    PRIMARY KEY(census_geo_id)
+   census_geo_id varchar(255) NOT NULL,
+   census_block_name varchar(255),
+   total_population real,
+   under_five_population real,
+   poverty_population real,
+   black_population real,
+   white_population real,
+   state_census_geo_id varchar(255) NOT NULL references states(census_geo_id),
+   county_census_geo_id varchar(255) NOT NULL references counties(census_geo_id),
+   geom GEOMETRY(Geometry, 4326),
+   PRIMARY KEY(census_geo_id)
 );
+CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (state_census_geo_id);
+CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON demographics (county_census_geo_id);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
