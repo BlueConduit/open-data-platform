@@ -38,13 +38,13 @@ CREATE TABLE IF NOT EXISTS demographics(
    poverty_population real,
    black_population real,
    white_population real,
-   census_state_geo_id varchar(255) NOT NULL references states(census_geo_id),
-   census_county_geo_id varchar(255) NOT NULL references counties(census_geo_id),
+   state_census_geo_id varchar(255) NOT NULL references states(census_geo_id),
+   county_census_geo_id varchar(255) NOT NULL references counties(census_geo_id),
    geom GEOMETRY(Geometry, 4326),
    PRIMARY KEY(census_geo_id)
 );
-CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (census_state_geo_id);
-CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON demographics (census_county_geo_id);
+CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (state_census_geo_id);
+CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON demographics (county_census_geo_id);
 
 CREATE INDEX IF NOT EXISTS geom_index
     ON demographics
