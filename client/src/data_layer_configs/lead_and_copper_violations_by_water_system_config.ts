@@ -44,10 +44,10 @@ const styleLayer: FillLayer = {
   id: `${MapLayer.LeadAndCopperRuleViolationsByWaterSystem}-style`,
   source: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   // Corresponds to the table in the database.
-  'source-layer': 'public.violations_function_source_states',
+  'source-layer': 'public.violation_counts',
   type: 'fill',
   paint: {
-    'fill-color': '#FFEAE5',
+    'fill-color': leadAndCopperViolationsInterpolation,
     'fill-opacity': 0.75,
     'fill-outline-color': '#B2391F',
   },
@@ -73,9 +73,7 @@ const popupInfo: PopupInfo = {
 export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [
-      `https://${tileServerHost()}/tiles/v1/rpc/public.violations_function_source_states/{z}/{x}/{y}.pbf`,
-    ],
+    tiles: [`https://${tileServerHost()}/tiles/v1/public.violation_counts/{z}/{x}/{y}.pbf`],
   },
   id: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   name: 'Lead & Copper Rule Violations',

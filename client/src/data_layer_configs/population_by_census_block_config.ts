@@ -10,8 +10,7 @@ import { FillLayer } from 'mapbox-gl';
 import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
-//const TABLE_NAME = 'public.demographics';
-const TABLE_NAME = 'public.demographics_function_source';
+const TABLE_NAME = 'public.demographics';
 
 /**
  * Maps legend buckets to the hex values.
@@ -35,7 +34,7 @@ const LEGEND_COLOR_MAPPING = [
  * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
  * results for the map.
  *
- *  See: https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#interpolate.
+ *  See https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#interpolate.
  */
 const legendInterpolation = [
   'interpolate',
@@ -67,7 +66,7 @@ export const styleLayer: FillLayer = {
   },
   layout: {
     // Make the layer hidden by default.
-    visibility: 'visible',
+    visibility: 'none',
   },
 };
 
@@ -112,13 +111,9 @@ const popupInfo: PopupInfo = {
 };
 
 export const populationDataByCensusBlockLayer: TileDataLayer = {
-  // source: {
-  //   type: DataSourceType.Vector,
-  //   tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
-  // },
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/rpc/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
   },
   id: MapLayer.PopulationByCensusBlock,
   name: 'Population',
