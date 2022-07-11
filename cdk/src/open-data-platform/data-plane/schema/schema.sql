@@ -257,13 +257,12 @@ FROM counties
 GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
+CREATE INDEX IF NOT EXISTS geom_index ON county_demographics USING GIST (geom);
+
 CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer,
                                                                x integer,
                                                                y integer,
                                                                query_params json) RETURNS bytea AS
-
-CREATE INDEX IF NOT EXISTS geom_index ON county_demographics USING GIST (geom);
-
 $$
 DECLARE
     mvt bytea;
