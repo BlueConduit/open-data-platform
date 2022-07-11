@@ -4,7 +4,7 @@ import { Stack } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import { Construct } from 'constructs';
-import { CommonProps, projectName } from '../../util';
+import { CommonProps, projectName, EnvType } from '../../util';
 
 export class NetworkStack extends Stack {
   readonly vpc: ec2.IVpc;
@@ -16,7 +16,7 @@ export class NetworkStack extends Stack {
     // This is currently set to always use a new VPC, since we don't yet have a good way to
     // determine whether to use a new or existing one (and can't dynamically figure that out [1]).
     // [1] https://github.com/aws/aws-cdk/issues/5305#issuecomment-565394725
-    this.vpc = false
+    this.vpc = [EnvType.Development, EnvType.UnitTest].includes(props.envType)
       ? // Use an existing VPC.
         // By default, an AWS account can only have 5 Elastic IP addresses. Reusing existing VPCs keeps
         // that number down.

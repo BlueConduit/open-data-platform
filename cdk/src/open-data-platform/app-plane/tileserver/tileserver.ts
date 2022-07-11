@@ -31,7 +31,7 @@ export class TileServer extends Construct {
       // Resource quantities are copied from https://github.com/BlueConduit/tributary/blob/main/cdk/lib/app-plane/tileserver.ts
       // TODO: adjust based on usage.
       desiredCount: 1,
-      memoryLimitMiB: 1024,
+      memoryLimitMiB: 8192, // must map to a value in https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html
       cpu: 4096, // measured in milliCPU; or 0.5 vCPU.
       taskImageOptions: {
         // Source: https://github.com/urbica/martin
