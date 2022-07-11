@@ -166,6 +166,146 @@ CREATE TABLE IF NOT EXISTS zipcodes
 CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 CREATE UNIQUE INDEX IF NOT EXISTS zipcode_index ON zipcodes (zipcode);
 
+-- Precomputed table is required to ensure acceptable latency for the
+-- tileserver.
+CREATE TABLE IF NOT EXISTS state_demographics
+(
+    census_geo_id         varchar(255) NOT NULL,
+    name                  varchar(255) NOT NULL,
+    black_population      float,
+    white_population      float,
+    total_population      real,
+    under_five_population real,
+    poverty_population    real,
+    geom                  geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON state_demographics USING GIST (geom);
+
+-- Precomputed table is required to ensure acceptable latency for the
+-- tileserver.
+CREATE TABLE IF NOT EXISTS county_demographics
+(
+    census_geo_id         varchar(255) NOT NULL,
+    name                  varchar(255) NOT NULL,
+    black_population      real,
+    white_population      real,
+    total_population      real,
+    under_five_population real,
+    poverty_population    real,
+    geom                  geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON county_demographics USING GIST (geom);
+
+-- Precomputed table is required to ensure acceptable latency for the
+-- tileserver.
+-- TODO(breuch): Add insert statement once the zipcode -> demographics
+-- connection established.
+CREATE TABLE IF NOT EXISTS zipcode_demographics
+(
+    census_geo_id         varchar(255) NOT NULL,
+    zipcode               varchar(255) NOT NULL,
+    black_population      real,
+    white_population      real,
+    total_population      real,
+    under_five_population real,
+    poverty_population    real,
+    geom                  geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON zipcode_demographics USING GIST (geom);
+
+-- Pre-computed demographic data by state
+-- Only to be used by the function source
+INSERT INTO state_demographics(census_geo_id, geom, name, black_population,
+                               white_population, total_population,
+                               under_five_population, poverty_population)
+SELECT states.census_geo_id            as census_geo_id,
+       states.name                     AS name,
+       ST_Transform(states.geom, 3857) AS geom,
+       SUM(black_population)           AS black_population,
+       SUM(white_population)           AS white_population,
+       SUM(total_population)           AS total_population,
+       SUM(under_five_population)      AS under_five_population,
+       SUM(poverty_population)         AS poverty_population
+FROM states
+         LEFT JOIN demographics
+                   ON demographics.state_census_geo_id = states.census_geo_id
+GROUP BY states.census_geo_id, states.name, states.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
+CREATE INDEX IF NOT EXISTS geom_index ON state_demographics USING GIST (geom);
+
+
+-- Pre-computed demographic data by county.
+-- Only to be used by the function source
+INSERT INTO county_demographics(census_geo_id, geom, name, black_population,
+                                white_population, total_population,
+                                under_five_population, poverty_population)
+SELECT counties.census_geo_id            as census_geo_id,
+       counties.name                     AS name,
+       ST_Transform(counties.geom, 3857) AS geom,
+       SUM(black_population)             AS black_population,
+       SUM(white_population)             AS white_population,
+       SUM(total_population)             AS total_population,
+       SUM(under_five_population)        AS under_five_population,
+       SUM(poverty_population)           AS poverty_population
+FROM counties
+         LEFT JOIN demographics
+                   ON demographics.county_census_geo_id = counties.census_geo_id
+GROUP BY counties.census_geo_id, counties.name, counties.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
+CREATE INDEX IF NOT EXISTS geom_index ON county_demographics USING GIST (geom);
+
+CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer,
+                                                               x integer,
+                                                               y integer,
+                                                               query_params json) RETURNS bytea AS
+$$
+DECLARE
+    mvt bytea;
+BEGIN
+    -- If the zoom is low (i.e. user is zoomed out), show state-level demographics.
+    -- Otherwise, county-level.
+    IF (z <= 4) THEN
+        SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source',
+                                 4096, 'geom')
+        FROM (
+                 SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                        name,
+                        black_population,
+                        white_population,
+                        total_population,
+                        under_five_population,
+                        poverty_population
+                 FROM state_demographics
+                 WHERE geom && ST_TileEnvelope(z, x, y)
+             ) AS tile
+        WHERE geom IS NOT NULL;
+    ELSE
+        SELECT INTO mvt ST_AsMVT(tile, 'public.demographics_function_source',
+                                 4096, 'geom')
+        FROM (
+                 SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                        name,
+                        black_population,
+                        white_population,
+                        total_population,
+                        under_five_population,
+                        poverty_population
+                 FROM county_demographics
+                 WHERE geom && ST_TileEnvelope(z, x, y)
+             ) AS tile
+        WHERE geom IS NOT NULL;
+    END IF;
+    RETURN mvt;
+END
+$$ LANGUAGE plpgsql IMMUTABLE
+                    STRICT
+                    PARALLEL SAFE;
+
 --- Returns lead connections aggregated by either state or water system, depending on z (zoom level).
 
 CREATE OR REPLACE FUNCTION public.lead_connections_function_source(z integer,
