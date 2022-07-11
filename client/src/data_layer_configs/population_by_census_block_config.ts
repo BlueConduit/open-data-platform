@@ -1,11 +1,4 @@
-import {
-  DataSourceType,
-  FeaturePropertyDataType,
-  LegendInfo,
-  MapLayer,
-  PopupInfo,
-  TileDataLayer,
-} from '@/model/data_layer';
+import { DataSourceType, FeaturePropertyDataType, LegendInfo, MapLayer, PopupInfo, TileDataLayer } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
@@ -171,4 +164,6 @@ export const populationDataByCensusBlockLayer: TileDataLayer = {
   legendInfo: legendInfo,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
+  visibleInSearchBar: true,
+
 };

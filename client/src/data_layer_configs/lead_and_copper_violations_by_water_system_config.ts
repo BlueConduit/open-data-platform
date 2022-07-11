@@ -1,11 +1,4 @@
-import {
-  DataSourceType,
-  FeaturePropertyDataType,
-  LegendInfo,
-  MapLayer,
-  PopupInfo,
-  TileDataLayer,
-} from '@/model/data_layer';
+import { DataSourceType, FeaturePropertyDataType, LegendInfo, MapLayer, PopupInfo, TileDataLayer } from '@/model/data_layer';
 import { Expression, FillLayer } from 'mapbox-gl';
 import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
@@ -94,4 +87,5 @@ export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   legendInfo: legendInfo,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
+  visibleInSearchBar: true,
 };

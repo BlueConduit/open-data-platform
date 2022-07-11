@@ -21,6 +21,8 @@ export interface DataLayer {
   popupInfo: PopupInfo;
   // Data source for the layer.
   source: AnySourceData;
+  // Whether it should be selectable in the searchbar.
+  visibleInSearchBar: boolean;
 }
 
 /**
@@ -105,6 +107,7 @@ export enum FeaturePropertyDataType {
  */
 export enum MapLayer {
   Unknown = 'unknown',
+  LeadServiceLineByParcel = 'lead-service-lines-by-parcel',
   LeadServiceLineByWaterSystem = 'lead-service-lines-by-water-system',
   LeadAndCopperRuleViolationsByWaterSystem = 'epa-lead-and-copper-violations-by-water-system',
   PopulationByCensusBlock = 'population-by-census-block',
