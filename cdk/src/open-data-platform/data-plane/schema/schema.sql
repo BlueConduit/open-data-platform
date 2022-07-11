@@ -177,7 +177,7 @@ DECLARE
     mvt bytea;
 BEGIN
     IF (z < 6) THEN
-        -- Show aggregated violations data by state at low zoom level (most zoomed out). by state. Select relevant fields from both tables.
+        -- Show aggregated lead connections data by state at low zoom level (most zoomed out).
         SELECT INTO mvt ST_AsMVT(tile,
                                  'public.lead_connections_function_source',
                                  4096, 'geom')
@@ -197,7 +197,7 @@ BEGIN
              ) AS tile
         WHERE geom IS NOT NULL;
     ELSE
-        -- Select water system fields.
+        -- Show lead connections data by water system at higher zoom levels (zoomed in).
         SELECT INTO mvt ST_AsMVT(tile,
                                  'public.lead_connections_function_source',
                                  4096, 'geom')
