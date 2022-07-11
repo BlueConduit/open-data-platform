@@ -1,48 +1,25 @@
-import {
-  DataSourceType,
-  FeaturePropertyDataType,
-  LegendInfo,
-  MapLayer,
-  PopupInfo,
-  TileDataLayer,
-} from '@/model/data_layer';
+import { DataSourceType, FeaturePropertyDataType, LegendInfo, MapLayer, PopupInfo, TileDataLayer } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
-import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
+import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
-const TABLE_NAME = 'public.lead_connections_function_source';
 
-const LEGEND_VALUES = [
-  {
-    bucketValue: 0,
-    bucketColor: '#9fcd7c',
-  },
-  {
-    bucketValue: 25,
-    bucketColor: '#f7e5af',
-  },
-  {
-    bucketValue: 33,
-    bucketColor: '#f9bd64',
-  },
-  {
-    bucketValue: 50,
-    bucketColor: '#f4a163',
-  },
-  {
-    bucketValue: 60,
-    bucketColor: '#ff5934',
-  },
-  {
-    bucketValue: 75,
-    bucketColor: '#d73819',
-  },
-];
-
-const percentLeadLines = [
-  '*',
-  100,
-  ['/', ['get', 'lead_connections_count'], ['get', 'service_connections_count']],
+/**
+ * Maps legend buckets to the hex values.
+ */
+const LEGEND_COLOR_MAPPING = [
+  0,
+  '#9fcd7c',
+  0.25,
+  '#f7e5af',
+  0.33,
+  '#f9bd64',
+  0.5,
+  '#f4a163',
+  0.6,
+  '#ff5934',
+  0.75,
+  '#d73819',
 ];
 
 /**
@@ -55,28 +32,27 @@ const leadConnectionLegendInterpolation = [
   'interpolate',
   ['linear'],
   // Provides ratio of lead service lines : total service lines.
-  percentLeadLines,
-  ...getLegendBucketsAsList(LEGEND_VALUES),
+  ['/', ['get', 'lead_connections_count'], ['get', 'service_connections_count']],
+  ...LEGEND_COLOR_MAPPING,
 ];
 
 const legendInfo: LegendInfo = {
-  title: 'Percent of service lines estimated to be lead',
-  buckets: LEGEND_VALUES,
-  bucketLabelType: FeaturePropertyDataType.Percentage,
+  title: 'Proportion of lead lines to all service lines',
+  bucketMap: colorMapToBuckets(LEGEND_COLOR_MAPPING),
 };
 
 export const styleLayer: FillLayer = {
-  id: `${MapLayer.LeadServiceLineByWaterSystem}-style`,
-  source: MapLayer.LeadServiceLineByWaterSystem,
+  id: `${MapLayer.LeadServiceLineByParcel}-style`,
+  source: MapLayer.LeadServiceLineByParcel,
   // Corresponds to the table in the database.
-  'source-layer': TABLE_NAME,
+  'source-layer': 'public.parcels',
   type: 'fill',
   paint: {
-    'fill-color': '#9fcd7c',
+    'fill-color': '#f4a163',
     'fill-opacity': 0.75,
   },
   layout: {
-    // Make the layer hidden by default.
+    // Make the layer visible by default.
     visibility: 'none',
   },
 };
@@ -109,19 +85,15 @@ const popupInfo: PopupInfo = {
   ],
 };
 
-export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
+export const leadServiceLinesByParcelLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/rpc/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
-    // Helps with latency to reduce fetching unneeded tiles.
-    minzoom: 3,
-    maxzoom: 16,
+    tiles: [`https://${tileServerHost()}/tiles/v1/public.parcels/{z}/{x}/{y}.pbf`],
   },
-  id: MapLayer.LeadServiceLineByWaterSystem,
+  id: MapLayer.LeadServiceLineByParcel,
   name: 'Lead Service Lines',
   legendInfo: legendInfo,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
-  visibleInSearchBar: true,
-
+  visibleInSearchBar: false,
 };

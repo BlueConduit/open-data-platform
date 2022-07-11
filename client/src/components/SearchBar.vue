@@ -74,7 +74,7 @@ export default defineComponent({
     state: {
       handler(newState: State): void {
         if (newState != null) {
-          this.options = newState.dataLayers;
+          this.options = newState.dataLayers.filter(layer => layer.visibleInSearchBar);
           this.selectedOption = newState.currentDataLayer;
         }
       },

@@ -11,8 +11,9 @@ import MapPopupContent from '@/components/MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { DataLayer, FeatureProperty } from '../model/data_layer';
+import { DataLayer, FeatureProperty, MapLayer } from '../model/data_layer';
 import router from '../router';
+import { leadServiceLinesByParcelLayer } from '../data_layer_configs/lead_service_lines_by_parcel_config';
 import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
@@ -72,11 +73,13 @@ export default defineComponent({
       this.map.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
 
       // Update the router params when toggling layers to visible.
-      if (visible && router.currentRoute.value.query.layer != styleLayerId) {
+      if (visible &&
+        router.currentRoute.value.query.layer != styleLayerId &&
+        styleLayerId != leadServiceLinesByParcelLayer.styleLayer.id) {
         router.push({ query: Object.assign({}, router.currentRoute.value.query, { layer: styleLayerId }) });
       }
     },
-    
+
     /**
      * Updates layer visibility based on current data layer.
      */
@@ -147,7 +150,7 @@ export default defineComponent({
               const popupInfo = this.state?.currentDataLayer?.popupInfo;
 
               console.log(clickedFeatureProperties);
-              
+
               this.createMapPopup(e.lngLat, /* popupData= */
                 {
                   title: popupInfo?.title ?? '',
@@ -187,6 +190,19 @@ export default defineComponent({
       this.map.addControl(new mapboxgl.NavigationControl());
     },
 
+    setUpZoomListener(): void {
+      if (this.map == null) return;
+
+      this.map.on('zoom', () => {
+        if (this.map == null) return;
+        if (this.map.getZoom() > 10 && this.state.currentDataLayer?.id == MapLayer.LeadServiceLineByWaterSystem) {
+          this.toggleLayerVisibility(leadServiceLinesByParcelLayer, leadServiceLinesByWaterSystemLayer);
+        } else if (this.map.getZoom() > 10 && this.state.currentDataLayer?.id == MapLayer.LeadServiceLineByParcel) {
+          this.toggleLayerVisibility(leadServiceLinesByWaterSystemLayer, leadServiceLinesByParcelLayer);
+        }
+      });
+    },
+
     /**
      * Configure data layers and interaction handlers on the map.
      */
@@ -201,6 +217,7 @@ export default defineComponent({
 
       this.setUpInteractionHandlers();
       this.setUpControls();
+      this.setUpZoomListener();
 
       // Check whether there's a layer selected in the router.
       this.state.setCurrentDataLayer(this.state.dataLayers.find(layer => layer.styleLayer.id == router.currentRoute.value.query?.layer)
