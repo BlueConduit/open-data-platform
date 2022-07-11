@@ -8,6 +8,7 @@ import { CommonProps } from '../../util';
 import { Schema } from './schema/schema';
 import { DataImportStack } from './data-import/data-import-stack';
 import { DatabaseUserCredentials } from './db-user-credentials/db-user-credentials';
+import { AuroraCapacityUnit } from 'aws-cdk-lib/aws-rds';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
@@ -39,6 +40,7 @@ export class DataPlaneStack extends Stack {
         subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
       },
       enableDataApi: true, // Required to use Query Editor.
+      scaling: { maxCapacity: AuroraCapacityUnit.ACU_4 },
     });
 
     this.cluster.addRotationSingleUser({

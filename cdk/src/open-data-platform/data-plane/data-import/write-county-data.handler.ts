@@ -27,13 +27,13 @@ async function insertBatch(
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO counties (census_geo_id,
-                                     fips,
-                                     state_fips,
-                                     ansi,
-                                     aff_geo_id,
-                                     name,
-                                     lsad,
-                                     geom)
+                               fips,
+                               state_fips,
+                               ansi,
+                               aff_geo_id,
+                               name,
+                               lsad,
+                               geom)
           VALUES (:census_geo_id,
                   :fips,
                   :state_fips,
@@ -53,7 +53,7 @@ async function insertBatch(
 function getTableRowFromRow(row: any): SqlParametersList {
   const value = row.value;
   const properties = value.properties;
-  console.log(properties);
+
   return (
     new CountiesTableRowBuilder()
       .censusGeoId(properties.GEOID)

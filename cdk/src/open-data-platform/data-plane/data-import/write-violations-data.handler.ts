@@ -14,6 +14,8 @@ const moment = require('moment');
 const S3 = new AWS.S3();
 
 const BATCH_SIZE = 10;
+
+// There are 3273 rows.
 const DEFAULT_NUMBER_ROWS_TO_INSERT = 10000;
 const POSTGRESQL_DATE_FORMAT = 'YYYY-MM-DD';
 const EPA_API_DATE_FORMAT = 'DD-MMM-YY';

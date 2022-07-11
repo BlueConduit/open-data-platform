@@ -32,7 +32,7 @@ export class TileServer extends Construct {
       // TODO: adjust based on usage.
       desiredCount: 1,
       memoryLimitMiB: 1024,
-      cpu: 512, // measured in milliCPU; or 0.5 vCPU.
+      cpu: 4096, // measured in milliCPU; or 0.5 vCPU.
       taskImageOptions: {
         // Source: https://github.com/urbica/martin
         // TODO: Rename this reposity or tag to describe that it's the tile server, not the platform.
