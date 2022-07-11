@@ -146,6 +146,8 @@ export default defineComponent({
               const clickedFeatureProperties: { [name: string]: any; } = e.features[0].properties as {};
               const popupInfo = this.state?.currentDataLayer?.popupInfo;
 
+              console.log(clickedFeatureProperties);
+              
               this.createMapPopup(e.lngLat, /* popupData= */
                 {
                   title: popupInfo?.title ?? '',
