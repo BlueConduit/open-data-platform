@@ -7,26 +7,41 @@ import {
   TileDataLayer,
 } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
-import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
+import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 
-/**
- * Maps legend buckets to the hex values.
- */
-const LEGEND_COLOR_MAPPING = [
-  0,
-  '#9fcd7c',
-  0.25,
-  '#f7e5af',
-  0.33,
-  '#f9bd64',
-  0.5,
-  '#f4a163',
-  0.6,
-  '#ff5934',
-  0.75,
-  '#d73819',
+const LEGEND_VALUES = [
+  {
+    bucketValue: 0,
+    bucketColor: '#9fcd7c',
+  },
+  {
+    bucketValue: 25,
+    bucketColor: '#f7e5af',
+  },
+  {
+    bucketValue: 33,
+    bucketColor: '#f9bd64',
+  },
+  {
+    bucketValue: 50,
+    bucketColor: '#f4a163',
+  },
+  {
+    bucketValue: 60,
+    bucketColor: '#ff5934',
+  },
+  {
+    bucketValue: 75,
+    bucketColor: '#d73819',
+  },
+];
+
+const percentLeadLines = [
+  '*',
+  100,
+  ['/', ['get', 'lead_connections_count'], ['get', 'service_connections_count']],
 ];
 
 /**
@@ -39,13 +54,14 @@ const leadConnectionLegendInterpolation = [
   'interpolate',
   ['linear'],
   // Provides ratio of lead service lines : total service lines.
-  ['/', ['get', 'lead_connections_count'], ['get', 'service_connections_count']],
-  ...LEGEND_COLOR_MAPPING,
+  percentLeadLines,
+  ...getLegendBucketsAsList(LEGEND_VALUES),
 ];
 
 const legendInfo: LegendInfo = {
-  title: 'Proportion of lead lines to all service lines',
-  bucketMap: colorMapToBuckets(LEGEND_COLOR_MAPPING),
+  title: 'Percent of service lines estimated to be lead',
+  buckets: LEGEND_VALUES,
+  bucketLabelType: FeaturePropertyDataType.Percent,
 };
 
 export const styleLayer: FillLayer = {

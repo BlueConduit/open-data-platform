@@ -7,27 +7,36 @@ import {
   TileDataLayer,
 } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
-import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
+import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 const TABLE_NAME = 'public.demographics';
 
-/**
- * Maps legend buckets to the hex values.
- */
-const LEGEND_COLOR_MAPPING = [
-  0,
-  '#ECE5FF',
-  800,
-  '#D8CCFF',
-  1200,
-  '#B299FF',
-  1700,
-  '#9E80FF',
-  2200,
-  '#8B66FF',
-  2700,
-  '#774DFF',
+const LEGEND_VALUES = [
+  {
+    bucketValue: 0,
+    bucketColor: '#ECE5FF',
+  },
+  {
+    bucketValue: 800,
+    bucketColor: '#D8CCFF',
+  },
+  {
+    bucketValue: 1200,
+    bucketColor: '#B299FF',
+  },
+  {
+    bucketValue: 1700,
+    bucketColor: '#9E80FF',
+  },
+  {
+    bucketValue: 2200,
+    bucketColor: '#8B66FF',
+  },
+  {
+    bucketValue: 2700,
+    bucketColor: '#774DFF',
+  },
 ];
 
 /**
@@ -40,12 +49,13 @@ const legendInterpolation = [
   'interpolate',
   ['linear'],
   ['get', 'total_population'],
-  ...LEGEND_COLOR_MAPPING,
+  ...getLegendBucketsAsList(LEGEND_VALUES),
 ];
 
 const legendInfo: LegendInfo = {
   title: 'Population by census block',
-  bucketMap: colorMapToBuckets(LEGEND_COLOR_MAPPING),
+  buckets: LEGEND_VALUES,
+  bucketLabelType: FeaturePropertyDataType.Number,
 };
 
 export const styleLayer: FillLayer = {
@@ -81,7 +91,11 @@ const popupInfo: PopupInfo = {
       name: 'census_geo_id',
       dataType: FeaturePropertyDataType.String,
     },
-    { label: 'Block name', name: 'census_block_name', dataType: FeaturePropertyDataType.String },
+    {
+      label: 'Block name',
+      name: 'census_block_name',
+      dataType: FeaturePropertyDataType.String,
+    },
     {
       label: 'Total population',
       name: 'total_population',

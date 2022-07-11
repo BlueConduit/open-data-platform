@@ -45,9 +45,9 @@ export default defineComponent({
      * Represents the current layer that should be shown based on the url
      * query parameter.
      */
-    routerLayer () {
+    routerLayer() {
       return router.currentRoute.value.query.layer ?? null;
-    }
+    },
   },
   props: {
     /**
@@ -221,7 +221,7 @@ export default defineComponent({
           attributionControl: false,
           center: this.center,
           container: 'map-container',
-          style: 'mapbox://styles/mapbox/streets-v11',
+          style: 'mapbox://styles/blueconduit/cl4ymcdgy000414pd5v1ggem5?optimize=true',
           zoom: 4,
         });
 
@@ -245,7 +245,7 @@ export default defineComponent({
     'routerLayer': function(newLayer: string) {
       this.setDataLayerVisibility(newLayer, true);
     },
-  }
+  },
 });
 </script>
 

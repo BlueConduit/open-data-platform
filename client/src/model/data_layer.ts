@@ -32,13 +32,28 @@ export interface TileDataLayer extends DataLayer {
 }
 
 /**
+ * Determines how to display a legend bucket
+ */
+export interface LegendBucketData {
+  // Bucket color hex value.
+  bucketColor: string;
+  // Formatted label for bucket value.
+  bucketLabel?: string;
+  // Bucket value.
+  bucketValue: any;
+}
+
+/**
  * Information to be displayed in the map legend when this layer is visible.
  */
 export interface LegendInfo {
   // Legend title.
   title: string;
   // Key / value map of visual representation -> values to be displayed in the legend.
-  bucketMap: Map<string, string>;
+  buckets?: LegendBucketData[];
+  bucketMap?: Map<string, string>;
+  // Data type for value.
+  bucketLabelType?: FeaturePropertyDataType;
 }
 
 /**
@@ -83,6 +98,7 @@ export enum FeaturePropertyDataType {
   Number = 'number',
   Date = 'date',
   Address = 'address',
+  Percent = 'percent',
 }
 
 /**

@@ -1,20 +1,36 @@
-/**
- * Converts list of legend pairs (alternating numerical key, string hex color
- * value) to a map of legend key : color hex.
- * @param colorMapping the list of legend pairs
- *
- * Example:
- * [0, '#9fcd7c', 10000, '#f7e5af'] => {'0' :  '#9fcd7c', '10000', '#f7e5af'}
- */
-export function colorMapToBuckets(colorMapping: any[]): Map<string, string> {
-  const listOfLegendPairs: [string, string][] = [];
-  for (let index = 0; index < colorMapping.length; index++) {
-    if (index % 2 != 0) {
-      listOfLegendPairs.push([colorMapping[index - 1].toString(), colorMapping[index]]);
+import { FeaturePropertyDataType, LegendBucketData, LegendInfo } from '@/model/data_layer';
+
+export const formatLegendBucket = (legend: LegendInfo | undefined): Array<LegendBucketData> => {
+  legend?.buckets?.forEach((bucket) => {
+    switch (legend.bucketLabelType) {
+      case FeaturePropertyDataType.String: {
+        bucket.bucketLabel = bucket.bucketValue ?? '';
+        break;
+      }
+      case FeaturePropertyDataType.Number: {
+        bucket.bucketLabel = parseFloat(bucket.bucketValue ?? '0').toLocaleString();
+        break;
+      }
+      case FeaturePropertyDataType.Percent: {
+        bucket.bucketLabel = `${parseFloat(bucket.bucketValue ?? '0').toLocaleString()} %`;
+        break;
+      }
+      default: {
+        bucket.bucketLabel = bucket.bucketValue ?? 'N/A';
+        break;
+      }
     }
+  });
+  return legend?.buckets ?? new Array<LegendBucketData>();
+};
+
+export const getLegendBucketsAsList = (buckets: LegendBucketData[]): Array<any> => {
+  const bucketToValues = [];
+  for (const bucket of buckets) {
+    bucketToValues.push(bucket.bucketValue, bucket.bucketColor);
   }
-  return new Map(listOfLegendPairs);
-}
+  return bucketToValues;
+};
 
 const LOCALHOST = 'localhost';
 
