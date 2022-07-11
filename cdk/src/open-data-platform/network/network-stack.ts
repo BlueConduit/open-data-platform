@@ -16,7 +16,7 @@ export class NetworkStack extends Stack {
     // This is currently set to always use a new VPC, since we don't yet have a good way to
     // determine whether to use a new or existing one (and can't dynamically figure that out [1]).
     // [1] https://github.com/aws/aws-cdk/issues/5305#issuecomment-565394725
-    this.vpc = [EnvType.Development, EnvType.UnitTest].includes(props.envType)
+    this.vpc = [EnvType.Development, EnvType.Sandbox].includes(props.envType)
       ? // Use an existing VPC.
         // By default, an AWS account can only have 5 Elastic IP addresses. Reusing existing VPCs keeps
         // that number down.
