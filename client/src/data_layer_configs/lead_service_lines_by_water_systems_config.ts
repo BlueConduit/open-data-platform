@@ -10,7 +10,7 @@ import { FillLayer } from 'mapbox-gl';
 import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
-const TABLE_NAME = 'public.water_systems';
+const TABLE_NAME = 'public.lead_connections_function_source';
 
 const LEGEND_VALUES = [
   {
@@ -72,12 +72,7 @@ export const styleLayer: FillLayer = {
   'source-layer': TABLE_NAME,
   type: 'fill',
   paint: {
-    'fill-color': [
-      'case',
-      ['==', ['get', 'lead_connections_count'], null],
-      DEFAULT_NULL_COLOR,
-      leadConnectionLegendInterpolation,
-    ],
+    'fill-color': '#9fcd7c',
     'fill-opacity': 0.75,
   },
   layout: {
@@ -117,7 +112,7 @@ const popupInfo: PopupInfo = {
 export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/tiles/v1/rpc/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
     // Helps with latency to reduce fetching unneeded tiles.
     minzoom: 3,
     maxzoom: 16,
