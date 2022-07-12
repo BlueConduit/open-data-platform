@@ -28,7 +28,7 @@ export class NetworkStack extends Stack {
           // Temporarily hardcode the ID since the tag lookup was not finding the right VPC.
           // TODO: replace with search by tag.
           vpcId: 'vpc-03af3621549e79f22',
-          region: 'us-east2', // The lookup was
+          region: 'us-east-2',
         })
       : // Else, create a new VPC.
         // Note that changes here will not be reflected on deployment if a VPC already exists.
