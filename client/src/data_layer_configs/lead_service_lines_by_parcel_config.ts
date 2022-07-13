@@ -7,18 +7,16 @@ const DEFAULT_NULL_COLOR = '#d3d3d3';
 /**
  * Maps legend buckets to the hex values.
  */
-const LEGEND_COLOR_MAPPING = [
+const INTERPOLATION_COLOR_MAPPING = [
   0,
   '#9fcd7c',
-  0.25,
+  0.05,
   '#f7e5af',
-  0.33,
-  '#f9bd64',
-  0.5,
+  0.38,
   '#f4a163',
-  0.6,
+  0.997,
   '#ff5934',
-  0.75,
+  0.999,
   '#d73819',
 ];
 
@@ -32,13 +30,13 @@ const leadConnectionLegendInterpolation = [
   'interpolate',
   ['linear'],
   // Provides ratio of lead service lines : total service lines.
-  ['/', ['get', 'lead_connections_count'], ['get', 'service_connections_count']],
-  ...LEGEND_COLOR_MAPPING,
+  ['get', 'public_lead_prediction'],
+  ...INTERPOLATION_COLOR_MAPPING,
 ];
 
 const legendInfo: LegendInfo = {
-  title: 'Proportion of lead lines to all service lines',
-  bucketMap: colorMapToBuckets(LEGEND_COLOR_MAPPING),
+  title: 'Likelihood of lead (0-1)',
+  bucketMap: colorMapToBuckets(INTERPOLATION_COLOR_MAPPING),
 };
 
 export const styleLayer: FillLayer = {
@@ -48,7 +46,12 @@ export const styleLayer: FillLayer = {
   'source-layer': 'public.parcels',
   type: 'fill',
   paint: {
-    'fill-color': '#f4a163',
+    'fill-color': [
+      'case',
+      ['==', ['get', 'public_lead_prediction'], null],
+      DEFAULT_NULL_COLOR,
+      leadConnectionLegendInterpolation,
+    ],
     'fill-opacity': 0.75,
   },
   layout: {
@@ -58,29 +61,19 @@ export const styleLayer: FillLayer = {
 };
 
 const popupInfo: PopupInfo = {
-  title: 'Water system',
-  subtitle: 'Estimated lead service lines',
-  detailsTitle: 'Water system information',
+  title: 'Home',
+  subtitle: 'Lead likelihood',
+  detailsTitle: 'Likelihood from 0-1 that the public service lines contain lead.',
   featureProperties: [
     {
-      label: 'Number of lead connections',
-      name: 'lead_connections_count',
-      dataType: FeaturePropertyDataType.Number,
-    },
-    {
-      label: 'Number of service lines',
-      name: 'service_connections_count',
-      dataType: FeaturePropertyDataType.Number,
-    },
-    {
-      label: 'Population served by water system',
-      name: 'population_served',
-      dataType: FeaturePropertyDataType.Number,
-    },
-    {
-      label: 'EPA identifier for water system',
-      name: 'pws_id',
+      label: 'Home address',
+      name: 'address',
       dataType: FeaturePropertyDataType.String,
+    },
+    {
+      label: 'Lead likelihood',
+      name: 'public_lead_prediction',
+      dataType: FeaturePropertyDataType.Number,
     },
   ],
 };

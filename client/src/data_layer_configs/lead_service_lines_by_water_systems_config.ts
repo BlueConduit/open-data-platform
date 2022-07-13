@@ -123,5 +123,4 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   popupInfo: popupInfo,
   styleLayer: styleLayer,
   visibleInSearchBar: true,
-
 };

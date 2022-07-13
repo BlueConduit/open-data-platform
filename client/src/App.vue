@@ -11,9 +11,9 @@ import { State } from './model/state';
 import { leadServiceLinesByWaterSystemLayer } from './data_layer_configs/lead_service_lines_by_water_systems_config';
 import { stateKey } from './injection_keys';
 import { DataLayer, MapLayer } from './model/data_layer';
-import { leadServiceLinesByParcelLayer } from './data_layer_configs/lead_service_lines_by_parcel_config';
 import { populationDataByCensusBlockLayer } from './data_layer_configs/population_by_census_block_config';
 import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_water_system_config';
+import { leadServiceLinesByParcelLayer } from './data_layer_configs/lead_service_lines_by_parcel_config';
 
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([
   [MapLayer.LeadServiceLineByWaterSystem, leadServiceLinesByWaterSystemLayer],

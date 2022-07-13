@@ -165,5 +165,4 @@ export const populationDataByCensusBlockLayer: TileDataLayer = {
   popupInfo: popupInfo,
   styleLayer: styleLayer,
   visibleInSearchBar: true,
-
 };
