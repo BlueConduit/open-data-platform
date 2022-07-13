@@ -218,7 +218,7 @@ CREATE INDEX IF NOT EXISTS geom_index ON zipcode_demographics USING GIST (geom);
 
 -- Pre-computed demographic data by state
 -- Only to be used by the function source
-INSERT INTO state_demographics(census_geo_id, geom, name, black_population,
+INSERT INTO state_demographics(census_geo_id, name, geom, black_population,
                                white_population, total_population,
                                under_five_population, poverty_population)
 SELECT states.census_geo_id            as census_geo_id,
@@ -240,7 +240,7 @@ CREATE INDEX IF NOT EXISTS geom_index ON state_demographics USING GIST (geom);
 
 -- Pre-computed demographic data by county.
 -- Only to be used by the function source
-INSERT INTO county_demographics(census_geo_id, geom, name, black_population,
+INSERT INTO county_demographics(census_geo_id, name, geom, black_population,
                                 white_population, total_population,
                                 under_five_population, poverty_population)
 SELECT counties.census_geo_id            as census_geo_id,

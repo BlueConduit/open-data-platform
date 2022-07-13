@@ -1,4 +1,4 @@
-import { AnyLayer, AnySourceData, VectorSource } from 'mapbox-gl';
+import { AnyLayer, AnySourceData, FillLayer, VectorSource } from 'mapbox-gl';
 
 /**
  * A data layer on the map.
@@ -13,7 +13,7 @@ export interface DataLayer {
   // Name of this data layer that is displayed in search bar.
   name: string;
   // Layer which specifies the styling of this data layer.
-  styleLayer: AnyLayer;
+  styleLayer: FillLayer;
   // Information to display in the map legend when this layer is visible.
   legendInfo: LegendInfo;
   // Information to display in the map popup when this layer is visible and the user interacts with
@@ -50,8 +50,7 @@ export interface LegendInfo {
   // Legend title.
   title: string;
   // Key / value map of visual representation -> values to be displayed in the legend.
-  buckets?: LegendBucketData[];
-  bucketMap?: Map<string, string>;
+  buckets: LegendBucketData[];
   // Data type for value.
   bucketLabelType?: FeaturePropertyDataType;
 }

@@ -11,8 +11,9 @@ import MapPopupContent from '@/components/MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { DataLayer, DataSourceType, FeatureProperty } from '../model/data_layer';
+import { DataLayer, FeatureProperty } from '../model/data_layer';
 import router from '../router';
+import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -68,7 +69,7 @@ export default defineComponent({
     setDataLayerVisibility(styleLayerId: string, visible: boolean): void {
       if (this.map == null) return;
 
-      this.map?.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
+      this.map.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
 
       // Update the router params when toggling layers to visible.
       if (visible && router.currentRoute.value.query.layer != styleLayerId) {
@@ -93,10 +94,10 @@ export default defineComponent({
         this.popup.remove();
       }
 
-      if (newDataLayer != null && !this.isDataLayerVisible(newDataLayer.styleLayer.id)) {
+      if (newDataLayer != null) {
         this.setDataLayerVisibility(newDataLayer.styleLayer.id, true);
       }
-      if (oldDataLayer != null && this.isDataLayerVisible(oldDataLayer.styleLayer.id)) {
+      if (oldDataLayer != null) {
         this.setDataLayerVisibility(oldDataLayer.styleLayer.id, false);
       }
     },
@@ -109,9 +110,7 @@ export default defineComponent({
      */
     updateMapOnDataLayerChange(newDataLayer: DataLayer | null, oldDataLayer: DataLayer | null): void {
       if (this.map == null) {
-        if (newDataLayer?.source?.type == DataSourceType.Vector && newDataLayer?.source?.tiles != null) {
-          this.createMap();
-        }
+        this.createMap();
       } else {
         this.toggleLayerVisibility(newDataLayer, oldDataLayer);
       }
@@ -208,6 +207,13 @@ export default defineComponent({
 
       this.setUpInteractionHandlers();
       this.setUpControls();
+
+      // Check whether there's a layer selected in the router.
+      if (router.currentRoute.value.query?.layer != null) {
+        this.state.currentDataLayer = this.state.dataLayers.find(l => l.styleLayer.id == router.currentRoute.value.query.layer) ?? leadServiceLinesByWaterSystemLayer;
+      } else {
+        this.state.currentDataLayer = leadServiceLinesByWaterSystemLayer;
+      }
     },
 
     /**
@@ -233,8 +239,7 @@ export default defineComponent({
     },
   },
   mounted() {
-    // Show current data layer on init.
-    this.updateMapOnDataLayerChange(this.state.currentDataLayer, null);
+    this.createMap();
   },
   watch: {
     // Listens to app state to toggle layers.

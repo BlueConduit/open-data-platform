@@ -31,7 +31,6 @@ export default defineComponent({
   setup() {
     // Create and provide default state. This is updated once API data is fetched.
     const state = reactive(new State([]));
-    state.currentDataLayer = leadServiceLinesByWaterSystemLayer;
     state.dataLayers = Array.from(DATA_LAYERS.values());
 
     provide(stateKey, state);

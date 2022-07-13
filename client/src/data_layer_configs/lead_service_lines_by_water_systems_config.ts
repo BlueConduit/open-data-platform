@@ -80,8 +80,8 @@ export const styleLayer: FillLayer = {
     'fill-opacity': 0.75,
   },
   layout: {
-    // Make the layer visible by default.
-    visibility: 'visible',
+    // Make the layer hidden by default.
+    visibility: 'none',
   },
 };
 
@@ -117,6 +117,8 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
     tiles: [`https://${tileServerHost()}/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
+    minzoom: 3,
+    maxzoom: 16,
   },
   id: MapLayer.LeadServiceLineByWaterSystem,
   name: 'Lead Service Lines',
