@@ -2,7 +2,10 @@ import {DataSourceType, FeaturePropertyDataType, LegendInfo, MapLayer, PopupInfo
 import {FillLayer} from 'mapbox-gl';
 import {colorMapToBuckets, tileServerHost} from '@/util/data_layer_util';
 
+// TODO(kailamjeter): move from lead likelihood % -> known / not likely / high likely etc.
+
 const DEFAULT_NULL_COLOR = '#d3d3d3';
+const TABLE_NAME = 'public.parcels';
 
 /**
  * Maps legend buckets to the hex values.
@@ -59,7 +62,7 @@ export const styleLayer: FillLayer = {
   id: `${MapLayer.LeadServiceLineByParcel}-style`,
   source: MapLayer.LeadServiceLineByParcel,
   // Corresponds to the table in the database.
-  'source-layer': 'public.parcels',
+  'source-layer': TABLE_NAME,
   type: 'fill',
   paint: {
     'fill-color': [
@@ -97,7 +100,7 @@ const popupInfo: PopupInfo = {
 export const leadServiceLinesByParcelLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/public.parcels/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
   },
   id: MapLayer.LeadServiceLineByParcel,
   name: 'Lead Service Line Estimate (Home)',
