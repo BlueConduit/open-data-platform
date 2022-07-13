@@ -106,8 +106,10 @@ export const styleLayer: FillLayer = {
       'interpolate',
       ['linear'],
       ['zoom'],
-      0,
+      // For state-level zoom, interpolate based on state buckets.
+      4,
       legendInterpolation,
+      // For county-level zoom, interpolate based on county buckets.
       5,
       legendInterpolationCounty,
     ],
