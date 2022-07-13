@@ -1,5 +1,9 @@
 import { FeaturePropertyDataType, LegendBucketData, LegendInfo } from '@/model/data_layer';
 
+/**
+ * Adds a bucketLabel to a legends bucket based on its data type.
+ * @param legend: has information on the data type for the buckets.
+ */
 export const formatLegendBucket = (legend: LegendInfo | undefined): Array<LegendBucketData> => {
   legend?.buckets?.forEach((bucket) => {
     switch (legend.bucketLabelType) {
@@ -24,6 +28,12 @@ export const formatLegendBucket = (legend: LegendInfo | undefined): Array<Legend
   return legend?.buckets ?? new Array<LegendBucketData>();
 };
 
+/**
+ * The "interpolate" expression in Mapbox requires number: color formatting
+ * to identify buckets
+ * https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#interpolate
+ * @param buckets to use for interpolation.
+ */
 export const getLegendBucketsAsList = (buckets: LegendBucketData[]): Array<any> => {
   const bucketToValues = [];
   for (const bucket of buckets) {

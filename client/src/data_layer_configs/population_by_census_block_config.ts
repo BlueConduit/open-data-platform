@@ -14,7 +14,7 @@ const ONE_MILLION = 1000000;
 const TEN_THOUSAND = 10000;
 const TABLE_NAME = 'public.demographics_function_source';
 
-const LEGEND_VALUES = [
+const LEGEND_VALUES_STATES = [
   {
     bucketValue: 0,
     bucketColor: '#D1E4F2',
@@ -41,6 +41,8 @@ const LEGEND_VALUES = [
   },
 ];
 
+// TODO (breuch): automate this. Right now the mathematical relationship
+// between LEGEND_VALUES_STATES and LEGEND_VALUES_COUNTY is not yet clear.
 export const LEGEND_VALUES_COUNTY = [
   {
     bucketValue: 0,
@@ -70,7 +72,7 @@ export const LEGEND_VALUES_COUNTY = [
 
 const legendInfo: LegendInfo = {
   title: 'U.S. Census data',
-  buckets: LEGEND_VALUES,
+  buckets: LEGEND_VALUES_STATES,
   bucketLabelType: FeaturePropertyDataType.Number,
 };
 
@@ -85,7 +87,7 @@ const totalPopulationInterpolation = ['interpolate', ['linear'], ['get', 'total_
  */
 const legendInterpolation = [
   ...nullInterpolation,
-  [...totalPopulationInterpolation, ...getLegendBucketsAsList(LEGEND_VALUES)],
+  [...totalPopulationInterpolation, ...getLegendBucketsAsList(LEGEND_VALUES_STATES)],
 ];
 
 const legendInterpolationCounty = [
@@ -161,6 +163,7 @@ export const populationDataByCensusBlockLayer: TileDataLayer = {
   },
   id: MapLayer.PopulationByCensusBlock,
   name: 'Population',
+  // TODO (breuch): Update based on zoom.
   legendInfo: legendInfo,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
