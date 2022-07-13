@@ -9,6 +9,8 @@ import {
 import { Expression, FillLayer } from 'mapbox-gl';
 import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
+const TABLE_NAME = 'public.violations_function_source';
+
 const LEGEND_VALUES = [
   {
     bucketValue: 0,
@@ -55,7 +57,7 @@ const styleLayer: FillLayer = {
   id: `${MapLayer.LeadAndCopperRuleViolationsByWaterSystem}-style`,
   source: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   // Corresponds to the table in the database.
-  'source-layer': 'public.violation_counts',
+  'source-layer': TABLE_NAME,
   type: 'fill',
   paint: {
     'fill-color': leadAndCopperViolationsInterpolation,
@@ -84,7 +86,7 @@ const popupInfo: PopupInfo = {
 export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/public.violation_counts/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
     // Helps with latency to reduce fetching unneeded tiles.
     minzoom: 3,
     maxzoom: 16,
