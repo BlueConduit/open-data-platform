@@ -76,15 +76,7 @@ export default defineComponent({
         router.push({ query: Object.assign({}, router.currentRoute.value.query, { layer: styleLayerId }) });
       }
     },
-
-    /**
-     * Returns whether the layer corresponding to the given stylerLayerId is visible.
-     */
-    isDataLayerVisible(styleLayerId: string): boolean {
-      return this.map != null
-        && this.map.getLayoutProperty(styleLayerId, 'visibility') == 'visible';
-    },
-
+    
     /**
      * Updates layer visibility based on current data layer.
      */

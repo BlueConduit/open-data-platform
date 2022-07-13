@@ -123,6 +123,7 @@ export const styleLayer: FillLayer = {
 };
 
 // TODO(kailamjeter): finalize content https://app.shortcut.com/blueconduit/story/5682/cleanup-fe.
+// TODO(breuch): Update all values to percentages for better readability.
 const popupInfo: PopupInfo = {
   title: 'U.S. demographic information',
   subtitle: 'Data derived from U.S. Census data',
