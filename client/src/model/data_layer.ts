@@ -1,4 +1,4 @@
-import { AnyLayer, AnySourceData, FillLayer, VectorSource } from 'mapbox-gl';
+import { AnySourceData, FillLayer, VectorSource } from 'mapbox-gl';
 
 /**
  * A data layer on the map.
@@ -77,8 +77,10 @@ export interface FeatureProperty {
   label: string;
   // Name of this feature property.
   name: string;
-  /// Type of data to configure parsing
+  // Type of data to configure parsing
   dataType: FeaturePropertyDataType;
+  // Whether this property is optional. Optional values may be null or not exist in the list.
+  optional?: boolean;
 }
 
 /**

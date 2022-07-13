@@ -347,6 +347,7 @@ BEGIN
                         w.pws_id                               AS pws_id,
                         w.pws_name                             AS pws_name,
                         SUM(w.lead_connections_count)          AS lead_connections_count,
+                        SUM(w.service_connections_count)       AS service_connections_count,
                         SUM(w.population_served)               AS population_served
                  FROM water_systems w
                  WHERE ST_Transform(w.geom, 3857) && ST_TileEnvelope(z, x, y)
