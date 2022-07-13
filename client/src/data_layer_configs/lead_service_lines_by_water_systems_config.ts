@@ -117,6 +117,7 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
     tiles: [`https://${tileServerHost()}/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
+    // Helps with latency to reduce fetching unneeded tiles.
     minzoom: 3,
     maxzoom: 16,
   },
