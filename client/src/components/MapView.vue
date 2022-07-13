@@ -74,10 +74,12 @@ export default defineComponent({
 
       this.map.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
 
-      // Update the router params when toggling layers to visible. Do not update for leadServiceLinesByParcelLayer, which is not a visible layer.
-      if (visible &&
+      // Update the router params when toggling layers to visible. Do not update
+      // for leadServiceLinesByParcelLayer, which is not a visible layer.
+      const shouldUpdateRouterParam = visible &&
         router.currentRoute.value.query.layer != styleLayerId &&
-        styleLayerId != leadServiceLinesByParcelLayer.styleLayer.id) {
+        styleLayerId != leadServiceLinesByParcelLayer.styleLayer.id;
+      if (shouldUpdateRouterParam) {
         router.push({ query: Object.assign({}, router.currentRoute.value.query, { layer: styleLayerId }) });
       }
     },
@@ -195,9 +197,7 @@ export default defineComponent({
      * source for the Lead Connections layer.
      */
     setUpZoomListener(): void {
-      if (this.map == null) return;
-
-      this.map.on('zoom', () => {
+      this.map?.on('zoom', () => {
         if (this.map == null) return;
 
         // If zoomed past parcel zoom level, switch to parcel-level data source.
