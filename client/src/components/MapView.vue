@@ -21,6 +21,8 @@ const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 const POPUP_CONTENT_BASE_ID = 'popup-content';
 const POPUP_CONTENT_BASE_HTML = `<div id='${POPUP_CONTENT_BASE_ID}'></div>`;
 
+const PARCEL_ZOOM_LEVEL = 12;
+
 export default defineComponent({
   name: 'MapView',
   components: {
@@ -72,7 +74,7 @@ export default defineComponent({
 
       this.map.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
 
-      // Update the router params when toggling layers to visible.
+      // Update the router params when toggling layers to visible. Do not update for leadServiceLinesByParcelLayer, which is not a visible layer.
       if (visible &&
         router.currentRoute.value.query.layer != styleLayerId &&
         styleLayerId != leadServiceLinesByParcelLayer.styleLayer.id) {
@@ -149,8 +151,6 @@ export default defineComponent({
               const clickedFeatureProperties: { [name: string]: any; } = e.features[0].properties as {};
               const popupInfo = this.state?.currentDataLayer?.popupInfo;
 
-              console.log(clickedFeatureProperties);
-
               this.createMapPopup(e.lngLat, /* popupData= */
                 {
                   title: popupInfo?.title ?? '',
@@ -190,15 +190,22 @@ export default defineComponent({
       this.map.addControl(new mapboxgl.NavigationControl());
     },
 
+    /**
+     * Set up listener on the zoom level. This is needed to toggle the data
+     * source for the Lead Connections layer.
+     */
     setUpZoomListener(): void {
       if (this.map == null) return;
 
       this.map.on('zoom', () => {
         if (this.map == null) return;
-        if (this.map.getZoom() >= 12
+
+        // If zoomed past parcel zoom level, switch to parcel-level data source.
+        // Otherwise, switch to water system level.
+        if (this.map.getZoom() >= PARCEL_ZOOM_LEVEL
           && this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByWaterSystem) {
           this.state?.setCurrentDataLayer(leadServiceLinesByParcelLayer);
-        } else if (this.map.getZoom() < 12
+        } else if (this.map.getZoom() < PARCEL_ZOOM_LEVEL
           && this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByParcel) {
           this.state?.setCurrentDataLayer(leadServiceLinesByWaterSystemLayer);
         }
