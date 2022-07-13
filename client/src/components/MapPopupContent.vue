@@ -67,6 +67,10 @@ export default defineComponent({
         const featurePropertyKey = entry.name;
         const label = entry.label;
         let propertyValue = this.properties.get(featurePropertyKey);
+        // Skip over optional properties which have no value.
+        if (entry.optional && propertyValue == null) {
+          continue;
+        }
         switch (entry.dataType) {
           case FeaturePropertyDataType.String: {
             propertyValue = propertyValue ?? '';
@@ -77,7 +81,8 @@ export default defineComponent({
             break;
           }
           case FeaturePropertyDataType.Percentage: {
-            propertyValue = `${parseFloat(propertyValue ?? '0').toLocaleString()}%`;
+            const percentageValue = parseFloat(propertyValue ?? '0') * 100;
+            propertyValue = `${percentageValue.toLocaleString()}%`;
             break;
           }
           default: {

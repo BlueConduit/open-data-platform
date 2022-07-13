@@ -60,7 +60,7 @@ const leadConnectionLegendInterpolation = [
 ];
 
 const legendInfo: LegendInfo = {
-  title: 'Percent of service lines estimated to be lead',
+  title: 'Percentage of service lines estimated to be lead',
   buckets: LEGEND_VALUES,
   bucketLabelType: FeaturePropertyDataType.Percentage,
 };
@@ -72,7 +72,12 @@ export const styleLayer: FillLayer = {
   'source-layer': TABLE_NAME,
   type: 'fill',
   paint: {
-    'fill-color': '#9fcd7c',
+    'fill-color': [
+      'case',
+      ['==', ['get', 'lead_connections_count'], null],
+      DEFAULT_NULL_COLOR,
+      leadConnectionLegendInterpolation,
+    ],
     'fill-opacity': 0.75,
   },
   layout: {
@@ -87,6 +92,18 @@ const popupInfo: PopupInfo = {
   detailsTitle: 'Water system information',
   featureProperties: [
     {
+      label: 'State name',
+      name: 'state_name',
+      dataType: FeaturePropertyDataType.String,
+      optional: true,
+    },
+    {
+      label: 'EPA identifier for water system',
+      name: 'pws_id',
+      dataType: FeaturePropertyDataType.String,
+      optional: true,
+    },
+    {
       label: 'Number of lead connections',
       name: 'lead_connections_count',
       dataType: FeaturePropertyDataType.Number,
@@ -97,14 +114,9 @@ const popupInfo: PopupInfo = {
       dataType: FeaturePropertyDataType.Number,
     },
     {
-      label: 'Population served by water system',
+      label: 'Population served',
       name: 'population_served',
       dataType: FeaturePropertyDataType.Number,
-    },
-    {
-      label: 'EPA identifier for water system',
-      name: 'pws_id',
-      dataType: FeaturePropertyDataType.String,
     },
   ],
 };
