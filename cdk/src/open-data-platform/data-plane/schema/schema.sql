@@ -397,8 +397,8 @@ BEGIN
         FROM (
                  SELECT ST_AsMVTGeom(ST_Transform(v.geom, 3857),
                                      ST_TileEnvelope(z, x, y)) AS geom,
-                        v.pws_id,
-                        SUM(v.violation_count)
+                        v.pws_id                               AS pws_id,
+                        SUM(v.violation_count)                 AS violation_count
                  FROM violation_counts v
                  WHERE ST_Transform(v.geom, 3857) && ST_TileEnvelope(z, x, y)
                  GROUP BY v.geom,
