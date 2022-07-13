@@ -10,6 +10,7 @@ import { FillLayer } from 'mapbox-gl';
 import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
+const TABLE_NAME = 'public.water_systems';
 
 const LEGEND_VALUES = [
   {
@@ -61,14 +62,14 @@ const leadConnectionLegendInterpolation = [
 const legendInfo: LegendInfo = {
   title: 'Percent of service lines estimated to be lead',
   buckets: LEGEND_VALUES,
-  bucketLabelType: FeaturePropertyDataType.Percent,
+  bucketLabelType: FeaturePropertyDataType.Percentage,
 };
 
 export const styleLayer: FillLayer = {
   id: `${MapLayer.LeadServiceLineByWaterSystem}-style`,
   source: MapLayer.LeadServiceLineByWaterSystem,
   // Corresponds to the table in the database.
-  'source-layer': 'public.water_systems',
+  'source-layer': TABLE_NAME,
   type: 'fill',
   paint: {
     'fill-color': [
@@ -116,7 +117,7 @@ const popupInfo: PopupInfo = {
 export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/public.water_systems/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
     // Helps with latency to reduce fetching unneeded tiles.
     minzoom: 3,
     maxzoom: 16,

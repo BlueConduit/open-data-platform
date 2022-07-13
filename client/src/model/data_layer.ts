@@ -95,9 +95,9 @@ export enum FeaturePropertyDataType {
   Unknown = 'unknown',
   String = 'string',
   Number = 'number',
+  Percentage = 'percentage',
   Date = 'date',
   Address = 'address',
-  Percent = 'percent',
 }
 
 /**

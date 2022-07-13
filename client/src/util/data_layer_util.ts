@@ -15,7 +15,7 @@ export const formatLegendBucket = (legend: LegendInfo | undefined): Array<Legend
         bucket.bucketLabel = parseFloat(bucket.bucketValue ?? '0').toLocaleString();
         break;
       }
-      case FeaturePropertyDataType.Percent: {
+      case FeaturePropertyDataType.Percentage: {
         bucket.bucketLabel = `${parseFloat(bucket.bucketValue ?? '0').toLocaleString()} %`;
         break;
       }

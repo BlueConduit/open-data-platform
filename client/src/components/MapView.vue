@@ -209,11 +209,8 @@ export default defineComponent({
       this.setUpControls();
 
       // Check whether there's a layer selected in the router.
-      if (router.currentRoute.value.query?.layer != null) {
-        this.state.currentDataLayer = this.state.dataLayers.find(l => l.styleLayer.id == router.currentRoute.value.query.layer) ?? leadServiceLinesByWaterSystemLayer;
-      } else {
-        this.state.currentDataLayer = leadServiceLinesByWaterSystemLayer;
-      }
+      this.state.setCurrentDataLayer(this.state.dataLayers.find(layer => layer.styleLayer.id == router.currentRoute.value.query?.layer)
+        ?? leadServiceLinesByWaterSystemLayer);
     },
 
     /**

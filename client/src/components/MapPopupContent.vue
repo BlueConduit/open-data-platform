@@ -76,7 +76,7 @@ export default defineComponent({
             propertyValue = parseFloat(propertyValue ?? '0').toLocaleString();
             break;
           }
-          case FeaturePropertyDataType.Percent: {
+          case FeaturePropertyDataType.Percentage: {
             propertyValue = `${parseFloat(propertyValue ?? '0').toLocaleString()}%`;
             break;
           }
