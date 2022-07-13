@@ -195,10 +195,12 @@ export default defineComponent({
 
       this.map.on('zoom', () => {
         if (this.map == null) return;
-        if (this.map.getZoom() > 10 && this.state.currentDataLayer?.id == MapLayer.LeadServiceLineByWaterSystem) {
-          this.toggleLayerVisibility(leadServiceLinesByParcelLayer, leadServiceLinesByWaterSystemLayer);
-        } else if (this.map.getZoom() > 10 && this.state.currentDataLayer?.id == MapLayer.LeadServiceLineByParcel) {
-          this.toggleLayerVisibility(leadServiceLinesByWaterSystemLayer, leadServiceLinesByParcelLayer);
+        if (this.map.getZoom() >= 12
+          && this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByWaterSystem) {
+          this.state?.setCurrentDataLayer(leadServiceLinesByParcelLayer);
+        } else if (this.map.getZoom() < 12
+          && this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByParcel) {
+          this.state?.setCurrentDataLayer(leadServiceLinesByWaterSystemLayer);
         }
       });
     },
