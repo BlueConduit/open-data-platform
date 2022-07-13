@@ -42,23 +42,23 @@ export class PipelineStack extends Stack {
       synthCodeBuildDefaults: {
         buildEnvironment: {
           // TODO: update to a build image which supports node 16 on next CDK release
-          buildImage: LinuxBuildImage.STANDARD_5_0
+          buildImage: LinuxBuildImage.STANDARD_5_0,
         },
         partialBuildSpec: BuildSpec.fromObject({
           phases: {
             install: {
-              "runtime-versions": {
+              'runtime-versions': {
                 // TODO: update to node 16 once new codebuild images are available in next CDK release
-                nodejs: 14
-              }
-            }
-          }
-        })
-      }
+                nodejs: 14,
+              },
+            },
+          },
+        }),
+      },
     });
 
     pipeline.addStage(
-      new OpenDataPlatformStage(scope, 'Dev', {
+      new OpenDataPlatformStage(this, 'Dev', {
         env: { account: '036999211278', region: 'us-east-2' },
         tags: { Project: util.projectName, Environment: util.EnvType.Development },
         envType: util.EnvType.Development,
