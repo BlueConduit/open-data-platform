@@ -3,7 +3,7 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, onMounted, provide, reactive } from 'vue';
+import { defineComponent, provide, reactive } from 'vue';
 import '@blueconduit/copper/dist/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
 import { State } from './model/state';

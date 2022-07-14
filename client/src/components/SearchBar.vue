@@ -20,7 +20,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, inject } from 'vue';
 import SearchBarOption from './SearchBarOption.vue';
 import VueSelect from 'vue-select';

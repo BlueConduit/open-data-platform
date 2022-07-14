@@ -1,6 +1,13 @@
-import {DataSourceType, FeaturePropertyDataType, LegendInfo, MapLayer, PopupInfo, TileDataLayer} from '@/model/data_layer';
-import {FillLayer} from 'mapbox-gl';
-import {colorMapToBuckets, tileServerHost} from '@/util/data_layer_util';
+import {
+  DataSourceType,
+  FeaturePropertyDataType,
+  LegendInfo,
+  MapLayer,
+  PopupInfo,
+  TileDataLayer,
+} from '@/model/data_layer';
+import { FillLayer } from 'mapbox-gl';
+import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
 
 // TODO(kailamjeter): move from lead likelihood % -> known / not likely / high likely etc.
 
