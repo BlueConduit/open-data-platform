@@ -20,14 +20,14 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, inject } from 'vue';
 import SearchBarOption from './SearchBarOption.vue';
 import VueSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { DataLayer } from '../model/data_layer';
+import { DataLayer, MapLayer } from '../model/data_layer';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 
 export default defineComponent({
@@ -74,8 +74,10 @@ export default defineComponent({
     state: {
       handler(newState: State): void {
         if (newState != null) {
-          this.options = newState.dataLayers;
-          this.selectedOption = newState.currentDataLayer;
+          this.options = newState.dataLayers.filter(layer => layer.visibleInSearchBar);
+          if (newState.currentDataLayer?.id != MapLayer.LeadServiceLineByParcel) {
+            this.selectedOption = newState.currentDataLayer;
+          }
         }
       },
       // Make watcher deep, meaning that this will be triggered on a change to any nested field of state.

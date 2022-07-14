@@ -1,4 +1,4 @@
-import { AnyLayer, AnySourceData, VectorSource } from 'mapbox-gl';
+import { AnySourceData, FillLayer, VectorSource } from 'mapbox-gl';
 
 /**
  * A data layer on the map.
@@ -13,7 +13,7 @@ export interface DataLayer {
   // Name of this data layer that is displayed in search bar.
   name: string;
   // Layer which specifies the styling of this data layer.
-  styleLayer: AnyLayer;
+  styleLayer: FillLayer;
   // Information to display in the map legend when this layer is visible.
   legendInfo: LegendInfo;
   // Information to display in the map popup when this layer is visible and the user interacts with
@@ -21,6 +21,8 @@ export interface DataLayer {
   popupInfo: PopupInfo;
   // Data source for the layer.
   source: AnySourceData;
+  // Whether it should be selectable in the searchbar.
+  visibleInSearchBar: boolean;
 }
 
 /**
@@ -32,13 +34,27 @@ export interface TileDataLayer extends DataLayer {
 }
 
 /**
+ * Determines how to display a legend bucket
+ */
+export interface LegendBucketData {
+  // Bucket color hex value.
+  bucketColor: string;
+  // Formatted label for bucket value.
+  bucketLabel?: string;
+  // Bucket value.
+  bucketValue: any;
+}
+
+/**
  * Information to be displayed in the map legend when this layer is visible.
  */
 export interface LegendInfo {
   // Legend title.
   title: string;
   // Key / value map of visual representation -> values to be displayed in the legend.
-  bucketMap: Map<string, string>;
+  buckets: LegendBucketData[];
+  // Data type for value.
+  bucketLabelType?: FeaturePropertyDataType;
 }
 
 /**
@@ -61,8 +77,10 @@ export interface FeatureProperty {
   label: string;
   // Name of this feature property.
   name: string;
-  /// Type of data to configure parsing
+  // Type of data to configure parsing
   dataType: FeaturePropertyDataType;
+  // Whether this property is optional. Optional values may be null or not exist in the list.
+  optional?: boolean;
 }
 
 /**
@@ -81,6 +99,7 @@ export enum FeaturePropertyDataType {
   Unknown = 'unknown',
   String = 'string',
   Number = 'number',
+  Percentage = 'percentage',
   Date = 'date',
   Address = 'address',
 }
@@ -90,6 +109,7 @@ export enum FeaturePropertyDataType {
  */
 export enum MapLayer {
   Unknown = 'unknown',
+  LeadServiceLineByParcel = 'lead-service-lines-by-parcel',
   LeadServiceLineByWaterSystem = 'lead-service-lines-by-water-system',
   LeadAndCopperRuleViolationsByWaterSystem = 'epa-lead-and-copper-violations-by-water-system',
   PopulationByCensusBlock = 'population-by-census-block',

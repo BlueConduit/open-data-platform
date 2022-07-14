@@ -30,96 +30,6 @@ $$ LANGUAGE plpgsql;
 -- Tables --
 ------------
 
--- Census-block-level data. TODO: consider renaming the table.
-
-CREATE TABLE IF NOT EXISTS demographics
-(
-    census_geo_id         varchar(255) NOT NULL,
-    census_block_name     varchar(255),
-    total_population      real,
-    under_five_population real,
-    poverty_population    real,
-    black_population      real,
-    white_population      real,
-    state_census_geo_id   varchar(255) NOT NULL references states (census_geo_id),
-    county_census_geo_id  varchar(255) NOT NULL references counties (census_geo_id),
-    geom                  GEOMETRY(Geometry, 4326),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (state_census_geo_id);
-CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON demographics (county_census_geo_id);
-
-CREATE INDEX IF NOT EXISTS geom_index
-    ON demographics
-        USING GIST (geom);
-
--- Water-system-level data
-
-CREATE TABLE IF NOT EXISTS water_systems
-(
-    pws_id                 varchar(255) NOT NULL,
-    lead_connections_count real,
-    geom                   GEOMETRY(Geometry, 4326),
-    PRIMARY KEY (pws_id)
-);
-
-ALTER TABLE water_systems
-    ADD COLUMN IF NOT EXISTS pws_name                  varchar(255),
-    ADD COLUMN IF NOT EXISTS service_connections_count real,
-    ADD COLUMN IF NOT EXISTS population_served         real;
-
-CREATE INDEX IF NOT EXISTS geom_index
-    ON water_systems
-        USING GIST (geom);
-
--- EPA violations data
-
-CREATE TABLE IF NOT EXISTS epa_violations
-(
-    violation_id      varchar(255) NOT NULL,
-    violation_code    varchar(255) NOT NULL,
-    compliance_status varchar(255) NOT NULL,
-    start_date        DATE         NOT NULL,
-    end_date          DATE,
-    pws_id            varchar(255) NOT NULL,
-    PRIMARY KEY (violation_id)
-);
-
--- Violation counts per water system --
-
-CREATE OR REPLACE VIEW violation_counts AS
-SELECT pws_id,
-       geom,
-       COUNT(violation_id) AS violation_count
-FROM epa_violations
-         JOIN water_systems USING (pws_id)
-GROUP BY pws_id, geom;
-
--- Parcel-level data
-
-CREATE TABLE IF NOT EXISTS parcels
-(
-    -- TODO: consider standardizing addresses into a PostGIS type once we have data.
-    -- https://postgis.net/docs/manual-2.5/Address_Standardizer.html
-    address                 text,
-    public_lead_prediction  float,
-    -- Private-side predictive data don't exist for all parcels, but store it anyway.
-    private_lead_prediction float,
-    -- Can be used to determine if the row needs updating with a new dataset.
-    last_updated            timestamp default current_timestamp,
-    geom                    geometry(Geometry, 4326),
-    PRIMARY KEY (address)
-);
-
--- Either of these might be used for searching.
-CREATE INDEX IF NOT EXISTS geom_index ON parcels USING GIST (geom);
-
-CREATE TRIGGER update_last_update_timestamp
-    BEFORE UPDATE
-    ON parcels
-    FOR EACH ROW
-EXECUTE PROCEDURE update_last_update_timestamp();
-
 -- States
 CREATE TABLE IF NOT EXISTS states
 (
@@ -149,8 +59,98 @@ CREATE TABLE IF NOT EXISTS counties
     geom          geometry(Geometry, 4326),
     PRIMARY KEY (census_geo_id)
 );
-
 CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
+
+-- Census-block-level data. TODO: consider renaming the table.
+
+CREATE TABLE IF NOT EXISTS demographics
+(
+    census_geo_id         varchar(255) NOT NULL,
+    census_block_name     varchar(255),
+    total_population      real,
+    under_five_population real,
+    poverty_population    real,
+    black_population      real,
+    white_population      real,
+    state_census_geo_id   varchar(255) NOT NULL references states (census_geo_id),
+    county_census_geo_id  varchar(255) NOT NULL references counties (census_geo_id),
+    geom                  GEOMETRY(Geometry, 4326),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (state_census_geo_id);
+CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON demographics (county_census_geo_id);
+CREATE INDEX IF NOT EXISTS geom_index ON demographics USING GIST (geom);
+
+-- Water-system-level data
+
+CREATE TABLE IF NOT EXISTS water_systems
+(
+    pws_id                    varchar(255) NOT NULL,
+    lead_connections_count    real,
+    pws_name                  varchar(255),
+    service_connections_count real,
+    population_served         real,
+    state_census_geo_id       varchar(255) references states (census_geo_id),
+    county_census_geo_id      varchar(255) references counties (census_geo_id),
+    geom                      GEOMETRY(Geometry, 4326),
+    PRIMARY KEY (pws_id)
+);
+CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON water_systems (state_census_geo_id);
+CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON water_systems (county_census_geo_id);
+CREATE INDEX IF NOT EXISTS geom_index ON water_systems USING GIST (geom);
+
+-- EPA violations data
+
+CREATE TABLE IF NOT EXISTS epa_violations
+(
+    violation_id         varchar(255) NOT NULL,
+    violation_code       varchar(255) NOT NULL,
+    compliance_status    varchar(255) NOT NULL,
+    start_date           DATE         NOT NULL,
+    end_date             DATE,
+    pws_id               varchar(255) NOT NULL,
+    state_census_geo_id  varchar(255) references states (census_geo_id),
+    county_census_geo_id varchar(255) references counties (census_geo_id),
+    PRIMARY KEY (violation_id)
+);
+CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON epa_violations (state_census_geo_id);
+CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON epa_violations (county_census_geo_id);
+
+-- Violation counts per water system --
+
+CREATE OR REPLACE VIEW violation_counts AS
+SELECT pws_id,
+       epa_violations.state_census_geo_id,
+       geom,
+       COUNT(violation_id) AS violation_count
+FROM epa_violations
+         JOIN water_systems USING (pws_id)
+GROUP BY pws_id, geom, epa_violations.state_census_geo_id;
+
+-- Parcel-level data
+
+CREATE TABLE IF NOT EXISTS parcels
+(
+    -- TODO: consider standardizing addresses into a PostGIS type once we have data.
+    -- https://postgis.net/docs/manual-2.5/Address_Standardizer.html
+    address                 text,
+    public_lead_prediction  float,
+    -- Private-side predictive data don't exist for all parcels, but store it anyway.
+    private_lead_prediction float,
+    -- Can be used to determine if the row needs updating with a new dataset.
+    last_updated            timestamp default current_timestamp,
+    geom                    geometry(Geometry, 4326),
+    PRIMARY KEY (address)
+);
+
+-- Either of these might be used for searching.
+CREATE INDEX IF NOT EXISTS geom_index ON parcels USING GIST (geom);
+
+CREATE TRIGGER update_last_update_timestamp
+    BEFORE UPDATE
+    ON parcels
+    FOR EACH ROW
+EXECUTE PROCEDURE update_last_update_timestamp();
 
 -- Zipcodes
 CREATE TABLE IF NOT EXISTS zipcodes
@@ -218,7 +218,7 @@ CREATE INDEX IF NOT EXISTS geom_index ON zipcode_demographics USING GIST (geom);
 
 -- Pre-computed demographic data by state
 -- Only to be used by the function source
-INSERT INTO state_demographics(census_geo_id, geom, name, black_population,
+INSERT INTO state_demographics(census_geo_id, name, geom, black_population,
                                white_population, total_population,
                                under_five_population, poverty_population)
 SELECT states.census_geo_id            as census_geo_id,
@@ -240,7 +240,7 @@ CREATE INDEX IF NOT EXISTS geom_index ON state_demographics USING GIST (geom);
 
 -- Pre-computed demographic data by county.
 -- Only to be used by the function source
-INSERT INTO county_demographics(census_geo_id, geom, name, black_population,
+INSERT INTO county_demographics(census_geo_id, name, geom, black_population,
                                 white_population, total_population,
                                 under_five_population, poverty_population)
 SELECT counties.census_geo_id            as census_geo_id,
@@ -306,6 +306,111 @@ $$ LANGUAGE plpgsql IMMUTABLE
                     STRICT
                     PARALLEL SAFE;
 
+--- Returns lead connections aggregated by either state or water system, depending on z (zoom level).
+
+CREATE OR REPLACE FUNCTION public.lead_connections_function_source(z integer,
+                                                                   x integer,
+                                                                   y integer,
+                                                                   query_params json) RETURNS bytea AS
+$$
+DECLARE
+    mvt bytea;
+BEGIN
+    IF (z < 6) THEN
+        -- Show aggregated lead connections data by state at low zoom level (most zoomed out).
+        SELECT INTO mvt ST_AsMVT(tile,
+                                 'public.lead_connections_function_source',
+                                 4096, 'geom')
+        FROM (
+                 SELECT ST_AsMVTGeom(ST_Transform(s.geom, 3857),
+                                     ST_TileEnvelope(z, x, y)) AS geom,
+                        s.name                                 AS state_name,
+                        SUM(w.lead_connections_count)          AS lead_connections_count,
+                        SUM(w.service_connections_count)       AS service_connections_count,
+                        SUM(w.population_served)               AS population_served
+                 FROM water_systems w
+                          RIGHT JOIN states s
+                                     ON w.state_census_geo_id = s.census_geo_id
+                 WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
+                 GROUP BY s.geom,
+                          s.name
+             ) AS tile
+        WHERE geom IS NOT NULL;
+    ELSE
+        -- Show lead connections data by water system at higher zoom levels (zoomed in).
+        SELECT INTO mvt ST_AsMVT(tile,
+                                 'public.lead_connections_function_source',
+                                 4096, 'geom')
+        FROM (
+                 SELECT ST_AsMVTGeom(ST_Transform(w.geom, 3857),
+                                     ST_TileEnvelope(z, x, y)) AS geom,
+                        w.pws_id                               AS pws_id,
+                        w.pws_name                             AS pws_name,
+                        SUM(w.lead_connections_count)          AS lead_connections_count,
+                        SUM(w.service_connections_count)       AS service_connections_count,
+                        SUM(w.population_served)               AS population_served
+                 FROM water_systems w
+                 WHERE ST_Transform(w.geom, 3857) && ST_TileEnvelope(z, x, y)
+                 GROUP BY w.geom,
+                          w.pws_id,
+                          w.pws_name
+             ) AS tile
+        WHERE geom IS NOT NULL;
+    END IF;
+    RETURN mvt;
+END
+$$ LANGUAGE plpgsql IMMUTABLE
+                    STRICT
+                    PARALLEL SAFE;
+
+--- Returns violations aggregated by either state or water system, depending on z (zoom level).
+
+CREATE OR REPLACE FUNCTION public.violations_function_source(z integer,
+                                                             x integer,
+                                                             y integer,
+                                                             query_params json) RETURNS bytea AS
+$$
+DECLARE
+    mvt bytea;
+BEGIN
+    -- Show aggregated violations data by state at low zoom level (most zoomed out).
+    IF (z < 6) THEN
+        SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source',
+                                 4096, 'geom')
+        FROM (
+                 SELECT ST_AsMVTGeom(ST_Transform(s.geom, 3857),
+                                     ST_TileEnvelope(z, x, y)) AS geom,
+                        s.name                                 AS state_name,
+                        SUM(v.violation_count)                 AS violation_count
+                 FROM violation_counts v
+                          RIGHT JOIN states s
+                                     ON v.state_census_geo_id = s.census_geo_id
+                 WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
+                 GROUP BY s.geom,
+                          s.name
+             ) AS tile
+        WHERE geom IS NOT NULL;
+    ELSE
+        -- Show violations data by water system at higher zoom levels (zoomed in).
+        SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source',
+                                 4096, 'geom')
+        FROM (
+                 SELECT ST_AsMVTGeom(ST_Transform(v.geom, 3857),
+                                     ST_TileEnvelope(z, x, y)) AS geom,
+                        v.pws_id,
+                        SUM(v.violation_count)
+                 FROM violation_counts v
+                 WHERE ST_Transform(v.geom, 3857) && ST_TileEnvelope(z, x, y)
+                 GROUP BY v.geom,
+                          v.pws_id
+             ) AS tile
+        WHERE geom IS NOT NULL;
+    END IF;
+    RETURN mvt;
+END
+$$ LANGUAGE plpgsql IMMUTABLE
+                    STRICT
+                    PARALLEL SAFE;
 
 ----------------------
 -- Roles and Grants --

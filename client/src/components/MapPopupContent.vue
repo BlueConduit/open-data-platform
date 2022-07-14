@@ -1,20 +1,20 @@
 <template>
-  <div class="popup-content">
-    <div class="title-container">
+  <div class='popup-content'>
+    <div class='title-container'>
       <h2>{{ title }}</h2>
-      <div class="subtitle">{{ subtitle }}</div>
+      <div class='subtitle'>{{ subtitle }}</div>
     </div>
-    <div class="details">
-      <div class="details-title">{{ detailsTitle }}</div>
-      <div class="property-row" v-for="(entry) in displayedProperties.entries()"
-           :key="entry">
+    <div class='details'>
+      <div class='details-title'>{{ detailsTitle }}</div>
+      <div class='property-row' v-for='(entry) in displayedProperties.entries()'
+           :key='entry'>
         {{ entry[0] }}: {{ entry[1] }}
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, PropType } from 'vue';
 import { FeatureProperty, FeaturePropertyDataType } from '../model/data_layer';
 
@@ -67,13 +67,22 @@ export default defineComponent({
         const featurePropertyKey = entry.name;
         const label = entry.label;
         let propertyValue = this.properties.get(featurePropertyKey);
-        switch(entry.dataType) {
+        // Skip over optional properties which have no value.
+        if (entry.optional && propertyValue == null) {
+          continue;
+        }
+        switch (entry.dataType) {
           case FeaturePropertyDataType.String: {
             propertyValue = propertyValue ?? '';
             break;
           }
           case FeaturePropertyDataType.Number: {
-            propertyValue = parseFloat(propertyValue ?? '0').toLocaleString() ;
+            propertyValue = parseFloat(propertyValue ?? '0').toLocaleString();
+            break;
+          }
+          case FeaturePropertyDataType.Percentage: {
+            const percentageValue = parseFloat(propertyValue ?? '0') * 100;
+            propertyValue = `${percentageValue.toLocaleString()}%`;
             break;
           }
           default: {
@@ -84,17 +93,17 @@ export default defineComponent({
 
         this.displayedProperties.set(label, propertyValue);
       }
-    }
+    },
   },
   mounted() {
     this.updateDisplayedProperties();
   },
   watch: {
-    properties: function () {
+    properties: function() {
       this.updateDisplayedProperties();
     },
-  }
-})
+  },
+});
 </script>
 
 <style>
