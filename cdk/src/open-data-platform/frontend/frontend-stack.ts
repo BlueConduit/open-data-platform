@@ -14,9 +14,13 @@ import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import { CommonProps } from '../../util';
 import { AppPlaneStack } from '../app-plane/app-plane-stack';
 import prefixes, { handler } from './url-prefixes';
+import { NetworkStack } from '../network/network-stack';
+import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as route53targets from 'aws-cdk-lib/aws-route53-targets';
 
 interface FrontendProps extends CommonProps {
   appPlaneStack: AppPlaneStack;
+  networkStack: NetworkStack;
 }
 
 export class FrontendStack extends Stack {
@@ -26,14 +30,16 @@ export class FrontendStack extends Stack {
   constructor(scope: Construct, id: string, props: FrontendProps) {
     super(scope, id, props);
 
-    const { appPlaneStack } = props;
+    const { appPlaneStack, networkStack } = props;
+    const { hostedZone } = networkStack.dns;
 
     // Create s3 bucket to host static assets.
     this.frontendAssetsBucket = new s3.Bucket(this, 'FrontendAssets');
 
     // Create CloudFront Distribution that points to frontendAssetsBucket.
     this.distribution = new cloudfront.Distribution(this, 'Distribution', {
-      domainNames: undefined, // TODO: Add alternate domain name.
+      domainNames: hostedZone ? [hostedZone.zoneName] : undefined,
+      certificate: networkStack.dns.cloudfrontCertificate,
       defaultBehavior: {
         origin: new origins.S3Origin(this.frontendAssetsBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.ALLOW_ALL,
@@ -85,5 +91,14 @@ export class FrontendStack extends Stack {
         },
       ],
     });
+
+    if (hostedZone) {
+      new route53.ARecord(this, 'DnsRecord', {
+        zone: hostedZone,
+        target: route53.RecordTarget.fromAlias(
+          new route53targets.CloudFrontTarget(this.distribution),
+        ),
+      });
+    }
   }
 }

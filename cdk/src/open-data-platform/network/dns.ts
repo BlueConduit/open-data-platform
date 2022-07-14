@@ -11,7 +11,6 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 export class Dns extends Construct {
   readonly hostedZone: route53.PublicHostedZone;
   readonly cloudfrontCertificate: certificatemanager.Certificate;
-  readonly apiCertificate: certificatemanager.Certificate;
 
   constructor(scope: Construct, id: string, props: CommonProps) {
     super(scope, id);
@@ -57,11 +56,5 @@ export class Dns extends Construct {
         region: 'us-east-1',
       },
     );
-
-    this.apiCertificate = new certificatemanager.DnsValidatedCertificate(this, 'ApiCertificate', {
-      // Both the frontend and the API are served at this domain.
-      domainName: this.hostedZone.zoneName,
-      hostedZone: this.hostedZone,
-    });
   }
 }
