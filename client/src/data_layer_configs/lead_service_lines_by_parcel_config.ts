@@ -7,44 +7,37 @@ import {
   TileDataLayer,
 } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
-import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
+import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
 // TODO(kailamjeter): move from lead likelihood % -> known / not likely / high likely etc.
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 const TABLE_NAME = 'public.parcels';
 
-/**
- * Maps legend buckets to the hex values.
- */
-const LEGEND_COLOR_MAPPING = [
-  0,
-  '#9fcd7c',
-  5,
-  '#f7e5af',
-  38,
-  '#f4a163',
-  99.7,
-  '#ff5934',
-  99.9,
-  '#d73819',
+const LEGEND_VALUES = [
+  {
+    bucketValue: 0,
+    bucketColor: '#9fcd7c',
+  },
+  {
+    bucketValue: 5,
+    bucketColor: '#f7e5af',
+  },
+  {
+    bucketValue: 38,
+    bucketColor: '#f4a163',
+  },
+  {
+    bucketValue: 99.7,
+    bucketColor: '#ff5934',
+  },
+  {
+    bucketValue: 99.9,
+    bucketColor: '#d73819',
+  },
 ];
 
-/**
- * Maps feature property values to colors to be rendered on the map.
- */
-const INTERPOLATION_COLOR_MAPPING = [
-  0,
-  '#9fcd7c',
-  0.05,
-  '#f7e5af',
-  0.38,
-  '#f4a163',
-  0.997,
-  '#ff5934',
-  0.999,
-  '#d73819',
-];
+const percentLeadLikelihood = ['*', 100, ['get', 'public_lead_prediction']];
 
 /**
  * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
@@ -56,13 +49,14 @@ const leadConnectionLegendInterpolation = [
   'interpolate',
   ['linear'],
   // Provides ratio of lead service lines : total service lines.
-  ['get', 'public_lead_prediction'],
-  ...INTERPOLATION_COLOR_MAPPING,
+  percentLeadLikelihood,
+  ...getLegendBucketsAsList(LEGEND_VALUES),
 ];
 
 const legendInfo: LegendInfo = {
   title: 'Percentage estimate of service line being lead',
-  bucketMap: colorMapToBuckets(LEGEND_COLOR_MAPPING),
+  buckets: LEGEND_VALUES,
+  bucketLabelType: FeaturePropertyDataType.Percentage,
 };
 
 export const styleLayer: FillLayer = {
