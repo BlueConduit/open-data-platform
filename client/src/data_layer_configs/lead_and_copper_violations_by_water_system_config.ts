@@ -12,6 +12,7 @@ import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 const TABLE_NAME = 'public.violations_function_source';
 
+// TODO(kailamjeter): create separate legends for state / water system views.
 const LEGEND_VALUES = [
   {
     bucketValue: 0,
