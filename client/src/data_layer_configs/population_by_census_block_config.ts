@@ -1,6 +1,7 @@
 import {
   DataSourceType,
   FeaturePropertyDataType,
+  GeographicLevel,
   LegendInfo,
   MapLayer,
   PopupInfo,
@@ -43,7 +44,7 @@ const LEGEND_VALUES_STATES = [
 
 // TODO (breuch): automate this. Right now the mathematical relationship
 // between LEGEND_VALUES_STATES and LEGEND_VALUES_COUNTY is not yet clear.
-export const LEGEND_VALUES_COUNTY = [
+const LEGEND_VALUES_COUNTY = [
   {
     bucketValue: 0,
     bucketColor: '#D1E4F2',
@@ -70,10 +71,22 @@ export const LEGEND_VALUES_COUNTY = [
   },
 ];
 
-const legendInfo: LegendInfo = {
-  title: 'U.S. Census data',
-  buckets: LEGEND_VALUES_STATES,
-  bucketLabelType: FeaturePropertyDataType.Number,
+const createLegends = (): Map<GeographicLevel, LegendInfo> => {
+  const stateLegendInfo = {
+    title: 'U.S. Census data',
+    buckets: LEGEND_VALUES_STATES,
+    bucketLabelType: FeaturePropertyDataType.Number,
+  };
+
+  const countyLegendInfo = { ...stateLegendInfo };
+  countyLegendInfo.buckets = LEGEND_VALUES_COUNTY;
+
+  return new Map([
+    [GeographicLevel.State, stateLegendInfo],
+    [GeographicLevel.County, countyLegendInfo],
+    [GeographicLevel.Zipcode, countyLegendInfo],
+    [GeographicLevel.Parcel, countyLegendInfo],
+  ]);
 };
 
 const nullInterpolation = ['case', ['==', ['get', 'total_population'], null], DEFAULT_NULL_COLOR];
@@ -95,7 +108,7 @@ const legendInterpolationCounty = [
   [...totalPopulationInterpolation, ...getLegendBucketsAsList(LEGEND_VALUES_COUNTY)],
 ];
 
-export const styleLayer: FillLayer = {
+const styleLayer: FillLayer = {
   id: `${MapLayer.PopulationByCensusBlock}-style`,
   source: MapLayer.PopulationByCensusBlock,
   // Corresponds to the table in the database.
@@ -114,7 +127,7 @@ export const styleLayer: FillLayer = {
       legendInterpolationCounty,
     ],
     'fill-opacity': 0.75,
-    'fill-outline-color': '#6433FF',
+    'fill-outline-color': '#0B2553',
   },
   layout: {
     // Make the layer hidden by default.
@@ -167,8 +180,7 @@ export const populationDataByCensusBlockLayer: TileDataLayer = {
   },
   id: MapLayer.PopulationByCensusBlock,
   name: 'Population',
-  // TODO (breuch): Update based on zoom.
-  legendInfo: legendInfo,
+  legendInfo: createLegends(),
   popupInfo: popupInfo,
   styleLayer: styleLayer,
 };

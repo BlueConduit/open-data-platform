@@ -1,6 +1,7 @@
 import {
   DataSourceType,
   FeaturePropertyDataType,
+  GeographicLevel,
   LegendInfo,
   MapLayer,
   PopupInfo,
@@ -39,6 +40,21 @@ const LEGEND_VALUES = [
   },
 ];
 
+const createLegends = (): Map<GeographicLevel, LegendInfo> => {
+  const stateLegendInfo = {
+    title: 'Percent of service lines estimated to be lead',
+    buckets: LEGEND_VALUES,
+    bucketLabelType: FeaturePropertyDataType.Percentage,
+  };
+
+  return new Map([
+    [GeographicLevel.State, stateLegendInfo],
+    [GeographicLevel.County, stateLegendInfo],
+    [GeographicLevel.Zipcode, stateLegendInfo],
+    [GeographicLevel.Parcel, stateLegendInfo],
+  ]);
+};
+
 const percentLeadLines = [
   '*',
   100,
@@ -58,12 +74,6 @@ const leadConnectionLegendInterpolation = [
   percentLeadLines,
   ...getLegendBucketsAsList(LEGEND_VALUES),
 ];
-
-const legendInfo: LegendInfo = {
-  title: 'Percent of service lines estimated to be lead',
-  buckets: LEGEND_VALUES,
-  bucketLabelType: FeaturePropertyDataType.Percentage,
-};
 
 export const styleLayer: FillLayer = {
   id: `${MapLayer.LeadServiceLineByWaterSystem}-style`,
@@ -124,7 +134,7 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   },
   id: MapLayer.LeadServiceLineByWaterSystem,
   name: 'Lead Service Lines',
-  legendInfo: legendInfo,
+  legendInfo: createLegends(),
   popupInfo: popupInfo,
   styleLayer: styleLayer,
 };

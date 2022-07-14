@@ -1,10 +1,15 @@
-import { FeaturePropertyDataType, LegendBucketData, LegendInfo } from '@/model/data_layer';
+import {
+  FeaturePropertyDataType,
+  GeographicLevel,
+  LegendBucketData,
+  LegendInfo,
+} from '@/model/data_layer';
 
 /**
  * Adds a bucketLabel to a legends bucket based on its data type.
  * @param legend: has information on the data type for the buckets.
  */
-export const formatLegendBucket = (legend: LegendInfo | undefined): Array<LegendBucketData> => {
+const formatLegendBucket = (legend: LegendInfo | undefined): Array<LegendBucketData> => {
   legend?.buckets?.forEach((bucket) => {
     switch (legend.bucketLabelType) {
       case FeaturePropertyDataType.String: {
@@ -29,12 +34,21 @@ export const formatLegendBucket = (legend: LegendInfo | undefined): Array<Legend
 };
 
 /**
+ * Return the [GeographicLevel] for a given zoom value.
+ * @param zoom: zoom level. Each geographic level enum is inherently
+ * assigned to an enum value.
+ */
+const getGeographicLevelForZoom = (zoom: number): GeographicLevel => {
+  return GeographicLevel[`${zoom}`] as GeographicLevel;
+};
+
+/**
  * The "interpolate" expression in Mapbox requires number: color formatting
  * to identify buckets
  * https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#interpolate
  * @param buckets to use for interpolation.
  */
-export const getLegendBucketsAsList = (buckets: LegendBucketData[]): Array<any> => {
+const getLegendBucketsAsList = (buckets: LegendBucketData[]): Array<any> => {
   const bucketToValues = [];
   for (const bucket of buckets) {
     bucketToValues.push(bucket.bucketValue, bucket.bucketColor);
@@ -49,8 +63,10 @@ const LOCALHOST = 'localhost';
  *
  * Returns location.hostname unless app is being run locally.
  */
-export function tileServerHost() {
+function tileServerHost() {
   return location.hostname == LOCALHOST
     ? process.env.VUE_APP_DEFAULT_TILESERVER_HOST
     : location.hostname;
 }
+
+export { formatLegendBucket, getGeographicLevelForZoom, getLegendBucketsAsList, tileServerHost };

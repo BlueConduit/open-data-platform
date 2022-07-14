@@ -46,9 +46,13 @@ export default defineComponent({
      * bucketMap is updated.
      */
     createLegend(): void {
-      this.title = this.state.currentDataLayer?.legendInfo?.title ?? '';
+      if (this.state.map == null || this.state.currentDataLayer == null) {
+        return;
+      }
+      const geographicLevel = getGeographicLevelForZoom(Math.floor(this.state.map.getZoom()));
 
-      this.displayedBuckets = formatLegendBucket(this.state.currentDataLayer?.legendInfo);
+      this.title = this.state.currentDataLayer.legendInfo.get(geographicLevel)?.title ?? '';
+      this.displayedBuckets = formatLegendBucket(this.state.currentDataLayer.legendInfo.get(geographicLevel));
     },
   },
   mounted() {
@@ -63,6 +67,7 @@ export default defineComponent({
      */
     state: {
       handler(newState: State): void {
+        console.log(`new state ${newState?.map?.getZoom()}`);
         if (newState.currentDataLayer != null) {
           this.createLegend();
         }

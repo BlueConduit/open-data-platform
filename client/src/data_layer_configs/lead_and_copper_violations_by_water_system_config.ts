@@ -1,6 +1,7 @@
 import {
   DataSourceType,
   FeaturePropertyDataType,
+  GeographicLevel,
   LegendInfo,
   MapLayer,
   PopupInfo,
@@ -32,6 +33,21 @@ const LEGEND_VALUES = [
   },
 ];
 
+const createLegends = (): Map<GeographicLevel, LegendInfo> => {
+  const stateLegendInfo = {
+    title: 'Number of violations',
+    buckets: LEGEND_VALUES,
+    bucketLabelType: FeaturePropertyDataType.Number,
+  };
+
+  return new Map([
+    [GeographicLevel.State, stateLegendInfo],
+    [GeographicLevel.County, stateLegendInfo],
+    [GeographicLevel.Zipcode, stateLegendInfo],
+    [GeographicLevel.Parcel, stateLegendInfo],
+  ]);
+};
+
 /**
  * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
  * results for the map.
@@ -44,12 +60,6 @@ const leadAndCopperViolationsInterpolation: Expression = [
   ['get', 'violation_count'],
   ...getLegendBucketsAsList(LEGEND_VALUES),
 ];
-
-const legendInfo: LegendInfo = {
-  title: 'Number of violations',
-  buckets: LEGEND_VALUES,
-  bucketLabelType: FeaturePropertyDataType.Number,
-};
 
 const styleLayer: FillLayer = {
   id: `${MapLayer.LeadAndCopperRuleViolationsByWaterSystem}-style`,
@@ -91,7 +101,7 @@ export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   },
   id: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   name: 'Lead & Copper Rule Violations',
-  legendInfo: legendInfo,
+  legendInfo: createLegends(),
   popupInfo: popupInfo,
   styleLayer: styleLayer,
 };
