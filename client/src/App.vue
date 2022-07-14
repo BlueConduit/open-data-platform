@@ -2,7 +2,7 @@
   <NavigationBar />
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, onMounted, provide, reactive } from 'vue';
 import '@blueconduit/copper/dist/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
@@ -17,7 +17,7 @@ import { DataLayer, MapLayer } from './model/data_layer';
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([
   [MapLayer.LeadServiceLineByWaterSystem, leadServiceLinesByWaterSystemLayer],
   [MapLayer.LeadAndCopperRuleViolationsByWaterSystem, leadAndCopperViolationsByCountyDataLayer],
-  [MapLayer.PopulationByCensusBlock, populationDataByCensusBlockLayer]
+  [MapLayer.PopulationByCensusBlock, populationDataByCensusBlockLayer],
 ]);
 
 // Base URL for REST API in Amazon API Gateway.
@@ -31,7 +31,6 @@ export default defineComponent({
   setup() {
     // Create and provide default state. This is updated once API data is fetched.
     const state = reactive(new State([]));
-    state.currentDataLayer = leadServiceLinesByWaterSystemLayer;
     state.dataLayers = Array.from(DATA_LAYERS.values());
 
     provide(stateKey, state);

@@ -7,19 +7,29 @@ import {
   TileDataLayer,
 } from '@/model/data_layer';
 import { Expression, FillLayer } from 'mapbox-gl';
-import { colorMapToBuckets, tileServerHost } from '@/util/data_layer_util';
+import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
-const LEGEND_COLOR_MAPPING = [
-  0,
-  '#FFEAE5',
-  25,
-  '#FFAB99',
-  50,
-  '#FF9680',
-  75,
-  '#FF8166',
-  100,
-  '#FF5733',
+const LEGEND_VALUES = [
+  {
+    bucketValue: 0,
+    bucketColor: '#FFEAE5',
+  },
+  {
+    bucketValue: 1,
+    bucketColor: '#FFAB99',
+  },
+  {
+    bucketValue: 5,
+    bucketColor: '#FF9680',
+  },
+  {
+    bucketValue: 10,
+    bucketColor: '#FF8166',
+  },
+  {
+    bucketValue: 15,
+    bucketColor: '#FF5733',
+  },
 ];
 
 /**
@@ -31,13 +41,14 @@ const LEGEND_COLOR_MAPPING = [
 const leadAndCopperViolationsInterpolation: Expression = [
   'interpolate',
   ['linear'],
-  ['get', 'violations_per_service_line'],
-  ...LEGEND_COLOR_MAPPING,
+  ['get', 'violation_count'],
+  ...getLegendBucketsAsList(LEGEND_VALUES),
 ];
 
 const legendInfo: LegendInfo = {
   title: 'Number of violations',
-  bucketMap: colorMapToBuckets(LEGEND_COLOR_MAPPING),
+  buckets: LEGEND_VALUES,
+  bucketLabelType: FeaturePropertyDataType.Number,
 };
 
 const styleLayer: FillLayer = {
@@ -59,12 +70,12 @@ const styleLayer: FillLayer = {
 
 const popupInfo: PopupInfo = {
   title: 'Water system',
-  subtitle: '320 estimated lead service lines',
+  subtitle: '',
   detailsTitle: 'Lead & Copper Rule Violations',
   featureProperties: [
     {
       label: 'Lead & Copper Rule Violations Per Service Line',
-      name: 'violations_per_service_line',
+      name: 'violation_count',
       dataType: FeaturePropertyDataType.Number,
     },
   ],
@@ -74,6 +85,9 @@ export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
     tiles: [`https://${tileServerHost()}/tiles/v1/public.violation_counts/{z}/{x}/{y}.pbf`],
+    // Helps with latency to reduce fetching unneeded tiles.
+    minzoom: 3,
+    maxzoom: 16,
   },
   id: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   name: 'Lead & Copper Rule Violations',

@@ -1,20 +1,22 @@
 <template>
-  <div class="map-overlay">
+  <div class='map-overlay'>
     <div>{{ this.title }}</div>
     <p></p>
-    <div class="bucket"
-         v-for="(bucket) in this.displayedBucketsMap.entries()" :key="bucket">
-      <span class="color"
-            :style="{'background-color': bucket[1]}"></span>
-      <span> {{ bucket[0] }}</span>
+    <div class='bucket'
+         v-for='(bucket) in this.displayedBuckets' :key='bucket'>
+      <span class='color'
+            :style="{'background-color': bucket.bucketColor}"></span>
+      <span> {{ bucket.bucketLabel }}</span>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, inject } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
+import { LegendBucketData } from '../model/data_layer';
+import { formatLegendBucket } from '../util/data_layer_util';
 
 /**
  * Map legend component.
@@ -33,19 +35,10 @@ export default defineComponent({
   data() {
     return {
       title: '',
-      displayedBucketsMap: new Map<string, string>(),
+      displayedBuckets: new Array<LegendBucketData>(),
     };
   },
   methods: {
-    /**
-     * If this is the last bucket, create label which is `currentKey+`.
-     * Otherwise, create label which is the range `currentKey - nextKey`.
-     */
-    bucketLabel(bucket: string[], index: number, buckets: string[][]): string {
-      return index < buckets.length - 1
-        ? `${bucket[0]} - ${buckets[index + 1][0]}` : `${bucket[0]}+`;
-    },
-
     /**
      * Create bucket labels and colors for legend.
      *
@@ -54,18 +47,8 @@ export default defineComponent({
      */
     createLegend(): void {
       this.title = this.state.currentDataLayer?.legendInfo?.title ?? '';
-      this.displayedBucketsMap.clear();
 
-      const bucketEntries = this.state.currentDataLayer?.legendInfo.bucketMap?.entries();
-
-      if (bucketEntries != null) {
-        const buckets: string[][] = Array.from(bucketEntries);
-
-        buckets.forEach((bucket: string[], index: number): void => {
-          const bucketLabel = this.bucketLabel(bucket, index, buckets);
-          this.displayedBucketsMap.set(bucketLabel, bucket[1]);
-        });
-      }
+      this.displayedBuckets = formatLegendBucket(this.state.currentDataLayer?.legendInfo);
     },
   },
   mounted() {
@@ -87,8 +70,8 @@ export default defineComponent({
       // Make watcher deep, meaning that this will be triggered on a change to any nested field of state.
       deep: true,
     },
-  }
-})
+  },
+});
 </script>
 
 <style scoped>
