@@ -316,7 +316,7 @@ $$
 DECLARE
     mvt bytea;
 BEGIN
-    IF (z < 6) THEN
+    IF (z <= 4) THEN
         -- Show aggregated lead connections data by state at low zoom level (most zoomed out).
         SELECT INTO mvt ST_AsMVT(tile,
                                  'public.lead_connections_function_source',
@@ -374,14 +374,14 @@ DECLARE
     mvt bytea;
 BEGIN
     -- Show aggregated violations data by state at low zoom level (most zoomed out).
-    IF (z < 6) THEN
+    IF (z <= 4) THEN
         SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source',
                                  4096, 'geom')
         FROM (
                  SELECT ST_AsMVTGeom(ST_Transform(s.geom, 3857),
                                      ST_TileEnvelope(z, x, y)) AS geom,
                         s.name                                 AS state_name,
-                        SUM(v.violation_count)                 AS violation_count
+                        CAST(SUM(v.violation_count) AS int)    AS violation_count
                  FROM violation_counts v
                           RIGHT JOIN states s
                                      ON v.state_census_geo_id = s.census_geo_id
@@ -398,7 +398,7 @@ BEGIN
                  SELECT ST_AsMVTGeom(ST_Transform(v.geom, 3857),
                                      ST_TileEnvelope(z, x, y)) AS geom,
                         v.pws_id                               AS pws_id,
-                        SUM(v.violation_count)                 AS violation_count
+                        CAST(SUM(v.violation_count) AS int)    AS violation_count
                  FROM violation_counts v
                  WHERE ST_Transform(v.geom, 3857) && ST_TileEnvelope(z, x, y)
                  GROUP BY v.geom,
