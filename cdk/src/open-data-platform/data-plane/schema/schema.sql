@@ -504,16 +504,11 @@ BEGIN
         SELECT INTO mvt ST_AsMVT(tile, 'public.violations_function_source',
                                  4096, 'geom')
         FROM (
-                 SELECT ST_AsMVTGeom(ST_Transform(s.geom, 3857),
-                                     ST_TileEnvelope(z, x, y)) AS geom,
-                        s.name                                 AS state_name,
-                        CAST(SUM(v.violation_count) AS int)    AS violation_count
-                 FROM violation_counts v
-                          RIGHT JOIN states s
-                                     ON v.state_census_geo_id = s.census_geo_id
-                 WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
-                 GROUP BY s.geom,
-                          s.name
+                 SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                        name,
+                        violation_count
+                 FROM state_epa_violations
+                 WHERE geom && ST_TileEnvelope(z, x, y)
              ) AS tile
         WHERE geom IS NOT NULL;
     ELSE
