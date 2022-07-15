@@ -27,6 +27,8 @@ const VIOLATION_CODE = `${VIOLATION}.VIOLATION_CODE`;
 const COMPLIANCE_STATUS_CODE = `${VIOLATION}.COMPLIANCE_STATUS_CODE`;
 const COMPL_PER_BEGIN_DATE = `${VIOLATION}.COMPL_PER_BEGIN_DATE`;
 const COMPL_PER_END_DATE = `${VIOLATION}.COMPL_PER_END_DATE`;
+const STATE_CENSUS_GEOID = `${VIOLATION}.STATE_CENSUS_GEOID`;
+const COUNTY_CENSUS_GEOID = `${VIOLATION}.COUNTY_CENSUS_GEOID`;
 
 /**
  * Status codes that indicate a Lead and Copper Rule violation.
@@ -58,13 +60,15 @@ async function insertRows(db: PoolClient, rows: ViolationsTableRow[]): Promise<Q
       row.violation_code,
       row.compliance_status,
       row.start_date,
+      row.state_census_geo_id,
+      row.county_census_geo_id,
     ]);
   }
 
   // Format function below needs these to be %s (string literals) or else
   // it produces invalid geometries.
   const insertIntoStatement =
-    'INSERT INTO epa_violations (violation_id, pws_id,violation_code, compliance_status, start_date) ' +
+    'INSERT INTO epa_violations (violation_id, pws_id,violation_code, compliance_status, start_date, state_census_geo_id, county_census_geo_id) ' +
     'VALUES %L ON CONFLICT (violation_id) DO NOTHING';
 
   return db.query(format(insertIntoStatement, valuesToInsert), []);
@@ -118,6 +122,8 @@ function parseS3IntoViolationsTableRow(
                 )
                 .startDate(startDate.format(POSTGRESQL_DATE_FORMAT))
                 .endDate(endDate.format(POSTGRESQL_DATE_FORMAT))
+                .stateCensusGeoId(properties[STATE_CENSUS_GEOID])
+                .countyCensusGeoId(properties[COUNTY_CENSUS_GEOID])
                 .build();
 
               tableRows.push(tableRowToInsert);
@@ -247,6 +253,10 @@ class ViolationsTableRow {
   // Date the violation went back into compliance in the form of YYYY-mm-dd.
   // Could be null for ongoing violations.
   end_date: string | null;
+  // GeoID of containing state.
+  state_census_geo_id: string;
+  // GeoID of containing county.
+  county_census_geo_id: string;
 
   constructor(
     pws_id: string,
@@ -254,6 +264,8 @@ class ViolationsTableRow {
     violation_code: string,
     compliance_status: string,
     start_date: string,
+    state_census_geo_id: string,
+    county_census_geo_id: string,
     end_date: string,
   ) {
     this.pws_id = pws_id;
@@ -261,6 +273,8 @@ class ViolationsTableRow {
     this.violation_code = violation_code;
     this.start_date = start_date;
     this.end_date = end_date;
+    this.state_census_geo_id = state_census_geo_id;
+    this.county_census_geo_id = county_census_geo_id;
   }
 }
 
@@ -271,7 +285,7 @@ class ViolationsTableRowBuilder {
   private readonly _row: ViolationsTableRow;
 
   constructor() {
-    this._row = new ViolationsTableRow('', '', '', '', '');
+    this._row = new ViolationsTableRow('', '', '', '', '', '', '', '');
   }
 
   violationId(violationId: string): ViolationsTableRowBuilder {
@@ -301,6 +315,16 @@ class ViolationsTableRowBuilder {
 
   endDate(endDate: string): ViolationsTableRowBuilder {
     this._row.end_date = endDate;
+    return this;
+  }
+
+  stateCensusGeoId(stateCensusGeoId: string): ViolationsTableRowBuilder {
+    this._row.state_census_geo_id = stateCensusGeoId;
+    return this;
+  }
+
+  countyCensusGeoId(countyCensusGeoId: string): ViolationsTableRowBuilder {
+    this._row.county_census_geo_id = countyCensusGeoId;
     return this;
   }
 
