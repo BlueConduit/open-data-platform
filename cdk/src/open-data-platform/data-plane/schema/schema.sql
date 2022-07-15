@@ -135,11 +135,15 @@ CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON epa_violations (county_
 CREATE OR REPLACE VIEW violation_counts AS
 SELECT pws_id,
        epa_violations.state_census_geo_id,
+       epa_violations.county_census_geo_id,
        geom,
        COUNT(violation_id) AS violation_count
 FROM epa_violations
          JOIN water_systems USING (pws_id)
-GROUP BY pws_id, geom, epa_violations.state_census_geo_id;
+GROUP BY pws_id,
+         geom,
+         epa_violations.state_census_geo_id,
+         epa_violations.county_census_geo_id;
 
 -- Parcel-level data
 
@@ -255,6 +259,40 @@ CREATE TABLE IF NOT EXISTS zipcode_lead_connections
 );
 CREATE INDEX IF NOT EXISTS geom_index ON zipcode_lead_connections USING GIST (geom);
 
+-- EPA Violations aggregation tables.
+
+CREATE TABLE IF NOT EXISTS state_epa_violations
+(
+    census_geo_id   varchar(255) NOT NULL,
+    name            varchar(255) NOT NULL,
+    violation_count real,
+    geom            geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON state_epa_violations USING GIST (geom);
+
+CREATE TABLE IF NOT EXISTS county_epa_violations
+(
+    census_geo_id   varchar(255) NOT NULL,
+    name            varchar(255) NOT NULL,
+    violation_count real,
+    geom            geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON county_epa_violations USING GIST (geom);
+
+-- TODO(kailamjeter): Add insert statement once the zipcode -> lead_connections
+-- connection established.
+CREATE TABLE IF NOT EXISTS zipcode_epa_violations
+(
+    census_geo_id   varchar(255) NOT NULL,
+    zipcode         varchar(255) NOT NULL,
+    violation_count real,
+    geom            geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON zipcode_epa_violations USING GIST (geom);
+
 -- Populate pre-computed tables. These are only to be used by the functions
 -- defined below.
 
@@ -320,6 +358,30 @@ SELECT counties.census_geo_id            as census_geo_id,
 FROM counties
          LEFT JOIN water_systems
                    ON water_systems.county_census_geo_id =
+                      counties.census_geo_id
+GROUP BY counties.census_geo_id, counties.name, counties.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
+INSERT INTO state_epa_violations(census_geo_id, name, geom, violation_count)
+SELECT states.census_geo_id            as census_geo_id,
+       states.name                     AS name,
+       ST_Transform(states.geom, 3857) AS geom,
+       SUM(violation_count)            AS violation_count
+FROM states
+         LEFT JOIN violation_counts
+                   ON violation_counts.state_census_geo_id =
+                      states.census_geo_id
+GROUP BY states.census_geo_id, states.name, states.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
+INSERT INTO county_epa_violations(census_geo_id, name, geom, violation_count)
+SELECT counties.census_geo_id            as census_geo_id,
+       counties.name                     AS name,
+       ST_Transform(counties.geom, 3857) AS geom,
+       SUM(violation_count)              AS violation_count
+FROM counties
+         LEFT JOIN violation_counts
+                   ON violation_counts.county_census_geo_id =
                       counties.census_geo_id
 GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
