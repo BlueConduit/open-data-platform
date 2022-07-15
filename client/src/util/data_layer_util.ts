@@ -39,7 +39,12 @@ const formatLegendBucket = (legend: LegendInfo | undefined): Array<LegendBucketD
  * assigned to an enum value.
  */
 const getGeographicLevelForZoom = (zoom: number): GeographicLevel => {
-  return GeographicLevel[`${zoom}`] as GeographicLevel;
+  // Object.values().reverse() gives
+  // ["Unknown", "State", "County", "Zipcode", "Parcel", 0, 4, 5, 6, 9]
+  // This looks for the first qualifying zoom.
+  return Object.values(GeographicLevel)
+    .reverse()
+    .find((layer) => layer <= zoom) as GeographicLevel;
 };
 
 /**
