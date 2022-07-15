@@ -275,8 +275,6 @@ FROM states
 GROUP BY states.census_geo_id, states.name, states.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
-CREATE INDEX IF NOT EXISTS geom_index ON state_demographics USING GIST (geom);
-
 INSERT INTO county_demographics(census_geo_id, name, geom, black_population,
                                 white_population, total_population,
                                 under_five_population, poverty_population)
@@ -293,8 +291,6 @@ FROM counties
                    ON demographics.county_census_geo_id = counties.census_geo_id
 GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
-
-CREATE INDEX IF NOT EXISTS geom_index ON county_demographics USING GIST (geom);
 
 INSERT INTO state_lead_connections(census_geo_id, name, geom,
                                    lead_connections_count,
@@ -323,7 +319,8 @@ SELECT counties.census_geo_id            as census_geo_id,
        SUM(population_served)            AS population_served
 FROM counties
          LEFT JOIN water_systems
-                   ON water_systems.state_census_geo_id = counties.census_geo_id
+                   ON water_systems.county_census_geo_id =
+                      counties.census_geo_id
 GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
