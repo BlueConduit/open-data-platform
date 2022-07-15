@@ -31,12 +31,16 @@ async function insertBatch(
                                      lead_connections_count,
                                      service_connections_count,
                                      population_served,
+                                     state_census_geo_id,
+                                     county_census_geo_id,
                                      geom)
           VALUES (:pws_id,
                   :pws_name,
                   :lead_connections_count,
                   :service_connections_count,
                   :population_served,
+                  :state_census_geo_id,
+                  :county_census_geo_id,
                   ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (pws_id) DO NOTHING`,
   };
   return rdsService.batchExecuteStatement(batchExecuteParams).promise();
@@ -63,6 +67,8 @@ function getTableRowFromRow(row: any): SqlParametersList {
       .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
       .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
       .populationServed(getValueOrDefault(properties.population_served_count))
+      .stateCensusGeoId(properties.state_census_geo_id ?? '')
+      .countyCensusGeoId(properties.county_census_geo_id ?? '')
       // Keep JSON formatting. Post-GIS helpers depend on this.
       .geom(JSON.stringify(value.geometry))
       .build()

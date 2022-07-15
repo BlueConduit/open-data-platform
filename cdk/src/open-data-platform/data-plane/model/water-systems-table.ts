@@ -18,6 +18,10 @@ class WaterSystemsTableRow {
   population_served: number;
   // GeoJSON representation of the boundaries.
   geom: string;
+  // GeoID of containing state.
+  state_census_geo_id: string;
+  // GeoID of containing county.
+  county_census_geo_id: string;
 
   constructor(
     pws_id: string,
@@ -25,6 +29,8 @@ class WaterSystemsTableRow {
     lead_connections_count: number,
     service_connections_count: number,
     population_served: number,
+    state_census_geo_id: string,
+    county_census_geo_id: string,
     geom: string,
   ) {
     this.pws_id = pws_id;
@@ -32,6 +38,8 @@ class WaterSystemsTableRow {
     this.lead_connections_count = lead_connections_count;
     this.service_connections_count = service_connections_count;
     this.population_served = population_served;
+    this.state_census_geo_id = state_census_geo_id;
+    this.county_census_geo_id = county_census_geo_id;
     this.geom = geom;
   }
 }
@@ -43,7 +51,7 @@ export class WaterSystemsTableRowBuilder {
   private readonly _row: WaterSystemsTableRow;
 
   constructor() {
-    this._row = new WaterSystemsTableRow('', '', 0, 0, 0, '');
+    this._row = new WaterSystemsTableRow('', '', 0, 0, 0, '', '', '');
   }
 
   pwsId(pwsId: string): WaterSystemsTableRowBuilder {
@@ -76,6 +84,16 @@ export class WaterSystemsTableRowBuilder {
     return this;
   }
 
+  stateCensusGeoId(stateCensusGeoId: string): WaterSystemsTableRowBuilder {
+    this._row.state_census_geo_id = stateCensusGeoId;
+    return this;
+  }
+
+  countyCensusGeoId(countyCensusGeoId: string): WaterSystemsTableRowBuilder {
+    this._row.county_census_geo_id = countyCensusGeoId;
+    return this;
+  }
+
   build(): SqlParametersList {
     return [
       {
@@ -97,6 +115,14 @@ export class WaterSystemsTableRowBuilder {
       {
         name: 'population_served',
         value: { doubleValue: this._row.population_served },
+      },
+      {
+        name: 'state_census_geo_id',
+        value: { stringValue: this._row.state_census_geo_id },
+      },
+      {
+        name: 'county_census_geo_id',
+        value: { stringValue: this._row.county_census_geo_id },
       },
       {
         name: 'geom',
