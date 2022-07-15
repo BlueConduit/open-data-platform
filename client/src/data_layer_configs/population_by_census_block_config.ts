@@ -84,8 +84,6 @@ const createLegends = (): Map<GeographicLevel, LegendInfo> => {
   return new Map([
     [GeographicLevel.State, stateLegendInfo],
     [GeographicLevel.County, countyLegendInfo],
-    [GeographicLevel.Zipcode, countyLegendInfo],
-    [GeographicLevel.Parcel, countyLegendInfo],
   ]);
 };
 
@@ -183,4 +181,5 @@ export const populationDataByCensusBlockLayer: TileDataLayer = {
   legendInfo: createLegends(),
   popupInfo: popupInfo,
   styleLayer: styleLayer,
+  visibleInSearchBar: true,
 };

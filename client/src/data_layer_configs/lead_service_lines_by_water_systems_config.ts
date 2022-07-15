@@ -11,7 +11,7 @@ import { FillLayer } from 'mapbox-gl';
 import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
-const TABLE_NAME = 'public.water_systems';
+const TABLE_NAME = 'public.lead_connections_function_source';
 
 const LEGEND_VALUES = [
   {
@@ -41,18 +41,12 @@ const LEGEND_VALUES = [
 ];
 
 const createLegends = (): Map<GeographicLevel, LegendInfo> => {
-  const stateLegendInfo = {
+  const waterSystemLegendInfo = {
     title: 'Percent of service lines estimated to be lead',
     buckets: LEGEND_VALUES,
     bucketLabelType: FeaturePropertyDataType.Percentage,
   };
-
-  return new Map([
-    [GeographicLevel.State, stateLegendInfo],
-    [GeographicLevel.County, stateLegendInfo],
-    [GeographicLevel.Zipcode, stateLegendInfo],
-    [GeographicLevel.Parcel, stateLegendInfo],
-  ]);
+  return new Map([[GeographicLevel.State, waterSystemLegendInfo]]);
 };
 
 const percentLeadLines = [
@@ -102,6 +96,18 @@ const popupInfo: PopupInfo = {
   detailsTitle: 'Water system information',
   featureProperties: [
     {
+      label: 'State name',
+      name: 'state_name',
+      dataType: FeaturePropertyDataType.String,
+      optional: true,
+    },
+    {
+      label: 'EPA identifier for water system',
+      name: 'pws_id',
+      dataType: FeaturePropertyDataType.String,
+      optional: true,
+    },
+    {
       label: 'Number of lead connections',
       name: 'lead_connections_count',
       dataType: FeaturePropertyDataType.Number,
@@ -112,14 +118,9 @@ const popupInfo: PopupInfo = {
       dataType: FeaturePropertyDataType.Number,
     },
     {
-      label: 'Population served by water system',
+      label: 'Population served',
       name: 'population_served',
       dataType: FeaturePropertyDataType.Number,
-    },
-    {
-      label: 'EPA identifier for water system',
-      name: 'pws_id',
-      dataType: FeaturePropertyDataType.String,
     },
   ],
 };
@@ -127,7 +128,7 @@ const popupInfo: PopupInfo = {
 export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/tiles/v1/rpc/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
     // Helps with latency to reduce fetching unneeded tiles.
     minzoom: 3,
     maxzoom: 16,
@@ -137,4 +138,5 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   legendInfo: createLegends(),
   popupInfo: popupInfo,
   styleLayer: styleLayer,
+  visibleInSearchBar: true,
 };

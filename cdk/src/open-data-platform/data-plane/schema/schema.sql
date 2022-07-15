@@ -30,6 +30,37 @@ $$ LANGUAGE plpgsql;
 -- Tables --
 ------------
 
+-- States
+CREATE TABLE IF NOT EXISTS states
+(
+    census_geo_id varchar(255) NOT NULL,
+    fips          varchar(255) UNIQUE,
+    ansi          varchar(255),
+    aff_geo_id    varchar(255),
+    usps          varchar(255),
+    name          varchar(255),
+    lsad          varchar(255),
+    geom          GEOMETRY(Geometry, 4326),
+    PRIMARY KEY (census_geo_id)
+);
+
+CREATE INDEX IF NOT EXISTS geom_index ON states USING GIST (geom);
+
+-- Counties
+CREATE TABLE IF NOT EXISTS counties
+(
+    census_geo_id varchar(255) NOT NULL,
+    fips          varchar(255) NOT NULL,
+    state_fips    varchar(255) NOT NULL references states (fips),
+    ansi          varchar(255) NOT NULL,
+    aff_geo_id    varchar(255),
+    name          varchar(255),
+    lsad          varchar(255),
+    geom          geometry(Geometry, 4326),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
+
 -- Census-block-level data. TODO: consider renaming the table.
 
 CREATE TABLE IF NOT EXISTS demographics
@@ -120,37 +151,6 @@ CREATE TRIGGER update_last_update_timestamp
     ON parcels
     FOR EACH ROW
 EXECUTE PROCEDURE update_last_update_timestamp();
-
--- States
-CREATE TABLE IF NOT EXISTS states
-(
-    census_geo_id varchar(255) NOT NULL,
-    fips          varchar(255) UNIQUE,
-    ansi          varchar(255),
-    aff_geo_id    varchar(255),
-    usps          varchar(255),
-    name          varchar(255),
-    lsad          varchar(255),
-    geom          GEOMETRY(Geometry, 4326),
-    PRIMARY KEY (census_geo_id)
-);
-
-CREATE INDEX IF NOT EXISTS geom_index ON states USING GIST (geom);
-
--- Counties
-CREATE TABLE IF NOT EXISTS counties
-(
-    census_geo_id varchar(255) NOT NULL,
-    fips          varchar(255) NOT NULL,
-    state_fips    varchar(255) NOT NULL references states (fips),
-    ansi          varchar(255) NOT NULL,
-    aff_geo_id    varchar(255),
-    name          varchar(255),
-    lsad          varchar(255),
-    geom          geometry(Geometry, 4326),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON counties USING GIST (geom);
 
 -- Zipcodes
 CREATE TABLE IF NOT EXISTS zipcodes
@@ -316,7 +316,7 @@ $$
 DECLARE
     mvt bytea;
 BEGIN
-    IF (z < 6) THEN
+    IF (z =< 4) THEN
         -- Show aggregated lead connections data by state at low zoom level (most zoomed out).
         SELECT INTO mvt ST_AsMVT(tile,
                                  'public.lead_connections_function_source',
@@ -347,6 +347,7 @@ BEGIN
                         w.pws_id                               AS pws_id,
                         w.pws_name                             AS pws_name,
                         SUM(w.lead_connections_count)          AS lead_connections_count,
+                        SUM(w.service_connections_count)       AS service_connections_count,
                         SUM(w.population_served)               AS population_served
                  FROM water_systems w
                  WHERE ST_Transform(w.geom, 3857) && ST_TileEnvelope(z, x, y)

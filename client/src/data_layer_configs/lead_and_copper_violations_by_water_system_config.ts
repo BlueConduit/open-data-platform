@@ -40,12 +40,7 @@ const createLegends = (): Map<GeographicLevel, LegendInfo> => {
     bucketLabelType: FeaturePropertyDataType.Number,
   };
 
-  return new Map([
-    [GeographicLevel.State, stateLegendInfo],
-    [GeographicLevel.County, stateLegendInfo],
-    [GeographicLevel.Zipcode, stateLegendInfo],
-    [GeographicLevel.Parcel, stateLegendInfo],
-  ]);
+  return new Map([[GeographicLevel.State, stateLegendInfo]]);
 };
 
 /**
@@ -104,4 +99,5 @@ export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   legendInfo: createLegends(),
   popupInfo: popupInfo,
   styleLayer: styleLayer,
+  visibleInSearchBar: true,
 };

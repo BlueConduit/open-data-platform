@@ -35,16 +35,22 @@ const formatLegendBucket = (legend: LegendInfo | undefined): Array<LegendBucketD
 
 /**
  * Return the [GeographicLevel] for a given zoom value.
+ * @param legends: the map of legends available
  * @param zoom: zoom level. Each geographic level enum is inherently
  * assigned to an enum value.
  */
-const getGeographicLevelForZoom = (zoom: number): GeographicLevel => {
+const getLegendForZoomLevel = (
+  legends: Map<GeographicLevel, LegendInfo>,
+  zoom: number,
+): LegendInfo | undefined => {
   // Object.values().reverse() gives
-  // ["Unknown", "State", "County", "Zipcode", "Parcel", 0, 4, 5, 6, 9]
+  // [9, 6, 5, 4, 0, "Parcel", "Zipcode", "County", "State", "Unknown"]
   // This looks for the first qualifying zoom.
-  return Object.values(GeographicLevel)
+  const mostGranularLegendForZoom = Object.values(GeographicLevel)
     .reverse()
-    .find((layer) => layer <= zoom) as GeographicLevel;
+    .find((level) => level <= zoom && legends.has(level as GeographicLevel)) as GeographicLevel;
+  console.log(mostGranularLegendForZoom);
+  return legends.get(mostGranularLegendForZoom);
 };
 
 /**
@@ -74,4 +80,4 @@ function tileServerHost() {
     : location.hostname;
 }
 
-export { formatLegendBucket, getGeographicLevelForZoom, getLegendBucketsAsList, tileServerHost };
+export { formatLegendBucket, getLegendForZoomLevel, getLegendBucketsAsList, tileServerHost };

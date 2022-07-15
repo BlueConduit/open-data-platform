@@ -1,4 +1,4 @@
-import { AnyLayer, AnySourceData, FillLayer, VectorSource } from 'mapbox-gl';
+import { AnySourceData, FillLayer, VectorSource } from 'mapbox-gl';
 
 /**
  * A data layer on the map.
@@ -21,6 +21,8 @@ interface DataLayer {
   popupInfo: PopupInfo;
   // Data source for the layer.
   source: AnySourceData;
+  // Whether it should be selectable in the searchbar.
+  visibleInSearchBar: boolean;
 }
 
 /**
@@ -75,8 +77,10 @@ interface FeatureProperty {
   label: string;
   // Name of this feature property.
   name: string;
-  /// Type of data to configure parsing
+  // Type of data to configure parsing
   dataType: FeaturePropertyDataType;
+  // Whether this property is optional. Optional values may be null or not exist in the list.
+  optional?: boolean;
 }
 
 /**
@@ -105,6 +109,7 @@ enum FeaturePropertyDataType {
  */
 enum MapLayer {
   Unknown = 'unknown',
+  LeadServiceLineByParcel = 'lead-service-lines-by-parcel',
   LeadServiceLineByWaterSystem = 'lead-service-lines-by-water-system',
   LeadAndCopperRuleViolationsByWaterSystem = 'epa-lead-and-copper-violations-by-water-system',
   PopulationByCensusBlock = 'population-by-census-block',

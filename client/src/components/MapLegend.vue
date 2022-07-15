@@ -16,7 +16,7 @@ import { defineComponent, inject } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import { LegendBucketData } from '../model/data_layer';
-import { formatLegendBucket, getGeographicLevelForZoom } from '../util/data_layer_util';
+import { formatLegendBucket, getLegendForZoomLevel } from '../util/data_layer_util';
 
 /**
  * Map legend component.
@@ -49,10 +49,10 @@ export default defineComponent({
       if (this.state.map == null || this.state.currentDataLayer == null) {
         return;
       }
-      
-      const geographicLevel = getGeographicLevelForZoom(Math.floor(this.state.map.getZoom()));
-      this.title = this.state.currentDataLayer.legendInfo.get(geographicLevel)?.title ?? '';
-      this.displayedBuckets = formatLegendBucket(this.state.currentDataLayer.legendInfo.get(geographicLevel));
+
+      const legendInfo = getLegendForZoomLevel(this.state.currentDataLayer.legendInfo, Math.floor(this.state.map.getZoom()));
+      this.title = legendInfo?.title ?? '';
+      this.displayedBuckets = formatLegendBucket(legendInfo);
     },
   },
   mounted() {
