@@ -166,8 +166,11 @@ CREATE TRIGGER update_last_update_timestamp
     FOR EACH ROW
 EXECUTE PROCEDURE update_last_update_timestamp();
 
--- Precomputed table is required to ensure acceptable latency for the
--- tileserver.
+--- Create pre-computed tables.
+--- These are required to ensure acceptable latency for the tileserver.
+
+-- Demographic aggregation tables.
+
 CREATE TABLE IF NOT EXISTS state_demographics
 (
     census_geo_id         varchar(255) NOT NULL,
@@ -182,8 +185,6 @@ CREATE TABLE IF NOT EXISTS state_demographics
 );
 CREATE INDEX IF NOT EXISTS geom_index ON state_demographics USING GIST (geom);
 
--- Precomputed table is required to ensure acceptable latency for the
--- tileserver.
 CREATE TABLE IF NOT EXISTS county_demographics
 (
     census_geo_id         varchar(255) NOT NULL,
@@ -198,8 +199,6 @@ CREATE TABLE IF NOT EXISTS county_demographics
 );
 CREATE INDEX IF NOT EXISTS geom_index ON county_demographics USING GIST (geom);
 
--- Precomputed table is required to ensure acceptable latency for the
--- tileserver.
 -- TODO(breuch): Add insert statement once the zipcode -> demographics
 -- connection established.
 CREATE TABLE IF NOT EXISTS zipcode_demographics
@@ -216,8 +215,8 @@ CREATE TABLE IF NOT EXISTS zipcode_demographics
 );
 CREATE INDEX IF NOT EXISTS geom_index ON zipcode_demographics USING GIST (geom);
 
--- Precomputed table is required to ensure acceptable latency for the
--- tileserver.
+-- Lead connections aggregation tables.
+
 CREATE TABLE IF NOT EXISTS state_lead_connections
 (
     census_geo_id             varchar(255) NOT NULL,
@@ -230,25 +229,6 @@ CREATE TABLE IF NOT EXISTS state_lead_connections
 );
 CREATE INDEX IF NOT EXISTS geom_index ON state_lead_connections USING GIST (geom);
 
--- Pre-computed demographic data by state
--- Only to be used by the function source
-INSERT INTO state_lead_connections(census_geo_id, name, geom,
-                                   lead_connections_count,
-                                   service_connections_count, population_served)
-SELECT states.census_geo_id            as census_geo_id,
-       states.name                     AS name,
-       ST_Transform(states.geom, 3857) AS geom,
-       SUM(lead_connections_count)     AS lead_connections_count,
-       SUM(service_connections_count)  AS service_connections_count,
-       SUM(population_served)          AS population_served
-FROM states
-         LEFT JOIN water_systems
-                   ON water_systems.state_census_geo_id = states.census_geo_id
-GROUP BY states.census_geo_id, states.name, states.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
-
--- Precomputed table is required to ensure acceptable latency for the
--- tileserver.
 CREATE TABLE IF NOT EXISTS county_lead_connections
 (
     census_geo_id             varchar(255) NOT NULL,
@@ -261,26 +241,6 @@ CREATE TABLE IF NOT EXISTS county_lead_connections
 );
 CREATE INDEX IF NOT EXISTS geom_index ON county_lead_connections USING GIST (geom);
 
--- Pre-computed demographic data by state
--- Only to be used by the function source
-INSERT INTO county_lead_connections(census_geo_id, name, geom,
-                                    lead_connections_count,
-                                    service_connections_count,
-                                    population_served)
-SELECT counties.census_geo_id            as census_geo_id,
-       counties.name                     AS name,
-       ST_Transform(counties.geom, 3857) AS geom,
-       SUM(lead_connections_count)       AS lead_connections_count,
-       SUM(service_connections_count)    AS service_connections_count,
-       SUM(population_served)            AS population_served
-FROM counties
-         LEFT JOIN water_systems
-                   ON water_systems.state_census_geo_id = counties.census_geo_id
-GROUP BY counties.census_geo_id, counties.name, counties.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
-
--- Precomputed table is required to ensure acceptable latency for the
--- tileserver.
 -- TODO(kailamjeter): Add insert statement once the zipcode -> lead_connections
 -- connection established.
 CREATE TABLE IF NOT EXISTS zipcode_lead_connections
@@ -295,8 +255,9 @@ CREATE TABLE IF NOT EXISTS zipcode_lead_connections
 );
 CREATE INDEX IF NOT EXISTS geom_index ON zipcode_lead_connections USING GIST (geom);
 
--- Pre-computed demographic data by state
--- Only to be used by the function source
+-- Populate pre-computed tables. These are only to be used by the functions
+-- defined below.
+
 INSERT INTO state_demographics(census_geo_id, name, geom, black_population,
                                white_population, total_population,
                                under_five_population, poverty_population)
@@ -316,9 +277,6 @@ ON CONFLICT (census_geo_id) DO NOTHING;
 
 CREATE INDEX IF NOT EXISTS geom_index ON state_demographics USING GIST (geom);
 
-
--- Pre-computed demographic data by county.
--- Only to be used by the function source
 INSERT INTO county_demographics(census_geo_id, name, geom, black_population,
                                 white_population, total_population,
                                 under_five_population, poverty_population)
@@ -337,6 +295,39 @@ GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
 CREATE INDEX IF NOT EXISTS geom_index ON county_demographics USING GIST (geom);
+
+INSERT INTO state_lead_connections(census_geo_id, name, geom,
+                                   lead_connections_count,
+                                   service_connections_count, population_served)
+SELECT states.census_geo_id            as census_geo_id,
+       states.name                     AS name,
+       ST_Transform(states.geom, 3857) AS geom,
+       SUM(lead_connections_count)     AS lead_connections_count,
+       SUM(service_connections_count)  AS service_connections_count,
+       SUM(population_served)          AS population_served
+FROM states
+         LEFT JOIN water_systems
+                   ON water_systems.state_census_geo_id = states.census_geo_id
+GROUP BY states.census_geo_id, states.name, states.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
+INSERT INTO county_lead_connections(census_geo_id, name, geom,
+                                    lead_connections_count,
+                                    service_connections_count,
+                                    population_served)
+SELECT counties.census_geo_id            as census_geo_id,
+       counties.name                     AS name,
+       ST_Transform(counties.geom, 3857) AS geom,
+       SUM(lead_connections_count)       AS lead_connections_count,
+       SUM(service_connections_count)    AS service_connections_count,
+       SUM(population_served)            AS population_served
+FROM counties
+         LEFT JOIN water_systems
+                   ON water_systems.state_census_geo_id = counties.census_geo_id
+GROUP BY counties.census_geo_id, counties.name, counties.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
+--- Tileserver function definitions.
 
 CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer,
                                                                x integer,
