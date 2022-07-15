@@ -38,6 +38,16 @@ const LEGEND_VALUES = [
   },
 ];
 
+const createLegends = (): Map<GeographicLevel, LegendInfo> => {
+  const stateLegendInfo = {
+    title: 'Percent of service lines estimated to be lead',
+    buckets: LEGEND_VALUES,
+    bucketLabelType: FeaturePropertyDataType.Percentage,
+  };
+
+  return new Map([[GeographicLevel.County, stateLegendInfo]]);
+};
+
 const percentLeadLikelihood = ['*', 100, ['get', 'public_lead_prediction']];
 
 /**
@@ -53,16 +63,6 @@ const leadConnectionLegendInterpolation = [
   percentLeadLikelihood,
   ...getLegendBucketsAsList(LEGEND_VALUES),
 ];
-
-const createLegends = (): Map<GeographicLevel, LegendInfo> => {
-  const stateLegendInfo = {
-    title: 'Percent of service lines estimated to be lead',
-    buckets: LEGEND_VALUES,
-    bucketLabelType: FeaturePropertyDataType.Percentage,
-  };
-
-  return new Map([[GeographicLevel.County, stateLegendInfo]]);
-};
 
 export const styleLayer: FillLayer = {
   id: `${MapLayer.LeadServiceLineByParcel}-style`,

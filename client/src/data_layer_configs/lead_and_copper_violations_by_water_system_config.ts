@@ -35,7 +35,7 @@ const LEGEND_VALUES = [
 
 const createLegends = (): Map<GeographicLevel, LegendInfo> => {
   const stateLegendInfo = {
-    title: 'Number of violations',
+    title: 'Percent of service lines estimated to be lead',
     buckets: LEGEND_VALUES,
     bucketLabelType: FeaturePropertyDataType.Number,
   };
