@@ -378,6 +378,7 @@ $$ LANGUAGE plpgsql IMMUTABLE
 
 --- Returns lead connections aggregated by either state or water system, depending on z (zoom level).
 
+-- TODO(kailamjeter): Add county aggregation.
 CREATE OR REPLACE FUNCTION public.lead_connections_function_source(z integer,
                                                                    x integer,
                                                                    y integer,
@@ -387,23 +388,19 @@ DECLARE
     mvt bytea;
 BEGIN
     IF (z <= 4) THEN
-        -- Show aggregated lead connections data by state at low zoom level (most zoomed out).
+        -- If the zoom is low (i.e. user is zoomed out), show state-level
+        -- lead_connections. Otherwise, county-level.
         SELECT INTO mvt ST_AsMVT(tile,
                                  'public.lead_connections_function_source',
                                  4096, 'geom')
         FROM (
-                 SELECT ST_AsMVTGeom(ST_Transform(s.geom, 3857),
-                                     ST_TileEnvelope(z, x, y)) AS geom,
-                        s.name                                 AS state_name,
-                        SUM(w.lead_connections_count)          AS lead_connections_count,
-                        SUM(w.service_connections_count)       AS service_connections_count,
-                        SUM(w.population_served)               AS population_served
-                 FROM water_systems w
-                          RIGHT JOIN states s
-                                     ON w.state_census_geo_id = s.census_geo_id
-                 WHERE ST_Transform(s.geom, 3857) && ST_TileEnvelope(z, x, y)
-                 GROUP BY s.geom,
-                          s.name
+                 SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                        name,
+                        lead_connections_count,
+                        service_connections_count,
+                        population_served
+                 FROM state_lead_connections
+                 WHERE geom && ST_TileEnvelope(z, x, y)
              ) AS tile
         WHERE geom IS NOT NULL;
     ELSE
