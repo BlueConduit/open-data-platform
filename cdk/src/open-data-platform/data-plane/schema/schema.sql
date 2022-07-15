@@ -175,8 +175,8 @@ CREATE TABLE IF NOT EXISTS state_demographics
 (
     census_geo_id         varchar(255) NOT NULL,
     name                  varchar(255) NOT NULL,
-    black_population      float,
-    white_population      float,
+    black_population      real,
+    white_population      reals,
     total_population      real,
     under_five_population real,
     poverty_population    real,
@@ -221,8 +221,8 @@ CREATE TABLE IF NOT EXISTS state_lead_connections
 (
     census_geo_id             varchar(255) NOT NULL,
     name                      varchar(255) NOT NULL,
-    lead_connections_count    float,
-    service_connections_count float,
+    lead_connections_count    real,
+    service_connections_count real,
     population_served         real,
     geom                      geometry(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
@@ -233,8 +233,8 @@ CREATE TABLE IF NOT EXISTS county_lead_connections
 (
     census_geo_id             varchar(255) NOT NULL,
     name                      varchar(255) NOT NULL,
-    lead_connections_count    float,
-    service_connections_count float,
+    lead_connections_count    real,
+    service_connections_count real,
     population_served         real,
     geom                      geometry(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
@@ -247,8 +247,8 @@ CREATE TABLE IF NOT EXISTS zipcode_lead_connections
 (
     census_geo_id             varchar(255) NOT NULL,
     zipcode                   varchar(255) NOT NULL,
-    lead_connections_count    float,
-    service_connections_count float,
+    lead_connections_count    real,
+    service_connections_count real,
     population_served         real,
     geom                      geometry(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
