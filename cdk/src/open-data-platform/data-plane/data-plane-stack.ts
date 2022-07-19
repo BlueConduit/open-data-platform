@@ -9,6 +9,7 @@ import { Schema } from './schema/schema';
 import { DataImportStack } from './data-import/data-import-stack';
 import { DatabaseUserCredentials } from './db-user-credentials/db-user-credentials';
 import { AuroraCapacityUnit } from 'aws-cdk-lib/aws-rds';
+import { ApiStack } from './api/api-stack';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
@@ -72,6 +73,13 @@ export class DataPlaneStack extends Stack {
     rootSchema.node.addDependency(this.tileserverCredentials.credentialsSecret);
 
     new DataImportStack(this, 'DataImportStack', {
+      cluster: this.cluster,
+      vpc: vpc,
+      db: databaseName,
+      credentialsSecret: this.cluster.secret!,
+    });
+
+    new ApiStack(this, 'ApiStack', {
       cluster: this.cluster,
       vpc: vpc,
       db: databaseName,
