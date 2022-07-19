@@ -1,0 +1,46 @@
+{
+  "name": "cdk",
+  "version": "0.1.0",
+  "bin": {
+    "cdk": "bin/cdk.js"
+  },
+  "config": {
+    "pipelineCdkApp": "npx ts-node --prefer-ts-exts src/pipeline.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "pipeline-synth": "cdk synth --app '$npm_package_config_pipelineCdkApp'",
+    "pipeline-deploy": "npx aws-cdk deploy --app '$npm_package_config_pipelineCdkApp' --profile deployments"
+  },
+  "devDependencies": {
+    "@aws-sdk/types": "^3.78.0",
+    "@types/aws-lambda": "^8.10.97",
+    "@types/jest": "^26.0.10",
+    "@types/node": "^10.17.27",
+    "aws-cdk": "^2.31.0",
+    "esbuild": "^0.14.39",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.2.0",
+    "ts-node": "^9.0.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-lambda": "^1.156.1",
+    "@aws-sdk/client-secrets-manager": "^3.92.0",
+    "@databases/pg": "^5.4.1",
+    "@types/pg": "^8.6.5",
+    "aws-cdk-lib": "^2.31.0",
+    "aws-sdk": "^2.1148.0",
+    "constructs": "^10.0.0",
+    "csv-parser": "^3.0.0",
+    "moment": "^2.29.3",
+    "pg": "^8.7.3",
+    "pg-format": "^1.0.4",
+    "source-map-support": "^0.5.16",
+    "stream-chain": "^2.2.5",
+    "stream-json": "^1.7.4"
+  }
+}
