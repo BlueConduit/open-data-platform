@@ -40,18 +40,19 @@ const LEGEND_VALUES = [
   },
 ];
 
-const createLegends = (): Map<GeographicLevel, LegendInfo> => {
-  const legendInfo = {
-    title: 'Percentage of service lines estimated to be lead',
-    buckets: LEGEND_VALUES,
-    bucketLabelType: FeaturePropertyDataType.Percentage,
-  };
-
-  // The only aggregations for water system is state.
-  // Because the legend is shown in percentages, the legend does not need to
-  // change at higher zooms.
-  return new Map([[GeographicLevel.State, legendInfo]]);
-};
+// The only aggregations for water system is state.
+// Because the legend is shown in percentages, the legend does not need to
+// change at higher zooms.
+const legend = new Map([
+  [
+    GeographicLevel.State,
+    {
+      title: 'Percentage of service lines estimated to be lead',
+      buckets: LEGEND_VALUES,
+      bucketLabelType: FeaturePropertyDataType.Percentage,
+    },
+  ],
+]);
 
 const percentLeadLines = [
   '*',
@@ -139,7 +140,7 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   },
   id: MapLayer.LeadServiceLineByWaterSystem,
   name: 'Lead Service Lines',
-  legendInfo: createLegends(),
+  legendInfo: legend,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
   visibleInSearchBar: true,

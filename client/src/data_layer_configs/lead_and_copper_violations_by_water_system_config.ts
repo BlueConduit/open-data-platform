@@ -37,17 +37,19 @@ const LEGEND_VALUES = [
   },
 ];
 
-const createLegends = (): Map<GeographicLevel, LegendInfo> => {
-  const stateLegendInfo = {
-    title: 'Percentage of service lines estimated to be lead',
-    buckets: LEGEND_VALUES,
-    bucketLabelType: FeaturePropertyDataType.Number,
-  };
-  // The only aggregations for violations is state.
-  // Because the legend is shown in percentages, the legend does not need to
-  // change at higher zooms.
-  return new Map([[GeographicLevel.State, stateLegendInfo]]);
-};
+// The only aggregations for violations is state.
+// Because the legend is shown in percentages, the legend does not need to
+// change at higher zooms.
+const legend = new Map([
+  [
+    GeographicLevel.State,
+    {
+      title: 'Percentage of service lines estimated to be lead',
+      buckets: LEGEND_VALUES,
+      bucketLabelType: FeaturePropertyDataType.Number,
+    },
+  ],
+]);
 
 /**
  * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
@@ -107,7 +109,7 @@ export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   },
   id: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   name: 'Lead & Copper Rule Violations',
-  legendInfo: createLegends(),
+  legendInfo: legend,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
   visibleInSearchBar: true,
