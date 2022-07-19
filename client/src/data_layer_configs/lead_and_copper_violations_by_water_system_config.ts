@@ -10,6 +10,10 @@ import {
 import { Expression, FillLayer } from 'mapbox-gl';
 import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 
+const DEFAULT_NULL_COLOR = '#d3d3d3';
+const TABLE_NAME = 'public.violations_function_source';
+
+// TODO(kailamjeter): create separate legends for state / water system views.
 const LEGEND_VALUES = [
   {
     bucketValue: 0,
@@ -60,10 +64,15 @@ const styleLayer: FillLayer = {
   id: `${MapLayer.LeadAndCopperRuleViolationsByWaterSystem}-style`,
   source: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   // Corresponds to the table in the database.
-  'source-layer': 'public.violation_counts',
+  'source-layer': TABLE_NAME,
   type: 'fill',
   paint: {
-    'fill-color': leadAndCopperViolationsInterpolation,
+    'fill-color': [
+      'case',
+      ['==', ['get', 'violation_count'], null],
+      DEFAULT_NULL_COLOR,
+      leadAndCopperViolationsInterpolation,
+    ],
     'fill-opacity': 0.75,
     'fill-outline-color': '#B2391F',
   },
@@ -89,7 +98,7 @@ const popupInfo: PopupInfo = {
 export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/public.violation_counts/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/tiles/v1/rpc/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
     // Helps with latency to reduce fetching unneeded tiles.
     minzoom: 3,
     maxzoom: 16,
