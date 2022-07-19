@@ -43,13 +43,10 @@ const getLegendForZoomLevel = (
   legends: Map<GeographicLevel, LegendInfo>,
   zoom: number,
 ): LegendInfo | undefined => {
-  // Object.values().reverse() gives
-  // [9, 6, 5, 4, 0, "Parcel", "Zipcode", "County", "State", "Unknown"]
   // This looks for the first qualifying zoom.
   const mostGranularLegendForZoom = Object.values(GeographicLevel)
     .reverse()
     .find((level) => level <= zoom && legends.has(level as GeographicLevel)) as GeographicLevel;
-  console.log(mostGranularLegendForZoom);
   return legends.get(mostGranularLegendForZoom);
 };
 

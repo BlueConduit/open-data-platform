@@ -39,13 +39,13 @@ const LEGEND_VALUES = [
 ];
 
 const createLegends = (): Map<GeographicLevel, LegendInfo> => {
-  const stateLegendInfo = {
+  const parcelLegendInfo = {
     title: 'Percent of service lines estimated to be lead',
     buckets: LEGEND_VALUES,
     bucketLabelType: FeaturePropertyDataType.Percentage,
   };
-
-  return new Map([[GeographicLevel.County, stateLegendInfo]]);
+  
+  return new Map([[GeographicLevel.Parcel, parcelLegendInfo]]);
 };
 
 const percentLeadLikelihood = ['*', 100, ['get', 'public_lead_prediction']];

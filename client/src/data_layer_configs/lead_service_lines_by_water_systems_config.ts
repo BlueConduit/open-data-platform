@@ -41,12 +41,16 @@ const LEGEND_VALUES = [
 ];
 
 const createLegends = (): Map<GeographicLevel, LegendInfo> => {
-  const waterSystemLegendInfo = {
+  const legendInfo = {
     title: 'Percent of service lines estimated to be lead',
     buckets: LEGEND_VALUES,
     bucketLabelType: FeaturePropertyDataType.Percentage,
   };
-  return new Map([[GeographicLevel.State, waterSystemLegendInfo]]);
+
+  // The only aggregations for water system is state.
+  // Because the legend is shown in percentages, the legend does not need to
+  // change at higher zooms.
+  return new Map([[GeographicLevel.State, legendInfo]]);
 };
 
 const percentLeadLines = [
