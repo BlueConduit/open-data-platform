@@ -39,11 +39,13 @@ const LEGEND_VALUES = [
 
 const createLegends = (): Map<GeographicLevel, LegendInfo> => {
   const stateLegendInfo = {
-    title: 'Percent of service lines estimated to be lead',
+    title: 'Percentage of service lines estimated to be lead',
     buckets: LEGEND_VALUES,
     bucketLabelType: FeaturePropertyDataType.Number,
   };
-
+  // The only aggregations for violations is state.
+  // Because the legend is shown in percentages, the legend does not need to
+  // change at higher zooms.
   return new Map([[GeographicLevel.State, stateLegendInfo]]);
 };
 

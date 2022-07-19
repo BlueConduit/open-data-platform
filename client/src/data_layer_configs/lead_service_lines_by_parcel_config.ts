@@ -40,11 +40,11 @@ const LEGEND_VALUES = [
 
 const createLegends = (): Map<GeographicLevel, LegendInfo> => {
   const parcelLegendInfo = {
-    title: 'Percent of service lines estimated to be lead',
+    title: 'Percentage of service lines estimated to be lead',
     buckets: LEGEND_VALUES,
     bucketLabelType: FeaturePropertyDataType.Percentage,
   };
-  
+
   return new Map([[GeographicLevel.Parcel, parcelLegendInfo]]);
 };
 
