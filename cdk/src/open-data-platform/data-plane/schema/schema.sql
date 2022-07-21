@@ -402,6 +402,46 @@ $$ LANGUAGE plpgsql IMMUTABLE
                     STRICT
                     PARALLEL SAFE;
 
+--- Tables related to lead predictions.
+
+CREATE TABLE IF NOT EXISTS parcel_lead_predictions
+(
+    address                                varchar(255) NOT NULL,
+    city                                   varchar(255) NOT NULL,
+    public_lead_connections_low_estimate   real,
+    public_lead_connections_high_estimate  real,
+    private_lead_connections_low_estimate  real,
+    private_lead_connections_high_estimate real,
+    geom                                   GEOMETRY(Geometry, 4326),
+    PRIMARY KEY (address)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON parcel_lead_predictions USING GIST (geom);
+
+CREATE TABLE IF NOT EXISTS water_system_lead_predictions
+(
+    pws_id                         varchar(255) NOT NULL,
+    pws_name                       varchar(255) NOT NULL,
+    lead_connections_low_estimate  real,
+    lead_connections_high_estimate real,
+    geom                           GEOMETRY(Geometry, 4326),
+    PRIMARY KEY (pws_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON water_system_lead_predictions USING GIST (geom);
+
+--- Tables related to average demographic information.
+
+CREATE TABLE IF NOT EXISTS us_demographics
+(
+    census_geo_id                varchar(255) NOT NULL,
+    average_home_age             real,
+    average_income_level         real,
+    average_social_vulnerability real,
+    geom                         GEOMETRY(Geometry, 4326),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON us_demographics USING GIST (geom);
+
+
 ----------------------
 -- Roles and Grants --
 ----------------------
