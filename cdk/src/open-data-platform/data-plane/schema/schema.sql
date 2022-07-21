@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS state_demographics
     census_geo_id         varchar(255) NOT NULL,
     name                  varchar(255) NOT NULL,
     black_population      real,
-    white_population      reals,
+    white_population      real,
     total_population      real,
     under_five_population real,
     poverty_population    real,

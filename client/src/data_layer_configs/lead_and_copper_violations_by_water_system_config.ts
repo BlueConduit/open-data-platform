@@ -1,6 +1,7 @@
 import {
   DataSourceType,
   FeaturePropertyDataType,
+  GeographicLevel,
   LegendInfo,
   MapLayer,
   PopupInfo,
@@ -36,6 +37,20 @@ const LEGEND_VALUES = [
   },
 ];
 
+// The only aggregations for violations is state.
+// Because the legend is shown in percentages, the legend does not need to
+// change at higher zooms.
+const legend = new Map([
+  [
+    GeographicLevel.State,
+    {
+      title: 'Percentage of service lines estimated to be lead',
+      buckets: LEGEND_VALUES,
+      bucketLabelType: FeaturePropertyDataType.Number,
+    },
+  ],
+]);
+
 /**
  * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
  * results for the map.
@@ -48,12 +63,6 @@ const leadAndCopperViolationsInterpolation: Expression = [
   ['get', 'violation_count'],
   ...getLegendBucketsAsList(LEGEND_VALUES),
 ];
-
-const legendInfo: LegendInfo = {
-  title: 'Number of violations',
-  buckets: LEGEND_VALUES,
-  bucketLabelType: FeaturePropertyDataType.Number,
-};
 
 const styleLayer: FillLayer = {
   id: `${MapLayer.LeadAndCopperRuleViolationsByWaterSystem}-style`,
@@ -100,7 +109,7 @@ export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   },
   id: MapLayer.LeadAndCopperRuleViolationsByWaterSystem,
   name: 'Lead & Copper Rule Violations',
-  legendInfo: legendInfo,
+  legendInfo: legend,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
   visibleInSearchBar: true,

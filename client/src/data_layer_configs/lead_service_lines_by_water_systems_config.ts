@@ -1,6 +1,7 @@
 import {
   DataSourceType,
   FeaturePropertyDataType,
+  GeographicLevel,
   LegendInfo,
   MapLayer,
   PopupInfo,
@@ -39,6 +40,20 @@ const LEGEND_VALUES = [
   },
 ];
 
+// The only aggregations for water system is state.
+// Because the legend is shown in percentages, the legend does not need to
+// change at higher zooms.
+const legend = new Map([
+  [
+    GeographicLevel.State,
+    {
+      title: 'Percentage of service lines estimated to be lead',
+      buckets: LEGEND_VALUES,
+      bucketLabelType: FeaturePropertyDataType.Percentage,
+    },
+  ],
+]);
+
 const percentLeadLines = [
   '*',
   100,
@@ -58,12 +73,6 @@ const leadConnectionLegendInterpolation = [
   percentLeadLines,
   ...getLegendBucketsAsList(LEGEND_VALUES),
 ];
-
-const legendInfo: LegendInfo = {
-  title: 'Percentage of service lines estimated to be lead',
-  buckets: LEGEND_VALUES,
-  bucketLabelType: FeaturePropertyDataType.Percentage,
-};
 
 export const styleLayer: FillLayer = {
   id: `${MapLayer.LeadServiceLineByWaterSystem}-style`,
@@ -131,7 +140,7 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
   },
   id: MapLayer.LeadServiceLineByWaterSystem,
   name: 'Lead Service Lines',
-  legendInfo: legendInfo,
+  legendInfo: legend,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
   visibleInSearchBar: true,
