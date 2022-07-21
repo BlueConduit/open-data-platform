@@ -16,7 +16,7 @@ export enum EnvType {
 }
 export const defaultEnv = EnvType.Sandbox;
 export const projectName = 'OpenDataPlatform';
-export const baseSubdomain = 'leadout';
+export const baseSubdomain = 'leadout'; // Winner of team vote.
 
 // Leaving this here to add stuff like environmental variables, similar to
 // https://github.com/BlueConduit/tributary/blob/main/cdk/lib/types.ts

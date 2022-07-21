@@ -19,11 +19,9 @@ export class Dns extends Construct {
 
     const parentDomain = 'blueconduit.com';
 
-    let subdomain = `default.${baseSubdomain}`;
+    let subdomain = `${process.env.USER ?? 'default'}.${baseSubdomain}-sandbox`; // Used by UNITTEST too.
     if (envType === EnvType.Production) subdomain = baseSubdomain;
-    else if (envType === EnvType.Development) subdomain = `dev.${baseSubdomain}`;
-    else if (envType === EnvType.Sandbox)
-      subdomain = `${process.env.USER ?? 'default'}.sandbox.${baseSubdomain}`;
+    else if (envType === EnvType.Development) subdomain = `${baseSubdomain}-dev`;
 
     this.hostedZone = new route53.PublicHostedZone(this, 'Subdomain', {
       zoneName: `${subdomain}.${parentDomain}`,
