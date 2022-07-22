@@ -104,12 +104,14 @@ CREATE TABLE IF NOT EXISTS aggregate_us_demographics
     census_geo_id                varchar(255) NOT NULL,
     geo_type                     varchar(255) NOT NULL,
     name                         varchar(255) NOT NULL,
-    median_year_built            varchar(255),
-    median_income                real,
-    home_age_index               real,
-    income_index                 real,
+    average_home_age             real,
+    average_income_level         real,
     average_social_vulnerability real,
-    population_count             real,
+    black_population             real,
+    white_population             real,
+    total_population             real,
+    under_five_population        real,
+    poverty_population           real,
     geom                         GEOMETRY(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
@@ -225,6 +227,46 @@ CREATE INDEX IF NOT EXISTS geom_index ON state_epa_violations USING GIST (geom);
 -- Populate pre-computed tables. These are only to be used by the functions
 -- defined below.
 
+INSERT INTO aggregate_us_demographics(census_geo_id, geo_type, name,
+                                      black_population,
+                                      white_population, total_population,
+                                      under_five_population, poverty_population,
+                                      geom)
+SELECT states.census_geo_id            as census_geo_id,
+       'state'                         as geo_type,
+       states.name                     AS name,
+       SUM(black_population)           AS black_population,
+       SUM(white_population)           AS white_population,
+       SUM(total_population)           AS total_population,
+       SUM(under_five_population)      AS under_five_population,
+       SUM(poverty_population)         AS poverty_population,
+       ST_Transform(states.geom, 3857) AS geom
+FROM states
+         LEFT JOIN demographics
+                   ON demographics.state_census_geo_id = states.census_geo_id
+GROUP BY states.census_geo_id, states.name, states.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
+INSERT INTO aggregate_us_demographics(census_geo_id, geo_type, name,
+                                      black_population,
+                                      white_population, total_population,
+                                      under_five_population, poverty_population,
+                                      geom)
+SELECT counties.census_geo_id            as census_geo_id,
+       'county'                          as geo_type,
+       counties.name                     AS name,
+       SUM(black_population)             AS black_population,
+       SUM(white_population)             AS white_population,
+       SUM(total_population)             AS total_population,
+       SUM(under_five_population)        AS under_five_population,
+       SUM(poverty_population)           AS poverty_population,
+       ST_Transform(counties.geom, 3857) AS geom
+FROM counties
+         LEFT JOIN demographics
+                   ON demographics.county_census_geo_id = counties.census_geo_id
+GROUP BY counties.census_geo_id, counties.name, counties.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
 INSERT INTO state_lead_connections(census_geo_id, name, geom,
                                    lead_connections_count,
                                    service_connections_count, population_served)
@@ -271,11 +313,11 @@ BEGIN
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
                         census_geo_id,
                         name,
-                        geo_type,
-                        median_year_built,
-                        median_income,
-                        average_social_vulnerability,
-                        population_count
+                        black_population,
+                        white_population,
+                        total_population,
+                        under_five_population,
+                        poverty_population
                  FROM aggregate_us_demographics
                  WHERE geo_type = 'state'
                    AND geom && ST_TileEnvelope(z, x, y)
@@ -288,11 +330,11 @@ BEGIN
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
                         census_geo_id,
                         name,
-                        geo_type,
-                        median_year_built,
-                        median_income,
-                        average_social_vulnerability,
-                        population_count
+                        black_population,
+                        white_population,
+                        total_population,
+                        under_five_population,
+                        poverty_population
                  FROM aggregate_us_demographics
                  WHERE geo_type = 'county'
                    AND geom && ST_TileEnvelope(z, x, y)
@@ -402,20 +444,6 @@ END
 $$ LANGUAGE plpgsql IMMUTABLE
                     STRICT
                     PARALLEL SAFE;
-
---- Tables related to average demographic information.
-
-CREATE TABLE IF NOT EXISTS us_demographics
-(
-    census_geo_id                varchar(255) NOT NULL,
-    average_home_age             real,
-    average_income_level         real,
-    average_social_vulnerability real,
-    geom                         GEOMETRY(Geometry, 4326),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON us_demographics USING GIST (geom);
-
 
 ----------------------
 -- Roles and Grants --
