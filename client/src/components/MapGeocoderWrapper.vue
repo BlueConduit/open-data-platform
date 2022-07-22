@@ -50,7 +50,7 @@ export default defineComponent({
       if (newMap != null) {
         this.geocoder = new MapboxGeocoder({
           // TODO(kailamjeter): use secrets manager for this.
-          accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN,
+          accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '',
           mapboxgl: undefined,
           marker: false,
           countries: 'US',
