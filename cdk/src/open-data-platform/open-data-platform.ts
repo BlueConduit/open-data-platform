@@ -29,5 +29,6 @@ export default (scope: Construct, props: CommonProps) => {
   const frontendStack = new FrontendStack(scope, stackName(StackId.Frontend, envType), {
     ...props,
     appPlaneStack,
+    networkStack,
   });
 };
