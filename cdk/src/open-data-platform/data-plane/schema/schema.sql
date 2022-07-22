@@ -120,13 +120,14 @@ CREATE INDEX IF NOT EXISTS geom_index ON aggregate_us_demographics USING GIST (g
 
 CREATE TABLE IF NOT EXISTS water_systems
 (
-    pws_id                    varchar(255) NOT NULL,
-    pws_name                  varchar(255),
-    lead_connections_count    real,
-    service_connections_count real,
-    population_served         real,
-    state_census_geo_id       varchar(255) references states (census_geo_id),
-    geom                      GEOMETRY(Geometry, 4326),
+    pws_id                         varchar(255) NOT NULL,
+    pws_name                       varchar(255),
+    lead_connections_low_estimate  real,
+    lead_connections_high_estimate real,
+    service_connections_count      real,
+    population_served              real,
+    state_census_geo_id            varchar(255) references states (census_geo_id),
+    geom                           GEOMETRY(Geometry, 4326),
     PRIMARY KEY (pws_id)
 );
 CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON water_systems (state_census_geo_id);
@@ -227,12 +228,12 @@ CREATE INDEX IF NOT EXISTS geom_index ON state_epa_violations USING GIST (geom);
 INSERT INTO state_lead_connections(census_geo_id, name, geom,
                                    lead_connections_count,
                                    service_connections_count, population_served)
-SELECT states.census_geo_id            as census_geo_id,
-       states.name                     AS name,
-       ST_Transform(states.geom, 3857) AS geom,
-       SUM(lead_connections_count)     AS lead_connections_count,
-       SUM(service_connections_count)  AS service_connections_count,
-       SUM(population_served)          AS population_served
+SELECT states.census_geo_id                as census_geo_id,
+       states.name                         AS name,
+       ST_Transform(states.geom, 3857)     AS geom,
+       SUM(lead_connections_high_estimate) AS lead_connections_count,
+       SUM(service_connections_count)      AS service_connections_count,
+       SUM(population_served)              AS population_served
 FROM states
          LEFT JOIN water_systems
                    ON water_systems.state_census_geo_id = states.census_geo_id
@@ -341,7 +342,7 @@ BEGIN
                                      ST_TileEnvelope(z, x, y)) AS geom,
                         w.pws_id                               AS pws_id,
                         w.pws_name                             AS pws_name,
-                        SUM(w.lead_connections_count)          AS lead_connections_count,
+                        SUM(w.lead_connections_high_estimate)  AS lead_connections_count,
                         SUM(w.service_connections_count)       AS service_connections_count,
                         SUM(w.population_served)               AS population_served
                  FROM water_systems w
@@ -401,32 +402,6 @@ END
 $$ LANGUAGE plpgsql IMMUTABLE
                     STRICT
                     PARALLEL SAFE;
-
---- Tables related to lead predictions.
-
-CREATE TABLE IF NOT EXISTS parcel_lead_predictions
-(
-    address                                varchar(255) NOT NULL,
-    city                                   varchar(255) NOT NULL,
-    public_lead_connections_low_estimate   real,
-    public_lead_connections_high_estimate  real,
-    private_lead_connections_low_estimate  real,
-    private_lead_connections_high_estimate real,
-    geom                                   GEOMETRY(Geometry, 4326),
-    PRIMARY KEY (address)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON parcel_lead_predictions USING GIST (geom);
-
-CREATE TABLE IF NOT EXISTS water_system_lead_predictions
-(
-    pws_id                         varchar(255) NOT NULL,
-    pws_name                       varchar(255) NOT NULL,
-    lead_connections_low_estimate  real,
-    lead_connections_high_estimate real,
-    geom                           GEOMETRY(Geometry, 4326),
-    PRIMARY KEY (pws_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON water_system_lead_predictions USING GIST (geom);
 
 --- Tables related to average demographic information.
 
