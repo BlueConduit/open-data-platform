@@ -99,18 +99,17 @@ CREATE INDEX IF NOT EXISTS geom_index ON demographics USING GIST (geom);
 
 CREATE TABLE IF NOT EXISTS water_systems
 (
-    pws_id                    varchar(255) NOT NULL,
-    lead_connections_count    real,
-    pws_name                  varchar(255),
-    service_connections_count real,
-    population_served         real,
-    state_census_geo_id       varchar(255) references states (census_geo_id),
-    county_census_geo_id      varchar(255) references counties (census_geo_id),
-    geom                      GEOMETRY(Geometry, 4326),
+    pws_id                         varchar(255) NOT NULL,
+    pws_name                       varchar(255),
+    lead_connections_low_estimate  real,
+    lead_connections_high_estimate real,
+    service_connections_count      real,
+    population_served              real,
+    state_census_geo_id            varchar(255) references states (census_geo_id),
+    geom                           GEOMETRY(Geometry, 4326),
     PRIMARY KEY (pws_id)
 );
 CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON water_systems (state_census_geo_id);
-CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON water_systems (county_census_geo_id);
 CREATE INDEX IF NOT EXISTS geom_index ON water_systems USING GIST (geom);
 
 -- EPA violations data
@@ -151,16 +150,18 @@ CREATE TABLE IF NOT EXISTS parcels
 (
     -- TODO: consider standardizing addresses into a PostGIS type once we have data.
     -- https://postgis.net/docs/manual-2.5/Address_Standardizer.html
-    address                 text,
-    public_lead_prediction  float,
+    address                                text,
+    city                                   varchar(255) NOT NULL,
+    public_lead_connections_low_estimate   float,
+    public_lead_connections_high_estimate  float,
     -- Private-side predictive data don't exist for all parcels, but store it anyway.
-    private_lead_prediction float,
+    private_lead_connections_low_estimate  float,
+    private_lead_connections_high_estimate float,
     -- Can be used to determine if the row needs updating with a new dataset.
-    last_updated            timestamp default current_timestamp,
-    geom                    geometry(Geometry, 4326),
+    last_updated                           timestamp default current_timestamp,
+    geom                                   geometry(Geometry, 4326),
     PRIMARY KEY (address)
 );
-
 -- Either of these might be used for searching.
 CREATE INDEX IF NOT EXISTS geom_index ON parcels USING GIST (geom);
 
@@ -233,32 +234,6 @@ CREATE TABLE IF NOT EXISTS state_lead_connections
 );
 CREATE INDEX IF NOT EXISTS geom_index ON state_lead_connections USING GIST (geom);
 
-CREATE TABLE IF NOT EXISTS county_lead_connections
-(
-    census_geo_id             varchar(255) NOT NULL,
-    name                      varchar(255) NOT NULL,
-    lead_connections_count    real,
-    service_connections_count real,
-    population_served         real,
-    geom                      geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON county_lead_connections USING GIST (geom);
-
--- TODO(kailamjeter): Add insert statement once the zipcode -> lead_connections
--- connection established.
-CREATE TABLE IF NOT EXISTS zipcode_lead_connections
-(
-    census_geo_id             varchar(255) NOT NULL,
-    zipcode                   varchar(255) NOT NULL,
-    lead_connections_count    real,
-    service_connections_count real,
-    population_served         real,
-    geom                      geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON zipcode_lead_connections USING GIST (geom);
-
 -- EPA Violations aggregation tables.
 
 CREATE TABLE IF NOT EXISTS state_epa_violations
@@ -270,28 +245,6 @@ CREATE TABLE IF NOT EXISTS state_epa_violations
     PRIMARY KEY (census_geo_id)
 );
 CREATE INDEX IF NOT EXISTS geom_index ON state_epa_violations USING GIST (geom);
-
-CREATE TABLE IF NOT EXISTS county_epa_violations
-(
-    census_geo_id   varchar(255) NOT NULL,
-    name            varchar(255) NOT NULL,
-    violation_count real,
-    geom            geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON county_epa_violations USING GIST (geom);
-
--- TODO(kailamjeter): Add insert statement once the zipcode -> lead_connections
--- connection established.
-CREATE TABLE IF NOT EXISTS zipcode_epa_violations
-(
-    census_geo_id   varchar(255) NOT NULL,
-    zipcode         varchar(255) NOT NULL,
-    violation_count real,
-    geom            geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON zipcode_epa_violations USING GIST (geom);
 
 -- Populate pre-computed tables. These are only to be used by the functions
 -- defined below.
@@ -333,33 +286,16 @@ ON CONFLICT (census_geo_id) DO NOTHING;
 INSERT INTO state_lead_connections(census_geo_id, name, geom,
                                    lead_connections_count,
                                    service_connections_count, population_served)
-SELECT states.census_geo_id            as census_geo_id,
-       states.name                     AS name,
-       ST_Transform(states.geom, 3857) AS geom,
-       SUM(lead_connections_count)     AS lead_connections_count,
-       SUM(service_connections_count)  AS service_connections_count,
-       SUM(population_served)          AS population_served
+SELECT states.census_geo_id                as census_geo_id,
+       states.name                         AS name,
+       ST_Transform(states.geom, 3857)     AS geom,
+       SUM(lead_connections_high_estimate) AS lead_connections_count,
+       SUM(service_connections_count)      AS service_connections_count,
+       SUM(population_served)              AS population_served
 FROM states
          LEFT JOIN water_systems
                    ON water_systems.state_census_geo_id = states.census_geo_id
 GROUP BY states.census_geo_id, states.name, states.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
-
-INSERT INTO county_lead_connections(census_geo_id, name, geom,
-                                    lead_connections_count,
-                                    service_connections_count,
-                                    population_served)
-SELECT counties.census_geo_id            as census_geo_id,
-       counties.name                     AS name,
-       ST_Transform(counties.geom, 3857) AS geom,
-       SUM(lead_connections_count)       AS lead_connections_count,
-       SUM(service_connections_count)    AS service_connections_count,
-       SUM(population_served)            AS population_served
-FROM counties
-         LEFT JOIN water_systems
-                   ON water_systems.county_census_geo_id =
-                      counties.census_geo_id
-GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
 INSERT INTO state_epa_violations(census_geo_id, name, geom, violation_count)
@@ -372,18 +308,6 @@ FROM states
                    ON violation_counts.state_census_geo_id =
                       states.census_geo_id
 GROUP BY states.census_geo_id, states.name, states.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
-
-INSERT INTO county_epa_violations(census_geo_id, name, geom, violation_count)
-SELECT counties.census_geo_id            as census_geo_id,
-       counties.name                     AS name,
-       ST_Transform(counties.geom, 3857) AS geom,
-       SUM(violation_count)              AS violation_count
-FROM counties
-         LEFT JOIN violation_counts
-                   ON violation_counts.county_census_geo_id =
-                      counties.census_geo_id
-GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
 --- Tileserver function definitions.
@@ -472,7 +396,7 @@ BEGIN
                                      ST_TileEnvelope(z, x, y)) AS geom,
                         w.pws_id                               AS pws_id,
                         w.pws_name                             AS pws_name,
-                        SUM(w.lead_connections_count)          AS lead_connections_count,
+                        SUM(w.lead_connections_high_estimate)  AS lead_connections_count,
                         SUM(w.service_connections_count)       AS service_connections_count,
                         SUM(w.population_served)               AS population_served
                  FROM water_systems w
@@ -532,32 +456,6 @@ END
 $$ LANGUAGE plpgsql IMMUTABLE
                     STRICT
                     PARALLEL SAFE;
-
---- Tables related to lead predictions.
-
-CREATE TABLE IF NOT EXISTS parcel_lead_predictions
-(
-    address                                varchar(255) NOT NULL,
-    city                                   varchar(255) NOT NULL,
-    public_lead_connections_low_estimate   real,
-    public_lead_connections_high_estimate  real,
-    private_lead_connections_low_estimate  real,
-    private_lead_connections_high_estimate real,
-    geom                                   GEOMETRY(Geometry, 4326),
-    PRIMARY KEY (address)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON parcel_lead_predictions USING GIST (geom);
-
-CREATE TABLE IF NOT EXISTS water_system_lead_predictions
-(
-    pws_id                         varchar(255) NOT NULL,
-    pws_name                       varchar(255) NOT NULL,
-    lead_connections_low_estimate  real,
-    lead_connections_high_estimate real,
-    geom                           GEOMETRY(Geometry, 4326),
-    PRIMARY KEY (pws_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON water_system_lead_predictions USING GIST (geom);
 
 --- Tables related to average demographic information.
 
