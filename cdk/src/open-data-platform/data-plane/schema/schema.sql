@@ -201,12 +201,13 @@ EXECUTE PROCEDURE update_last_update_timestamp();
 
 CREATE TABLE IF NOT EXISTS state_lead_connections
 (
-    census_geo_id             varchar(255) NOT NULL,
-    name                      varchar(255) NOT NULL,
-    lead_connections_count    real,
-    service_connections_count real,
-    population_served         real,
-    geom                      geometry(Geometry, 3857),
+    census_geo_id                  varchar(255) NOT NULL,
+    name                           varchar(255) NOT NULL,
+    lead_connections_low_estimate  real,
+    lead_connections_high_estimate real,
+    service_connections_count      real,
+    population_served              real,
+    geom                           geometry(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
 CREATE INDEX IF NOT EXISTS geom_index ON state_lead_connections USING GIST (geom);
@@ -267,12 +268,14 @@ GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
 INSERT INTO state_lead_connections(census_geo_id, name, geom,
-                                   lead_connections_count,
+                                   lead_connections_low_estimate,
+                                   lead_connections_high_estimate,
                                    service_connections_count, population_served)
 SELECT states.census_geo_id                as census_geo_id,
        states.name                         AS name,
        ST_Transform(states.geom, 3857)     AS geom,
-       SUM(lead_connections_high_estimate) AS lead_connections_count,
+       SUM(lead_connections_low_estimate)  AS lead_connections_low_estimate,
+       SUM(lead_connections_high_estimate) AS lead_connections_high_estimate,
        SUM(service_connections_count)      AS service_connections_count,
        SUM(population_served)              AS population_served
 FROM states
@@ -364,7 +367,8 @@ BEGIN
         FROM (
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
                         name,
-                        lead_connections_count,
+                        lead_connections_low_estimate,
+                        lead_connections_high_estimate,
                         service_connections_count,
                         population_served
                  FROM state_lead_connections
@@ -381,7 +385,8 @@ BEGIN
                                      ST_TileEnvelope(z, x, y)) AS geom,
                         w.pws_id                               AS pws_id,
                         w.pws_name                             AS pws_name,
-                        SUM(w.lead_connections_high_estimate)  AS lead_connections_count,
+                        SUM(w.lead_connections_low_estimate)   AS lead_connections_low_estimate,
+                        SUM(w.lead_connections_high_estimate)  AS lead_connections_high_estimate,
                         SUM(w.service_connections_count)       AS service_connections_count,
                         SUM(w.population_served)               AS population_served
                  FROM water_systems w
