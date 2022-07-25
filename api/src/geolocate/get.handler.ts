@@ -12,6 +12,9 @@ const SCHEMA = 'public';
 /**
  * Returns all geo identifiers that intersect with a lat, long.
  * @param rdsService: RDS service to connect to the db.
+ * @param params: with lat and long coordinates sued to query tables.
+ * @param geoid: identifier to retrieve for a table.
+ * @param table: db table to query.
  */
 async function getGeoDataForLatLong(
   rdsService: RDSDataService,
