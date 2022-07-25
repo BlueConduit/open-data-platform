@@ -32,6 +32,7 @@ describe('Full stack', () => {
     frontendStack = new FrontendStack(app, stackName(StackId.Frontend, envType), {
       envType,
       appPlaneStack,
+      networkStack,
     });
   });
 
@@ -41,6 +42,7 @@ describe('Full stack', () => {
     // https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html
     const networkTemplate = Template.fromStack(networkStack);
     networkTemplate.hasResourceProperties('AWS::EC2::VPC', {});
+    networkTemplate.hasResourceProperties('AWS::Route53::HostedZone', {});
     const dataPlaneTemplate = Template.fromStack(dataPlaneStack);
     dataPlaneTemplate.hasResourceProperties('AWS::RDS::DBCluster', {}); // Aurora cluster.
     dataPlaneTemplate.hasResourceProperties('AWS::Lambda::Function', {}); // Schema lambda.
@@ -48,7 +50,12 @@ describe('Full stack', () => {
     appPlaneTemplate.hasResourceProperties('AWS::ECS::Service', {}); // Tile server.
     const frontendTemplate = Template.fromStack(frontendStack);
     frontendTemplate.hasResourceProperties('AWS::S3::Bucket', {}); // s3 bucket.
-    frontendTemplate.hasResourceProperties('AWS::CloudFront::Distribution', {}); // CloudFront Distribution.
+    frontendTemplate.hasResourceProperties('AWS::CloudFront::Distribution', {
+      // CloudFront Distribution.
+      DistributionConfig: {
+        Aliases: [networkStack.dns.hostedZone.zoneName], // DNS
+      },
+    });
     frontendTemplate.hasResourceProperties('AWS::CloudFront::Function', {}); // URL prefix trimmer.
   });
 

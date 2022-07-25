@@ -1,6 +1,7 @@
 import {
   DataSourceType,
   FeaturePropertyDataType,
+  GeographicLevel,
   LegendInfo,
   MapLayer,
   PopupInfo,
@@ -37,6 +38,17 @@ const LEGEND_VALUES = [
   },
 ];
 
+const legend = new Map([
+  [
+    GeographicLevel.Parcel,
+    {
+      title: 'Percentage of service lines estimated to be lead',
+      buckets: LEGEND_VALUES,
+      bucketLabelType: FeaturePropertyDataType.Percentage,
+    },
+  ],
+]);
+
 const percentLeadLikelihood = ['*', 100, ['get', 'public_lead_prediction']];
 
 /**
@@ -52,12 +64,6 @@ const leadConnectionLegendInterpolation = [
   percentLeadLikelihood,
   ...getLegendBucketsAsList(LEGEND_VALUES),
 ];
-
-const legendInfo: LegendInfo = {
-  title: 'Percentage estimate of service line being lead',
-  buckets: LEGEND_VALUES,
-  bucketLabelType: FeaturePropertyDataType.Percentage,
-};
 
 export const styleLayer: FillLayer = {
   id: `${MapLayer.LeadServiceLineByParcel}-style`,
@@ -105,7 +111,7 @@ export const leadServiceLinesByParcelLayer: TileDataLayer = {
   },
   id: MapLayer.LeadServiceLineByParcel,
   name: 'Lead Service Line Estimate (Home)',
-  legendInfo: legendInfo,
+  legendInfo: legend,
   popupInfo: popupInfo,
   styleLayer: styleLayer,
   visibleInSearchBar: false,
