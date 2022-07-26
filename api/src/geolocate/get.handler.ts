@@ -27,6 +27,7 @@ async function getGeoDataForLatLong(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
+    // TODO(breuch): Consider switching to ST_Contains
     sql: `SELECT ${geoid}
           FROM ${table}
           WHERE geom && ST_SetSRID(ST_Point(:long, :lat), 4326)
@@ -35,12 +36,17 @@ async function getGeoDataForLatLong(
   };
   const results = await rdsService.executeStatement(executeParams).promise();
   const geoids = results.records?.map((record: FieldList) => record[0].stringValue) ?? [];
+
+  // TODO(breuch): Consider updating this to all geoids when we support
+  // county, states, etc.
   return geoids[0];
 }
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const lat = parseFloat(event.queryStringParameters?.lat ?? '');
-  const long = parseFloat(event.queryStringParameters?.long ?? '');
+  const coordinates = event.pathParameters?.latlong ?? '';
+  const coordinatesAsLatLong = coordinates.split(',');
+  const lat = parseFloat(coordinatesAsLatLong[0]);
+  const long = parseFloat(coordinatesAsLatLong[1]);
 
   // TODO(breuch): Throw error when lat, long are not passed in.
   const db = new AWS.RDSDataService();
@@ -76,6 +82,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   return {
     statusCode: 200,
+    headers: {
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'OPTIONS,GET',
+    },
     body: JSON.stringify(body),
   };
 };
