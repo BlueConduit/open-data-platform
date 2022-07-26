@@ -15,7 +15,7 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, inject } from 'vue';
+import { computed, defineComponent, inject } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
@@ -29,19 +29,26 @@ import mapboxgl from 'mapbox-gl';
  */
 export default defineComponent({
   name: 'MapGeocoderWrapper',
-  setup() {
+  setup(props, { emit }) {
+    const visible = computed({
+      get: () => props.modelValue,
+      set: (value) => emit('update:modelValue', value),
+    });
     const state: State = inject(stateKey, State.default());
 
     return {
       state,
+      visible,
     };
   },
   data() {
     return {
       // Default to empty geocoder instance that is not connected to map or view.
       geocoder: new MapboxGeocoder(),
-      visible: false,
     };
+  },
+  props: {
+    'modelValue': { type: Boolean, default: false },
   },
   watch: {
     'state.map': function(newMap: mapboxgl.Map) {
@@ -58,8 +65,8 @@ export default defineComponent({
 
         document.getElementById('geocoder')?.appendChild(this.geocoder.onAdd(newMap));
       }
-    }
-  }
+    },
+  },
 });
 </script>
 

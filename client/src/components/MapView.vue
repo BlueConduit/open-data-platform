@@ -12,7 +12,7 @@ import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import { DataLayer, FeatureProperty, MapLayer } from '../model/data_layer';
-import router from '../router';
+import { router } from '../router';
 import { leadServiceLinesByParcelLayer } from '../data_layer_configs/lead_service_lines_by_parcel_config';
 import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
 
@@ -152,7 +152,7 @@ export default defineComponent({
             if (e.features != undefined) {
               const clickedFeatureProperties: { [name: string]: any; } = e.features[0].properties as {};
               const popupInfo = this.state?.currentDataLayer?.popupInfo;
-              
+
               this.createMapPopup(e.lngLat, /* popupData= */
                 {
                   title: popupInfo?.title ?? '',
@@ -244,7 +244,7 @@ export default defineComponent({
           attributionControl: false,
           center: this.center,
           container: 'map-container',
-          style: 'mapbox://styles/blueconduit/cl4ymcdgy000414pd5v1ggem5?optimize=true',
+          style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
           zoom: 4,
         });
 
