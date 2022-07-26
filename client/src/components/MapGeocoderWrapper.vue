@@ -15,6 +15,7 @@
 </template>
 
 <script lang='ts'>
+import axios from 'axios';
 import { computed, defineComponent, inject } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
@@ -61,6 +62,28 @@ export default defineComponent({
           mapboxgl: undefined,
           marker: false,
           countries: 'US',
+        });
+
+        this.geocoder.on('result', async (result: any) => {
+          console.log(result.result.center);
+          const long = result.result.center[0];
+          const lat = result.result.center[1];
+          console.log(lat, long);
+
+          try {
+            const { data, status } = await axios.get<any>(
+              'https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate?lat="40.739309"&long="-73.996837"',
+              {
+                headers: {
+                  Accept: 'application/json',
+                },
+              },
+            );
+
+            console.log(JSON.stringify(data, null, 4));
+          } catch (error) {
+            console.log(error);
+          }
         });
 
         document.getElementById('geocoder')?.appendChild(this.geocoder.onAdd(newMap));
