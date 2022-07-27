@@ -1,18 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import MapContentContainer from './components/MapContentContainer.vue';
+import SearchView from './views/SearchView.vue';
+import MapView from './views/MapView.vue';
 
 const routes = [
   {
     path: '/',
-    component: MapContentContainer,
+    component: SearchView,
+  },
+  {
+    path: '/map',
+    component: MapView,
   },
   {
     path: '/learn-more',
-    component: MapContentContainer,
+    component: MapView,
   },
   {
     path: '/contact',
-    component: MapContentContainer,
+    component: MapView,
   },
 ];
 
