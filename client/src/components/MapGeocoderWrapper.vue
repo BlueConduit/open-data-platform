@@ -64,10 +64,8 @@ export default defineComponent({
         });
 
         this.geocoder.on('result', async (result: any) => {
-          console.log(result.result.center);
           const long = result.result.center[0];
           const lat = result.result.center[1];
-          console.log(lat, long);
 
           try {
             // TODO(breuch): Update state with lat,long and move API call to a
