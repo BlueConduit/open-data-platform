@@ -33,12 +33,6 @@ export default defineComponent({
     NavigationBar,
   },
   setup() {
-
-    const reducer = (state = 0, action: string) => {
-      console.log('reducer called');
-      return state;
-    };
-
     const store = configureStore({ reducer: { geosReducer } });
 
     store.subscribe(() => {
