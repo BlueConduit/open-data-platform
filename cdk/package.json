@@ -39,6 +39,7 @@
     "moment": "^2.29.3",
     "pg": "^8.7.3",
     "pg-format": "^1.0.4",
+    "redux": "^4.2.0",
     "source-map-support": "^0.5.16",
     "stream-chain": "^2.2.5",
     "stream-json": "^1.7.4"
