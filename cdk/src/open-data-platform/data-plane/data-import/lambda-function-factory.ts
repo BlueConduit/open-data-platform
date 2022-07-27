@@ -4,7 +4,7 @@ import * as path from 'path';
 
 import { Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { SchemaProps } from './data-import-stack';
+import { SchemaProps } from '../schema/schema-props';
 
 /**
  * Produces a lambda function that requires db access to import data.

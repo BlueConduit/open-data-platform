@@ -2,18 +2,10 @@ import { Duration } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
-import * as rds from 'aws-cdk-lib/aws-rds';
-import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import * as path from 'path';
 import { lambdaFactory } from './lambda-function-factory';
-
-export interface SchemaProps {
-  cluster: rds.ServerlessCluster;
-  vpc: ec2.IVpc;
-  db: string;
-  credentialsSecret: secretsmanager.ISecret;
-}
+import { SchemaProps } from '../schema/schema-props';
 
 export class DataImportStack extends Construct {
   constructor(scope: Construct, id: string, props: SchemaProps) {
