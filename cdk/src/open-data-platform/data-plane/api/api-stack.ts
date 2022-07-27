@@ -54,7 +54,7 @@ export class ApiStack extends Construct {
         allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key'],
         allowMethods: ['GET'],
         allowCredentials: true,
-        allowOrigins: ['http://localhost:3000'],
+        allowOrigins: ['*'],
       },
     });
 

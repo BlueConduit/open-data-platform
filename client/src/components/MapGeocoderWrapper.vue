@@ -57,7 +57,6 @@ export default defineComponent({
       // app load since the map is only created once.
       if (newMap != null) {
         this.geocoder = new MapboxGeocoder({
-          // TODO(kailamjeter): use secrets manager for this.
           accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN,
           mapboxgl: undefined,
           marker: false,
@@ -71,8 +70,10 @@ export default defineComponent({
           console.log(lat, long);
 
           try {
+            // TODO(breuch): Update state with lat,long and move API call to a
+            // reducer.
             const { data, status } = await axios.get<any>(
-              'https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate?lat="40.739309"&long="-73.996837"',
+              `https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate/${lat},${long}`,
               {
                 headers: {
                   Accept: 'application/json',
