@@ -23,8 +23,8 @@ export default defineComponent({
   },
   data() {
     return {
-      showSearch: router.currentRoute.value.path.includes(MAP_ROUTE),
-      showResult: router.currentRoute.value.path.includes(HOME_ROUTE),
+      showSearch: router.currentRoute.value.path = MAP_ROUTE,
+      showResult: router.currentRoute.value.path == HOME_ROUTE,
     };
   },
 });
