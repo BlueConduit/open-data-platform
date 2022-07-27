@@ -5,7 +5,6 @@ import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
 import { SchemaProps } from '../schema/schema-props';
-import * as path from 'path';
 import { cwd } from 'process';
 
 export class ApiStack extends Construct {
@@ -15,7 +14,6 @@ export class ApiStack extends Construct {
     const { cluster, vpc, db, credentialsSecret } = props;
 
     const lambdaFunction = new lambda.NodejsFunction(this, 'geolocate-handler', {
-      //entry: `${path.resolve(__dirname + '/../../../../../')}/api/src/geolocate/get.handler.ts`,
       entry: `${cwd()}/../api/src/geolocate/get.handler.ts`,
       handler: 'handler',
       vpc: vpc,

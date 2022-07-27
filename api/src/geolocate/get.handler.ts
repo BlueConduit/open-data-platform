@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import {
@@ -27,7 +27,6 @@ async function getGeoDataForLatLong(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    // TODO(breuch): Consider switching to ST_Contains
     sql: `SELECT ${geoid}
           FROM ${table}
           WHERE geom && ST_SetSRID(ST_Point(:long, :lat), 4326)
@@ -42,7 +41,9 @@ async function getGeoDataForLatLong(
   return geoids[0];
 }
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: {
+  pathParameters: GeolocatePathParameters;
+}): Promise<APIGatewayProxyResult> => {
   const coordinates = event.pathParameters?.latlong ?? '';
   const coordinatesAsLatLong = coordinates.split(',');
   const lat = parseFloat(coordinatesAsLatLong[0]);
@@ -103,4 +104,12 @@ interface GeolocateApiResponse {
   county?: string;
   // State abbreviation. i.e. "NY"
   state?: string;
+}
+
+/**
+ * Acceptable path parameters for this endpoint
+ */
+interface GeolocatePathParameters {
+  // Coordinates to look up geo identifiers.
+  latlong: string;
 }
