@@ -5,7 +5,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
 import { SchemaProps } from '../schema/schema-props';
-import * as path from 'path';
+import { cwd } from 'process';
 
 export class ApiStack extends Construct {
   constructor(scope: Construct, id: string, props: SchemaProps) {
@@ -14,7 +14,7 @@ export class ApiStack extends Construct {
     const { cluster, vpc, db, credentialsSecret } = props;
 
     const lambdaFunction = new lambda.NodejsFunction(this, 'geolocate-handler', {
-      entry: `${path.resolve(__dirname + '/../../../../../')}/api/src/geolocate/get.handler.ts`,
+      entry: `${cwd()}/../api/src/geolocate/get.handler.ts`,
       handler: 'handler',
       vpc: vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
@@ -52,13 +52,14 @@ export class ApiStack extends Construct {
       // Enable CORS
       defaultCorsPreflightOptions: {
         allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key'],
-        allowMethods: ['GET'],
+        allowMethods: ['GET,OPTIONS'],
         allowCredentials: true,
         allowOrigins: ['*'],
       },
     });
 
     const geolocate = api.root.addResource('geolocate');
-    geolocate.addMethod('GET', new apigateway.LambdaIntegration(lambdaFunction, { proxy: true }));
+    const latlong = geolocate.addResource('{latlong+}');
+    latlong.addMethod('GET', new apigateway.LambdaIntegration(lambdaFunction, { proxy: true }));
   }
 }
