@@ -249,6 +249,8 @@ export default defineComponent({
         });
 
         this.map.on('load', this.configureMap);
+        this.map.scrollZoom.disable();
+        
       } catch (err) {
         // TODO: Add error handling.
         console.log('Error: ', err);
