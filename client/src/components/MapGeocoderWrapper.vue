@@ -1,13 +1,15 @@
 <template>
   <div>
-    <div v-show='isExpanded' class='geocoder-content-isExpanded'>
+    <div v-show='expandSearch' class='geocoder-content-isExpanded'>
       <div class='geocoder' id='geocoder'></div>
-      <div class='search-button' @click='this.isExpanded = !this.isExpanded'>
+      <div class='search-button'
+           @click="$emit('update:expandSearch', !this.expandSearch)">
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
-    <div v-show='!isExpanded' class='geocoder-content-collapsed'>
-      <div class='search-button' @click='this.isExpanded = !this.isExpanded'>
+    <div v-show='!expandSearch' class='geocoder-content-collapsed'>
+      <div class='search-button'
+           @click="$emit('update:expandSearch', !this.expandSearch)">
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
@@ -16,7 +18,7 @@
 
 <script lang='ts'>
 import axios from 'axios';
-import { computed, defineComponent, inject } from 'vue';
+import { defineComponent, inject } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
@@ -30,17 +32,10 @@ import mapboxgl from 'mapbox-gl';
  */
 export default defineComponent({
   name: 'MapGeocoderWrapper',
-  setup(props, { emit }) {
-    // Binds isExpanded prop to v-model property expandSearch.
-    const isExpanded = computed({
-      get: () => props.expandSearch,
-      set: (value) => emit('update:expandSearch', value),
-    });
-
+  setup() {
     const state: State = inject(stateKey, State.default());
     return {
       state,
-      isExpanded: isExpanded,
     };
   },
   data() {
