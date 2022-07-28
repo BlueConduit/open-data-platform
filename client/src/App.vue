@@ -33,11 +33,6 @@ export default defineComponent({
     NavigationBar,
   },
   setup() {
-    const store = configureStore({ reducer: { geosReducer } });
-
-    store.subscribe(() => {
-      console.log('current state', store.getState());
-    });
 
     // Create and provide default state. This is updated once API data is fetched.
     const state = reactive(new State([]));

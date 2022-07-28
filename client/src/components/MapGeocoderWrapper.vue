@@ -15,13 +15,14 @@
 </template>
 
 <script lang='ts'>
-import axios from 'axios';
 import { computed, defineComponent, inject } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import mapboxgl from 'mapbox-gl';
+import { getGeoIdsFromLatLong } from '../model/geo_slice';
+import { dispatch } from '../model/store';
 
 /**
  * Wrapper for Mapbox Geocoder.
@@ -67,22 +68,8 @@ export default defineComponent({
           const long = result.result.center[0];
           const lat = result.result.center[1];
 
-          try {
-            // TODO(breuch): Update state with lat,long and move API call to a
-            // reducer.
-            const { data, status } = await axios.get<any>(
-              `https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate/${lat},${long}`,
-              {
-                headers: {
-                  Accept: 'application/json',
-                },
-              },
-            );
-
-            console.log(JSON.stringify(data, null, 4));
-          } catch (error) {
-            console.log(error);
-          }
+          // Emit action that a lat, long selection was made.
+          dispatch(getGeoIdsFromLatLong(lat, long));
         });
 
         document.getElementById('geocoder')?.appendChild(this.geocoder.onAdd(newMap));
