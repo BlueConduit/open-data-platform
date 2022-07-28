@@ -1,13 +1,15 @@
 <template>
   <div>
-    <div v-show='visible' class='geocoder-content-expanded'>
+    <div v-show='expandSearch' class='geocoder-content-is-expanded'>
       <div class='geocoder' id='geocoder'></div>
-      <div class='search-button' @click='this.visible = !this.visible'>
+      <div class='search-button'
+           @click="$emit('update:expandSearch', !this.expandSearch)">
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
-    <div v-show='!visible' class='geocoder-content-collapsed'>
-      <div class='search-button' @click='this.visible = !this.visible'>
+    <div v-show='!expandSearch' class='geocoder-content-collapsed'>
+      <div class='search-button'
+           @click="$emit('update:expandSearch', !this.expandSearch)">
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
@@ -15,6 +17,7 @@
 </template>
 
 <script lang='ts'>
+import axios from 'axios';
 import { defineComponent, inject } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
@@ -31,7 +34,6 @@ export default defineComponent({
   name: 'MapGeocoderWrapper',
   setup() {
     const state: State = inject(stateKey, State.default());
-
     return {
       state,
     };
@@ -40,8 +42,10 @@ export default defineComponent({
     return {
       // Default to empty geocoder instance that is not connected to map or view.
       geocoder: new MapboxGeocoder(),
-      visible: false,
     };
+  },
+  props: {
+    expandSearch: { type: Boolean, default: false },
   },
   watch: {
     'state.map': function(newMap: mapboxgl.Map) {
@@ -55,10 +59,31 @@ export default defineComponent({
           countries: 'US',
         });
 
+        this.geocoder.on('result', async (result: any) => {
+          const long = result.result.center[0];
+          const lat = result.result.center[1];
+
+          try {
+            // This gets removed in https://github.com/BlueConduit/open-data-platform/pull/77
+            const data = await axios.get<any>(
+              `https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate/${lat},${long}`,
+              {
+                headers: {
+                  Accept: 'application/json',
+                },
+              },
+            );
+
+            console.log(JSON.stringify(data));
+          } catch (error) {
+            console.log(error);
+          }
+        });
+
         document.getElementById('geocoder')?.appendChild(this.geocoder.onAdd(newMap));
       }
-    }
-  }
+    },
+  },
 });
 </script>
 
@@ -74,7 +99,7 @@ export default defineComponent({
   border-right: 1px solid #CCCCCC;
 }
 
-.geocoder-content-expanded {
+.geocoder-content-is-expanded {
   height: 38px;
   border: 1px solid #CCCCCC;
   border-radius: 5px;

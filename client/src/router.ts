@@ -2,13 +2,17 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LandingPageView from './views/LandingPageView.vue';
 import MapView from './views/MapView.vue';
 
+const HOME_ROUTE = '/';
+const MAP_ROUTE = '/map';
+const CONTACT_ROUTE = '/contact';
+
 const routes = [
   {
-    path: '/',
+    path: HOME_ROUTE,
     component: LandingPageView,
   },
   {
-    path: '/map',
+    path: MAP_ROUTE,
     component: MapView,
   },
 ];
@@ -19,4 +23,4 @@ const router = createRouter({
   routes: routes,
 });
 
-export default router;
+export { router, HOME_ROUTE, MAP_ROUTE, CONTACT_ROUTE };
