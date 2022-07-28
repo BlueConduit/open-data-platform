@@ -1,6 +1,7 @@
 <template>
   <div class='container'>
-    <map-geocoder-wrapper v-if='showSearch' v-model='expandSearch' />
+    <map-geocoder-wrapper v-if='showSearch'
+                          v-model:expandSearch='expandSearch' />
     <div class='lead-prediction' v-if='showPrediction'>
       You have a high likelihood of lead.
     </div>

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <div v-show='visible' class='geocoder-content-expanded'>
+    <div v-show='isExpanded' class='geocoder-content-isExpanded'>
       <div class='geocoder' id='geocoder'></div>
-      <div class='search-button' @click='this.visible = !this.visible'>
+      <div class='search-button' @click='this.isExpanded = !this.isExpanded'>
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
-    <div v-show='!visible' class='geocoder-content-collapsed'>
-      <div class='search-button' @click='this.visible = !this.visible'>
+    <div v-show='!isExpanded' class='geocoder-content-collapsed'>
+      <div class='search-button' @click='this.isExpanded = !this.isExpanded'>
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
@@ -31,15 +31,16 @@ import mapboxgl from 'mapbox-gl';
 export default defineComponent({
   name: 'MapGeocoderWrapper',
   setup(props, { emit }) {
-    const visible = computed({
-      get: () => props.modelValue,
-      set: (value) => emit('update:modelValue', value),
+    // Binds isExpanded prop to v-model property expandSearch.
+    const isExpanded = computed({
+      get: () => props.expandSearch,
+      set: (value) => emit('update:expandSearch', value),
     });
-    const state: State = inject(stateKey, State.default());
 
+    const state: State = inject(stateKey, State.default());
     return {
       state,
-      visible,
+      isExpanded: isExpanded,
     };
   },
   data() {
@@ -49,7 +50,7 @@ export default defineComponent({
     };
   },
   props: {
-    'modelValue': { type: Boolean, default: false },
+    expandSearch: { type: Boolean, default: false },
   },
   watch: {
     'state.map': function(newMap: mapboxgl.Map) {
@@ -70,7 +71,7 @@ export default defineComponent({
           try {
             // TODO(breuch): Update state with lat,long and move API call to a
             // reducer.
-            const { data, status } = await axios.get<any>(
+            const data = await axios.get<any>(
               `https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate/${lat},${long}`,
               {
                 headers: {
@@ -104,7 +105,7 @@ export default defineComponent({
   border-right: 1px solid #CCCCCC;
 }
 
-.geocoder-content-expanded {
+.geocoder-content-isExpanded {
   height: 38px;
   border: 1px solid #CCCCCC;
   border-radius: 5px;
