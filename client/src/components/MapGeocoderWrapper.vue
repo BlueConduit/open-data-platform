@@ -64,8 +64,7 @@ export default defineComponent({
           const lat = result.result.center[1];
 
           try {
-            // TODO(breuch): Update state with lat,long and move API call to a
-            // reducer.
+            // This gets removed in https://github.com/BlueConduit/open-data-platform/pull/77
             const data = await axios.get<any>(
               `https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate/${lat},${long}`,
               {
@@ -75,7 +74,7 @@ export default defineComponent({
               },
             );
 
-            console.log(JSON.stringify(data, null, 4));
+            console.log(JSON.stringify(data));
           } catch (error) {
             console.log(error);
           }
