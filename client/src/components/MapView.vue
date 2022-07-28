@@ -250,7 +250,7 @@ export default defineComponent({
 
         this.map.on('load', this.configureMap);
         this.map.scrollZoom.disable();
-        
+
       } catch (err) {
         // TODO: Add error handling.
         console.log('Error: ', err);
@@ -275,7 +275,7 @@ export default defineComponent({
 
 <style>
 #map-container {
-  height: 100vh;
+  height: 50vh;
 }
 
 /** Override Mapbox Popup styles. */
