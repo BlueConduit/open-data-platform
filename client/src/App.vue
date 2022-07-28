@@ -2,8 +2,9 @@
   <NavigationBar />
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent, provide, reactive } from 'vue';
+import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/dist/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
 import { State } from './model/state';
@@ -15,6 +16,7 @@ import { populationDataByCensusBlockLayer } from './data_layer_configs/populatio
 import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_water_system_config';
 import { leadServiceLinesByParcelLayer } from './data_layer_configs/lead_service_lines_by_parcel_config';
 
+const DEFAULT_TITLE = 'LeadOut';
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([
   [MapLayer.LeadServiceLineByWaterSystem, leadServiceLinesByWaterSystemLayer],
   [MapLayer.LeadAndCopperRuleViolationsByWaterSystem, leadAndCopperViolationsByCountyDataLayer],
@@ -44,9 +46,13 @@ export default defineComponent({
       state,
     };
   },
+  watch: {
+    $route(to: RouteLocation) {
+      document.title = (to.meta.title as string) ?? DEFAULT_TITLE;
+    },
+  },
 });
-
 </script>
 <style>
-@import "./assets/styles/global.scss";
+@import './assets/styles/global.scss';
 </style>

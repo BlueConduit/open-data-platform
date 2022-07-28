@@ -10,10 +10,16 @@ const routes = [
   {
     path: HOME_ROUTE,
     component: LandingPageView,
+    meta: {
+      title: 'LeadOut - Home',
+    },
   },
   {
     path: MAP_ROUTE,
     component: MapView,
+    meta: {
+      title: 'LeadOut - Nationwide Lead Map',
+    },
   },
 ];
 
