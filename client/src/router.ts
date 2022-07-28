@@ -1,22 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import SearchView from './views/SearchView.vue';
+import LandingPageView from './views/LandingPageView.vue';
 import MapView from './views/MapView.vue';
 
 const routes = [
   {
     path: '/',
-    component: SearchView,
+    component: LandingPageView,
   },
   {
     path: '/map',
-    component: MapView,
-  },
-  {
-    path: '/learn-more',
-    component: MapView,
-  },
-  {
-    path: '/contact',
     component: MapView,
   },
 ];

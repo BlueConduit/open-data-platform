@@ -9,7 +9,7 @@ import SearchBar from '@/components/SearchBar.vue';
 import { defineComponent } from 'vue';
 
 /**
- * Container for SearchBar and MapContainer.
+ * This view displays the browsable map.
  */
 export default defineComponent({
   name: 'MapView',

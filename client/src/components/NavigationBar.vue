@@ -7,10 +7,10 @@
     </div>
     <div class="right-align">
       <div>
-        <router-link to="/learn-more" class="semi-bold">About</router-link>
+        <router-link to="/" class="semi-bold">My Water Score</router-link>
       </div>
       <div>
-        <router-link to="/contact" class="semi-bold">Contact</router-link>
+        <router-link to="/map" class="semi-bold">Nationwide Lead Map</router-link>
       </div>
     </div>
   </div>

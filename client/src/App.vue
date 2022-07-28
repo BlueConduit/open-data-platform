@@ -25,6 +25,9 @@ const DATA_LAYERS = new Map<MapLayer, DataLayer>([
 // Base URL for REST API in Amazon API Gateway.
 // See https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-call-api.html.
 
+/**
+ * This file contains the component(s) that are visible in every view.
+ */
 export default defineComponent({
   name: 'App',
   components: {
