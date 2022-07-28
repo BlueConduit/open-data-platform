@@ -1,14 +1,14 @@
 <template>
-  <SearchBar v-if='showSearch' />
-  <PredictionPanel v-if='showResult' />
+  <SearchBar v-if="showSearch" />
+  <PredictionPanel v-if="showResult" />
   <MapContainer />
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import MapContainer from '@/components/MapContainer.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import { defineComponent } from 'vue';
-import PredictionPanel from './PredictionPanel.vue';
+import PredictionPanel from '../components/PredictionPanel.vue';
 import { router, HOME_ROUTE, MAP_ROUTE } from '../router';
 
 /**
@@ -30,6 +30,4 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
