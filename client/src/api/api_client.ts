@@ -9,7 +9,7 @@ class ApiClient {
     const apiResponse: ApiResponse = {};
     try {
       const data = await axios.get<any>(
-        `https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate?${lat},${long}`,
+        `https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate/${lat},${long}`,
         {
           headers: {
             Accept: 'application/json',

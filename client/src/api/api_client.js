@@ -7,7 +7,7 @@ class ApiClient {
     getGeoIdsFromLatLong = async (lat, long) => {
         const apiResponse = {};
         try {
-            const data = await axios.get(`https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate?${lat},${long}`, {
+            const data = await axios.get(`https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate/${lat},${long}`, {
                 headers: {
                     Accept: 'application/json',
                 },
