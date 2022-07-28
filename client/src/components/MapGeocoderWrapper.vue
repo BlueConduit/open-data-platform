@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-show='expandSearch' class='geocoder-content-isExpanded'>
+    <div v-show='expandSearch' class='geocoder-content-is-expanded'>
       <div class='geocoder' id='geocoder'></div>
       <div class='search-button'
            @click="$emit('update:expandSearch', !this.expandSearch)">
@@ -99,7 +99,7 @@ export default defineComponent({
   border-right: 1px solid #CCCCCC;
 }
 
-.geocoder-content-isExpanded {
+.geocoder-content-is-expanded {
   height: 38px;
   border: 1px solid #CCCCCC;
   border-radius: 5px;
