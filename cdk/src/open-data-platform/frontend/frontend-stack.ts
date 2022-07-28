@@ -48,6 +48,20 @@ export class FrontendStack extends Stack {
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100, // Only deploy to NA and EU access points
       enableLogging: true,
+      errorResponses: [
+        // Vue-router requires all URLs to route to index.html. This should not interfere with the
+        // tileserver's URLs, as long as the tileserver does not return 403 or 404.
+        {
+          httpStatus: 403,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+        },
+        {
+          httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+        },
+      ],
     });
 
     // Deploy frontend assets at client/dist to frontendAssetsBucket.
@@ -79,7 +93,8 @@ export class FrontendStack extends Stack {
     this.distribution.addBehavior(`${prefixes.tileServer}/*`, tileServerOrigin, {
       allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
       responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
-      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+      // TODO: cache based on query strings if/when we use them.
+      cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
       functionAssociations: [
         // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.
