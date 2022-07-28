@@ -1,13 +1,15 @@
 <template>
   <div>
-    <div v-show='visible' class='geocoder-content-expanded'>
+    <div v-show='expandSearch' class='geocoder-content-is-expanded'>
       <div class='geocoder' id='geocoder'></div>
-      <div class='search-button' @click='this.visible = !this.visible'>
+      <div class='search-button'
+           @click="$emit('update:expandSearch', !this.expandSearch)">
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
-    <div v-show='!visible' class='geocoder-content-collapsed'>
-      <div class='search-button' @click='this.visible = !this.visible'>
+    <div v-show='!expandSearch' class='geocoder-content-collapsed'>
+      <div class='search-button'
+           @click="$emit('update:expandSearch', !this.expandSearch)">
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
@@ -15,7 +17,7 @@
 </template>
 
 <script lang='ts'>
-import { computed, defineComponent, inject } from 'vue';
+import { defineComponent, inject } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
@@ -31,16 +33,10 @@ import { dispatch } from '../model/store';
  */
 export default defineComponent({
   name: 'MapGeocoderWrapper',
-  setup(props, { emit }) {
-    const visible = computed({
-      get: () => props.modelValue,
-      set: (value) => emit('update:modelValue', value),
-    });
+  setup() {
     const state: State = inject(stateKey, State.default());
-
     return {
       state,
-      visible,
     };
   },
   data() {
@@ -50,7 +46,7 @@ export default defineComponent({
     };
   },
   props: {
-    'modelValue': { type: Boolean, default: false },
+    expandSearch: { type: Boolean, default: false },
   },
   watch: {
     'state.map': function(newMap: mapboxgl.Map) {
@@ -91,7 +87,7 @@ export default defineComponent({
   border-right: 1px solid #CCCCCC;
 }
 
-.geocoder-content-expanded {
+.geocoder-content-is-expanded {
   height: 38px;
   border: 1px solid #CCCCCC;
   border-radius: 5px;
