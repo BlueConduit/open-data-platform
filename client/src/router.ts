@@ -1,17 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MapContentContainer from './components/MapContentContainer.vue';
 
+const HOME_ROUTE = '/';
+const MAP_ROUTE = '/map';
+const CONTACT_ROUTE = '/contact';
+
 const routes = [
   {
-    path: '/',
+    path: HOME_ROUTE,
     component: MapContentContainer,
   },
   {
-    path: '/learn-more',
+    path: MAP_ROUTE,
     component: MapContentContainer,
   },
   {
-    path: '/contact',
+    path: CONTACT_ROUTE,
     component: MapContentContainer,
   },
 ];
@@ -22,4 +26,4 @@ const router = createRouter({
   routes: routes,
 });
 
-export default router;
+export { router, HOME_ROUTE, MAP_ROUTE, CONTACT_ROUTE };
