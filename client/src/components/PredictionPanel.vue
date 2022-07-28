@@ -36,7 +36,4 @@ export default defineComponent({
   align-items: center;
 }
 
-.lead-prediction {
-
-}
 </style>
