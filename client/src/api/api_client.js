@@ -16,7 +16,6 @@ class ApiClient {
                 pws_id: data?.data?.water_system_pws_id,
                 zip_code: data?.data?.zip_code,
             };
-            console.log(apiResponse);
         }
         catch (error) {
             if (axios.isAxiosError(error)) {
