@@ -48,6 +48,8 @@ export default defineComponent({
   },
   watch: {
     $route(to: RouteLocation) {
+      // TODO: consider adding a string that says this is a non-prod environment, so devs can see
+      // that at a glance in their browser tabs. E.g. "[sandbox] LeadOut - Home"
       document.title = (to.meta.title as string) ?? DEFAULT_TITLE;
     },
   },
