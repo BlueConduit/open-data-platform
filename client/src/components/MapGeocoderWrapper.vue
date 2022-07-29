@@ -22,9 +22,7 @@ import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 
 /**
- * Wrapper for Mapbox Geocoder.
- *
- * See details at https://github.com/mapbox/mapbox-gl-geocoder.
+ * Expandable address search that performs a geocode.
  */
 export default defineComponent({
   name: 'MapGeocoderWrapper',
@@ -38,7 +36,7 @@ export default defineComponent({
     };
   },
   props: {
-    expandSearch: { type: Boolean, default: true },
+    expandSearch: { type: Boolean, default: false },
   },
   methods: {
     async onGeocodeResults(lat: number, long: number) {
