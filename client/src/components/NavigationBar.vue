@@ -1,24 +1,23 @@
 <template>
-  <div :style='cssVars' class='container'>
+  <div :style="cssVars" class="container">
     <div>
-      <router-link to='/'>
-        <img src='../assets/logo.png' class='logo' />
+      <router-link to="/">
+        <img src="../assets/logo.png" class="logo" />
       </router-link>
     </div>
-    <div class='right-align'>
-      <div>
-        <router-link to="/" class="semi-bold">My Water Score</router-link>
-      </div>
-      <div>
-        <router-link to="/map" class="semi-bold">Nationwide Lead Map</router-link>
+    <div class="right-align">
+      <div v-for="route in routes" :key="route[0]">
+        <router-link :to="route[1]" class="semi-bold">{{ route[0] }}</router-link>
       </div>
     </div>
   </div>
   <router-view />
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
+import { ABOUT_TITLE, MAP_TITLE } from '../assets/messages/common';
+import { ABOUT_ROUTE, MAP_ROUTE } from '../router';
 
 export default defineComponent({
   name: 'NavigationBar',
@@ -35,6 +34,15 @@ export default defineComponent({
       type: Number,
       default: 50,
     },
+  },
+  data() {
+    const routes: [string, string][] = [
+      [MAP_TITLE, MAP_ROUTE],
+      [ABOUT_TITLE, ABOUT_ROUTE],
+    ];
+    return {
+      routes,
+    };
   },
   computed: {
     cssVars() {
