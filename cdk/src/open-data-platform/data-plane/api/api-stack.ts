@@ -1,46 +1,30 @@
-import { Duration } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
 import { SchemaProps } from '../schema/schema-props';
-import { cwd } from 'process';
+import { apiLambdaFactory } from '../data-import/utils/lambda-function-factory';
+import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export class ApiStack extends Construct {
   constructor(scope: Construct, id: string, props: SchemaProps) {
     super(scope, id);
 
-    const { cluster, vpc, db, credentialsSecret } = props;
+    const { cluster, credentialsSecret } = props;
 
-    const lambdaFunction = new lambda.NodejsFunction(this, 'geolocate-handler', {
-      entry: `${cwd()}/../api/src/geolocate/get.handler.ts`,
-      handler: 'handler',
-      vpc: vpc,
-      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
-      environment: {
-        CREDENTIALS_SECRET: credentialsSecret.secretArn,
-        DATABASE_NAME: db,
-        RESOURCE_ARN: props.cluster.clusterArn,
-      },
-      memorySize: 512,
-      timeout: Duration.minutes(15),
-      bundling: {
-        externalModules: ['aws-sdk'],
-        nodeModules: [],
-      },
-    });
+    const geolocateHandler = apiLambdaFactory(this, props, 'geolocate');
+    const waterSystemHandler = apiLambdaFactory(this, props, 'watersystem');
 
-    credentialsSecret.grantRead(lambdaFunction);
-    cluster.connections.allowFrom(lambdaFunction, ec2.Port.tcp(cluster.clusterEndpoint.port));
+    const lambdaFunctions: lambda.NodejsFunction[] = [geolocateHandler, waterSystemHandler];
 
-    if (lambdaFunction.role?.roleArn != undefined) {
-      let role = iam.Role.fromRoleArn(
-        scope,
-        id + '-' + lambdaFunction,
-        lambdaFunction.role.roleArn,
-      );
-      cluster.grantDataApiAccess(role);
+    for (let f of lambdaFunctions) {
+      credentialsSecret.grantRead(f);
+      cluster.connections.allowFrom(f, ec2.Port.tcp(cluster.clusterEndpoint.port));
+
+      if (f.role?.roleArn != undefined) {
+        let role = iam.Role.fromRoleArn(scope, id + '-' + f, f.role.roleArn);
+        cluster.grantDataApiAccess(role);
+      }
     }
 
     const api = new apigateway.RestApi(this, 'open-data-platform-api', {
@@ -60,6 +44,13 @@ export class ApiStack extends Construct {
 
     const geolocate = api.root.addResource('geolocate');
     const latlong = geolocate.addResource('{latlong+}');
-    latlong.addMethod('GET', new apigateway.LambdaIntegration(lambdaFunction, { proxy: true }));
+    latlong.addMethod('GET', new apigateway.LambdaIntegration(geolocateHandler, { proxy: true }));
+
+    const waterSystem = api.root.addResource('watersystem');
+    const getWaterSystemById = waterSystem.addResource('{pws_id+}');
+    getWaterSystemById.addMethod(
+      'GET',
+      new apigateway.LambdaIntegration(geolocateHandler, { proxy: true }),
+    );
   }
 }
