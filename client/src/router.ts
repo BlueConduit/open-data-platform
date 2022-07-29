@@ -1,24 +1,32 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LandingPageView from './views/LandingPageView.vue';
 import MapView from './views/MapView.vue';
+import { APP_TITLE, HOME_TITLE, MAP_TITLE, ABOUT_TITLE } from './assets/messages/common';
 
 const HOME_ROUTE = '/';
 const MAP_ROUTE = '/map';
-const CONTACT_ROUTE = '/contact';
+const ABOUT_ROUTE = '/about';
 
 const routes = [
   {
     path: HOME_ROUTE,
     component: LandingPageView,
     meta: {
-      title: 'LeadOut - Home',
+      title: `${APP_TITLE} - ${HOME_TITLE}`,
     },
   },
   {
     path: MAP_ROUTE,
     component: MapView,
     meta: {
-      title: 'LeadOut - Nationwide Lead Map',
+      title: `${APP_TITLE} - ${MAP_TITLE}`,
+    },
+  },
+  {
+    path: ABOUT_ROUTE,
+    component: LandingPageView,
+    meta: {
+      title: `${APP_TITLE} - ${ABOUT_TITLE}`,
     },
   },
 ];
@@ -29,4 +37,4 @@ const router = createRouter({
   routes: routes,
 });
 
-export { router, HOME_ROUTE, MAP_ROUTE, CONTACT_ROUTE };
+export { router, HOME_ROUTE, MAP_ROUTE, ABOUT_ROUTE };
