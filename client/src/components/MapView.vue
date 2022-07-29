@@ -29,7 +29,6 @@ export default defineComponent({
     MapLegend,
   },
   setup() {
-    // TODO: Hide access tokens. For now, this is MapBox's public API token.
     mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
 
     const state: State = inject(stateKey, State.default());

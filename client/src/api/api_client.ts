@@ -9,7 +9,7 @@ class ApiClient {
     const apiResponse: ApiResponse = {};
     try {
       const data = await axios.get<any>(
-        `https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate?${lat},${long}`,
+        `https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate/${lat},${long}`,
         {
           headers: {
             Accept: 'application/json',
@@ -20,6 +20,7 @@ class ApiClient {
         pws_id: data?.data?.water_system_pws_id,
         zip_code: data?.data?.zip_code,
       };
+      console.log(apiResponse);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         apiResponse.error = { status: status, error: error.message };
