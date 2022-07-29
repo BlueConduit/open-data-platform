@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { APP_TITLE, HOME_TITLE, MAP_TITLE, CONTACT_TITLE } from './assets/messages/common';
 import MapContentContainer from './components/MapContentContainer.vue';
 
 const HOME_ROUTE = '/';
@@ -10,21 +11,21 @@ const routes = [
     path: HOME_ROUTE,
     component: MapContentContainer,
     meta: {
-      title: 'LeadOut - Home',
+      title: `${APP_TITLE} - ${HOME_TITLE}`,
     },
   },
   {
     path: MAP_ROUTE,
     component: MapContentContainer,
     meta: {
-      title: 'LeadOut - Nationwide Lead Map',
+      title: `${APP_TITLE} - ${MAP_TITLE}`,
     },
   },
   {
     path: CONTACT_ROUTE,
     component: MapContentContainer,
     meta: {
-      title: 'LeadOut - Contact Us',
+      title: `${APP_TITLE} - ${CONTACT_TITLE}`,
     },
   },
 ];
