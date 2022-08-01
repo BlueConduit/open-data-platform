@@ -1,23 +1,26 @@
 <template>
   <div class="landing-page-map-info">
-    <h1>Get up to date information about lead service lines</h1>
-    <p>
-      Stay informed by using the LeadOut Nationwide Map by exploring this ever-growing data set of
-      lead piplines, DEP violations, demographics, and more.
-    </p>
-    <button>Explore Nationwide Map</button>
+    <h1>{{ messages.HEADER }}</h1>
+    <p>{{ messages.BODY }}</p>
+    <button>{{ messages.CTA_BUTTON }}</button>
     <!-- TODO: Add image -->
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { MapInfo } from '../assets/messages/landing';
 
 /**
  * A component for searching for a scorecard.
  */
 export default defineComponent({
   name: 'LandingPageMapInfo',
+  data() {
+    return {
+      messages: MapInfo,
+    };
+  },
 });
 </script>
 

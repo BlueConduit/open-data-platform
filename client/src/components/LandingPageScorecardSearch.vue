@@ -1,21 +1,27 @@
 <template>
   <div class="scorecard-search">
-    <h1>Get Your Drinking Water Score</h1>
-    <p>Understand the likelihood of your home or community's exposure to lead service lines</p>
+    <h1>{{ messages.HEADER }}</h1>
+    <p>{{ messages.BODY }}</p>
     <!-- TODO: add ZIP, city, state as they are supported. -->
-    <input placeholder="Enter your address" />
-    <button>Get Score</button>
+    <input :placeholder="messages.CTA_PLACEHOLDER" />
+    <button>{{ messages.CTA_BUTTON }}</button>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { ScorecardSearch } from '../assets/messages/landing';
 
 /**
  * A component for searching for a scorecard.
  */
 export default defineComponent({
-  name: 'ScorecardSearch',
+  name: 'LandingPageScorecardSearch',
+  data() {
+    return {
+      messages: ScorecardSearch,
+    };
+  },
 });
 </script>
 
