@@ -4,7 +4,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { lambdaFactory } from './lambda-function-factory';
+import { dataImportLambdaFactory } from './utils/lambda-function-factory';
 import { SchemaProps } from '../schema/schema-props';
 
 export class DataImportStack extends Construct {
@@ -44,17 +44,17 @@ export class DataImportStack extends Construct {
       statements: [s3GetObjectPolicy],
     });
 
-    const lambda_functions: lambda.NodejsFunction[] = [
-      lambdaFactory(this, props, 'write-demographic-data'),
-      lambdaFactory(this, props, 'write-water-systems-data'),
+    const lambdaFunctions: lambda.NodejsFunction[] = [
+      dataImportLambdaFactory(this, props, 'write-demographic-data'),
+      dataImportLambdaFactory(this, props, 'write-water-systems-data'),
       writeViolationsDataFunction,
-      lambdaFactory(this, props, 'write-parcels-data'),
-      lambdaFactory(this, props, 'write-county-data'),
-      lambdaFactory(this, props, 'write-zipcode-data'),
-      lambdaFactory(this, props, 'write-state-data'),
+      dataImportLambdaFactory(this, props, 'write-parcels-data'),
+      dataImportLambdaFactory(this, props, 'write-county-data'),
+      dataImportLambdaFactory(this, props, 'write-zipcode-data'),
+      dataImportLambdaFactory(this, props, 'write-state-data'),
     ];
 
-    for (let f of lambda_functions) {
+    for (let f of lambdaFunctions) {
       credentialsSecret.grantRead(f);
       cluster.connections.allowFrom(f, ec2.Port.tcp(cluster.clusterEndpoint.port));
 

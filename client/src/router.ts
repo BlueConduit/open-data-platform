@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LandingPageView from './views/LandingPageView.vue';
 import MapView from './views/MapView.vue';
-import { APP_TITLE, HOME_TITLE, MAP_TITLE, ABOUT_TITLE } from './assets/messages/common';
+import { Titles } from './assets/messages/common';
 
 const HOME_ROUTE = '/';
 const MAP_ROUTE = '/map';
@@ -12,21 +12,21 @@ const routes = [
     path: HOME_ROUTE,
     component: LandingPageView,
     meta: {
-      title: `${APP_TITLE} - ${HOME_TITLE}`,
+      title: `${Titles.APP_TITLE} - ${Titles.HOME_TITLE}`,
     },
   },
   {
     path: MAP_ROUTE,
     component: MapView,
     meta: {
-      title: `${APP_TITLE} - ${MAP_TITLE}`,
+      title: `${Titles.APP_TITLE} - ${Titles.MAP_TITLE}`,
     },
   },
   {
     path: ABOUT_ROUTE,
     component: LandingPageView,
     meta: {
-      title: `${APP_TITLE} - ${ABOUT_TITLE}`,
+      title: `${Titles.APP_TITLE} - ${Titles.ABOUT_TITLE}`,
     },
   },
 ];

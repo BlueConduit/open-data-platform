@@ -1,7 +1,11 @@
 // Add any common strings here.
 
-// Titles for the various pages in the app
-export const APP_TITLE = 'LeadOut';
-export const HOME_TITLE = 'Home';
-export const MAP_TITLE = 'Nationwide Lead Map';
-export const ABOUT_TITLE = 'About Us';
+/**
+ * Text for page titles.
+ */
+export class Titles {
+  static APP_TITLE = 'LeadOut';
+  static HOME_TITLE = 'Home';
+  static MAP_TITLE = 'Nationwide Lead Map';
+  static ABOUT_TITLE = 'About Us';
+}

@@ -15,11 +15,12 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios';
 import { defineComponent, inject } from 'vue';
 import GeocoderInput from './GeocoderInput.vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
+import { getGeoIdsFromLatLong } from '../model/geo_slice';
+import { dispatch } from '../model/store';
 
 /**
  * Expandable address search that performs a geocode.
@@ -39,23 +40,9 @@ export default defineComponent({
     expandSearch: { type: Boolean, default: false },
   },
   methods: {
-    async onGeocodeResults(lat: number, long: number) {
-      console.log({ lat, long });
-      try {
-        // This gets removed in https://github.com/BlueConduit/open-data-platform/pull/77
-        const data = await axios.get<any>(
-          `https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate/${lat},${long}`,
-          {
-            headers: {
-              Accept: 'application/json',
-            },
-          },
-        );
-
-        console.log(JSON.stringify(data));
-      } catch (error) {
-        console.log(error);
-      }
+    async onGeocodeResults(lat: string, long: string) {
+      // Emit action that a lat, long selection was made.
+      dispatch(getGeoIdsFromLatLong(lat, long));
     },
   },
 });
