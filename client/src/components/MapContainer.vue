@@ -1,10 +1,10 @@
 <template>
-  <MapView/>
+  <NationwideMap />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import MapView from './MapView.vue';
+import NationwideMap from './NationwideMap.vue';
 
 /**
  * Wrapper for national map dashboard.
@@ -12,7 +12,7 @@ import MapView from './MapView.vue';
 export default defineComponent({
   name: 'MapContainer',
   components: {
-    MapView,
+    NationwideMap,
   },
-})
+});
 </script>

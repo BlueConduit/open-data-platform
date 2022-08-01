@@ -1,9 +1,9 @@
 <template>
-  <div id='map-container'></div>
+  <div id="map-container"></div>
   <MapLegend />
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import mapboxgl from 'mapbox-gl';
 import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from '@/components/MapLegend.vue';
@@ -23,8 +23,11 @@ const POPUP_CONTENT_BASE_HTML = `<div id='${POPUP_CONTENT_BASE_ID}'></div>`;
 
 const PARCEL_ZOOM_LEVEL = 12;
 
+/**
+ * A browsable map of nationwide lead data.
+ */
 export default defineComponent({
-  name: 'MapView',
+  name: 'NationwideMap',
   components: {
     MapLegend,
   },
@@ -76,11 +79,14 @@ export default defineComponent({
 
       // Update the router params when toggling layers to visible. Do not update
       // for leadServiceLinesByParcelLayer, which is not a visible layer.
-      const shouldUpdateRouterParam = visible &&
+      const shouldUpdateRouterParam =
+        visible &&
         router.currentRoute.value.query.layer != styleLayerId &&
         styleLayerId != leadServiceLinesByParcelLayer.styleLayer.id;
       if (shouldUpdateRouterParam) {
-        router.push({ query: Object.assign({}, router.currentRoute.value.query, { layer: styleLayerId }) });
+        router.push({
+          query: Object.assign({}, router.currentRoute.value.query, { layer: styleLayerId }),
+        });
       }
     },
 
@@ -107,7 +113,10 @@ export default defineComponent({
      * This will create a map if it does not exist and there is new data, or change the visual
      * layer if the currentDataLayer changes.
      */
-    updateMapOnDataLayerChange(newDataLayer: DataLayer | null, oldDataLayer: DataLayer | null): void {
+    updateMapOnDataLayerChange(
+      newDataLayer: DataLayer | null,
+      oldDataLayer: DataLayer | null,
+    ): void {
       if (this.map == null) {
         this.createMap();
       } else {
@@ -123,8 +132,7 @@ export default defineComponent({
      */
     createMapPopup(lngLat: LngLatLike, popupData: Record<string, any>): void {
       if (this.map == null) return;
-      this.popup = new mapbox.Popup(
-        { className: 'mapbox-popup' })
+      this.popup = new mapbox.Popup({ className: 'mapbox-popup' })
         .setLngLat(lngLat)
         .setHTML(POPUP_CONTENT_BASE_HTML) // Add basic div to mount to.
         .addTo(this.map);
@@ -147,22 +155,21 @@ export default defineComponent({
       for (const layer of this.state.dataLayers) {
         // Use MapBox's custom click handler, which takes the style layer that we
         // want to set up a handler for as a parameter.
-        this.map?.on('click', layer.styleLayer.id,
-          async (e: MapLayerMouseEvent): Promise<void> => {
-            if (e.features != undefined) {
-              const clickedFeatureProperties: { [name: string]: any; } = e.features[0].properties as {};
-              const popupInfo = this.state?.currentDataLayer?.popupInfo;
+        this.map?.on('click', layer.styleLayer.id, async (e: MapLayerMouseEvent): Promise<void> => {
+          if (e.features != undefined) {
+            const clickedFeatureProperties: { [name: string]: any } = e.features[0]
+              .properties as {};
+            const popupInfo = this.state?.currentDataLayer?.popupInfo;
 
-              this.createMapPopup(e.lngLat, /* popupData= */
-                {
-                  title: popupInfo?.title ?? '',
-                  subtitle: popupInfo?.subtitle ?? '',
-                  detailsTitle: popupInfo?.detailsTitle ?? '',
-                  featureProperties: popupInfo?.featureProperties ?? [] as FeatureProperty[],
-                  properties: new Map(Object.entries(clickedFeatureProperties)),
-                });
-            }
-          });
+            this.createMapPopup(e.lngLat /* popupData= */, {
+              title: popupInfo?.title ?? '',
+              subtitle: popupInfo?.subtitle ?? '',
+              detailsTitle: popupInfo?.detailsTitle ?? '',
+              featureProperties: popupInfo?.featureProperties ?? ([] as FeatureProperty[]),
+              properties: new Map(Object.entries(clickedFeatureProperties)),
+            });
+          }
+        });
       }
     },
 
@@ -202,11 +209,15 @@ export default defineComponent({
 
         // If zoomed past parcel zoom level, switch to parcel-level data source.
         // Otherwise, switch to water system level.
-        if (this.map.getZoom() >= PARCEL_ZOOM_LEVEL
-          && this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByWaterSystem) {
+        if (
+          this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
+          this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByWaterSystem
+        ) {
           this.state?.setCurrentDataLayer(leadServiceLinesByParcelLayer);
-        } else if (this.map.getZoom() < PARCEL_ZOOM_LEVEL
-          && this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByParcel) {
+        } else if (
+          this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
+          this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByParcel
+        ) {
           this.state?.setCurrentDataLayer(leadServiceLinesByWaterSystemLayer);
         }
       });
@@ -229,8 +240,11 @@ export default defineComponent({
       this.setUpZoomListener();
 
       // Check whether there's a layer selected in the router.
-      this.state.setCurrentDataLayer(this.state.dataLayers.find(layer => layer.styleLayer.id == router.currentRoute.value.query?.layer)
-        ?? leadServiceLinesByWaterSystemLayer);
+      this.state.setCurrentDataLayer(
+        this.state.dataLayers.find(
+          (layer) => layer.styleLayer.id == router.currentRoute.value.query?.layer,
+        ) ?? leadServiceLinesByWaterSystemLayer,
+      );
     },
 
     /**
@@ -260,11 +274,11 @@ export default defineComponent({
   },
   watch: {
     // Listens to app state to toggle layers.
-    'state.currentDataLayer': function(newDataLayer: DataLayer, oldDataLayer: DataLayer) {
+    'state.currentDataLayer': function (newDataLayer: DataLayer, oldDataLayer: DataLayer) {
       this.updateMapOnDataLayerChange(newDataLayer, oldDataLayer);
     },
     // Listens to query param to toggle layers.
-    'routerLayer': function(newLayer: string) {
+    routerLayer: function (newLayer: string) {
       this.setDataLayerVisibility(newLayer, true);
     },
   },
