@@ -1,5 +1,5 @@
 <template>
-  <div class="landing-page-map-info">
+  <div class="landing-page-section">
     <h2 v-if="$props.messages.SUPER_HEADER">{{ $props.messages.SUPER_HEADER }}</h2>
     <h1>{{ messages.HEADER }}</h1>
     <p>{{ messages.BODY }}</p>
