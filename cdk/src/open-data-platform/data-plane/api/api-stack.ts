@@ -14,8 +14,13 @@ export class ApiStack extends Construct {
 
     const geolocateHandler = apiLambdaFactory(this, props, 'geolocate');
     const waterSystemHandler = apiLambdaFactory(this, props, 'watersystem');
+    const zipCodeScorecardHandler = apiLambdaFactory(this, props, 'zipcode/scorecard');
 
-    const lambdaFunctions: lambda.NodejsFunction[] = [geolocateHandler, waterSystemHandler];
+    const lambdaFunctions: lambda.NodejsFunction[] = [
+      geolocateHandler,
+      waterSystemHandler,
+      zipCodeScorecardHandler,
+    ];
 
     for (let f of lambdaFunctions) {
       credentialsSecret.grantRead(f);
@@ -49,6 +54,14 @@ export class ApiStack extends Construct {
     const waterSystem = api.root.addResource('watersystem');
     const getWaterSystemById = waterSystem.addResource('{pws_id+}');
     getWaterSystemById.addMethod(
+      'GET',
+      new apigateway.LambdaIntegration(geolocateHandler, { proxy: true }),
+    );
+
+    const zipCode = api.root.addResource('zipcode');
+    const scorecard = zipCode.addResource('scorecard');
+    const scorecardById = scorecard.addResource('{zip_code+}');
+    scorecardById.addMethod(
       'GET',
       new apigateway.LambdaIntegration(geolocateHandler, { proxy: true }),
     );
