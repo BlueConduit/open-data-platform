@@ -13,6 +13,11 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'OPTIONS,GET',
 };
 const SCHEMA = 'public';
+const SQL_QUERY = `SELECT pws_id,
+                          lead_connections_count,
+                          service_connections_count
+                   FROM water_systems
+                   WHERE pws_id = :pws_id LIMIT 1`;
 
 async function getWaterSystemData(
   rdsService: RDSDataService,
@@ -23,11 +28,7 @@ async function getWaterSystemData(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    sql: `SELECT pws_id,
-                 lead_connections_count,
-                 service_connections_count
-          FROM water_systems
-          WHERE pws_id = :pws_id LIMIT 1`,
+    sql: SQL_QUERY,
     parameters: params,
   };
   let body: WaterSystemApiResponse = {};

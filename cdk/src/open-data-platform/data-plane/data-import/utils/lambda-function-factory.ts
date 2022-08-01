@@ -40,7 +40,7 @@ export const dataImportLambdaFactory = (
 /**
  * Produces a lambda function that requires db access to import data.
  * @param scope: the construct under which to provision resource.
- * @param props: schema identifiers passed to the function when writing data.
+ * @param props: schema identifiers passed to the function when reading data.
  * @param id: ID to assign resource.
  */
 export const apiLambdaFactory = (
