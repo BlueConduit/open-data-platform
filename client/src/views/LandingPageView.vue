@@ -1,10 +1,12 @@
 <template>
-  <ScorecardSearch />
+  <LandingPageScorecardSearch />
+  <LandingPageMapInfo />
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
-import ScorecardSearch from '@/components/ScorecardSearch.vue'
+import LandingPageMapInfo from '@/components/LandingPageMapInfo.vue';
+import LandingPageScorecardSearch from '@/components/LandingPageScorecardSearch.vue';
 
 /**
  * This view displays a landing page with search.
@@ -12,11 +14,10 @@ import ScorecardSearch from '@/components/ScorecardSearch.vue'
 export default defineComponent({
   name: 'LandingPageView',
   components: {
-    ScorecardSearch,
-  }
+    LandingPageMapInfo,
+    LandingPageScorecardSearch,
+  },
 });
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
