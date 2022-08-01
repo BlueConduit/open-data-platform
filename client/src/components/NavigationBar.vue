@@ -16,8 +16,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { ABOUT_TITLE, MAP_TITLE } from '../assets/messages/common';
-import { ABOUT_ROUTE, MAP_ROUTE } from '../router';
+import { Titles } from '../assets/messages/common';
+import * as router from '../router';
 
 export default defineComponent({
   name: 'NavigationBar',
@@ -37,8 +37,9 @@ export default defineComponent({
   },
   data() {
     const routes: [string, string][] = [
-      [MAP_TITLE, MAP_ROUTE],
-      [ABOUT_TITLE, ABOUT_ROUTE],
+      [Titles.SCORECARD_TITLE, router.HOME_ROUTE], // Redirects back home as the entry point.
+      [Titles.MAP_TITLE, router.MAP_ROUTE],
+      [Titles.ABOUT_TITLE, router.ABOUT_ROUTE],
     ];
     return {
       routes,
