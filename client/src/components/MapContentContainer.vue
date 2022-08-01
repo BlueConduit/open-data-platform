@@ -20,9 +20,9 @@ export default defineComponent({
   name: 'MapContentContainer',
   components: {
     MapContainer,
-    ScorecardSummaryPanel,
     PredictionPanel,
     SearchBar,
+    ScorecardSummaryPanel,
   },
   data() {
     return {
