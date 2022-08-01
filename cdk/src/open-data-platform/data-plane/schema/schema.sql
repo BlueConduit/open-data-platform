@@ -199,6 +199,7 @@ EXECUTE PROCEDURE update_last_update_timestamp();
 
 -- Lead connections aggregation tables.
 
+-- TODO: refactor into column on states table.
 CREATE TABLE IF NOT EXISTS state_lead_connections
 (
     census_geo_id                  varchar(255) NOT NULL,
