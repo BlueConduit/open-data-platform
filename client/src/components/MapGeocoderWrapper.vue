@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-show='expandSearch' class='geocoder-content-is-expanded'>
-      <div class='geocoder' id='geocoder'></div>
+      <GeocoderInput @result='onGeocodeResults' />
       <div class='search-button'
            @click="$emit('update:expandSearch', !this.expandSearch)">
         <img src='@/assets/icons/search.svg' />
@@ -18,78 +18,48 @@
 
 <script lang='ts'>
 import { defineComponent, inject } from 'vue';
+import GeocoderInput from './GeocoderInput.vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
-import mapboxgl from 'mapbox-gl';
 import { getGeoIdsFromLatLong } from '../model/geo_slice';
 import { dispatch } from '../model/store';
 
 /**
- * Wrapper for Mapbox Geocoder.
- *
- * See details at https://github.com/mapbox/mapbox-gl-geocoder.
+ * Expandable address search that performs a geocode.
  */
 export default defineComponent({
   name: 'MapGeocoderWrapper',
+  components: {
+    GeocoderInput,
+  },
   setup() {
     const state: State = inject(stateKey, State.default());
     return {
       state,
     };
   },
-  data() {
-    return {
-      // Default to empty geocoder instance that is not connected to map or view.
-      geocoder: new MapboxGeocoder(),
-    };
-  },
   props: {
     expandSearch: { type: Boolean, default: false },
   },
-  watch: {
-    'state.map': function(newMap: mapboxgl.Map) {
-      // Create geocoder when map is updated and geocoder is null. This is only triggered once per
-      // app load since the map is only created once.
-      if (newMap != null) {
-        this.geocoder = new MapboxGeocoder({
-          accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '',
-          mapboxgl: undefined,
-          marker: false,
-          countries: 'US',
-        });
-
-        this.geocoder.on('result', async (result: any) => {
-          const long = result.result.center[0];
-          const lat = result.result.center[1];
-
-          // Emit action that a lat, long selection was made.
-          dispatch(getGeoIdsFromLatLong(lat, long));
-        });
-
-        document.getElementById('geocoder')?.appendChild(this.geocoder.onAdd(newMap));
-      }
+  methods: {
+    async onGeocodeResults(lat: string, long: string) {
+      // Emit action that a lat, long selection was made.
+      dispatch(getGeoIdsFromLatLong(lat, long));
     },
   },
 });
 </script>
 
-
 <style>
-.geocoder {
-  display: inline-block;
-}
-
 .geocoder-content-collapsed {
   height: 38px;
-  border-left: 1px solid #CCCCCC;
-  border-right: 1px solid #CCCCCC;
+  border-left: 1px solid #cccccc;
+  border-right: 1px solid #cccccc;
 }
 
 .geocoder-content-is-expanded {
   height: 38px;
-  border: 1px solid #CCCCCC;
+  border: 1px solid #cccccc;
   border-radius: 5px;
 }
 
@@ -97,26 +67,5 @@ export default defineComponent({
   float: right;
   display: inline-block;
   padding: 10px 15px 0 15px;
-}
-
-/** Override geocoder styles. **/
-
-.mapboxgl-ctrl-geocoder {
-  box-shadow: none;
-}
-
-.mapboxgl-ctrl-geocoder--icon-search {
-  visibility: hidden;
-  width: 0;
-  height: 0;
-}
-
-.mapboxgl-ctrl-geocoder--input {
-  padding: 10px 11px;
-  line-height: 12px;
-}
-
-.mapboxgl-ctrl-geocoder--input:focus {
-  outline: none;
 }
 </style>

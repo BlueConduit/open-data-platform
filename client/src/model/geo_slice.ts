@@ -13,6 +13,8 @@ interface GeoState {
 const initialState: GeoState = {};
 const client = new ApiClient();
 
+// Automatically generates action creators and action types that correspond
+// to the reducers and state. See: https://redux-toolkit.js.org/api/createslice
 const geoSlice = createSlice({
   name: 'geoSlice',
   initialState,
@@ -50,5 +52,7 @@ export const getGeoIdsFromLatLong = (lat: string, long: string) => {
   };
 };
 
+// See more about reducers:
+// https://redux-toolkit.js.org/api/createslice#reducers
 export const { userQueriedGeo, geoIdsFetchedSuccess, geoIdsFetchedError } = geoSlice.actions;
 export default geoSlice.reducer;

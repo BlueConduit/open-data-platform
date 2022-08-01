@@ -9,14 +9,23 @@ const routes = [
   {
     path: HOME_ROUTE,
     component: MapContentContainer,
+    meta: {
+      title: 'LeadOut - Home',
+    },
   },
   {
     path: MAP_ROUTE,
     component: MapContentContainer,
+    meta: {
+      title: 'LeadOut - Nationwide Lead Map',
+    },
   },
   {
     path: CONTACT_ROUTE,
     component: MapContentContainer,
+    meta: {
+      title: 'LeadOut - Contact Us',
+    },
   },
 ];
 
