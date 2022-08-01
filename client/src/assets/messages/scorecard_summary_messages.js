@@ -1,9 +1,9 @@
 /**
- * Text to use on the prediction page.
+ * Text to use on the scorecard summary page.
  */
-export class PredictionMessages {
-    static PREDICTION_PANEL_HEADER = "What's in your score";
-    static PREDICTION_PANEL_SUBHEADER = 'The most relevant data used to determine ' + 'your lead score';
+export class ScorecardSummaryMessages {
+    static SCORECARD_SUMMARY_PANEL_HEADER = "What's in your score";
+    static SCORECARD_SUMMARY_PANEL_SUBHEADER = 'The most relevant data used to determine ' + 'your lead score';
     static HOME_AGE = 'Home age';
     static HOME_AGE_EXPLAINED = 'The year your home was built influences the likelihood it was constructed with lead pipes';
     static INCOME_LEVEL = 'Income level';
@@ -12,4 +12,4 @@ export class PredictionMessages {
     static SOCIAL_VULNERABILITY_INDEX_EXPLAINED = 'Social vulnerability refers to the potential negative effects on ' +
         'communities caused by external stresses on human health';
 }
-//# sourceMappingURL=prediction_messages.js.map
+//# sourceMappingURL=scorecard_summary_messages.js.map

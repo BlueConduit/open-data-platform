@@ -14,16 +14,19 @@
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
 
+/**
+ * Which side of the summary row to place the image.
+ */
 export enum ImageFloatDirection {
   left,
   right
 }
 
 /**
- * Prediction explanation.
+ * A single row for a scorecard summary.
  */
 export default defineComponent({
-  name: 'PredictionFactor',
+  name: 'ScorecardSummaryRow',
   props: {
     comparisonValue: String,
     header: String,

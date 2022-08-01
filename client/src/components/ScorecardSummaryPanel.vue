@@ -2,21 +2,21 @@
   <div class='container-wrapper'>
     <div class='container-column'>
       <div class='semi-bold h1-header'>
-        <div> {{ PredictionMessages.PREDICTION_PANEL_HEADER }}</div>
+        <div> {{ PredictionMessages.SCORECARD_SUMMARY_PANEL_HEADER }}</div>
       </div>
-      <div> {{ PredictionMessages.PREDICTION_PANEL_SUBHEADER }}</div>
+      <div> {{ PredictionMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}</div>
       <div class='container-column'>
         <!-- TODO(breuch): Move prediction factors into model -->
-        <PredictionFactor
+        <ScorecardSummaryRow
           :header='PredictionMessages.HOME_AGE'
           :subheader='PredictionMessages.HOME_AGE_EXPLAINED'
           comparisonValue='10% lower' />
-        <PredictionFactor
+        <ScorecardSummaryRow
           :header='PredictionMessages.SOCIAL_VULNERABILITY_INDEX'
           :subheader='PredictionMessages.SOCIAL_VULNERABILITY_INDEX_EXPLAINED'
           :image-float-direction='ImageFloatDirection.right'
           comparisonValue='3% higher' />
-        <PredictionFactor
+        <ScorecardSummaryRow
           :header='PredictionMessages.INCOME_LEVEL'
           :subheader='PredictionMessages.INCOME_LEVEL_EXPLAINED'
           comparisonValue='15% lower' />
@@ -27,20 +27,20 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import { PredictionMessages } from '../assets/messages/prediction_messages';
-import PredictionFactor, { ImageFloatDirection } from './PredictionFactor.vue';
+import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_messages';
+import ScorecardSummaryRow, { ImageFloatDirection } from './ScorecardSummaryRow.vue';
 
 /**
  * Prediction explanation.
  */
 export default defineComponent({
-  name: 'PredictionFactorsPanel',
+  name: 'ScorecardSummaryPanel',
   components: {
-    PredictionFactor,
+    ScorecardSummaryRow,
   },
   data() {
     return {
-      PredictionMessages,
+      PredictionMessages: ScorecardSummaryMessages,
       ImageFloatDirection,
     };
   },

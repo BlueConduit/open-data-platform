@@ -1,9 +1,9 @@
 /**
- * Text to use on the prediction page.
+ * Text to use on the scorecard summary page.
  */
-export class PredictionMessages {
-  static PREDICTION_PANEL_HEADER = "What's in your score";
-  static PREDICTION_PANEL_SUBHEADER =
+export class ScorecardSummaryMessages {
+  static SCORECARD_SUMMARY_PANEL_HEADER = "What's in your score";
+  static SCORECARD_SUMMARY_PANEL_SUBHEADER =
     'The most relevant data used to determine ' + 'your lead score';
   static HOME_AGE = 'Home age';
   static HOME_AGE_EXPLAINED =

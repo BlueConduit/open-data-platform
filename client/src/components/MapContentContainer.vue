@@ -2,7 +2,7 @@
   <SearchBar v-if='showSearch' />
   <PredictionPanel v-if='showResult' />
   <MapContainer />
-  <PredictionFactorsPanel />
+  <ScorecardSummaryPanel />
 </template>
 
 <script lang='ts'>
@@ -10,7 +10,7 @@ import { defineComponent } from 'vue';
 import { router, HOME_ROUTE, MAP_ROUTE } from '../router';
 import MapContainer from '@/components/MapContainer.vue';
 import PredictionPanel from './PredictionPanel.vue';
-import PredictionFactorsPanel from './PredictionFactorsPanel.vue';
+import ScorecardSummaryPanel from './ScorecardSummaryPanel.vue';
 import SearchBar from '@/components/SearchBar.vue';
 
 /**
@@ -20,7 +20,7 @@ export default defineComponent({
   name: 'MapContentContainer',
   components: {
     MapContainer,
-    PredictionFactorsPanel,
+    ScorecardSummaryPanel,
     PredictionPanel,
     SearchBar,
   },
