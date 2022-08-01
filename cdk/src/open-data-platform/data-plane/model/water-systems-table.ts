@@ -10,9 +10,11 @@ class WaterSystemsTableRow {
   pws_id: string;
   // Water system name.
   pws_name: string;
-  // Reported estimate of number of lead pipes in the boundary.
-  lead_connections_count: number;
-  // Reported or estimated total number of connections in the boundary.
+  // Reported or low estimate of number of lead pipes in the boundary.
+  lead_connections_low_estimate: number;
+  // Reported or high estimate number of lead pipes in the boundary.
+  lead_connections_high_estimate: number;
+  // Reported or estimated number of connections in the boundary.
   service_connections_count: number;
   // Number of people served by the water system.
   population_served: number;
@@ -22,14 +24,16 @@ class WaterSystemsTableRow {
   constructor(
     pws_id: string,
     pws_name: string,
-    lead_connections_count: number,
+    lead_connections_low_estimate: number,
+    lead_connections_high_estimate: number,
     service_connections_count: number,
     population_served: number,
     geom: string,
   ) {
     this.pws_id = pws_id;
     this.pws_name = pws_name;
-    this.lead_connections_count = lead_connections_count;
+    this.lead_connections_low_estimate = lead_connections_low_estimate;
+    this.lead_connections_high_estimate = lead_connections_high_estimate;
     this.service_connections_count = service_connections_count;
     this.population_served = population_served;
     this.geom = geom;
@@ -43,7 +47,7 @@ export class WaterSystemsTableRowBuilder {
   private readonly _row: WaterSystemsTableRow;
 
   constructor() {
-    this._row = new WaterSystemsTableRow('', '', 0, 0, 0, '');
+    this._row = new WaterSystemsTableRow('', '', 0, 0, 0, 0, '');
   }
 
   pwsId(pwsId: string): WaterSystemsTableRowBuilder {
@@ -61,8 +65,13 @@ export class WaterSystemsTableRowBuilder {
     return this;
   }
 
-  leadConnectionsCount(leadConnectionsCount: number): WaterSystemsTableRowBuilder {
-    this._row.lead_connections_count = leadConnectionsCount;
+  leadConnectionsLowEstimate(leadConnectionsLowEstimate: number): WaterSystemsTableRowBuilder {
+    this._row.lead_connections_low_estimate = leadConnectionsLowEstimate;
+    return this;
+  }
+
+  leadConnectionsHighEstimate(leadConnectionsHighEstimate: number): WaterSystemsTableRowBuilder {
+    this._row.lead_connections_high_estimate = leadConnectionsHighEstimate;
     return this;
   }
 
@@ -87,8 +96,12 @@ export class WaterSystemsTableRowBuilder {
         value: { stringValue: this._row.pws_name },
       },
       {
-        name: 'lead_connections_count',
-        value: { doubleValue: this._row.lead_connections_count },
+        name: 'lead_connections_low_estimate',
+        value: { doubleValue: this._row.lead_connections_low_estimate },
+      },
+      {
+        name: 'lead_connections_high_estimate',
+        value: { doubleValue: this._row.lead_connections_high_estimate },
       },
       {
         name: 'service_connections_count',
