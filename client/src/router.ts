@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { APP_TITLE, HOME_TITLE, MAP_TITLE, CONTACT_TITLE } from './assets/messages/common';
+import { Titles } from './assets/messages/common';
 import MapContentContainer from './components/MapContentContainer.vue';
 
 const HOME_ROUTE = '/';
@@ -11,21 +11,21 @@ const routes = [
     path: HOME_ROUTE,
     component: MapContentContainer,
     meta: {
-      title: `${APP_TITLE} - ${HOME_TITLE}`,
+      title: `${Titles.APP_TITLE} - ${Titles.HOME_TITLE}`,
     },
   },
   {
     path: MAP_ROUTE,
     component: MapContentContainer,
     meta: {
-      title: `${APP_TITLE} - ${MAP_TITLE}`,
+      title: `${Titles.APP_TITLE} - ${Titles.MAP_TITLE}`,
     },
   },
   {
     path: CONTACT_ROUTE,
     component: MapContentContainer,
     meta: {
-      title: `${APP_TITLE} - ${CONTACT_TITLE}`,
+      title: `${Titles.APP_TITLE} - ${Titles.CONTACT_TITLE}`,
     },
   },
 ];
