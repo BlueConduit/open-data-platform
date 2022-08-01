@@ -1,12 +1,13 @@
 <template>
-  <LandingPageScorecardSearch />
-  <LandingPageMapInfo />
+  <LandingPageSection :messages="messages.ScorecardSearch" />
+  <LandingPageSection :messages="messages.MapInfo" />
+  <LandingPageSection :messages="messages.FilterInfo" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import LandingPageMapInfo from '@/components/LandingPageMapInfo.vue';
-import LandingPageScorecardSearch from '@/components/LandingPageScorecardSearch.vue';
+import LandingPageSection from '@/components/LandingPageSection.vue';
+import { ScorecardSearch, FilterInfo, MapInfo } from '../assets/messages/landing';
 
 /**
  * This view displays a landing page with search.
@@ -14,8 +15,12 @@ import LandingPageScorecardSearch from '@/components/LandingPageScorecardSearch.
 export default defineComponent({
   name: 'LandingPageView',
   components: {
-    LandingPageMapInfo,
-    LandingPageScorecardSearch,
+    LandingPageSection,
+  },
+  data() {
+    return {
+      messages: { ScorecardSearch, MapInfo, FilterInfo },
+    };
   },
 });
 </script>
