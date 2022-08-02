@@ -120,14 +120,13 @@ CREATE INDEX IF NOT EXISTS geom_index ON aggregate_us_demographics USING GIST (g
 
 CREATE TABLE IF NOT EXISTS water_systems
 (
-    pws_id                         varchar(255) NOT NULL,
-    pws_name                       varchar(255),
-    lead_connections_low_estimate  real,
-    lead_connections_high_estimate real,
-    service_connections_count      real,
-    population_served              real,
-    state_census_geo_id            varchar(255) references states (census_geo_id),
-    geom                           GEOMETRY(Geometry, 4326),
+    pws_id                    varchar(255) NOT NULL,
+    pws_name                  varchar(255),
+    lead_connections_count    real,
+    service_connections_count real,
+    population_served         real,
+    state_census_geo_id       varchar(255) references states (census_geo_id),
+    geom                      GEOMETRY(Geometry, 4326),
     PRIMARY KEY (pws_id)
 );
 CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON water_systems (state_census_geo_id);
@@ -200,13 +199,12 @@ EXECUTE PROCEDURE update_last_update_timestamp();
 -- TODO: refactor into column on states table.
 CREATE TABLE IF NOT EXISTS state_lead_connections
 (
-    census_geo_id                  varchar(255) NOT NULL,
-    name                           varchar(255) NOT NULL,
-    lead_connections_low_estimate  real,
-    lead_connections_high_estimate real,
-    service_connections_count      real,
-    population_served              real,
-    geom                           geometry(Geometry, 3857),
+    census_geo_id             varchar(255) NOT NULL,
+    name                      varchar(255) NOT NULL,
+    lead_connections_count    real,
+    service_connections_count real,
+    population_served         real,
+    geom                      geometry(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
 CREATE INDEX IF NOT EXISTS geom_index ON state_lead_connections USING GIST (geom);
@@ -227,16 +225,14 @@ CREATE INDEX IF NOT EXISTS geom_index ON state_epa_violations USING GIST (geom);
 -- defined below.
 
 INSERT INTO state_lead_connections(census_geo_id, name, geom,
-                                   lead_connections_low_estimate,
-                                   lead_connections_high_estimate,
+                                   lead_connections_count,
                                    service_connections_count, population_served)
-SELECT states.census_geo_id                as census_geo_id,
-       states.name                         AS name,
-       ST_Transform(states.geom, 3857)     AS geom,
-       SUM(lead_connections_low_estimate)  AS lead_connections_low_estimate,
-       SUM(lead_connections_high_estimate) AS lead_connections_high_estimate,
-       SUM(service_connections_count)      AS service_connections_count,
-       SUM(population_served)              AS population_served
+SELECT states.census_geo_id            as census_geo_id,
+       states.name                     AS name,
+       ST_Transform(states.geom, 3857) AS geom,
+       SUM(lead_connections_count)     AS lead_connections_count,
+       SUM(service_connections_count)  AS service_connections_count,
+       SUM(population_served)          AS population_served
 FROM states
          LEFT JOIN water_systems
                    ON water_systems.state_census_geo_id = states.census_geo_id
@@ -328,8 +324,7 @@ BEGIN
         FROM (
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
                         name,
-                        lead_connections_low_estimate,
-                        lead_connections_high_estimate,
+                        lead_connections_count,
                         service_connections_count,
                         population_served
                  FROM state_lead_connections
@@ -346,8 +341,7 @@ BEGIN
                                      ST_TileEnvelope(z, x, y)) AS geom,
                         w.pws_id                               AS pws_id,
                         w.pws_name                             AS pws_name,
-                        SUM(w.lead_connections_low_estimate)   AS lead_connections_low_estimate,
-                        SUM(w.lead_connections_high_estimate)  AS lead_connections_high_estimate,
+                        SUM(w.lead_connections_count)          AS lead_connections_count,
                         SUM(w.service_connections_count)       AS service_connections_count,
                         SUM(w.population_served)               AS population_served
                  FROM water_systems w
