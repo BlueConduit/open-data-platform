@@ -1,13 +1,15 @@
 <template>
-  <div id="map-container"></div>
-  <MapLegend />
+  <div>
+    <div id='map-container'></div>
+    <MapLegend />
+  </div>
 </template>
 
 <script lang="ts">
 import mapboxgl from 'mapbox-gl';
 import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
-import MapLegend from '@/components/MapLegend.vue';
-import MapPopupContent from '@/components/MapPopupContent.vue';
+import MapLegend from './MapLegend.vue';
+import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
@@ -32,7 +34,7 @@ export default defineComponent({
     MapLegend,
   },
   setup() {
-    // TODO: Hide access tokens. For now, this is MapBox's public API token.
+    // @ts-ignore
     mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
 
     const state: State = inject(stateKey, State.default());
@@ -85,7 +87,9 @@ export default defineComponent({
         styleLayerId != leadServiceLinesByParcelLayer.styleLayer.id;
       if (shouldUpdateRouterParam) {
         router.push({
-          query: Object.assign({}, router.currentRoute.value.query, { layer: styleLayerId }),
+          query: Object.assign({}, router.currentRoute.value.query, {
+            layer: styleLayerId,
+          }),
         });
       }
     },
