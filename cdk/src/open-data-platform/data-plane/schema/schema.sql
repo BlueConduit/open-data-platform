@@ -107,11 +107,6 @@ CREATE TABLE IF NOT EXISTS aggregate_us_demographics
     average_home_age             real,
     average_income_level         real,
     average_social_vulnerability real,
-    black_population             real,
-    white_population             real,
-    total_population             real,
-    under_five_population        real,
-    poverty_population           real,
     geom                         GEOMETRY(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
@@ -228,46 +223,6 @@ CREATE INDEX IF NOT EXISTS geom_index ON state_epa_violations USING GIST (geom);
 -- Populate pre-computed tables. These are only to be used by the functions
 -- defined below.
 
-INSERT INTO aggregate_us_demographics(census_geo_id, geo_type, name,
-                                      black_population,
-                                      white_population, total_population,
-                                      under_five_population, poverty_population,
-                                      geom)
-SELECT states.census_geo_id            as census_geo_id,
-       'state'                         as geo_type,
-       states.name                     AS name,
-       SUM(black_population)           AS black_population,
-       SUM(white_population)           AS white_population,
-       SUM(total_population)           AS total_population,
-       SUM(under_five_population)      AS under_five_population,
-       SUM(poverty_population)         AS poverty_population,
-       ST_Transform(states.geom, 3857) AS geom
-FROM states
-         LEFT JOIN demographics
-                   ON demographics.state_census_geo_id = states.census_geo_id
-GROUP BY states.census_geo_id, states.name, states.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
-
-INSERT INTO aggregate_us_demographics(census_geo_id, geo_type, name,
-                                      black_population,
-                                      white_population, total_population,
-                                      under_five_population, poverty_population,
-                                      geom)
-SELECT counties.census_geo_id            as census_geo_id,
-       'county'                          as geo_type,
-       counties.name                     AS name,
-       SUM(black_population)             AS black_population,
-       SUM(white_population)             AS white_population,
-       SUM(total_population)             AS total_population,
-       SUM(under_five_population)        AS under_five_population,
-       SUM(poverty_population)           AS poverty_population,
-       ST_Transform(counties.geom, 3857) AS geom
-FROM counties
-         LEFT JOIN demographics
-                   ON demographics.county_census_geo_id = counties.census_geo_id
-GROUP BY counties.census_geo_id, counties.name, counties.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
-
 INSERT INTO state_lead_connections(census_geo_id, name, geom,
                                    lead_connections_low_estimate,
                                    lead_connections_high_estimate,
@@ -314,12 +269,12 @@ BEGIN
                                  4096, 'geom')
         FROM (
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                        census_geo_id,
                         name,
-                        black_population,
-                        white_population,
-                        total_population,
-                        under_five_population,
-                        poverty_population
+                        geo_type,
+                        average_home_age,
+                        average_income_level,
+                        average_social_vulnerability
                  FROM aggregate_us_demographics
                  WHERE geo_type = 'state'
                    AND geom && ST_TileEnvelope(z, x, y)
@@ -330,12 +285,12 @@ BEGIN
                                  4096, 'geom')
         FROM (
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                        census_geo_id,
                         name,
-                        black_population,
-                        white_population,
-                        total_population,
-                        under_five_population,
-                        poverty_population
+                        geo_type,
+                        average_home_age,
+                        average_income_level,
+                        average_social_vulnerability
                  FROM aggregate_us_demographics
                  WHERE geo_type = 'county'
                    AND geom && ST_TileEnvelope(z, x, y)
