@@ -104,9 +104,12 @@ CREATE TABLE IF NOT EXISTS aggregate_us_demographics
     census_geo_id                varchar(255) NOT NULL,
     geo_type                     varchar(255) NOT NULL,
     name                         varchar(255) NOT NULL,
-    average_home_age             real,
-    average_income_level         real,
+    median_year_built            real,
+    median_income                real,
+    home_age_index               real,
+    income_index                 real,
     average_social_vulnerability real,
+    population_count             real,
     geom                         GEOMETRY(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
@@ -272,9 +275,10 @@ BEGIN
                         census_geo_id,
                         name,
                         geo_type,
-                        average_home_age,
-                        average_income_level,
-                        average_social_vulnerability
+                        median_year_built,
+                        median_income,
+                        average_social_vulnerability,
+                        population_count
                  FROM aggregate_us_demographics
                  WHERE geo_type = 'state'
                    AND geom && ST_TileEnvelope(z, x, y)
@@ -288,9 +292,10 @@ BEGIN
                         census_geo_id,
                         name,
                         geo_type,
-                        average_home_age,
-                        average_income_level,
-                        average_social_vulnerability
+                        median_year_built,
+                        median_income,
+                        average_social_vulnerability,
+                        population_count
                  FROM aggregate_us_demographics
                  WHERE geo_type = 'county'
                    AND geom && ST_TileEnvelope(z, x, y)
