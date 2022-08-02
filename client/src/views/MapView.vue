@@ -1,6 +1,6 @@
 <template>
-  <SearchBar v-if="showSearch" />
-  <PredictionPanel v-if="showResult" />
+  <SearchBar v-if='showSearch' />
+  <PredictionPanel v-if='showResult' />
   <MapContainer />
 </template>
 

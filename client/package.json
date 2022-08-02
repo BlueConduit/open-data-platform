@@ -54,7 +54,10 @@
         "error",
         "single"
       ]
-    }
+    },
+    "ignorePatterns": [
+      "*.js"
+    ]
   },
   "browserslist": [
     "> 1%",
