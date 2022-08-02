@@ -42,7 +42,8 @@ class ApiClient {
       });
       apiResponse.data = {
         pwsId: data?.data?.pws_id,
-        zipCode: data?.data?.zip_code,
+        leadServiceLines: data?.data?.lead_service_lines,
+        serviceLines: data?.data?.service_lines,
       };
     } catch (error) {
       if (axios.isAxiosError(error)) {

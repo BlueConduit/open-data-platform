@@ -2,23 +2,25 @@
   <div class='container-wrapper'>
     <div class='container-column'>
       <div class='semi-bold h1-header'>
-        <div> {{ PredictionMessages.SCORECARD_SUMMARY_PANEL_HEADER }}</div>
+        <div> {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER }}
+        </div>
       </div>
-      <div> {{ PredictionMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}</div>
+      <div> {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}
+      </div>
       <div class='container-column'>
         <!-- TODO(breuch): Move prediction factors into model -->
         <ScorecardSummaryRow
-          :header='PredictionMessages.HOME_AGE'
-          :subheader='PredictionMessages.HOME_AGE_EXPLAINED'
+          :header='ScorecardSummaryMessages.HOME_AGE'
+          :subheader='ScorecardSummaryMessages.HOME_AGE_EXPLAINED'
           comparisonValue='10% lower' />
         <ScorecardSummaryRow
-          :header='PredictionMessages.SOCIAL_VULNERABILITY_INDEX'
-          :subheader='PredictionMessages.SOCIAL_VULNERABILITY_INDEX_EXPLAINED'
+          :header='ScorecardSummaryMessages.SOCIAL_VULNERABILITY_INDEX'
+          :subheader='ScorecardSummaryMessages.SOCIAL_VULNERABILITY_INDEX_EXPLAINED'
           :image-float-direction='ImageFloatDirection.right'
           comparisonValue='3% higher' />
         <ScorecardSummaryRow
-          :header='PredictionMessages.INCOME_LEVEL'
-          :subheader='PredictionMessages.INCOME_LEVEL_EXPLAINED'
+          :header='ScorecardSummaryMessages.INCOME_LEVEL'
+          :subheader='ScorecardSummaryMessages.INCOME_LEVEL_EXPLAINED'
           comparisonValue='15% lower' />
       </div>
     </div>
@@ -40,7 +42,7 @@ export default defineComponent({
   },
   data() {
     return {
-      PredictionMessages: ScorecardSummaryMessages,
+      ScorecardSummaryMessages,
       ImageFloatDirection,
     };
   },
