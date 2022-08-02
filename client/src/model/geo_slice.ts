@@ -54,9 +54,5 @@ export const getGeoIdsFromLatLong = (lat: string, long: string) => {
 
 // See more about reducers:
 // https://redux-toolkit.js.org/api/createslice#reducers
-export const {
-  userQueriedGeo,
-  geoIdsFetchedSuccess,
-  geoIdsFetchedError
-} = geoSlice.actions;
+export const { userQueriedGeo, geoIdsFetchedSuccess, geoIdsFetchedError } = geoSlice.actions;
 export default geoSlice.reducer;
