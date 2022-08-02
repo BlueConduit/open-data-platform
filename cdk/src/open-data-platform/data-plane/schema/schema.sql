@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS aggregate_us_demographics
     census_geo_id                varchar(255) NOT NULL,
     geo_type                     varchar(255) NOT NULL,
     name                         varchar(255) NOT NULL,
-    median_year_built            real,
+    median_year_built            varchar(255),
     median_income                real,
     home_age_index               real,
     income_index                 real,
