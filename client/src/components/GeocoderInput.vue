@@ -1,5 +1,5 @@
 <template>
-  <div class="geocoder"></div>
+  <div class='geocoder'></div>
 </template>
 
 <script lang="ts">
@@ -17,6 +17,7 @@ export default defineComponent({
   name: 'GeocoderInput',
   data() {
     const geocoder = new MapboxGeocoder({
+      // @ts-ignore
       accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '',
       mapboxgl: undefined,
       marker: false,

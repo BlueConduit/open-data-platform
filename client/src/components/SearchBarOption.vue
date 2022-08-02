@@ -1,8 +1,8 @@
 <template>
-  <div class="selected" v-if="selected">
+  <div class='selected' v-if='selected'>
     {{ textContent }}
   </div>
-  <div class="unselected" v-else>
+  <div class='unselected' v-else>
     {{ textContent }}
   </div>
 </template>
