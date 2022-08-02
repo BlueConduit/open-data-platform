@@ -13,7 +13,7 @@ export class AggregateUsDemographicTableRow {
   // Name of geo. State or county name, or zipcode.
   name: string;
   // Average home age of the geographic area.
-  median_year_built: number;
+  median_year_built: string;
   // Average income level of the geographic area.
   median_income: number;
   // Average social vulnerability score of the geographic area.
@@ -27,7 +27,7 @@ export class AggregateUsDemographicTableRow {
     census_geo_id: string,
     geo_type: string,
     name: string,
-    median_year_built: number,
+    median_year_built: string,
     median_income: number,
     average_social_vulnerability: number,
     population_count: number,
@@ -51,7 +51,7 @@ export class AggregateUsDemographicTableRowBuilder {
   private readonly _row: AggregateUsDemographicTableRow;
 
   constructor() {
-    this._row = new AggregateUsDemographicTableRow('', '', '', 0, 0, 0, 0, '');
+    this._row = new AggregateUsDemographicTableRow('', '', '', '', 0, 0, 0, '');
   }
 
   censusGeoId(censusGeoId: string): AggregateUsDemographicTableRowBuilder {
@@ -69,13 +69,13 @@ export class AggregateUsDemographicTableRowBuilder {
     return this;
   }
 
-  medianYearBuilt(medianYearBuilt: number): AggregateUsDemographicTableRowBuilder {
+  medianYearBuilt(medianYearBuilt: string): AggregateUsDemographicTableRowBuilder {
     this._row.median_year_built = medianYearBuilt;
     return this;
   }
 
-  averageIncomeLevel(averageIncomeLevel: number): AggregateUsDemographicTableRowBuilder {
-    this._row.median_income = averageIncomeLevel;
+  medianIncome(medianIncome: number): AggregateUsDemographicTableRowBuilder {
+    this._row.median_income = medianIncome;
     return this;
   }
 
@@ -110,7 +110,7 @@ export class AggregateUsDemographicTableRowBuilder {
       },
       {
         name: 'median_year_built',
-        value: { doubleValue: this._row.median_year_built },
+        value: { stringValue: this._row.median_year_built },
       },
       {
         name: 'median_income',
