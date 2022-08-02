@@ -12,12 +12,14 @@ export class AggregateUsDemographicTableRow {
   geo_type: string;
   // Name of geo. State or county name, or zipcode.
   name: string;
-  // Average home age of the zipcode.
-  average_home_age: number;
-  // Average income level of the zipcode.
-  average_income_level: number;
-  // Average social vulnerability score of the zipcode.
+  // Average home age of the geographic area.
+  median_year_built: number;
+  // Average income level of the geographic area.
+  median_income: number;
+  // Average social vulnerability score of the geographic area.
   average_social_vulnerability: number;
+  // Size of the population in this geographic area.
+  population_count: number;
   // GeoJSON representation of the boundaries.
   geom: string;
 
@@ -25,17 +27,19 @@ export class AggregateUsDemographicTableRow {
     census_geo_id: string,
     geo_type: string,
     name: string,
-    average_home_age: number,
-    average_income_level: number,
+    median_year_built: number,
+    median_income: number,
     average_social_vulnerability: number,
+    population_count: number,
     geom: string,
   ) {
     this.census_geo_id = census_geo_id;
     this.geo_type = geo_type;
     this.name = name;
-    this.average_home_age = average_home_age;
-    this.average_income_level = average_income_level;
+    this.median_year_built = median_year_built;
+    this.median_income = median_income;
     this.average_social_vulnerability = average_social_vulnerability;
+    this.population_count = population_count;
     this.geom = geom;
   }
 }
@@ -47,7 +51,7 @@ export class AggregateUsDemographicTableRowBuilder {
   private readonly _row: AggregateUsDemographicTableRow;
 
   constructor() {
-    this._row = new AggregateUsDemographicTableRow('', '', '', 0, 0, 0, '');
+    this._row = new AggregateUsDemographicTableRow('', '', '', 0, 0, 0, 0, '');
   }
 
   censusGeoId(censusGeoId: string): AggregateUsDemographicTableRowBuilder {
@@ -65,18 +69,23 @@ export class AggregateUsDemographicTableRowBuilder {
     return this;
   }
 
-  averageHomeAge(averageHomeAge: number): AggregateUsDemographicTableRowBuilder {
-    this._row.average_home_age = averageHomeAge;
+  medianYearBuilt(medianYearBuilt: number): AggregateUsDemographicTableRowBuilder {
+    this._row.median_year_built = medianYearBuilt;
     return this;
   }
 
   averageIncomeLevel(averageIncomeLevel: number): AggregateUsDemographicTableRowBuilder {
-    this._row.average_income_level = averageIncomeLevel;
+    this._row.median_income = averageIncomeLevel;
     return this;
   }
 
   averageSocialVulnerability(averageSocialVulnerability: number): AggregateUsDemographicTableRowBuilder {
     this._row.average_social_vulnerability = averageSocialVulnerability;
+    return this;
+  }
+
+  populationCount(populationCount: number): AggregateUsDemographicTableRowBuilder {
+    this._row.population_count = populationCount;
     return this;
   }
 
@@ -100,16 +109,20 @@ export class AggregateUsDemographicTableRowBuilder {
         value: { stringValue: this._row.name },
       },
       {
-        name: 'average_home_age',
-        value: { doubleValue: this._row.average_home_age },
+        name: 'median_year_built',
+        value: { doubleValue: this._row.median_year_built },
       },
       {
-        name: 'average_income_level',
-        value: { doubleValue: this._row.average_income_level },
+        name: 'median_income',
+        value: { doubleValue: this._row.median_income },
       },
       {
         name: 'average_social_vulnerability',
         value: { doubleValue: this._row.average_social_vulnerability },
+      },
+      {
+        name: 'population_count',
+        value: { doubleValue: this._row.population_count },
       },
       {
         name: 'geom',
