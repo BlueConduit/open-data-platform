@@ -29,7 +29,6 @@ export default defineComponent({
     MapLegend,
   },
   setup() {
-    // TODO: Hide access tokens. For now, this is MapBox's public API token.
     mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
 
     const state: State = inject(stateKey, State.default());
@@ -249,6 +248,8 @@ export default defineComponent({
         });
 
         this.map.on('load', this.configureMap);
+        this.map.scrollZoom.disable();
+
       } catch (err) {
         // TODO: Add error handling.
         console.log('Error: ', err);
@@ -273,7 +274,7 @@ export default defineComponent({
 
 <style>
 #map-container {
-  height: 100vh;
+  height: 50vh;
 }
 
 /** Override Mapbox Popup styles. */
