@@ -3,7 +3,7 @@ import { BatchExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients
 import { geoJsonHandlerFactory } from './handler-factory';
 import { AggregateUsDemographicTableRowBuilder } from '../model/aggregate_us_demographic_table';
 
-// As of 2022-06-29, this should have 33,791 rows.
+// As of 2022-08-02, this should have 39,759 rows.
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata/demographics',
   Key: 'zipcode_demographics.geojson',
@@ -12,7 +12,8 @@ const s3Params = {
 const SCHEMA = 'public';
 
 /**
- * Writes rows into the zipcodes table.
+ * Writes rows into the aggregate US demographics table for zip codes.
+ *
  * @param rdsService: RDS service to connect to the db.
  * @param rows: Rows to write to the db.
  */
@@ -64,6 +65,8 @@ function getTableRowFromRow(row: any): SqlParametersList {
       .name(properties.ZCTA5CE10)
       .medianYearBuilt(properties.median_yearbuilt ?? '')
       .medianIncome(properties.median_income ?? 0)
+      .homeAgeIndex(properties.homeage_index ?? 0)
+      .incomeIndex(properties.income_index ?? 0)
       .averageSocialVulnerability(properties.weighted_state_adi ?? 0)// TODO: replace with correct column name.
       .populationCount(properties.RaceTotal ?? 0)
       // Keep JSON formatting. Post-GIS helpers depend on this.

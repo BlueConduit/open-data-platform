@@ -16,6 +16,10 @@ export class AggregateUsDemographicTableRow {
   median_year_built: string;
   // Average income level of the geographic area.
   median_income: number;
+  // Index value for geographic area home age.
+  home_age_index: number;
+  // Index value for geographic area income.
+  income_index: number;
   // Average social vulnerability score of the geographic area.
   average_social_vulnerability: number;
   // Size of the population in this geographic area.
@@ -29,6 +33,8 @@ export class AggregateUsDemographicTableRow {
     name: string,
     median_year_built: string,
     median_income: number,
+    home_age_index: number,
+    income_index: number,
     average_social_vulnerability: number,
     population_count: number,
     geom: string,
@@ -38,6 +44,8 @@ export class AggregateUsDemographicTableRow {
     this.name = name;
     this.median_year_built = median_year_built;
     this.median_income = median_income;
+    this.home_age_index = home_age_index;
+    this.income_index = income_index;
     this.average_social_vulnerability = average_social_vulnerability;
     this.population_count = population_count;
     this.geom = geom;
@@ -51,7 +59,7 @@ export class AggregateUsDemographicTableRowBuilder {
   private readonly _row: AggregateUsDemographicTableRow;
 
   constructor() {
-    this._row = new AggregateUsDemographicTableRow('', '', '', '', 0, 0, 0, '');
+    this._row = new AggregateUsDemographicTableRow('', '', '', '', 0, 0, 0, 0, 0, '');
   }
 
   censusGeoId(censusGeoId: string): AggregateUsDemographicTableRowBuilder {
@@ -76,6 +84,16 @@ export class AggregateUsDemographicTableRowBuilder {
 
   medianIncome(medianIncome: number): AggregateUsDemographicTableRowBuilder {
     this._row.median_income = medianIncome;
+    return this;
+  }
+
+  homeAgeIndex(homeAgeIndex: number): AggregateUsDemographicTableRowBuilder {
+    this._row.home_age_index = homeAgeIndex;
+    return this;
+  }
+
+  incomeIndex(incomeIndex: number): AggregateUsDemographicTableRowBuilder {
+    this._row.income_index = incomeIndex;
     return this;
   }
 
@@ -115,6 +133,14 @@ export class AggregateUsDemographicTableRowBuilder {
       {
         name: 'median_income',
         value: { doubleValue: this._row.median_income },
+      },
+      {
+        name: 'home_age_index',
+        value: { doubleValue: this._row.home_age_index },
+      },
+      {
+        name: 'income_index',
+        value: { doubleValue: this._row.income_index },
       },
       {
         name: 'average_social_vulnerability',
