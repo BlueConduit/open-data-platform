@@ -26,8 +26,6 @@ const DATA_LAYERS = new Map<MapLayer, DataLayer>([
   [MapLayer.LeadServiceLineByParcel, leadServiceLinesByParcelLayer],
 ]);
 
-const LAT_LONG_URL_POSITION = 2;
-
 // Base URL for REST API in Amazon API Gateway.
 // See https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-call-api.html.
 
