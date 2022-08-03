@@ -15,10 +15,9 @@ const leadDataSlice = createSlice({
   initialState,
   reducers: {
     waterSystemQueried(state: LeadDataState, action: PayloadAction<LeadData>) {
-      console.log(`User queried water system: ${state} ${action}`);
+      state.data = { ...state.data, ...action.payload };
     },
     getWaterSystemSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
-      console.log(`User queried water system: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
       state.data = { ...state.data, ...action.payload };
     },
     getWaterSystemError(state: LeadDataState, action) {
