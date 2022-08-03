@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import mapboxgl from 'mapbox-gl';
 import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
@@ -34,7 +34,6 @@ export default defineComponent({
     MapLegend,
   },
   setup() {
-    // @ts-ignore
     mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
 
     const state: State = inject(stateKey, State.default());
@@ -279,11 +278,11 @@ export default defineComponent({
   },
   watch: {
     // Listens to app state to toggle layers.
-    'state.currentDataLayer': function (newDataLayer: DataLayer, oldDataLayer: DataLayer) {
+    'state.currentDataLayer': function(newDataLayer: DataLayer, oldDataLayer: DataLayer) {
       this.updateMapOnDataLayerChange(newDataLayer, oldDataLayer);
     },
     // Listens to query param to toggle layers.
-    routerLayer: function (newLayer: string) {
+    routerLayer: function(newLayer: string) {
       this.setDataLayerVisibility(newLayer, true);
     },
   },

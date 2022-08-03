@@ -21,7 +21,7 @@ import { defineComponent, inject } from 'vue';
 import GeocoderInput from './GeocoderInput.vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { getGeoIdsFromLatLong } from '../model/geo_slice';
+import { queryLatLong } from '../model/slices/geo_slice';
 import { dispatch } from '../model/store';
 
 /**
@@ -44,7 +44,7 @@ export default defineComponent({
   methods: {
     async onGeocodeResults(lat: string, long: string) {
       // Emit action that a lat, long selection was made.
-      dispatch(getGeoIdsFromLatLong(lat, long));
+      dispatch(queryLatLong(lat, long));
     },
   },
 });

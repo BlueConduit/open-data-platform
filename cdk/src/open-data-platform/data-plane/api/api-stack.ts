@@ -55,7 +55,7 @@ export class ApiStack extends Construct {
     const getWaterSystemById = waterSystem.addResource('{pws_id+}');
     getWaterSystemById.addMethod(
       'GET',
-      new apigateway.LambdaIntegration(geolocateHandler, { proxy: true }),
+      new apigateway.LambdaIntegration(waterSystemHandler, { proxy: true }),
     );
 
     const zipCode = api.root.addResource('zipcode');
@@ -63,7 +63,7 @@ export class ApiStack extends Construct {
     const scorecardById = scorecard.addResource('{zip_code+}');
     scorecardById.addMethod(
       'GET',
-      new apigateway.LambdaIntegration(geolocateHandler, { proxy: true }),
+      new apigateway.LambdaIntegration(zipCodeScorecardHandler, { proxy: true }),
     );
   }
 }
