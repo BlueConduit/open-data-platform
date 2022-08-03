@@ -2,19 +2,21 @@
   <div>
     <div v-show='expandSearch' class='geocoder-content-is-expanded'>
       <GeocoderInput @result='onGeocodeResults' />
-      <div class='search-button' @click='$emit(&apos;update:expandSearch&apos;, !this.expandSearch)'>
+      <div class='search-button'
+           @click='$emit(&apos;update:expandSearch&apos;, !this.expandSearch)'>
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
     <div v-show='!expandSearch' class='geocoder-content-collapsed'>
-      <div class='search-button' @click='$emit(&apos;update:expandSearch&apos;, !this.expandSearch)'>
+      <div class='search-button'
+           @click='$emit(&apos;update:expandSearch&apos;, !this.expandSearch)'>
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, inject } from 'vue';
 import GeocoderInput from './GeocoderInput.vue';
 import { State } from '../model/state';
