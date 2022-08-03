@@ -32,10 +32,11 @@ export default defineComponent({
   setup() {
     const geoState = useSelector((state) => state.geosReducer);
 
-    // Compute the water system id from the store.
+    // Listen to geo state changes for water system id.
     let pwsId = computed<string>(() =>
       geoState.value.geoids?.pwsId ?? '');
 
+    // Listen to geo state changes for scorecard.
     let scorecard = computed<ScorecardData | undefined>(() =>
       geoState.value.scorecard);
 
@@ -66,6 +67,8 @@ export default defineComponent({
   watch: {
     pwsId: function() {
       if (this.pwsId != null) {
+        // When the water system id changes, this component sends event to
+        // get a water system.
         dispatch(getWaterSystem(this.pwsId));
       }
     },
