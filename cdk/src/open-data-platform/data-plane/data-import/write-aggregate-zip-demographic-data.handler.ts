@@ -34,7 +34,8 @@ async function insertBatch(
                                                  median_income,
                                                  home_age_index,
                                                  income_index,
-                                                 average_social_vulnerability,
+                                                 weighted_national_adi,
+                                                 weighted_state_adi,
                                                  population_count,
                                                  geom)
           VALUES (:census_geo_id,
@@ -44,7 +45,8 @@ async function insertBatch(
                   :median_income,
                   :home_age_index,
                   :income_index,
-                  :average_social_vulnerability,
+                  :weighted_national_adi,
+                  :weighted_state_adi,
                   :population_count,
                   ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (census_geo_id) DO NOTHING`,
   };
@@ -67,7 +69,8 @@ function getTableRowFromRow(row: any): SqlParametersList {
       .medianIncome(properties.median_income ?? 0)
       .homeAgeIndex(properties.homeage_index ?? 0)
       .incomeIndex(properties.income_index ?? 0)
-      .averageSocialVulnerability(properties.weighted_state_adi ?? 0)// TODO: replace with correct column name.
+      .weightedNationalAdi(properties.weighted_nat_adi ?? 0)
+      .weightedStateAdi(properties.weighted_state_adi ?? 0)
       .populationCount(properties.RaceTotal ?? 0)
       // Keep JSON formatting. Post-GIS helpers depend on this.
       .geom(JSON.stringify(value.geometry))

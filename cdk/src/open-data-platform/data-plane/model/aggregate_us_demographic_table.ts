@@ -21,7 +21,9 @@ export class AggregateUsDemographicTableRow {
   // Index value for geographic area income.
   income_index: number;
   // Average social vulnerability score of the geographic area.
-  average_social_vulnerability: number;
+  weighted_national_adi: number;
+  // Average social vulnerability score of the geographic area.
+  weighted_state_adi: number;
   // Size of the population in this geographic area.
   population_count: number;
   // GeoJSON representation of the boundaries.
@@ -35,7 +37,8 @@ export class AggregateUsDemographicTableRow {
     median_income: number,
     home_age_index: number,
     income_index: number,
-    average_social_vulnerability: number,
+    weighted_national_adi: number,
+    weighted_state_adi: number,
     population_count: number,
     geom: string,
   ) {
@@ -46,7 +49,8 @@ export class AggregateUsDemographicTableRow {
     this.median_income = median_income;
     this.home_age_index = home_age_index;
     this.income_index = income_index;
-    this.average_social_vulnerability = average_social_vulnerability;
+    this.weighted_national_adi = weighted_national_adi;
+    this.weighted_state_adi = weighted_state_adi;
     this.population_count = population_count;
     this.geom = geom;
   }
@@ -59,7 +63,7 @@ export class AggregateUsDemographicTableRowBuilder {
   private readonly _row: AggregateUsDemographicTableRow;
 
   constructor() {
-    this._row = new AggregateUsDemographicTableRow('', '', '', '', 0, 0, 0, 0, 0, '');
+    this._row = new AggregateUsDemographicTableRow('', '', '', '', 0, 0, 0, 0, 0, 0, '');
   }
 
   censusGeoId(censusGeoId: string): AggregateUsDemographicTableRowBuilder {
@@ -97,8 +101,13 @@ export class AggregateUsDemographicTableRowBuilder {
     return this;
   }
 
-  averageSocialVulnerability(averageSocialVulnerability: number): AggregateUsDemographicTableRowBuilder {
-    this._row.average_social_vulnerability = averageSocialVulnerability;
+  weightedNationalAdi(weightedNationalAdi: number): AggregateUsDemographicTableRowBuilder {
+    this._row.weighted_national_adi = weightedNationalAdi;
+    return this;
+  }
+
+  weightedStateAdi(weightedStateAdi: number): AggregateUsDemographicTableRowBuilder {
+    this._row.weighted_state_adi = weightedStateAdi;
     return this;
   }
 
@@ -143,8 +152,12 @@ export class AggregateUsDemographicTableRowBuilder {
         value: { doubleValue: this._row.income_index },
       },
       {
-        name: 'average_social_vulnerability',
-        value: { doubleValue: this._row.average_social_vulnerability },
+        name: 'weighted_national_adi',
+        value: { doubleValue: this._row.weighted_national_adi },
+      },
+      {
+        name: 'weighted_state_adi',
+        value: { doubleValue: this._row.weighted_state_adi },
       },
       {
         name: 'population_count',
