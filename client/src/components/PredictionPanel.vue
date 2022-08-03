@@ -16,11 +16,10 @@
 </template>
 
 <script lang='ts'>
-import { computed, defineComponent } from 'vue';
+import { defineComponent } from 'vue';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
-import { dispatch, RootState, store, useSelector } from '../model/store';
+import { dispatch, useSelector } from '../model/store';
 import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_messages';
-import { LeadData } from '../model/lead_data';
 import { getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoState } from '../model/states/geo_state';
 import { LeadDataState } from '../model/states/lead_data_state';
@@ -32,29 +31,13 @@ export default defineComponent({
   name: 'PredictionPanel',
   components: { MapGeocoderWrapper },
   setup() {
-    // const geoState = useSelector<GeoState>((state) => state.geos);
+    // Listen to state updates.
     const geoState = useSelector((state) => state.geos) as GeoState;
     const leadDataState = useSelector((state) => state.leadData) as LeadDataState;
 
-    let state: RootState | null = null;
-    // store.subscribe(() => {
-    //   // state = store.getState();
-    //   // console.log(`inside component ${JSON.stringify(state)}`);
-    //   // dispatch(getWaterSystem(state.geos.geoids?.pwsId ?? ''));
-    // });
-
-    // Listen to geo state changes for water system id.
-    let pwsId = computed<string>(() =>
-      geoState.geoids?.pwsId ?? '');
-
-    // Listen to geo state changes for data.
-    let leadData = computed<LeadData | undefined>(() =>
-      leadDataState.data);
-
     return {
-      pwsId: pwsId,
-      leadData: leadData,
-      state: state,
+      geoState: geoState,
+      leadState: leadDataState,
     };
   },
   data() {
@@ -65,9 +48,10 @@ export default defineComponent({
     };
   },
   computed: {
+    // Predicted estimate of lead.
     percentLead(): number | null {
-      const leadServiceLines = this.leadData?.leadServiceLines;
-      const serviceLines = this.leadData?.serviceLines;
+      const leadServiceLines = this.leadState?.data?.leadServiceLines;
+      const serviceLines = this.leadState?.data?.serviceLines;
 
       // Protect against dividing by 0
       if (leadServiceLines != null && serviceLines != null && serviceLines != 0) {
@@ -75,20 +59,16 @@ export default defineComponent({
       }
       return null;
     },
+    pwsId(): string | null {
+      return this.geoState?.geoids?.pwsId ?? null;
+    },
   },
   watch: {
-    pwsId: function() {
-      if (this.pwsId != null) {
-        // When the water system id changes, this component sends event to
-        // get a water system.
-        console.log(`pws id has updated ${this.pwsId}`);
-        dispatch(getWaterSystem(this.pwsId));
-      }
-    },
-    state: function() {
-      if (this.state != null) {
-        console.log(`pws id has updated ${this.state}`);
-        //dispatch(getWaterSystem(this.pwsId));
+    // Listen for changes to pws id. Once it changes, a new prediction
+    // must be fetched.
+    geoState: function() {
+      if (this.geoState?.geoids?.pwsId != null) {
+        dispatch(getWaterSystem(this.geoState.geoids.pwsId));
       }
     },
   },
