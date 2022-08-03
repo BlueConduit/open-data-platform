@@ -2,8 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { Titles } from './assets/messages/common';
 import MapView from './views/MapView.vue';
 
+export const LAT_LONG_PARAM = 'latlong';
+
 const HOME_ROUTE = '/';
-const MAP_ROUTE = '/map';
+const MAP_ROUTE = `/map/:${LAT_LONG_PARAM}?`;
 const CONTACT_ROUTE = '/contact';
 
 const routes = [

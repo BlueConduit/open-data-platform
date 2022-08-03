@@ -14,6 +14,9 @@ import { DataLayer, MapLayer } from './model/data_layer';
 import { populationDataByCensusBlockLayer } from './data_layer_configs/population_by_census_block_config';
 import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_water_system_config';
 import { leadServiceLinesByParcelLayer } from './data_layer_configs/lead_service_lines_by_parcel_config';
+import { getGeoIdsFromLatLong } from './model/geo_slice';
+import { dispatch } from './model/store';
+import { LAT_LONG_PARAM } from './router';
 
 const DEFAULT_TITLE = 'LeadOut';
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([
@@ -47,13 +50,14 @@ export default defineComponent({
   },
   watch: {
     $route(to: RouteLocation) {
-      const pathStrings = to.path.split('/');
-      if (pathStrings.length > LAT_LONG_URL_POSITION) {
-        const latLong = pathStrings[LAT_LONG_URL_POSITION].split(',');
+      const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
+
+      if (latLongValue != null) {
+        const latLong = latLongValue.split(',');
         const lat = latLong[0];
         const long = latLong[1];
 
-        console.log(`lat: ${lat}, long: ${long}`);
+        dispatch(getGeoIdsFromLatLong(lat, long));
       }
 
       // TODO: consider adding a string that says this is a non-prod environment, so devs can see
