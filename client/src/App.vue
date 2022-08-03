@@ -1,5 +1,8 @@
 <template>
-  <NavigationBar />
+  <div class='main'>
+    <NavigationBar />
+    <router-view />
+  </div>
 </template>
 
 <script lang="ts">
@@ -70,7 +73,8 @@ export default defineComponent({
 /* Make sure there's no empty space at the bottom of the page. */
 html,
 body,
-#app {
+#app,
+.main {
   height: 100%;
 }
 </style>
