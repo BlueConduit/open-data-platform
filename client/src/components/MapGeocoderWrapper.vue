@@ -3,13 +3,13 @@
     <div v-show='expandSearch' class='geocoder-content-is-expanded'>
       <GeocoderInput @result='onGeocodeResults' />
       <div class='search-button'
-           @click="$emit('update:expandSearch', !this.expandSearch)">
+           @click='$emit(&apos;update:expandSearch&apos;, !this.expandSearch)'>
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>
     <div v-show='!expandSearch' class='geocoder-content-collapsed'>
       <div class='search-button'
-           @click="$emit('update:expandSearch', !this.expandSearch)">
+           @click='$emit(&apos;update:expandSearch&apos;, !this.expandSearch)'>
         <img src='@/assets/icons/search.svg' />
       </div>
     </div>

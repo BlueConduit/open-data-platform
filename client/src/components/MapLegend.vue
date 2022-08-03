@@ -5,7 +5,7 @@
     <div class='bucket'
          v-for='(bucket) in this.displayedBuckets' :key='bucket'>
       <span class='color'
-            :style="{'background-color': bucket.bucketColor}"></span>
+            :style='{&apos;background-color&apos;: bucket.bucketColor}'></span>
       <span> {{ bucket.bucketLabel }}</span>
     </div>
   </div>

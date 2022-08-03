@@ -26,14 +26,9 @@ const geoSlice = createSlice({
       state.geoids = { ...state.geoids, lat: lat, long: long };
     },
     userQueriedWaterSystem(state: GeoState, action: PayloadAction<GeoIdentifiers>) {
-      console.log(`User queried water system: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
+      console.log(`User queried water system: ${state} ${action}`);
     },
     getWaterSystemSuccess(state: GeoState, action: PayloadAction<ScorecardData>) {
-      console.log(
-        `User queried water system successfully: ${JSON.stringify(state)} ${JSON.stringify(
-          action,
-        )}`,
-      );
       state.scorecard = { ...state.scorecard, ...action.payload };
     },
     getWaterSystemError(state: GeoState, action) {
