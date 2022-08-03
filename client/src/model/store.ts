@@ -7,6 +7,7 @@ const store = configureStore({ reducer: { geosReducer } });
 // Emits events for reducers.
 export const dispatch = store.dispatch;
 
+// Same as https://react-redux.js.org/api/hooks#useselector
 export const useSelector = <State extends RootState = RootState>(
   fn: (state: State) => State[keyof State],
 ) => {
