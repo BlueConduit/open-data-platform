@@ -1,14 +1,16 @@
 <template>
-  <LandingPageSection :messages="messages.ScorecardSearch" />
-  <LandingPageSection :messages="messages.MapInfo" />
-  <LandingPageSection :messages="messages.FilterInfo" />
-  <LandingPageFooter />
+  <div class='landing-page'>
+    <LandingPageSection :messages='messages.ScorecardSearch' />
+    <LandingPageSection :messages='messages.MapInfo' />
+    <LandingPageSection :messages='messages.FilterInfo' />
+    <LandingPageFooter />
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import LandingPageFooter from '@/components/LandingPageFooter.vue';
-import LandingPageSection from '@/components/LandingPageSection.vue';
+import LandingPageFooter from '../components/LandingPageFooter.vue';
+import LandingPageSection from '../components/LandingPageSection.vue';
 import { ScorecardSearch, FilterInfo, MapInfo } from '../assets/messages/landing';
 
 /**
@@ -28,4 +30,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.landing-page {
+  background-color: #0b2553;
+  min-height: 100%;
+}
+</style>

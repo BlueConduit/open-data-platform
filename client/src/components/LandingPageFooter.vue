@@ -1,12 +1,12 @@
 <template>
-  <div class="landing-page-footer">
-    <div class="left-align">
-      <div v-for="route in routes" :key="route[0]">
-        <router-link :to="route[1]">{{ route[0] }}</router-link>
+  <div class='landing-page-footer'>
+    <div class='left-align'>
+      <div v-for='route in routes' :key='route[0]'>
+        <router-link :to='route[1]'>{{ route[0] }}</router-link>
       </div>
     </div>
     <!-- Replace with Logo -->
-    <div class="right-align"><a href="https://blueconduit.com/">by BlueConduit</a></div>
+    <div class='right-align'><a href='https://blueconduit.com/'>by BlueConduit</a></div>
   </div>
 </template>
 
@@ -35,10 +35,7 @@ export default defineComponent({
 
 <style scoped>
 .landing-page-footer {
-  background-color: #0b2553;
   display: flex;
-  position: absolute;
-  bottom: 0;
   width: 100%;
 }
 

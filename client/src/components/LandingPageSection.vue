@@ -1,9 +1,9 @@
 <template>
-  <div class="landing-page-section">
-    <h2 v-if="$props.messages.SUPER_HEADER">{{ $props.messages.SUPER_HEADER }}</h2>
+  <div class='landing-page-section'>
+    <h2 v-if='$props.messages.SUPER_HEADER'>{{ $props.messages.SUPER_HEADER }}</h2>
     <h1>{{ messages.HEADER }}</h1>
     <p>{{ messages.BODY }}</p>
-    <input :placeholder="$props.messages.CTA_PLACEHOLDER" v-if="$props.messages.CTA_PLACEHOLDER" />
+    <input :placeholder='$props.messages.CTA_PLACEHOLDER' v-if='$props.messages.CTA_PLACEHOLDER' />
     <button>{{ messages.CTA_BUTTON }}</button>
     <!-- TODO: Add image -->
   </div>
@@ -35,7 +35,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.landing-page-map-info {
+.landing-page-section {
+  margin: 0;
+  padding: 50px;
+  background-color: #fff;
   text-align: center;
   vertical-align: middle;
 }

@@ -67,4 +67,10 @@ export default defineComponent({
 </script>
 <style>
 @import './assets/styles/global.scss';
+/* Make sure there's no empty space at the bottom of the page. */
+html,
+body,
+#app {
+  height: 100%;
+}
 </style>

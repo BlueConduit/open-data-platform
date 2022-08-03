@@ -1,13 +1,13 @@
 <template>
-  <div :style="cssVars" class="container">
+  <div :style='cssVars' class='container'>
     <div>
-      <router-link to="/">
-        <img src="../assets/logo.png" class="logo" />
+      <router-link to='/'>
+        <img src='../assets/logo.png' class='logo' />
       </router-link>
     </div>
-    <div class="right-align">
-      <div v-for="route in routes" :key="route[0]">
-        <router-link :to="route[1]" class="semi-bold">{{ route[0] }}</router-link>
+    <div class='right-align'>
+      <div v-for='route in routes' :key='route[0]'>
+        <router-link :to='route[1]' class='semi-bold'>{{ route[0] }}</router-link>
       </div>
     </div>
   </div>
