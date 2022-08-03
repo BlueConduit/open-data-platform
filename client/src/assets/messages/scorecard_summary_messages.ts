@@ -7,9 +7,11 @@ export class ScorecardSummaryMessages {
     'The most relevant data used to determine your lead score';
   static HOME_AGE = 'Home age';
   static HOME_AGE_EXPLAINED =
-    'The year your home was built influences the likelihood it was constructed with lead pipes';
+    'The year your home was built influences the likelihood it was ' +
+    'constructed with lead pipes';
   static INCOME_LEVEL = 'Income level';
-  static INCOME_LEVEL_EXPLAINED = 'Income levels correlate to the likelihood of lead. Learn more.';
+  static INCOME_LEVEL_EXPLAINED =
+    'Income levels correlate to the likelihood ' + 'of lead. Learn more.';
   static LEADOUT = 'LeadOut by BlueConduit';
   static LEAD_LIKELIHOOD_EXPLAINED =
     'Based on age of homes, historical service line data, and information ' +

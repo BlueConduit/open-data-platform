@@ -18,6 +18,7 @@ const store = configureStore({
 export const dispatch = store.dispatch;
 
 // Same as https://react-redux.js.org/api/hooks#useselector
+// Allows you to extract data from the Redux store state.
 export const useSelector = <State extends RootState = RootState>(
   fn: (state: State) => State[keyof State],
 ) => {

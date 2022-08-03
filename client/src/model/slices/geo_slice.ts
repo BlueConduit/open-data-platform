@@ -37,7 +37,7 @@ export const queryLatLong = (lat: string, long: string) => {
   return async (dispatch: AppDispatch) => {
     dispatch(geoIdsQueried({ lat: lat, long: long }));
 
-    const apiResponse = await client.getGeoIdsFromLatLong(lat, long);
+    const apiResponse = await client.getGeoIds(lat, long);
     if (apiResponse.data != null) {
       dispatch(getGeoIdsSuccess(apiResponse.data));
     } else {

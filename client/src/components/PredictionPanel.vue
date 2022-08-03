@@ -53,13 +53,17 @@ export default defineComponent({
       const leadServiceLines = this.leadState?.data?.leadServiceLines;
       const serviceLines = this.leadState?.data?.serviceLines;
 
-      // Protect against dividing by 0
+      // Protect against dividing by 0.
       if (leadServiceLines != null && serviceLines != null && serviceLines != 0) {
         return Math.round(leadServiceLines / serviceLines);
       }
+      // TODO: Handle error state where there is no lead prediction
+      // after the API has returned.
       return null;
     },
     pwsId(): string | null {
+      // TODO: Handle error state where there is no water system id
+      // after the API has returned.
       return this.geoState?.geoids?.pwsId ?? null;
     },
   },

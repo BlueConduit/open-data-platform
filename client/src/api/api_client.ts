@@ -9,7 +9,7 @@ class ApiClient {
    *   Retrieve geo ids of the geographic entities which intersect with the
    *   lat, long pair.
    */
-  getGeoIdsFromLatLong = async (lat: string, long: string): Promise<ApiResponse> => {
+  getGeoIds = async (lat: string, long: string): Promise<ApiResponse> => {
     const apiResponse: ApiResponse = {};
     try {
       const data = await axios.get<any>(`${ApiClient.API_URL}/geolocate/${lat},${long}`, {
