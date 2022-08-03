@@ -26,9 +26,6 @@ const DATA_LAYERS = new Map<MapLayer, DataLayer>([
   [MapLayer.LeadServiceLineByParcel, leadServiceLinesByParcelLayer],
 ]);
 
-// Base URL for REST API in Amazon API Gateway.
-// See https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-call-api.html.
-
 export default defineComponent({
   name: 'App',
   components: {
@@ -47,6 +44,7 @@ export default defineComponent({
     };
   },
   watch: {
+    // Current route location. See https://router.vuejs.org/api/#component-injections.
     $route(to: RouteLocation) {
       const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
 
