@@ -61,20 +61,6 @@ export class FrontendStack extends Stack {
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100, // Only deploy to NA and EU access points
       enableLogging: true,
-      errorResponses: [
-        // Vue-router requires all URLs to route to index.html. This should not interfere with the
-        // tileserver's URLs, as long as the tileserver does not return 403 or 404.
-        {
-          httpStatus: 403,
-          responseHttpStatus: 200,
-          responsePagePath: '/index.html',
-        },
-        {
-          httpStatus: 404,
-          responseHttpStatus: 200,
-          responsePagePath: '/index.html',
-        },
-      ],
     });
 
     // Deploy frontend assets at client/dist to frontendAssetsBucket.
