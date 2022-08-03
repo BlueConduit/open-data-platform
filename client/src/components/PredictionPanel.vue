@@ -4,8 +4,10 @@
       {{ ScorecardSummaryMessages.LEADOUT }}
     </div>
     <map-geocoder-wrapper v-model:expandSearch='showSearch' />
-    <div class='h1-header semi-bold' v-if='this.pwsId != null'>
-      You have a high likelihood of lead in {{ pwsId }}.
+    <div class='h1-header semi-bold'
+         v-if='this.pwsId != null && percentLead != null'>
+      Your neighborhood water system {{ pwsId }} is likely
+      {{ percentLead }}% lead.
     </div>
     <div class='explain-text'>
       {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
@@ -19,6 +21,7 @@ import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 import { dispatch, useSelector } from '../model/store';
 import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_messages';
 import { getWaterSystem } from '../model/geo_slice';
+import { ScorecardData } from '../model/scorecard';
 
 /**
  * Container lead prediction.
@@ -30,10 +33,16 @@ export default defineComponent({
     const geoState = useSelector((state) => state.geosReducer);
 
     // Compute the water system id from the store.
-    let pwsId = computed(() =>
-      geoState.value.geoids?.pwsId);
+    let pwsId = computed<string>(() =>
+      geoState.value.geoids?.pwsId ?? '');
 
-    return { pwsId: pwsId };
+    let scorecard = computed<ScorecardData | undefined>(() =>
+      geoState.value.scorecard);
+
+    return {
+      pwsId: pwsId,
+      scorecard: scorecard,
+    };
   },
   data() {
     return {
@@ -42,9 +51,20 @@ export default defineComponent({
       ScorecardSummaryMessages,
     };
   },
+  computed: {
+    percentLead(): number | null {
+      const leadServiceLines = this.scorecard?.leadServiceLines;
+      const serviceLines = this.scorecard?.serviceLines;
+
+      // Protect against dividing by 0
+      if (leadServiceLines != null && serviceLines != null && serviceLines != 0) {
+        return Math.round(leadServiceLines / serviceLines);
+      }
+      return null;
+    },
+  },
   watch: {
     pwsId: function() {
-      console.log(`Water system id changed: ${this.pwsId}`);
       if (this.pwsId != null) {
         dispatch(getWaterSystem(this.pwsId));
       }

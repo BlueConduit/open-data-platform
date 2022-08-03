@@ -3,6 +3,7 @@ import { ApiClient } from '@/api/api_client';
 import { GeoIdentifiers } from '@/model/geo_identifiers';
 import { AppDispatch } from '@/model/store';
 import { GeoState } from '@/model/geo_state';
+import { ScorecardData } from '@/model/scorecard';
 
 const initialState: GeoState = {};
 const client = new ApiClient();
@@ -27,13 +28,13 @@ const geoSlice = createSlice({
     userQueriedWaterSystem(state: GeoState, action: PayloadAction<GeoIdentifiers>) {
       console.log(`User queried water system: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
     },
-    getWaterSystemSuccess(state: GeoState, action: PayloadAction<GeoIdentifiers>) {
+    getWaterSystemSuccess(state: GeoState, action: PayloadAction<ScorecardData>) {
       console.log(
         `User queried water system successfully: ${JSON.stringify(state)} ${JSON.stringify(
           action,
         )}`,
       );
-      state.geoids = { ...state, ...action.payload };
+      state.scorecard = { ...state.scorecard, ...action.payload };
     },
     getWaterSystemError(state: GeoState, action) {
       console.log(`Error fetching water system: ${state} ${action}`);
