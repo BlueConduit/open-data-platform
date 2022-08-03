@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import MapContentContainer from './components/MapContentContainer.vue';
+import { Titles } from './assets/messages/common';
+import MapView from './views/MapView.vue';
 
 const HOME_ROUTE = '/';
 const MAP_ROUTE = '/map';
@@ -8,15 +9,24 @@ const CONTACT_ROUTE = '/contact';
 const routes = [
   {
     path: HOME_ROUTE,
-    component: MapContentContainer,
+    component: MapView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.HOME_TITLE}`,
+    },
   },
   {
     path: MAP_ROUTE,
-    component: MapContentContainer,
+    component: MapView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.MAP_TITLE}`,
+    },
   },
   {
     path: CONTACT_ROUTE,
-    component: MapContentContainer,
+    component: MapView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.CONTACT_TITLE}`,
+    },
   },
 ];
 

@@ -5,7 +5,7 @@
     <div class='bucket'
          v-for='(bucket) in this.displayedBuckets' :key='bucket'>
       <span class='color'
-            :style="{'background-color': bucket.bucketColor}"></span>
+            :style='{&apos;background-color&apos;: bucket.bucketColor}'></span>
       <span> {{ bucket.bucketLabel }}</span>
     </div>
   </div>
@@ -94,7 +94,7 @@ export default defineComponent({
 
 .map-overlay {
   position: absolute;
-  bottom: 0;
+  top: 250px;
   right: 0;
   background: #fff;
   margin-right: 20px;
@@ -103,5 +103,6 @@ export default defineComponent({
   padding: 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   line-height: 20px;
+  width: 100px;
 }
 </style>
