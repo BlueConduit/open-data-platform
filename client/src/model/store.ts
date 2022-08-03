@@ -1,9 +1,18 @@
 import { inject, computed } from 'vue';
-import { configureStore } from '@reduxjs/toolkit';
-import geosReducer from '@/model/geo_slice';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import geosReducer from '@/model/slices/geo_slice';
+import leadDataReducer from '@/model/slices/lead_data_slice';
 import { storeKey } from '@/model/store_plugin';
 
-const store = configureStore({ reducer: { geosReducer } });
+const rootReducer = combineReducers({
+  geos: geosReducer,
+  leadData: leadDataReducer,
+});
+
+const store = configureStore({
+  reducer: rootReducer,
+});
+
 // Emits events for reducers.
 export const dispatch = store.dispatch;
 

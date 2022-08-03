@@ -2,7 +2,7 @@
   <NavigationBar />
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, provide, reactive } from 'vue';
 import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/dist/css/copper.css';
@@ -16,7 +16,7 @@ import { DataLayer, MapLayer } from './model/data_layer';
 import { populationDataByCensusBlockLayer } from './data_layer_configs/population_by_census_block_config';
 import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_water_system_config';
 import { leadServiceLinesByParcelLayer } from './data_layer_configs/lead_service_lines_by_parcel_config';
-import geosReducer from './model/geo_slice';
+import geosReducer from './model/slices/geo_slice';
 
 const DEFAULT_TITLE = 'LeadOut';
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([

@@ -21,7 +21,7 @@ import { defineComponent, inject } from 'vue';
 import GeocoderInput from './GeocoderInput.vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { queryLatLong } from '../model/geo_slice';
+import { queryLatLong } from '../model/slices/geo_slice';
 import { dispatch } from '../model/store';
 
 /**

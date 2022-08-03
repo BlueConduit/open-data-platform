@@ -18,10 +18,12 @@
 <script lang='ts'>
 import { computed, defineComponent } from 'vue';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
-import { dispatch, useSelector } from '../model/store';
+import { dispatch, RootState, store, useSelector } from '../model/store';
 import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_messages';
-import { getWaterSystem } from '../model/geo_slice';
-import { ScorecardData } from '../model/scorecard';
+import { LeadData } from '../model/lead_data';
+import { getWaterSystem } from '../model/slices/lead_data_slice';
+import { GeoState } from '../model/states/geo_state';
+import { LeadDataState } from '../model/states/lead_data_state';
 
 /**
  * Container lead prediction.
@@ -30,19 +32,29 @@ export default defineComponent({
   name: 'PredictionPanel',
   components: { MapGeocoderWrapper },
   setup() {
-    const geoState = useSelector((state) => state.geosReducer);
+    // const geoState = useSelector<GeoState>((state) => state.geos);
+    const geoState = useSelector((state) => state.geos) as GeoState;
+    const leadDataState = useSelector((state) => state.leadData) as LeadDataState;
+
+    let state: RootState | null = null;
+    // store.subscribe(() => {
+    //   // state = store.getState();
+    //   // console.log(`inside component ${JSON.stringify(state)}`);
+    //   // dispatch(getWaterSystem(state.geos.geoids?.pwsId ?? ''));
+    // });
 
     // Listen to geo state changes for water system id.
     let pwsId = computed<string>(() =>
-      geoState.value.geoids?.pwsId ?? '');
+      geoState.geoids?.pwsId ?? '');
 
-    // Listen to geo state changes for scorecard.
-    let scorecard = computed<ScorecardData | undefined>(() =>
-      geoState.value.scorecard);
+    // Listen to geo state changes for data.
+    let leadData = computed<LeadData | undefined>(() =>
+      leadDataState.data);
 
     return {
       pwsId: pwsId,
-      scorecard: scorecard,
+      leadData: leadData,
+      state: state,
     };
   },
   data() {
@@ -54,8 +66,8 @@ export default defineComponent({
   },
   computed: {
     percentLead(): number | null {
-      const leadServiceLines = this.scorecard?.leadServiceLines;
-      const serviceLines = this.scorecard?.serviceLines;
+      const leadServiceLines = this.leadData?.leadServiceLines;
+      const serviceLines = this.leadData?.serviceLines;
 
       // Protect against dividing by 0
       if (leadServiceLines != null && serviceLines != null && serviceLines != 0) {
@@ -69,7 +81,14 @@ export default defineComponent({
       if (this.pwsId != null) {
         // When the water system id changes, this component sends event to
         // get a water system.
+        console.log(`pws id has updated ${this.pwsId}`);
         dispatch(getWaterSystem(this.pwsId));
+      }
+    },
+    state: function() {
+      if (this.state != null) {
+        console.log(`pws id has updated ${this.state}`);
+        //dispatch(getWaterSystem(this.pwsId));
       }
     },
   },
