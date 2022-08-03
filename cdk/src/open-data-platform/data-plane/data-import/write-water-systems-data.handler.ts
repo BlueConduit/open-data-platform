@@ -28,15 +28,13 @@ async function insertBatch(
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO water_systems (pws_id,
                                      pws_name,
-                                     lead_connections_low_estimate,
-                                     lead_connections_high_estimate,
+                                     lead_connections_count,
                                      service_connections_count,
                                      population_served,
                                      geom)
           VALUES (:pws_id,
                   :pws_name,
-                  :lead_connections_low_estimate,
-                  :lead_connections_high_estimate,
+                  :lead_connections_count,
                   :service_connections_count,
                   :population_served,
                   ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (pws_id) DO NOTHING`,
@@ -62,9 +60,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
     new WaterSystemsTableRowBuilder()
       .pwsId(properties.pwsid)
       .pwsName(properties.pws_name ?? '')
-      // TODO(kailamjeter): modify property name when column names are modified.
-      .leadConnectionsLowEstimate(getValueOrDefault(properties.lead_connections))
-      .leadConnectionsHighEstimate(getValueOrDefault(properties.lead_connections))
+      .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
       .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
       .populationServed(getValueOrDefault(properties.population_served_count))
       // Keep JSON formatting. Post-GIS helpers depend on this.
