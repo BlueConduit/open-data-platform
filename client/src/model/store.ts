@@ -4,6 +4,7 @@ import geosReducer from '@/model/slices/geo_slice';
 import leadDataReducer from '@/model/slices/lead_data_slice';
 import { storeKey } from '@/model/store_plugin';
 
+// Combines all reducers to single one.
 const rootReducer = combineReducers({
   geos: geosReducer,
   leadData: leadDataReducer,
