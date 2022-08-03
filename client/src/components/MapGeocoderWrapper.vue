@@ -1,14 +1,14 @@
 <template>
   <div>
-    <div v-show="expandSearch" class="geocoder-content-is-expanded">
-      <GeocoderInput @result="onGeocodeResults" />
-      <div class="search-button" @click="$emit('update:expandSearch', !this.expandSearch)">
-        <img src="@/assets/icons/search.svg" />
+    <div v-show='expandSearch' class='geocoder-content-is-expanded'>
+      <GeocoderInput @result='onGeocodeResults' />
+      <div class='search-button' @click='$emit(&apos;update:expandSearch&apos;, !this.expandSearch)'>
+        <img src='@/assets/icons/search.svg' />
       </div>
     </div>
-    <div v-show="!expandSearch" class="geocoder-content-collapsed">
-      <div class="search-button" @click="$emit('update:expandSearch', !this.expandSearch)">
-        <img src="@/assets/icons/search.svg" />
+    <div v-show='!expandSearch' class='geocoder-content-collapsed'>
+      <div class='search-button' @click='$emit(&apos;update:expandSearch&apos;, !this.expandSearch)'>
+        <img src='@/assets/icons/search.svg' />
       </div>
     </div>
   </div>
@@ -19,7 +19,7 @@ import { defineComponent, inject } from 'vue';
 import GeocoderInput from './GeocoderInput.vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { getGeoIdsFromLatLong } from '../model/geo_slice';
+import { queryLatLong } from '../model/slices/geo_slice';
 import { dispatch } from '../model/store';
 
 /**
@@ -42,7 +42,7 @@ export default defineComponent({
   methods: {
     async onGeocodeResults(lat: string, long: string) {
       // Emit action that a lat, long selection was made.
-      dispatch(getGeoIdsFromLatLong(lat, long));
+      dispatch(queryLatLong(lat, long));
     },
   },
 });

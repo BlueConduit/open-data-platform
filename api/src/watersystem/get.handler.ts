@@ -1,11 +1,7 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
-import {
-  ExecuteStatementRequest,
-  FieldList,
-  SqlParametersList,
-} from 'aws-sdk/clients/rdsdataservice';
+import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',

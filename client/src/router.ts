@@ -3,8 +3,10 @@ import LandingPageView from './views/LandingPageView.vue';
 import MapView from './views/MapView.vue';
 import { Titles } from './assets/messages/common';
 
+export const LAT_LONG_PARAM = 'latlong';
+
 const HOME_ROUTE = '/';
-const MAP_ROUTE = '/map';
+const MAP_ROUTE = `/map/:${LAT_LONG_PARAM}?`;
 const ABOUT_ROUTE = '/about';
 
 const routes = [

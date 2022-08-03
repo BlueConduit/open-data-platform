@@ -4,22 +4,46 @@ import axios from 'axios';
  * Client to interface with API.
  */
 class ApiClient {
-  static API_URL = 'https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev/geolocate/';
+  static API_URL = 'https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev';
   /**
    *   Retrieve geo ids of the geographic entities which intersect with the
    *   lat, long pair.
    */
-  getGeoIdsFromLatLong = async (lat: string, long: string): Promise<ApiResponse> => {
+  getGeoIds = async (lat: string, long: string): Promise<ApiResponse> => {
     const apiResponse: ApiResponse = {};
     try {
-      const data = await axios.get<any>(`${ApiClient.API_URL}${lat},${long}`, {
+      const data = await axios.get<any>(`${ApiClient.API_URL}/geolocate/${lat},${long}`, {
         headers: {
           Accept: 'application/json',
         },
       });
       apiResponse.data = {
-        pws_id: data?.data?.water_system_pws_id,
-        zip_code: data?.data?.zip_code,
+        pwsId: data?.data?.water_system_pws_id,
+        zipCode: data?.data?.zip_code,
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        apiResponse.error = { status: status, error: error.message };
+      }
+    }
+    return apiResponse;
+  };
+
+  /**
+   *   Retrieve water system information based on its pwsId.
+   */
+  getWaterSystem = async (pwsId: string): Promise<ApiResponse> => {
+    const apiResponse: ApiResponse = {};
+    try {
+      const data = await axios.get<any>(`${ApiClient.API_URL}/watersystem/${pwsId}`, {
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      apiResponse.data = {
+        pwsId: data?.data?.pws_id,
+        leadServiceLines: data?.data?.lead_service_lines,
+        serviceLines: data?.data?.service_lines,
       };
     } catch (error) {
       if (axios.isAxiosError(error)) {
