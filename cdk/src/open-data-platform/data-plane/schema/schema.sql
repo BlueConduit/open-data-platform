@@ -101,16 +101,17 @@ CREATE INDEX IF NOT EXISTS geom_index ON demographics USING GIST (geom);
 
 CREATE TABLE IF NOT EXISTS aggregate_us_demographics
 (
-    census_geo_id                varchar(255) NOT NULL,
-    geo_type                     varchar(255) NOT NULL,
-    name                         varchar(255) NOT NULL,
-    median_year_built            varchar(255),
-    median_income                real,
-    home_age_index               real,
-    income_index                 real,
-    average_social_vulnerability real,
-    population_count             real,
-    geom                         GEOMETRY(Geometry, 3857),
+    census_geo_id         varchar(255) NOT NULL,
+    geo_type              varchar(255) NOT NULL,
+    name                  varchar(255) NOT NULL,
+    median_year_built     varchar(255),
+    median_income         real,
+    home_age_index        real,
+    income_index          real,
+    weighted_national_adi real,
+    weighted_state_adi    real,
+    population_count      real,
+    geom                  GEOMETRY(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
 CREATE INDEX IF NOT EXISTS geo_type_index ON aggregate_us_demographics (geo_type);
@@ -273,7 +274,8 @@ BEGIN
                         geo_type,
                         median_year_built,
                         median_income,
-                        average_social_vulnerability,
+                        weighted_national_adi,
+                        weighted_state_adi,
                         population_count
                  FROM aggregate_us_demographics
                  WHERE geo_type = 'state'
@@ -290,7 +292,8 @@ BEGIN
                         geo_type,
                         median_year_built,
                         median_income,
-                        average_social_vulnerability,
+                        weighted_national_adi,
+                        weighted_state_adi,
                         population_count
                  FROM aggregate_us_demographics
                  WHERE geo_type = 'county'
