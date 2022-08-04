@@ -1,6 +1,6 @@
 <template>
   <div class='landing-page'>
-    <LandingPageSection :messages='messages.ScorecardSearch' />
+    <LandingPageSearch :messages='messages.ScorecardSearch' />
     <LandingPageSection :messages='messages.MapInfo' />
     <LandingPageSection :messages='messages.FilterInfo' />
     <LandingPageFooter />
@@ -10,6 +10,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import LandingPageFooter from '../components/LandingPageFooter.vue';
+import LandingPageSearch from '../components/LandingPageSearch.vue';
 import LandingPageSection from '../components/LandingPageSection.vue';
 import { ScorecardSearch, FilterInfo, MapInfo } from '../assets/messages/landing';
 
@@ -20,6 +21,7 @@ export default defineComponent({
   name: 'LandingPageView',
   components: {
     LandingPageFooter,
+    LandingPageSearch,
     LandingPageSection,
   },
   data() {

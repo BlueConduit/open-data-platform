@@ -3,14 +3,16 @@
     <h2 v-if='$props.messages.SUPER_HEADER'>{{ $props.messages.SUPER_HEADER }}</h2>
     <h1>{{ messages.HEADER }}</h1>
     <p>{{ messages.BODY }}</p>
-    <input :placeholder='$props.messages.CTA_PLACEHOLDER' v-if='$props.messages.CTA_PLACEHOLDER' />
-    <button>{{ messages.CTA_BUTTON }}</button>
+    <GeocoderInput @result='onGeocodeResults' />
+    <button @click='onSearch'>{{ messages.CTA_BUTTON }}</button>
     <!-- TODO: Add image -->
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { MAP_ROUTE_BASE } from '../router';
+import GeocoderInput from './GeocoderInput.vue';
 
 export interface Messages {
   SUPER_HEADER?: string;
@@ -21,14 +23,30 @@ export interface Messages {
 }
 
 /**
- * A component that displays basic content on the landing page.
+ * A component for searching for a scorecard.
  */
 export default defineComponent({
-  name: 'LandingPageSection',
+  name: 'LandingPageSearch',
+  components: { GeocoderInput },
   props: {
     messages: {
       type: Object as () => Messages,
       required: true,
+    },
+  },
+  data() {
+    return {
+      lat: 0,
+      long: 0,
+    };
+  },
+  methods: {
+    onGeocodeResults(lat: number, long: number) {
+      this.lat = lat;
+      this.long = long;
+    },
+    onSearch() {
+      window.location.replace(`${MAP_ROUTE_BASE}/${this.lat},${this.long}`);
     },
   },
 });
