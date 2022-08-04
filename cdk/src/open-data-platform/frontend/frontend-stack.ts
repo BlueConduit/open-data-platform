@@ -13,6 +13,7 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import { CommonProps } from '../../util';
 import { AppPlaneStack } from '../app-plane/app-plane-stack';
+import redirect4xx from './redirect-4xx';
 import prefixes, { handler } from './url-prefixes';
 import { NetworkStack } from '../network/network-stack';
 import * as route53 from 'aws-cdk-lib/aws-route53';
@@ -36,6 +37,12 @@ export class FrontendStack extends Stack {
     // Create s3 bucket to host static assets.
     this.frontendAssetsBucket = new s3.Bucket(this, 'FrontendAssets');
 
+    const redirect4xxFunction = new cloudfront.Function(this, 'Redirect4xxFunction', {
+      functionName: `${id}-redirect4xx`,
+      code: cloudfront.FunctionCode.fromInline(redirect4xx.toString()),
+      comment: `Repalces URL to point to the home route.`,
+    });
+
     // Create CloudFront Distribution that points to frontendAssetsBucket.
     this.distribution = new cloudfront.Distribution(this, 'Distribution', {
       domainNames: hostedZone ? [hostedZone.zoneName] : undefined,
@@ -44,6 +51,12 @@ export class FrontendStack extends Stack {
         origin: new origins.S3Origin(this.frontendAssetsBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.ALLOW_ALL,
         responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+        functionAssociations: [
+          {
+            function: redirect4xxFunction,
+            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+          },
+        ],
       },
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100, // Only deploy to NA and EU access points
@@ -79,7 +92,8 @@ export class FrontendStack extends Stack {
     this.distribution.addBehavior(`${prefixes.tileServer}/*`, tileServerOrigin, {
       allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
       responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
-      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+      // TODO: cache based on query strings if/when we use them.
+      cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
       functionAssociations: [
         // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.

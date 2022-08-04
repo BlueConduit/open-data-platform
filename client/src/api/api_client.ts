@@ -30,6 +30,31 @@ class ApiClient {
   };
 
   /**
+   *   Retrieve demographic data based on geoid.
+   */
+  getDemographicData = async (geoId: string): Promise<ApiResponse> => {
+    const apiResponse: ApiResponse = {};
+    try {
+      const data = await axios.get<any>(`${ApiClient.API_URL}/zipcode/scorecard/${geoId}`, {
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      apiResponse.data = {
+        geoId: data?.data?.pws_id,
+        averageHomeAge: data?.data?.average_home_age,
+        averageSocialVulnerabilityIndex: data?.data?.average_social_vulnerability,
+        averageIncome: data?.data?.average_social_vulnerability,
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        apiResponse.error = { status: status, error: error.message };
+      }
+    }
+    return apiResponse;
+  };
+
+  /**
    *   Retrieve water system information based on its pwsId.
    */
   getWaterSystem = async (pwsId: string): Promise<ApiResponse> => {

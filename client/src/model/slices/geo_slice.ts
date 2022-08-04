@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ApiClient } from '@/api/api_client';
-import { GeoIdentifiers } from '@/model/geo_identifiers';
+import { GeoIdentifiers } from '@/model/states/model/geo_identifiers';
 import { AppDispatch } from '@/model/store';
 import { GeoState } from '@/model/states/geo_state';
 
@@ -9,7 +9,6 @@ const client = new ApiClient();
 
 // Automatically generates action creators and action types that correspond
 // to the reducers and state. See: https://redux-toolkit.js.org/api/createslice
-// TODO(breuch): Consider showing user message on error.
 const geoSlice = createSlice({
   name: 'geoSlice',
   initialState,
@@ -30,8 +29,8 @@ const geoSlice = createSlice({
 /**
  * Calls API to fetch geo ids based on a lat,long. Emits actions to update state
  * when results are returned.
- * @param lat
- * @param long
+ * @param lat: The latitude that must intersect with the geos returned
+ * @param long: The longitude that must intersect with the geos returned
  */
 export const queryLatLong = (lat: string, long: string) => {
   return async (dispatch: AppDispatch) => {

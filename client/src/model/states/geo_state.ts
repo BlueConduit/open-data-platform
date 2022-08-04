@@ -1,4 +1,4 @@
-import { GeoIdentifiers } from '@/model/geo_identifiers';
+import { GeoIdentifiers } from '@/model/states/model/geo_identifiers';
 
 /**
  * State of geo selection.
