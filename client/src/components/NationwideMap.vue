@@ -79,11 +79,11 @@ export default defineComponent({
   methods: {
     zoomToLongLat() {
       if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
-        const longLat: LngLatLike = {
+        const lonLat: LngLatLike = {
           lon: parseInt(this.geoState?.geoids?.long),
           lat: parseInt(this.geoState?.geoids?.lat),
         };
-        this.map?.flyTo({ center: longLat, zoom: GeographicLevel.Zipcode });
+        this.map?.flyTo({ center: lonLat, zoom: GeographicLevel.Zipcode });
       }
     },
     /**
