@@ -3,8 +3,7 @@
     <h2 v-if='$props.messages.SUPER_HEADER'>{{ $props.messages.SUPER_HEADER }}</h2>
     <h1>{{ messages.HEADER }}</h1>
     <p>{{ messages.BODY }}</p>
-    <input :placeholder='$props.messages.CTA_PLACEHOLDER' v-if='$props.messages.CTA_PLACEHOLDER' />
-    <button>{{ messages.CTA_BUTTON }}</button>
+    <slot></slot>
     <!-- TODO: Add image -->
   </div>
 </template>

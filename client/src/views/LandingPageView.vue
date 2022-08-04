@@ -1,7 +1,11 @@
 <template>
   <div class='landing-page'>
-    <LandingPageSearch :messages='messages.ScorecardSearch' />
-    <LandingPageSection :messages='messages.MapInfo' />
+    <LandingPageSection :messages='messages.ScorecardSearch'>
+      <ScorecardSearch :messages='messages.ScorecardSearch' />
+    </LandingPageSection>
+    <LandingPageSection :messages='messages.MapInfo'>
+      <router-link :to='mapRoute'>{{ messages.MapInfo.CTA_BUTTON }}</router-link>
+    </LandingPageSection>
     <LandingPageSection :messages='messages.FilterInfo' />
     <LandingPageFooter />
   </div>
@@ -10,9 +14,10 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import LandingPageFooter from '../components/LandingPageFooter.vue';
-import LandingPageSearch from '../components/LandingPageSearch.vue';
+import ScorecardSearch from '../components/ScorecardSearch.vue';
 import LandingPageSection from '../components/LandingPageSection.vue';
-import { ScorecardSearch, FilterInfo, MapInfo } from '../assets/messages/landing';
+import * as messages from '../assets/messages/landing';
+import { MAP_ROUTE_BASE } from '../router';
 
 /**
  * This view displays a landing page with search.
@@ -21,12 +26,13 @@ export default defineComponent({
   name: 'LandingPageView',
   components: {
     LandingPageFooter,
-    LandingPageSearch,
+    ScorecardSearch,
     LandingPageSection,
   },
   data() {
     return {
-      messages: { ScorecardSearch, MapInfo, FilterInfo },
+      messages,
+      mapRoute: MAP_ROUTE_BASE,
     };
   },
 });

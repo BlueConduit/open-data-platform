@@ -1,32 +1,22 @@
 <template>
-  <div class='landing-page-section'>
-    <h2 v-if='$props.messages.SUPER_HEADER'>{{ $props.messages.SUPER_HEADER }}</h2>
-    <h1>{{ messages.HEADER }}</h1>
-    <p>{{ messages.BODY }}</p>
+  <div class='scorecard-search'>
     <GeocoderInput @result='onGeocodeResults' />
+    <!-- TODO: disable until there is a result selected -->
     <button @click='onSearch'>{{ messages.CTA_BUTTON }}</button>
-    <!-- TODO: Add image -->
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { MAP_ROUTE_BASE } from '../router';
+import { Messages } from './LandingPageSection.vue';
 import GeocoderInput from './GeocoderInput.vue';
-
-export interface Messages {
-  SUPER_HEADER?: string;
-  HEADER: string;
-  BODY: string;
-  CTA_PLACEHOLDER?: string;
-  CTA_BUTTON: string;
-}
 
 /**
  * A component for searching for a scorecard.
  */
 export default defineComponent({
-  name: 'LandingPageSearch',
+  name: 'ScorecardSearch',
   components: { GeocoderInput },
   props: {
     messages: {
@@ -52,12 +42,4 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.landing-page-section {
-  margin: 0;
-  padding: 50px;
-  background-color: #fff;
-  text-align: center;
-  vertical-align: middle;
-}
-</style>
+<style scoped></style>
