@@ -44,6 +44,7 @@ class ApiClient {
     return this.request(
       `${ApiClient.API_URL}/${GeographicLevel[geoLevel].toLowerCase()}/scorecard/${geoId}`,
       (data) => {
+        // TODO(breuch): Update these values with new aggregated table columns
         return {
           geoId: data?.data?.pws_id,
           averageHomeAge: data?.data?.average_home_age,
