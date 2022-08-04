@@ -38,7 +38,7 @@ class ApiClient {
   };
 
   /**
-   *   Retrieve demographic data based on geoid.
+   *   Retrieve demographic data based on geoid and geo leve.
    */
   getDemographicData = async (geoLevel: GeographicLevel, geoId: string): Promise<ApiResponse> => {
     return this.request(

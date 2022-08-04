@@ -72,7 +72,7 @@ export default defineComponent({
   watch: {
     // Listen for changes to zip code. Once it changes, new demographic info
     // must be fetched.
-    geoState: function() {
+    'geoState.geoids.zipCode': function() {
       if (this.geoState?.geoids?.zipCode != null) {
         dispatch(getDemographicData(GeographicLevel.Zipcode, this.geoState.geoids.zipCode));
       }

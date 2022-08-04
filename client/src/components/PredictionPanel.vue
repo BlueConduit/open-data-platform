@@ -70,7 +70,7 @@ export default defineComponent({
   watch: {
     // Listen for changes to pws id. Once it changes, a new prediction
     // must be fetched.
-    geoState: function() {
+    'geoState.geoids.pwsId': function() {
       if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId));
       }
