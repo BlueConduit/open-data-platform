@@ -53,6 +53,8 @@ export class DataImportStack extends Construct {
       dataImportLambdaFactory(this, props, 'write-zipcode-data'),
       dataImportLambdaFactory(this, props, 'write-state-data'),
       dataImportLambdaFactory(this, props, 'write-aggregate-zip-demographic-data'),
+      dataImportLambdaFactory(this, props, 'write-aggregate-county-demographic-data'),
+      dataImportLambdaFactory(this, props, 'write-aggregate-state-demographic-data'),
     ];
 
     for (let f of lambdaFunctions) {
