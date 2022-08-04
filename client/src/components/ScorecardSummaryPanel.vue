@@ -32,6 +32,7 @@ import { dispatch, useSelector } from '../model/store';
 import { GeoState } from '../model/states/geo_state';
 import { getDemographicData } from '../model/slices/demographic_data_slice';
 import { DemographicDataState } from '../model/states/demographic_data_state';
+import { GeographicLevel } from '../model/data_layer';
 
 /**
  * Prediction explanation.
@@ -73,7 +74,7 @@ export default defineComponent({
     // must be fetched.
     geoState: function() {
       if (this.geoState?.geoids?.zipCode != null) {
-        dispatch(getDemographicData(this.geoState.geoids.zipCode));
+        dispatch(getDemographicData(GeographicLevel.Zipcode, this.geoState.geoids.zipCode));
       }
     },
   },
