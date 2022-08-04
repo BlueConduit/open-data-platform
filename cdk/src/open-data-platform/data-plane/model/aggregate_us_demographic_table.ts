@@ -1,15 +1,20 @@
 import { SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 
+enum GeoType {
+  Zipcode = 'zip_code',
+  Unknown = 'unknown',
+}
+
 /**
  * Single row for aggregate US demographics table.
  */
-export class AggregateUsDemographicTableRow {
+class AggregateUsDemographicTableRow {
   // Field formatting conforms to rows in the db. Requires less transformations.
 
   // Federal geo-identifier.
   census_geo_id: string;
   // Geographic type. Possible values are 'zip_code', 'county', and 'state'.
-  geo_type: string;
+  geo_type: GeoType;
   // Name of geo. State or county name, or zipcode.
   name: string;
   // Average home age of the geographic area.
@@ -31,7 +36,7 @@ export class AggregateUsDemographicTableRow {
 
   constructor(
     census_geo_id: string,
-    geo_type: string,
+    geo_type: GeoType,
     name: string,
     median_year_built: string,
     median_income: number,
@@ -59,11 +64,11 @@ export class AggregateUsDemographicTableRow {
 /**
  * Builder utility for rows of the zipcodes table.
  */
-export class AggregateUsDemographicTableRowBuilder {
+class AggregateUsDemographicTableRowBuilder {
   private readonly _row: AggregateUsDemographicTableRow;
 
   constructor() {
-    this._row = new AggregateUsDemographicTableRow('', '', '', '', 0, 0, 0, 0, 0, 0, '');
+    this._row = new AggregateUsDemographicTableRow('', GeoType.Unknown, '', '', 0, 0, 0, 0, 0, 0, '');
   }
 
   censusGeoId(censusGeoId: string): AggregateUsDemographicTableRowBuilder {
@@ -71,7 +76,7 @@ export class AggregateUsDemographicTableRowBuilder {
     return this;
   }
 
-  geoType(geoType: string): AggregateUsDemographicTableRowBuilder {
+  geoType(geoType: GeoType): AggregateUsDemographicTableRowBuilder {
     this._row.geo_type = geoType;
     return this;
   }
@@ -129,7 +134,7 @@ export class AggregateUsDemographicTableRowBuilder {
       },
       {
         name: 'geo_type',
-        value: { stringValue: this._row.geo_type },
+        value: { stringValue: this._row.geo_type.valueOf() },
       },
       {
         name: 'name',
@@ -170,3 +175,5 @@ export class AggregateUsDemographicTableRowBuilder {
     ];
   }
 }
+
+export { GeoType, AggregateUsDemographicTableRow, AggregateUsDemographicTableRowBuilder };

@@ -1,7 +1,7 @@
 import { RDSDataService } from 'aws-sdk';
 import { BatchExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 import { geoJsonHandlerFactory } from './handler-factory';
-import { AggregateUsDemographicTableRowBuilder } from '../model/aggregate_us_demographic_table';
+import { AggregateUsDemographicTableRowBuilder, GeoType } from '../model/aggregate_us_demographic_table';
 
 // As of 2022-08-02, this should have 39,759 rows.
 const s3Params = {
@@ -63,7 +63,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
   return (
     new AggregateUsDemographicTableRowBuilder()
       .censusGeoId(properties.ZCTA5CE10)
-      .geoType('zip_code') // TODO make constant
+      .geoType(GeoType.Zipcode)
       .name(properties.ZCTA5CE10)
       .medianYearBuilt(properties.median_yearbuilt ?? '')
       .medianIncome(properties.median_income ?? 0)
