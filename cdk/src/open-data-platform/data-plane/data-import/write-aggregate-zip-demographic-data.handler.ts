@@ -79,8 +79,8 @@ function getTableRowFromRow(row: any): SqlParametersList {
 }
 
 /**
- * Parses S3 'cb_2020_us_zcta520_500k.geojson' file and writes rows
- * to zipcodes table in the MainCluster postgres db.
+ * Parses S3 'zipcode_demographics.geojson' file and writes rows
+ * to aggregate_us_demographics table in the MainCluster postgres db.
  */
 export const handler = geoJsonHandlerFactory(
   s3Params,
