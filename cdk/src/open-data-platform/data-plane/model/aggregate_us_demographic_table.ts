@@ -2,6 +2,7 @@ import { SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 
 enum GeoType {
   Zipcode = 'zip_code',
+  County = 'county',
   Unknown = 'unknown',
 }
 
