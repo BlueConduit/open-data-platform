@@ -1,11 +1,7 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
-import {
-  ExecuteStatementRequest,
-  FieldList,
-  SqlParametersList,
-} from 'aws-sdk/clients/rdsdataservice';
+import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
@@ -23,12 +19,11 @@ async function getZipCodeData(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    // TODO(breuch): Replace with real columns needed for scorecard
-    sql: `SELECT zip_code,
-                 black_population,
-                 white_population,
-                 under_five_population
-          FROM zipcode_demographics
+    sql: `SELECT census_geo_id as zip_code,
+                 average_home_age,
+                 average_income_level,
+                 average_social_vulnerability
+          FROM aggregate_us_demographics
           WHERE census_geo_id = :zip_code LIMIT 1`,
     parameters: params,
   };
