@@ -6,7 +6,7 @@ import { AggregateUsDemographicTableRowBuilder, GeoType } from '../model/aggrega
 // As of 2022-08-02, this should have 39,759 rows.
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata/demographics',
-  Key: 'county_demographics.geojson',
+  Key: 'state_demographics.geojson',
 };
 
 const SCHEMA = 'public';
@@ -62,8 +62,9 @@ function getTableRowFromRow(row: any): SqlParametersList {
   const properties = value.properties;
   return (
     new AggregateUsDemographicTableRowBuilder()
-      c
-      .geoType(GeoType.County)
+      // Substring of AFFGEOID which is just state census geo ID.
+      .censusGeoId(properties.AFFGEOID?.substring(9, 14))
+      .geoType(GeoType.State)
       .name(properties.NAME)
       .medianYearBuilt(properties.median_yearbuilt ?? '')
       .medianIncome(properties.median_income ?? 0)
@@ -79,7 +80,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
 }
 
 /**
- * Parses S3 'county_demographics.geojson' file and writes rows
+ * Parses S3 'state_demographics.geojson' file and writes rows
  * to aggregate_us_demographics table in the MainCluster postgres db.
  */
 export const handler = geoJsonHandlerFactory(
