@@ -20,10 +20,13 @@ export interface Messages {
 }
 
 /**
- * A component that displays basic content on the landing page.
+ * A component that displays basic content on the landing page. It can accept inner components for
+ * extra functionality, such as buttons, links, or videos. The purpose of this component is to
+ * keep the landing page DRY and define style in one place.
  */
 export default defineComponent({
   name: 'LandingPageSection',
+  // TODO: add props to customize basic styling. E.g. background color.
   props: {
     messages: {
       type: Object as () => Messages,

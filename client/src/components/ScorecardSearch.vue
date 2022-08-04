@@ -36,7 +36,7 @@ export default defineComponent({
       this.long = long;
     },
     onSearch() {
-      window.location.replace(`${MAP_ROUTE_BASE}/${this.lat},${this.long}`);
+      this.$router.push(`${MAP_ROUTE_BASE}/${this.lat},${this.long}`);
     },
   },
 });
