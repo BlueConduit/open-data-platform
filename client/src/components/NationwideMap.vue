@@ -301,8 +301,7 @@ export default defineComponent({
     routerLayer: function(newLayer: string) {
       this.setDataLayerVisibility(newLayer, true);
     },
-    // Listen for changes to pws id. Once it changes, a new prediction
-    // must be fetched.
+    // Listen for changes to lat/long to update map location.
     'geoState.geoids.lat': function() {
       this.zoomToLongLat();
     },
