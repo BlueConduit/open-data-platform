@@ -39,7 +39,7 @@ export class ZipcodeTableRowBuilder {
   private readonly _row: ZipcodeTableRow;
 
   constructor() {
-    this._row = new ZipcodeTableRow('', '', '', '', '', '', '', '');
+    this._row = new ZipcodeTableRow('', '', '', '', '');
   }
 
   censusGeoId(censusGeoId: string): ZipcodeTableRowBuilder {
