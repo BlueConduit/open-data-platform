@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { MAP_ROUTE_BASE } from '../router';
 import { Messages } from './LandingPageSection.vue';
 import GeocoderInput from './GeocoderInput.vue';
@@ -20,7 +20,7 @@ export default defineComponent({
   components: { GeocoderInput },
   props: {
     messages: {
-      type: Object as () => Messages,
+      type: Object as PropType<Messages>,
       required: true,
     },
   },

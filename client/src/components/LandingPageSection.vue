@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 
 export interface Messages {
   SUPER_HEADER?: string;
@@ -29,7 +29,7 @@ export default defineComponent({
   // TODO: add props to customize basic styling. E.g. background color.
   props: {
     messages: {
-      type: Object as () => Messages,
+      type: Object as PropType<Messages>,
       required: true,
     },
   },
