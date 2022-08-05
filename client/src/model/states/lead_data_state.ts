@@ -1,4 +1,4 @@
-import { LeadData } from '@/model/lead_data';
+import { LeadData } from '@/model/states/model/lead_data';
 
 /**
  * State of lead data.

@@ -18,7 +18,7 @@ import { router } from '../router';
 import { leadServiceLinesByParcelLayer } from '../data_layer_configs/lead_service_lines_by_parcel_config';
 import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
 import { useSelector } from '../model/store';
-import { GeoState } from '../model/states/geo_state';
+import { GeoDataState } from '../model/states/geo_data_state';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -42,7 +42,7 @@ export default defineComponent({
     const state: State = inject(stateKey, State.default());
 
     // Listen to geoState updates.
-    const geoState = useSelector((state) => state.geos) as GeoState;
+    const geoState = useSelector((state) => state.geos) as GeoDataState;
 
     return {
       state,
