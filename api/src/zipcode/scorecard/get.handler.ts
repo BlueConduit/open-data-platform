@@ -19,10 +19,10 @@ async function getZipCodeData(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    sql: `SELECT census_geo_id as zip_code,
+    sql: `SELECT census_geo_id,
                  home_age_index,
-                 income_index,
-                 weighted_national_adi
+                 weighted_national_adi,
+                 income_index
           FROM aggregate_us_demographics
           WHERE census_geo_id = :zip_code LIMIT 1`,
     parameters: params,
