@@ -16,7 +16,7 @@ export interface Messages {
   HEADER: string;
   BODY: string;
   CTA_PLACEHOLDER?: string;
-  CTA_BUTTON: string;
+  CTA_BUTTON?: string;
 }
 
 /**

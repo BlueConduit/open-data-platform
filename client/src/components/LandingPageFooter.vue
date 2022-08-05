@@ -6,7 +6,11 @@
       </div>
     </div>
     <!-- Replace with Logo -->
-    <div class='right-align'><a href='https://blueconduit.com/'>by BlueConduit</a></div>
+    <div class='right-align'>
+      <a class='logo' href='https://blueconduit.com/'>
+        <img src='../assets/logo.png' class='logo' />
+      </a>
+    </div>
   </div>
 </template>
 
@@ -16,7 +20,7 @@ import { Titles } from '../assets/messages/common';
 import * as router from '../router';
 
 /**
- * A component for searching for a scorecard.
+ * The navigational footer for the landing page.
  */
 export default defineComponent({
   name: 'LandingPageFooter',
@@ -50,6 +54,10 @@ export default defineComponent({
   justify-content: flex-end;
   text-align: right;
   bottom: 0;
+}
+
+.logo {
+  height: 80px;
 }
 
 a {
