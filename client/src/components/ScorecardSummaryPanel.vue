@@ -29,7 +29,7 @@ import { defineComponent } from 'vue';
 import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_messages';
 import ScorecardSummaryRow, { ImageFloatDirection } from './ScorecardSummaryRow.vue';
 import { dispatch, useSelector } from '../model/store';
-import { GeoState } from '../model/states/geo_state';
+import { GeoDataState } from '../model/states/geo_data_state';
 import { getDemographicData } from '../model/slices/demographic_data_slice';
 import { DemographicDataState } from '../model/states/demographic_data_state';
 import { GeographicLevel } from '../model/data_layer';
@@ -44,7 +44,7 @@ export default defineComponent({
   },
   setup() {
     // Listen to state updates.
-    const geoState = useSelector((state) => state.geos) as GeoState;
+    const geoState = useSelector((state) => state.geos) as GeoDataState;
     const demographicData = useSelector((state) => state.demographicData) as DemographicDataState;
 
     return {

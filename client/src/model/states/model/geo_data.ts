@@ -1,7 +1,7 @@
 /**
  * Model for geo id selection.
  */
-export interface GeoIdentifiers {
+export interface GeoData {
   pwsId?: string;
   zipCode?: string;
   lat?: string;
