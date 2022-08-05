@@ -80,7 +80,10 @@ export default defineComponent({
   },
   methods: {
     formatNumber(number: number | undefined): string | null {
-      return number?.toString() ?? null;
+      if (number == null) {
+        return null;
+      }
+      return Math.round(number).toString();
     },
   },
 });
