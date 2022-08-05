@@ -3,7 +3,7 @@ import { BatchExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients
 import { geoJsonHandlerFactory } from './handler-factory';
 import { AggregateUsDemographicTableRowBuilder, GeoType } from '../model/aggregate_us_demographic_table';
 
-// As of 2022-08-02, this should have 39,759 rows.
+// As of 2022-08-05, this should have 3,141 rows.
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata/demographics',
   Key: 'county_demographics.geojson',
