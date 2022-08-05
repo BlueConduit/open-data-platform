@@ -6,7 +6,9 @@
     <div>
       <div class='semi-bold h2-header'> {{ header }}</div>
       <div class='explain-text'> {{ subheader }}</div>
-      <div> {{ comparisonValue }}</div>
+      <!--      TODO: Handle error state where there is no lead prediction -->
+      <!--      after the API has returned.-->
+      <div v-if='comparisonValue != null'> {{ comparisonValue }}</div>
     </div>
   </div>
 </template>

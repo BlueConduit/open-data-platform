@@ -21,7 +21,7 @@ import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 import { dispatch, useSelector } from '../model/store';
 import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_messages';
 import { getWaterSystem } from '../model/slices/lead_data_slice';
-import { GeoState } from '../model/states/geo_state';
+import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 
 /**
@@ -32,7 +32,7 @@ export default defineComponent({
   components: { MapGeocoderWrapper },
   setup() {
     // Listen to state updates.
-    const geoState = useSelector((state) => state.geos) as GeoState;
+    const geoState = useSelector((state) => state.geos) as GeoDataState;
     const leadDataState = useSelector((state) => state.leadData) as LeadDataState;
 
     return {
@@ -70,7 +70,7 @@ export default defineComponent({
   watch: {
     // Listen for changes to pws id. Once it changes, a new prediction
     // must be fetched.
-    geoState: function() {
+    'geoState.geoids.pwsId': function() {
       if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId));
       }

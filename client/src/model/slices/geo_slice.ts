@@ -1,26 +1,25 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ApiClient } from '@/api/api_client';
-import { GeoIdentifiers } from '@/model/geo_identifiers';
+import { GeoData } from '@/model/states/model/geo_data';
 import { AppDispatch } from '@/model/store';
-import { GeoState } from '@/model/states/geo_state';
+import { GeoDataState } from '@/model/states/geo_data_state';
 
-const initialState: GeoState = {};
+const initialState: GeoDataState = {};
 const client = new ApiClient();
 
 // Automatically generates action creators and action types that correspond
 // to the reducers and state. See: https://redux-toolkit.js.org/api/createslice
-// TODO(breuch): Consider showing user message on error.
 const geoSlice = createSlice({
   name: 'geoSlice',
   initialState,
   reducers: {
-    getGeoIdsSuccess(state: GeoState, action: PayloadAction<GeoIdentifiers>) {
+    getGeoIdsSuccess(state: GeoDataState, action: PayloadAction<GeoData>) {
       state.geoids = { ...state.geoids, ...action.payload };
     },
-    getGeoIdsError(state: GeoState, action) {
-      console.log(`Error fetching geos: ${state} ${action}`);
+    getGeoIdsError(state: GeoDataState, action) {
+      console.log(`Error fetching geos: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
     },
-    geoIdsQueried(state: GeoState, action: PayloadAction<GeoIdentifiers>) {
+    geoIdsQueried(state: GeoDataState, action: PayloadAction<GeoData>) {
       const { lat, long } = action.payload;
       state.geoids = { ...state.geoids, lat: lat, long: long };
     },
@@ -30,8 +29,8 @@ const geoSlice = createSlice({
 /**
  * Calls API to fetch geo ids based on a lat,long. Emits actions to update state
  * when results are returned.
- * @param lat
- * @param long
+ * @param lat: The latitude that must intersect with the geos returned
+ * @param long: The longitude that must intersect with the geos returned
  */
 export const queryLatLong = (lat: string, long: string) => {
   return async (dispatch: AppDispatch) => {

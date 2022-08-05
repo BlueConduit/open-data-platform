@@ -10,9 +10,9 @@ class WaterSystemsTableRow {
   pws_id: string;
   // Water system name.
   pws_name: string;
-  // Reported or estimated number of lead pipes in the boundary.
+  // Reported estimate of number of lead pipes in the boundary.
   lead_connections_count: number;
-  // Reported or estimated number of connections in the boundary.
+  // Reported or estimated total number of connections in the boundary.
   service_connections_count: number;
   // Number of people served by the water system.
   population_served: number;

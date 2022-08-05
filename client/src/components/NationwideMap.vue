@@ -13,10 +13,12 @@ import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { DataLayer, FeatureProperty, MapLayer } from '../model/data_layer';
+import { DataLayer, FeatureProperty, GeographicLevel, MapLayer } from '../model/data_layer';
 import { router } from '../router';
 import { leadServiceLinesByParcelLayer } from '../data_layer_configs/lead_service_lines_by_parcel_config';
 import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
+import { useSelector } from '../model/store';
+import { GeoDataState } from '../model/states/geo_data_state';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -36,10 +38,15 @@ export default defineComponent({
   setup() {
     mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
 
+    // TODO(kailamjeter): remove all dependencies on old state and delete.
     const state: State = inject(stateKey, State.default());
+
+    // Listen to geoState updates.
+    const geoState = useSelector((state) => state.geos) as GeoDataState;
 
     return {
       state,
+      geoState,
     };
   },
   data() {
@@ -70,6 +77,15 @@ export default defineComponent({
     },
   },
   methods: {
+    zoomToLongLat() {
+      if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
+        const lonLat: LngLatLike = {
+          lon: parseInt(this.geoState?.geoids?.long),
+          lat: parseInt(this.geoState?.geoids?.lat),
+        };
+        this.map?.flyTo({ center: lonLat, zoom: GeographicLevel.Zipcode });
+      }
+    },
     /**
      * Sets the visibility of the layer with the given styleLayerId.
      */
@@ -284,6 +300,13 @@ export default defineComponent({
     // Listens to query param to toggle layers.
     routerLayer: function(newLayer: string) {
       this.setDataLayerVisibility(newLayer, true);
+    },
+    // Listen for changes to lat/long to update map location.
+    'geoState.geoids.lat': function() {
+      this.zoomToLongLat();
+    },
+    'geoState.geoids.long': function() {
+      this.zoomToLongLat();
     },
   },
 });

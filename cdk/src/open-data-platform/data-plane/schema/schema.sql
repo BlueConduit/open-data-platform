@@ -95,22 +95,42 @@ CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON demographics (state_cens
 CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON demographics (county_census_geo_id);
 CREATE INDEX IF NOT EXISTS geom_index ON demographics USING GIST (geom);
 
+--- Tables related to U.S. demographic information.
+
+-- TODO(breuch): Add insert statement once the zipcode -> demographics
+
+CREATE TABLE IF NOT EXISTS aggregate_us_demographics
+(
+    census_geo_id         varchar(255) NOT NULL,
+    geo_type              varchar(255) NOT NULL,
+    name                  varchar(255) NOT NULL,
+    median_year_built     varchar(255),
+    median_income         real,
+    home_age_index        real,
+    income_index          real,
+    weighted_national_adi real,
+    weighted_state_adi    real,
+    population_count      real,
+    geom                  GEOMETRY(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geo_type_index ON aggregate_us_demographics (geo_type);
+CREATE INDEX IF NOT EXISTS geom_index ON aggregate_us_demographics USING GIST (geom);
+
 -- Water-system-level data
 
 CREATE TABLE IF NOT EXISTS water_systems
 (
     pws_id                    varchar(255) NOT NULL,
-    lead_connections_count    real,
     pws_name                  varchar(255),
+    lead_connections_count    real,
     service_connections_count real,
     population_served         real,
     state_census_geo_id       varchar(255) references states (census_geo_id),
-    county_census_geo_id      varchar(255) references counties (census_geo_id),
     geom                      GEOMETRY(Geometry, 4326),
     PRIMARY KEY (pws_id)
 );
 CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON water_systems (state_census_geo_id);
-CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON water_systems (county_census_geo_id);
 CREATE INDEX IF NOT EXISTS geom_index ON water_systems USING GIST (geom);
 
 -- EPA violations data
@@ -151,16 +171,18 @@ CREATE TABLE IF NOT EXISTS parcels
 (
     -- TODO: consider standardizing addresses into a PostGIS type once we have data.
     -- https://postgis.net/docs/manual-2.5/Address_Standardizer.html
-    address                 text,
-    public_lead_prediction  float,
+    address                                text,
+    city                                   varchar(255) NOT NULL,
+    public_lead_connections_low_estimate   float,
+    public_lead_connections_high_estimate  float,
     -- Private-side predictive data don't exist for all parcels, but store it anyway.
-    private_lead_prediction float,
+    private_lead_connections_low_estimate  float,
+    private_lead_connections_high_estimate float,
     -- Can be used to determine if the row needs updating with a new dataset.
-    last_updated            timestamp default current_timestamp,
-    geom                    geometry(Geometry, 4326),
+    last_updated                           timestamp default current_timestamp,
+    geom                                   geometry(Geometry, 4326),
     PRIMARY KEY (address)
 );
-
 -- Either of these might be used for searching.
 CREATE INDEX IF NOT EXISTS geom_index ON parcels USING GIST (geom);
 
@@ -173,54 +195,9 @@ EXECUTE PROCEDURE update_last_update_timestamp();
 --- Create pre-computed tables.
 --- These are required to ensure acceptable latency for the tileserver.
 
--- Demographic aggregation tables.
-
-CREATE TABLE IF NOT EXISTS state_demographics
-(
-    census_geo_id         varchar(255) NOT NULL,
-    name                  varchar(255) NOT NULL,
-    black_population      real,
-    white_population      real,
-    total_population      real,
-    under_five_population real,
-    poverty_population    real,
-    geom                  geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON state_demographics USING GIST (geom);
-
-CREATE TABLE IF NOT EXISTS county_demographics
-(
-    census_geo_id         varchar(255) NOT NULL,
-    name                  varchar(255) NOT NULL,
-    black_population      real,
-    white_population      real,
-    total_population      real,
-    under_five_population real,
-    poverty_population    real,
-    geom                  geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON county_demographics USING GIST (geom);
-
--- TODO(breuch): Add insert statement once the zipcode -> demographics
--- connection established.
-CREATE TABLE IF NOT EXISTS zipcode_demographics
-(
-    census_geo_id         varchar(255) NOT NULL,
-    zipcode               varchar(255) NOT NULL,
-    black_population      real,
-    white_population      real,
-    total_population      real,
-    under_five_population real,
-    poverty_population    real,
-    geom                  geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON zipcode_demographics USING GIST (geom);
-
 -- Lead connections aggregation tables.
 
+-- TODO: refactor into column on states table.
 CREATE TABLE IF NOT EXISTS state_lead_connections
 (
     census_geo_id             varchar(255) NOT NULL,
@@ -232,32 +209,6 @@ CREATE TABLE IF NOT EXISTS state_lead_connections
     PRIMARY KEY (census_geo_id)
 );
 CREATE INDEX IF NOT EXISTS geom_index ON state_lead_connections USING GIST (geom);
-
-CREATE TABLE IF NOT EXISTS county_lead_connections
-(
-    census_geo_id             varchar(255) NOT NULL,
-    name                      varchar(255) NOT NULL,
-    lead_connections_count    real,
-    service_connections_count real,
-    population_served         real,
-    geom                      geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON county_lead_connections USING GIST (geom);
-
--- TODO(kailamjeter): Add insert statement once the zipcode -> lead_connections
--- connection established.
-CREATE TABLE IF NOT EXISTS zipcode_lead_connections
-(
-    census_geo_id             varchar(255) NOT NULL,
-    zipcode                   varchar(255) NOT NULL,
-    lead_connections_count    real,
-    service_connections_count real,
-    population_served         real,
-    geom                      geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON zipcode_lead_connections USING GIST (geom);
 
 -- EPA Violations aggregation tables.
 
@@ -271,64 +222,8 @@ CREATE TABLE IF NOT EXISTS state_epa_violations
 );
 CREATE INDEX IF NOT EXISTS geom_index ON state_epa_violations USING GIST (geom);
 
-CREATE TABLE IF NOT EXISTS county_epa_violations
-(
-    census_geo_id   varchar(255) NOT NULL,
-    name            varchar(255) NOT NULL,
-    violation_count real,
-    geom            geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON county_epa_violations USING GIST (geom);
-
--- TODO(kailamjeter): Add insert statement once the zipcode -> lead_connections
--- connection established.
-CREATE TABLE IF NOT EXISTS zipcode_epa_violations
-(
-    census_geo_id   varchar(255) NOT NULL,
-    zipcode         varchar(255) NOT NULL,
-    violation_count real,
-    geom            geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS geom_index ON zipcode_epa_violations USING GIST (geom);
-
 -- Populate pre-computed tables. These are only to be used by the functions
 -- defined below.
-
-INSERT INTO state_demographics(census_geo_id, name, geom, black_population,
-                               white_population, total_population,
-                               under_five_population, poverty_population)
-SELECT states.census_geo_id            as census_geo_id,
-       states.name                     AS name,
-       ST_Transform(states.geom, 3857) AS geom,
-       SUM(black_population)           AS black_population,
-       SUM(white_population)           AS white_population,
-       SUM(total_population)           AS total_population,
-       SUM(under_five_population)      AS under_five_population,
-       SUM(poverty_population)         AS poverty_population
-FROM states
-         LEFT JOIN demographics
-                   ON demographics.state_census_geo_id = states.census_geo_id
-GROUP BY states.census_geo_id, states.name, states.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
-
-INSERT INTO county_demographics(census_geo_id, name, geom, black_population,
-                                white_population, total_population,
-                                under_five_population, poverty_population)
-SELECT counties.census_geo_id            as census_geo_id,
-       counties.name                     AS name,
-       ST_Transform(counties.geom, 3857) AS geom,
-       SUM(black_population)             AS black_population,
-       SUM(white_population)             AS white_population,
-       SUM(total_population)             AS total_population,
-       SUM(under_five_population)        AS under_five_population,
-       SUM(poverty_population)           AS poverty_population
-FROM counties
-         LEFT JOIN demographics
-                   ON demographics.county_census_geo_id = counties.census_geo_id
-GROUP BY counties.census_geo_id, counties.name, counties.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
 
 INSERT INTO state_lead_connections(census_geo_id, name, geom,
                                    lead_connections_count,
@@ -345,23 +240,6 @@ FROM states
 GROUP BY states.census_geo_id, states.name, states.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
-INSERT INTO county_lead_connections(census_geo_id, name, geom,
-                                    lead_connections_count,
-                                    service_connections_count,
-                                    population_served)
-SELECT counties.census_geo_id            as census_geo_id,
-       counties.name                     AS name,
-       ST_Transform(counties.geom, 3857) AS geom,
-       SUM(lead_connections_count)       AS lead_connections_count,
-       SUM(service_connections_count)    AS service_connections_count,
-       SUM(population_served)            AS population_served
-FROM counties
-         LEFT JOIN water_systems
-                   ON water_systems.county_census_geo_id =
-                      counties.census_geo_id
-GROUP BY counties.census_geo_id, counties.name, counties.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
-
 INSERT INTO state_epa_violations(census_geo_id, name, geom, violation_count)
 SELECT states.census_geo_id            as census_geo_id,
        states.name                     AS name,
@@ -372,18 +250,6 @@ FROM states
                    ON violation_counts.state_census_geo_id =
                       states.census_geo_id
 GROUP BY states.census_geo_id, states.name, states.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
-
-INSERT INTO county_epa_violations(census_geo_id, name, geom, violation_count)
-SELECT counties.census_geo_id            as census_geo_id,
-       counties.name                     AS name,
-       ST_Transform(counties.geom, 3857) AS geom,
-       SUM(violation_count)              AS violation_count
-FROM counties
-         LEFT JOIN violation_counts
-                   ON violation_counts.county_census_geo_id =
-                      counties.census_geo_id
-GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
 --- Tileserver function definitions.
@@ -403,14 +269,17 @@ BEGIN
                                  4096, 'geom')
         FROM (
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                        census_geo_id,
                         name,
-                        black_population,
-                        white_population,
-                        total_population,
-                        under_five_population,
-                        poverty_population
-                 FROM state_demographics
-                 WHERE geom && ST_TileEnvelope(z, x, y)
+                        geo_type,
+                        median_year_built,
+                        median_income,
+                        weighted_national_adi,
+                        weighted_state_adi,
+                        population_count
+                 FROM aggregate_us_demographics
+                 WHERE geo_type = 'state'
+                   AND geom && ST_TileEnvelope(z, x, y)
              ) AS tile
         WHERE geom IS NOT NULL;
     ELSE
@@ -418,14 +287,17 @@ BEGIN
                                  4096, 'geom')
         FROM (
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
+                        census_geo_id,
                         name,
-                        black_population,
-                        white_population,
-                        total_population,
-                        under_five_population,
-                        poverty_population
-                 FROM county_demographics
-                 WHERE geom && ST_TileEnvelope(z, x, y)
+                        geo_type,
+                        median_year_built,
+                        median_income,
+                        weighted_national_adi,
+                        weighted_state_adi,
+                        population_count
+                 FROM aggregate_us_demographics
+                 WHERE geo_type = 'county'
+                   AND geom && ST_TileEnvelope(z, x, y)
              ) AS tile
         WHERE geom IS NOT NULL;
     END IF;

@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ApiClient } from '@/api/api_client';
 import { AppDispatch } from '@/model/store';
-import { LeadData } from '@/model/lead_data';
+import { LeadData } from '@/model/states/model/lead_data';
 import { LeadDataState } from '@/model/states/lead_data_state';
 
 const initialState: LeadDataState = {};
@@ -14,14 +14,14 @@ const leadDataSlice = createSlice({
   name: 'leadDataSlice',
   initialState,
   reducers: {
-    waterSystemQueried(state: LeadDataState, action: PayloadAction<LeadData>) {
-      state.data = { ...state.data, ...action.payload };
-    },
     getWaterSystemSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
       state.data = { ...state.data, ...action.payload };
     },
     getWaterSystemError(state: LeadDataState, action) {
-      console.log(`Error fetching water system: ${state} ${action}`);
+      console.log(`Error fetching lead data: ${state} ${action}`);
+    },
+    waterSystemQueried(state: LeadDataState, action: PayloadAction<LeadData>) {
+      state.data = { ...state.data, ...action.payload };
     },
   },
 });
