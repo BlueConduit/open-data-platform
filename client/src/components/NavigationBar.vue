@@ -38,7 +38,8 @@ export default defineComponent({
   },
   data() {
     const routes: [string, string][] = [
-      [Titles.SCORECARD_TITLE, router.HOME_ROUTE], // Redirects back home as the entry point.
+      // Redirect back home as the entry point for a user to search for a scorecard.
+      [Titles.SCORECARD_TITLE, router.HOME_ROUTE],
       [Titles.MAP_TITLE, router.MAP_ROUTE_BASE],
       [Titles.ABOUT_TITLE, router.ABOUT_ROUTE],
     ];
