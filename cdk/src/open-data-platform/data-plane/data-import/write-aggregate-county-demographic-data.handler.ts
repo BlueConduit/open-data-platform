@@ -62,10 +62,11 @@ function getTableRowFromRow(row: any): SqlParametersList {
   const properties = value.properties;
   return (
     new AggregateUsDemographicTableRowBuilder()
-      c
+      // Substring of AFFGEOID which is just county census geo ID.
+      .censusGeoId(properties.AFFGEOID?.substring(9, 14))
       .geoType(GeoType.County)
-      .name(properties.NAME)
-      .medianYearBuilt(properties.median_yearbuilt ?? '')
+      .name(properties.NAME ?? '')
+      .medianYearBuilt(properties.median_yearbuilt.toString() ?? '')
       .medianIncome(properties.median_income ?? 0)
       .homeAgeIndex(properties.homeage_index ?? 0)
       .incomeIndex(properties.income_index ?? 0)

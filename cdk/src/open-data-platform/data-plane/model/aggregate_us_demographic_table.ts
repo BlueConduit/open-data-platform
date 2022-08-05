@@ -33,6 +33,8 @@ class AggregateUsDemographicTableRow {
   weighted_state_adi: number;
   // Size of the population in this geographic area.
   population_count: number;
+  // U.S. Postal service abbreviation. This is only used for states.
+  usps: string;
   // GeoJSON representation of the boundaries.
   geom: string;
 
@@ -47,6 +49,7 @@ class AggregateUsDemographicTableRow {
     weighted_national_adi: number,
     weighted_state_adi: number,
     population_count: number,
+    usps: string,
     geom: string,
   ) {
     this.census_geo_id = census_geo_id;
@@ -59,6 +62,7 @@ class AggregateUsDemographicTableRow {
     this.weighted_national_adi = weighted_national_adi;
     this.weighted_state_adi = weighted_state_adi;
     this.population_count = population_count;
+    this.usps = usps;
     this.geom = geom;
   }
 }
@@ -70,7 +74,7 @@ class AggregateUsDemographicTableRowBuilder {
   private readonly _row: AggregateUsDemographicTableRow;
 
   constructor() {
-    this._row = new AggregateUsDemographicTableRow('', GeoType.Unknown, '', '', 0, 0, 0, 0, 0, 0, '');
+    this._row = new AggregateUsDemographicTableRow('', GeoType.Unknown, '', '', 0, 0, 0, 0, 0, 0, '', '');
   }
 
   censusGeoId(censusGeoId: string): AggregateUsDemographicTableRowBuilder {
@@ -123,6 +127,11 @@ class AggregateUsDemographicTableRowBuilder {
     return this;
   }
 
+  usps(usps: string): AggregateUsDemographicTableRowBuilder {
+    this._row.usps = usps;
+    return this;
+  }
+
   geom(geom: string): AggregateUsDemographicTableRowBuilder {
     this._row.geom = geom;
     return this;
@@ -169,6 +178,10 @@ class AggregateUsDemographicTableRowBuilder {
       {
         name: 'population_count',
         value: { doubleValue: this._row.population_count },
+      },
+      {
+        name: 'usps',
+        value: { stringValue: this._row.usps },
       },
       {
         name: 'geom',

@@ -38,17 +38,19 @@ async function insertBatch(
                                                  weighted_state_adi,
                                                  population_count,
                                                  geom)
-          VALUES (:census_geo_id,
-                  :geo_type,
-                  :name,
-                  :median_year_built,
-                  :median_income,
-                  :home_age_index,
-                  :income_index,
-                  :weighted_national_adi,
-                  :weighted_state_adi,
-                  :population_count,
-                  ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (census_geo_id) DO NOTHING`,
+          SELECT :census_geo_id,
+                 :geo_type,
+                 s.name,
+                 :median_year_built,
+                 :median_income,
+                 :home_age_index,
+                 :income_index,
+                 :weighted_national_adi,
+                 :weighted_state_adi,
+                 :population_count,
+                 ST_AsText(ST_GeomFromGeoJSON(:geom))
+          FROM states s
+          WHERE s.usps like :usps ON CONFLICT (census_geo_id) DO NOTHING`,
   };
   return rdsService.batchExecuteStatement(batchExecuteParams).promise();
 }
@@ -63,10 +65,10 @@ function getTableRowFromRow(row: any): SqlParametersList {
   return (
     new AggregateUsDemographicTableRowBuilder()
       // Substring of AFFGEOID which is just state census geo ID.
-      .censusGeoId(properties.AFFGEOID?.substring(9, 14))
+      .censusGeoId(properties.AFFGEOID?.substring(9, 11))
       .geoType(GeoType.State)
-      .name(properties.NAME)
-      .medianYearBuilt(properties.median_yearbuilt ?? '')
+      .usps(properties.STUSPS ?? '')
+      .medianYearBuilt(properties.median_yearbuilt.toString() ?? '')
       .medianIncome(properties.median_income ?? 0)
       .homeAgeIndex(properties.homeage_index ?? 0)
       .incomeIndex(properties.income_index ?? 0)
