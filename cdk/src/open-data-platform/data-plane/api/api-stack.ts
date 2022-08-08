@@ -61,6 +61,7 @@ export class ApiStack extends Construct {
     );
 
     const parcels = api.root.addResource('parcel');
+    // TODO: consider standardized addresses here instead of lat,long
     const parcelById = parcels.addResource('{latlong+}');
     parcelById.addMethod('GET', new apigateway.LambdaIntegration(parcelHandler, { proxy: true }));
 
