@@ -77,7 +77,7 @@ export const handler = async (event: {
       getGeoDataForLatLong(db, params, 'usps', 'states').then((state) => (body.state = state)),
     ]);
   } catch (error) {
-    console.log(`Error finding geo data for ${lat}, ${long}`, error);
+    console.log(`Error fetching geo data for ${lat}, ${long}`, error);
     throw error;
   }
 
@@ -110,6 +110,6 @@ interface GeolocateApiResponse {
  * Acceptable path parameters for this endpoint
  */
 interface GeolocatePathParameters {
-  // Coordinates to look up geo identifiers.
+  // Coordinates to look up geo identifiers, formatted as lat,long.
   latlong: string;
 }
