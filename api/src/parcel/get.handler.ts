@@ -2,16 +2,20 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
+import * as assert from 'assert';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'OPTIONS,GET',
 };
+const COLUMNS_SELECTED = 5;
 const SCHEMA = 'public';
 const SQL_QUERY = `SELECT address,
-                          public_lead_prediction,
-                          private_lead_prediction,
+                          public_lead_connections_low_estimate,
+                          public_lead_connections_high_estimate,
+                          private_lead_connections_low_estimate,
+                          private_lead_connections_high_estimate,
                           geom
                    FROM parcels
                    WHERE geom && ST_SetSRID(ST_Point(:long, :lat), 4326)
@@ -32,11 +36,14 @@ async function getParcelData(
   let body: ParcelApiResponse = {};
 
   const results = await rdsService.executeStatement(executeParams).promise();
+  assert(results.records?.length == COLUMNS_SELECTED);
   for (let record of results.records ?? []) {
     body = {
       address: record[0].stringValue,
-      public_lead_prediction: record[1].doubleValue,
-      private_lead_prediction: record[2].doubleValue,
+      public_lead_low_prediction: record[1].doubleValue,
+      public_lead_high_prediction: record[2].doubleValue,
+      private_lead_low_prediction: record[3].doubleValue,
+      private_lead_high_prediction: record[4].doubleValue,
     };
   }
   return body;
@@ -82,8 +89,10 @@ export const handler = async (event: {
  */
 interface ParcelApiResponse {
   address?: string;
-  public_lead_prediction?: number;
-  private_lead_prediction?: number;
+  public_lead_low_prediction?: number;
+  public_lead_high_prediction?: number;
+  private_lead_low_prediction?: number;
+  private_lead_high_prediction?: number;
   geom?: string;
 }
 

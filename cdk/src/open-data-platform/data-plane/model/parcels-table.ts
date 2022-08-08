@@ -8,22 +8,32 @@ class ParcelsTableRow {
 
   // Parcel name.
   address: string;
+  // City of parcel.
+  city: string;
   // Reported or estimated likelihood of lead pipes for public lines in the boundary.
-  public_lead_prediction: number;
+  public_lead_low_prediction: number;
+  // Reported or estimated likelihood of lead pipes for public lines in the boundary.
+  public_lead_high_prediction: number;
   // Reported or estimated likelihood of lead pipes for private lines in the boundary.
-  private_lead_prediction: number;
+  private_lead_low_prediction: number;
+  // Reported or estimated likelihood of lead pipes for private lines in the boundary.
+  private_lead_high_prediction: number;
   // GeoJSON representation of the boundaries.
   geom: string;
 
   constructor(
     address: string,
-    publicLeadPrediction: number,
-    privateLeadPrediction: number,
+    publicLeadLowPrediction: number,
+    publicLeadHighPrediction: number,
+    privateLeadLowPrediction: number,
+    privateLeadHighPrediction: number,
     geom: string,
   ) {
     this.address = address;
-    this.public_lead_prediction = publicLeadPrediction;
-    this.private_lead_prediction = privateLeadPrediction;
+    this.public_lead_low_prediction = publicLeadLowPrediction;
+    this.public_lead_high_prediction = publicLeadHighPrediction;
+    this.private_lead_low_prediction = privateLeadLowPrediction;
+    this.private_lead_high_prediction = privateLeadHighPrediction;
     this.geom = geom;
   }
 }
@@ -35,7 +45,7 @@ export class ParcelsTableRowBuilder {
   private readonly _row: ParcelsTableRow;
 
   constructor() {
-    this._row = new ParcelsTableRow('', 0, 0, '');
+    this._row = new ParcelsTableRow('', 0, 0, 0, 0, '');
   }
 
   address(address: string): ParcelsTableRowBuilder {
@@ -43,13 +53,28 @@ export class ParcelsTableRowBuilder {
     return this;
   }
 
-  publicLeadPrediction(publicLeadPrediction: number): ParcelsTableRowBuilder {
-    this._row.public_lead_prediction = publicLeadPrediction;
+  city(city: string): ParcelsTableRowBuilder {
+    this._row.city = city;
     return this;
   }
 
-  privateLeadPrediction(populationServed: number): ParcelsTableRowBuilder {
-    this._row.private_lead_prediction = populationServed;
+  publicLeadLowPrediction(publicLeadLowPrediction: number): ParcelsTableRowBuilder {
+    this._row.public_lead_low_prediction = publicLeadLowPrediction;
+    return this;
+  }
+
+  publicLeadHighPrediction(publicLeadHighPrediction: number): ParcelsTableRowBuilder {
+    this._row.public_lead_high_prediction = publicLeadHighPrediction;
+    return this;
+  }
+
+  privateLeadLowPrediction(privateLeadLowPrediction: number): ParcelsTableRowBuilder {
+    this._row.private_lead_low_prediction = privateLeadLowPrediction;
+    return this;
+  }
+
+  privateLeadHighPrediction(privateLeadHighPrediction: number): ParcelsTableRowBuilder {
+    this._row.private_lead_high_prediction = privateLeadHighPrediction;
     return this;
   }
 
@@ -65,12 +90,24 @@ export class ParcelsTableRowBuilder {
         value: { stringValue: this._row.address },
       },
       {
-        name: 'public_lead_prediction',
-        value: { doubleValue: this._row.public_lead_prediction },
+        name: 'city',
+        value: { stringValue: this._row.city },
       },
       {
-        name: 'private_lead_prediction',
-        value: { doubleValue: this._row.private_lead_prediction },
+        name: 'public_lead_low_prediction',
+        value: { doubleValue: this._row.public_lead_low_prediction },
+      },
+      {
+        name: 'public_lead_high_prediction',
+        value: { doubleValue: this._row.public_lead_high_prediction },
+      },
+      {
+        name: 'private_lead_low_prediction',
+        value: { doubleValue: this._row.private_lead_low_prediction },
+      },
+      {
+        name: 'private_lead_high_prediction',
+        value: { doubleValue: this._row.private_lead_high_prediction },
       },
       {
         name: 'geom',
