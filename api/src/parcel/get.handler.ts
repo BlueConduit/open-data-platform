@@ -2,14 +2,13 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
-import * as assert from 'assert';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'OPTIONS,GET',
 };
-const COLUMNS_SELECTED = 5;
+const COLUMNS_SELECTED = 6;
 const SCHEMA = 'public';
 const SQL_QUERY = `SELECT address,
                           public_lead_connections_low_estimate,
@@ -36,14 +35,17 @@ async function getParcelData(
   let body: ParcelApiResponse = {};
 
   const results = await rdsService.executeStatement(executeParams).promise();
-  assert(results.records?.length == COLUMNS_SELECTED);
   for (let record of results.records ?? []) {
+    if (record.length != COLUMNS_SELECTED) {
+      throw 'Error: Failed to read from parcels table';
+    }
     body = {
       address: record[0].stringValue,
       public_lead_low_prediction: record[1].doubleValue,
       public_lead_high_prediction: record[2].doubleValue,
       private_lead_low_prediction: record[3].doubleValue,
       private_lead_high_prediction: record[4].doubleValue,
+      geom: record[4].stringValue,
     };
   }
   return body;
