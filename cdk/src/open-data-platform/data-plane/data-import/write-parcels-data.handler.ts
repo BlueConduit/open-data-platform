@@ -30,12 +30,18 @@ async function insertBatch(
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO parcels (address,
-                               public_lead_prediction,
-                               private_lead_prediction,
+                               city,
+                               public_lead_connections_low_estimate,
+                               public_lead_connections_high_estimate,
+                               private_lead_connections_low_estimate,
+                               private_lead_connections_high_estimate,
                                geom)
           VALUES (:address,
-                  :public_lead_prediction,
-                  :private_lead_prediction,
+                  :city,
+                  :public_lead_low_prediction,
+                  :public_lead_high_prediction,
+                  :private_lead_low_prediction,
+                  :private_lead_high_prediction,
                   ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (address) DO NOTHING`,
   };
   return rdsService.batchExecuteStatement(batchExecuteParams).promise();
@@ -58,8 +64,12 @@ function getTableRowFromRow(row: any): SqlParametersList {
   return (
     new ParcelsTableRowBuilder()
       .address(properties.address)
-      .publicLeadPrediction(getValueOrDefault(properties.y_score_pub))
-      .privateLeadPrediction(getValueOrDefault(properties.y_score_priv))
+      .city(properties.city ?? '')
+      // TODO: Change to real properties once we have them.
+      .publicLeadLowPrediction(getValueOrDefault(properties.y_score_pub))
+      .publicLeadHighPrediction(getValueOrDefault(properties.y_score_pub))
+      .privateLeadLowPrediction(getValueOrDefault(properties.y_score_priv))
+      .privateLeadHighPrediction(getValueOrDefault(properties.y_score_priv))
       // Keep JSON formatting. Post-GIS helpers depend on this.
       .geom(JSON.stringify(value.geometry))
       .build()
