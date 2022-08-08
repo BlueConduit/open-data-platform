@@ -12,6 +12,9 @@
           </router-link>
         </div>
       </div>
+      <div>
+        <router-link to='/resources' class='semi-bold'>Resources</router-link>
+      </div>
     </div>
   </div>
 </template>
