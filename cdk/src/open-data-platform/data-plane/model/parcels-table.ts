@@ -10,13 +10,17 @@ class ParcelsTableRow {
   address: string;
   // City of parcel.
   city: string;
-  // Reported or estimated likelihood of lead pipes for public lines in the boundary.
+  // Reported or estimated likelihood of lead pipes (low end of a 95% confidence
+  // interval) for public lines in the boundary.
   public_lead_low_prediction: number;
-  // Reported or estimated likelihood of lead pipes for public lines in the boundary.
+  // Reported or estimated likelihood of lead pipes (high end of a 95% confidence
+  // interval) for public lines in the boundary.
   public_lead_high_prediction: number;
-  // Reported or estimated likelihood of lead pipes for private lines in the boundary.
+  // Reported or estimated likelihood of lead pipes (low end of a 95% confidence
+  // interval) for private lines in the boundary.
   private_lead_low_prediction: number;
-  // Reported or estimated likelihood of lead pipes for private lines in the boundary.
+  // Reported or estimated likelihood of lead pipes (high end of a 95% confidence
+  // interval) for private lines in the boundary.
   private_lead_high_prediction: number;
   // GeoJSON representation of the boundaries.
   geom: string;
