@@ -13,11 +13,13 @@ export class ApiStack extends Construct {
     const { cluster, credentialsSecret } = props;
 
     const geolocateHandler = apiLambdaFactory(this, props, 'geolocate');
+    const parcelHandler = apiLambdaFactory(this, props, 'parcel');
     const waterSystemHandler = apiLambdaFactory(this, props, 'watersystem');
     const zipCodeScorecardHandler = apiLambdaFactory(this, props, 'zipcode/scorecard');
 
     const lambdaFunctions: lambda.NodejsFunction[] = [
       geolocateHandler,
+      parcelHandler,
       waterSystemHandler,
       zipCodeScorecardHandler,
     ];
@@ -57,6 +59,11 @@ export class ApiStack extends Construct {
       'GET',
       new apigateway.LambdaIntegration(waterSystemHandler, { proxy: true }),
     );
+
+    const parcels = api.root.addResource('parcel');
+    // TODO: consider standardized addresses here instead of lat,long
+    const parcelById = parcels.addResource('{latlong+}');
+    parcelById.addMethod('GET', new apigateway.LambdaIntegration(parcelHandler, { proxy: true }));
 
     const zipCode = api.root.addResource('zipcode');
     const scorecard = zipCode.addResource('scorecard');
