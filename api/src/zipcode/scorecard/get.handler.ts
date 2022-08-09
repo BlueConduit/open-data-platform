@@ -21,8 +21,10 @@ async function getZipCodeData(
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `SELECT census_geo_id,
                  home_age_index,
+                 median_year_built,
                  weighted_national_adi,
-                 income_index
+                 income_index,
+                 median_income
           FROM aggregate_us_demographics
           WHERE census_geo_id = :zip_code LIMIT 1`,
     parameters: params,
@@ -33,9 +35,11 @@ async function getZipCodeData(
   for (let record of results.records ?? []) {
     body = {
       geoid: record[0].stringValue,
-      average_home_age: record[1].doubleValue,
-      average_social_vulnerability: record[2].doubleValue,
-      average_income: record[3].doubleValue,
+      home_age_index: record[1].doubleValue,
+      average_home_age: record[3].doubleValue,
+      average_social_vulnerability: record[3].doubleValue,
+      income_index: record[4].doubleValue,
+      average_income: record[5].doubleValue,
     };
   }
   return body;
@@ -75,8 +79,10 @@ export const handler = async (event: {
 interface ScorecardApiResponse {
   geoid?: string;
   average_home_age?: number;
+  home_age_index?: number;
   average_social_vulnerability?: number;
   average_income?: number;
+  income_index?: number;
   violation_count?: number;
 }
 
