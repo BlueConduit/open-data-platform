@@ -3,11 +3,15 @@ import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 
+const moment = require('moment');
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'OPTIONS,GET',
 };
+const COLUMNS_SELECTED = 6;
+const YEAR_BUILD_DATE_FORMAT = 'YYYY';
 const SCHEMA = 'public';
 
 async function getZipCodeData(
@@ -19,10 +23,12 @@ async function getZipCodeData(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    sql: `SELECT census_geo_id as zip_code,
-                 average_home_age,
-                 average_income_level,
-                 average_social_vulnerability
+    sql: `SELECT census_geo_id,
+                 home_age_index,
+                 median_year_built,
+                 weighted_national_adi,
+                 income_index,
+                 median_income
           FROM aggregate_us_demographics
           WHERE census_geo_id = :zip_code LIMIT 1`,
     parameters: params,
@@ -31,11 +37,23 @@ async function getZipCodeData(
   let body: ScorecardApiResponse = {};
   const results = await rdsService.executeStatement(executeParams).promise();
   for (let record of results.records ?? []) {
+    if (record.length != COLUMNS_SELECTED) {
+      throw 'Error: Failed to read from aggregate demographics table';
+    }
+    let averageYearsOld;
+    const homeYear = record[2].stringValue;
+    if (homeYear != null) {
+      const homeAge = moment(homeYear, YEAR_BUILD_DATE_FORMAT);
+      averageYearsOld = moment().diff(homeAge, 'years');
+    }
+
     body = {
       geoid: record[0].stringValue,
-      average_home_age: record[1].doubleValue,
-      average_social_vulnerability: record[2].doubleValue,
-      average_income: record[3].doubleValue,
+      home_age_index: record[1].doubleValue,
+      average_home_age: averageYearsOld,
+      average_social_vulnerability: record[3].doubleValue,
+      income_index: record[4].doubleValue,
+      average_income: record[5].doubleValue,
     };
   }
   return body;
@@ -75,8 +93,10 @@ export const handler = async (event: {
 interface ScorecardApiResponse {
   geoid?: string;
   average_home_age?: number;
+  home_age_index?: number;
   average_social_vulnerability?: number;
   average_income?: number;
+  income_index?: number;
   violation_count?: number;
 }
 
