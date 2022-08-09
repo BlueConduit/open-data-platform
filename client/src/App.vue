@@ -1,8 +1,11 @@
 <template>
-  <NavigationBar />
+  <div class='main'>
+    <NavigationBar />
+    <router-view />
+  </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent, provide, reactive } from 'vue';
 import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/dist/css/copper.css';
@@ -26,13 +29,15 @@ const DATA_LAYERS = new Map<MapLayer, DataLayer>([
   [MapLayer.LeadServiceLineByParcel, leadServiceLinesByParcelLayer],
 ]);
 
+/**
+ * This file contains the component(s) that are visible in every view.
+ */
 export default defineComponent({
   name: 'App',
   components: {
     NavigationBar,
   },
   setup() {
-
     // Create and provide default state. This is updated once API data is fetched.
     const state = reactive(new State([]));
     state.dataLayers = Array.from(DATA_LAYERS.values());
@@ -65,4 +70,11 @@ export default defineComponent({
 </script>
 <style>
 @import './assets/styles/global.scss';
+/* Make sure there's no empty space at the bottom of the page. */
+html,
+body,
+#app,
+.main {
+  height: 100%;
+}
 </style>

@@ -1,24 +1,24 @@
 <template>
-  <div :style='cssVars' class='container'>
-    <div>
-      <router-link to='/'>
-        <img src='../assets/logo.png' class='logo' />
-      </router-link>
-    </div>
-    <div class='right-align'>
+  <div>
+    <div :style='cssVars' class='container'>
       <div>
-        <router-link to='/map' class='semi-bold'>Map</router-link>
+        <router-link to='/'>
+          <img src='../assets/logo.png' class='logo' />
+        </router-link>
       </div>
-      <div>
-        <router-link to='/contact' class='semi-bold'>Contact</router-link>
+      <div class='right-align'>
+        <div v-for='route in routes' :key='route[0]'>
+          <router-link :to='route[1]' class='semi-bold'>{{ route[0] }}</router-link>
+        </div>
       </div>
     </div>
   </div>
-  <router-view />
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
+import { Titles } from '../assets/messages/common';
+import * as router from '../router';
 
 export default defineComponent({
   name: 'NavigationBar',
@@ -35,6 +35,17 @@ export default defineComponent({
       type: Number,
       default: 50,
     },
+  },
+  data() {
+    const routes: [string, string][] = [
+      // Redirect back home as the entry point for a user to search for a scorecard.
+      [Titles.SCORECARD_TITLE, router.HOME_ROUTE],
+      [Titles.MAP_TITLE, router.MAP_ROUTE_BASE],
+      [Titles.ABOUT_TITLE, router.ABOUT_ROUTE],
+    ];
+    return {
+      routes,
+    };
   },
   computed: {
     cssVars() {
