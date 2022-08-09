@@ -3,11 +3,15 @@ import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 
+const moment = require('moment');
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'OPTIONS,GET',
 };
+const COLUMNS_SELECTED = 6;
+const YEAR_BUILD_DATE_FORMAT = 'YYYY';
 const SCHEMA = 'public';
 
 async function getZipCodeData(
@@ -33,10 +37,20 @@ async function getZipCodeData(
   let body: ScorecardApiResponse = {};
   const results = await rdsService.executeStatement(executeParams).promise();
   for (let record of results.records ?? []) {
+    if (record.length != COLUMNS_SELECTED) {
+      throw 'Error: Failed to read from aggregate demographics table';
+    }
+    let averageYearsOld;
+    const homeYear = record[2].stringValue;
+    if (homeYear != null) {
+      const homeAge = moment(homeYear, YEAR_BUILD_DATE_FORMAT);
+      averageYearsOld = moment().diff(homeAge, 'years');
+    }
+
     body = {
       geoid: record[0].stringValue,
       home_age_index: record[1].doubleValue,
-      average_home_age: record[3].doubleValue,
+      average_home_age: averageYearsOld,
       average_social_vulnerability: record[3].doubleValue,
       income_index: record[4].doubleValue,
       average_income: record[5].doubleValue,
