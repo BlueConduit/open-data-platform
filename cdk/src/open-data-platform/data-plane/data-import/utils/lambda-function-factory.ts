@@ -42,11 +42,13 @@ export const dataImportLambdaFactory = (
  * @param scope: the construct under which to provision resource.
  * @param props: schema identifiers passed to the function when reading data.
  * @param id: ID to assign resource.
+ * @param nodeModules
  */
 export const apiLambdaFactory = (
   scope: Construct,
   props: SchemaProps,
   id: string,
+  nodeModules?: string[],
 ): lambda.NodejsFunction =>
   new lambda.NodejsFunction(scope, `${id}-handler`, {
     entry: `${cwd()}/../api/src/${id}/get.handler.ts`,
@@ -60,5 +62,6 @@ export const apiLambdaFactory = (
     },
     bundling: {
       externalModules: ['aws-sdk'],
+      nodeModules: nodeModules ?? [],
     },
   });
