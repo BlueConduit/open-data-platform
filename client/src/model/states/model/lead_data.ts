@@ -5,6 +5,8 @@ export interface LeadData {
   geoId?: string;
   leadServiceLines?: number;
   serviceLines?: number;
-  publicLeadPrediction?: number;
-  privateLeadPrediction?: number;
+  publicLeadLowPrediction?: number;
+  publicLeadHighPrediction?: number;
+  privateLeadLowPrediction?: number;
+  privateLeadHighPrediction?: number;
 }

@@ -74,7 +74,7 @@ class ApiClient {
   getParcel = async (lat: string, long: string): Promise<ApiResponse> => {
     return this.request(`${ApiClient.API_URL}/parcel/${lat},${long}`, (data) => {
       return {
-        geoId: data?.data?.address,
+        address: data?.data?.address,
         publicLeadLowPrediction: data?.data?.public_lead_low_prediction,
         publicLeadHighPrediction: data?.data?.public_lead_high_prediction,
         privateLeadLowPrediction: data?.data?.private_lead_low_prediction,
