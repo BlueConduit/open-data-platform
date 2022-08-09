@@ -13,7 +13,7 @@ export class ApiStack extends Construct {
     const { cluster, credentialsSecret } = props;
 
     const geolocateHandler = apiLambdaFactory(this, props, 'geolocate');
-    const parcelHandler = apiLambdaFactory(this, props, 'parcel', ['moment']);
+    const parcelHandler = apiLambdaFactory(this, props, 'parcel');
     const waterSystemHandler = apiLambdaFactory(this, props, 'watersystem');
     const zipCodeScorecardHandler = apiLambdaFactory(this, props, 'zipcode/scorecard');
 
