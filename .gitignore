@@ -35,5 +35,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+*.code-workspace
 *.js.map
 *.js

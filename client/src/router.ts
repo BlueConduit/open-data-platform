@@ -1,19 +1,28 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { Titles } from './assets/messages/common';
+import LandingPageView from './views/LandingPageView.vue';
 import MapView from './views/MapView.vue';
+import { Titles } from './assets/messages/common';
 
 export const LAT_LONG_PARAM = 'latlong';
 
 const HOME_ROUTE = '/';
-const MAP_ROUTE = `/map/:${LAT_LONG_PARAM}?`;
-const CONTACT_ROUTE = '/contact';
+const MAP_ROUTE_BASE = `/map`;
+const MAP_ROUTE = `${MAP_ROUTE_BASE}/:${LAT_LONG_PARAM}?`;
+const ABOUT_ROUTE = '/about';
 
 const routes = [
   {
     path: HOME_ROUTE,
-    component: MapView,
+    component: LandingPageView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.HOME_TITLE}`,
+    },
+  },
+  {
+    path: MAP_ROUTE_BASE,
+    component: MapView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.MAP_TITLE}`,
     },
   },
   {
@@ -24,10 +33,10 @@ const routes = [
     },
   },
   {
-    path: CONTACT_ROUTE,
-    component: MapView,
+    path: ABOUT_ROUTE,
+    component: LandingPageView,
     meta: {
-      title: `${Titles.APP_TITLE} - ${Titles.CONTACT_TITLE}`,
+      title: `${Titles.APP_TITLE} - ${Titles.ABOUT_TITLE}`,
     },
   },
 ];
@@ -38,4 +47,4 @@ const router = createRouter({
   routes: routes,
 });
 
-export { router, HOME_ROUTE, MAP_ROUTE, CONTACT_ROUTE };
+export { router, HOME_ROUTE, MAP_ROUTE_BASE, MAP_ROUTE, ABOUT_ROUTE };
