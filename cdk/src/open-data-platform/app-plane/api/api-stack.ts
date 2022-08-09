@@ -2,9 +2,9 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
-import { SchemaProps } from '../schema/schema-props';
-import { apiLambdaFactory } from '../data-import/utils/lambda-function-factory';
+import { SchemaProps } from '../../data-plane/schema/schema-props';
 import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
+import { apiLambdaFactory } from './lambda-function-factory';
 
 export class ApiStack extends Construct {
   constructor(scope: Construct, id: string, props: SchemaProps) {
@@ -24,15 +24,15 @@ export class ApiStack extends Construct {
       zipCodeScorecardHandler,
     ];
 
-    for (let f of lambdaFunctions) {
-      credentialsSecret.grantRead(f);
-      cluster.connections.allowFrom(f, ec2.Port.tcp(cluster.clusterEndpoint.port));
+    // for (let f of lambdaFunctions) {
+    //   credentialsSecret.grantRead(f);
+    //   cluster.connections.allowFrom(f, ec2.Port.tcp(cluster.clusterEndpoint.port));
 
-      if (f.role?.roleArn != undefined) {
-        let role = iam.Role.fromRoleArn(scope, id + '-' + f, f.role.roleArn);
-        cluster.grantDataApiAccess(role);
-      }
-    }
+    //   if (f.role?.roleArn != undefined) {
+    //     let role = iam.Role.fromRoleArn(scope, id + '-' + f, f.role.roleArn);
+    //     cluster.grantDataApiAccess(role);
+    //   }
+    // }
 
     const api = new apigateway.RestApi(this, 'open-data-platform-api', {
       description: 'Open data platform for BlueConduit',
