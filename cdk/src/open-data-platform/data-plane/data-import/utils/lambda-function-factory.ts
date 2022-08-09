@@ -48,7 +48,7 @@ export const apiLambdaFactory = (
   scope: Construct,
   props: SchemaProps,
   id: string,
-  nodeModules?: string[],
+  nodeModules: string[] = [],
 ): lambda.NodejsFunction =>
   new lambda.NodejsFunction(scope, `${id}-handler`, {
     entry: `${cwd()}/../api/src/${id}/get.handler.ts`,
@@ -61,7 +61,6 @@ export const apiLambdaFactory = (
       RESOURCE_ARN: props.cluster.clusterArn,
     },
     bundling: {
-      externalModules: ['aws-sdk'],
-      nodeModules: nodeModules ?? [],
+      externalModules: ['aws-sdk', ...nodeModules],
     },
   });
