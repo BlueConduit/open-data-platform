@@ -56,7 +56,6 @@ export default defineComponent({
 
 <style scoped>
 h1 {
-  width: 974px;
   height: 48px;
 
   /* Display 2 */
@@ -110,11 +109,12 @@ h2 {
 }
 
 .static-page-section {
-  position: absolute;
-  left: 0px;
-  top: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 100px;
   padding: 35px 25px;
-
   background: #FFFFFF;
 }
 </style>

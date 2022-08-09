@@ -9,6 +9,15 @@
         <span class='text'>{{ messages.WaterFilterInfo.BODY }}</span>
       </div>
     </static-page-section>
+    <static-page-section :styles='STYLES'
+                         :messages='messages.FilterTypeInfo'>
+      <div class='filter-cards'>
+        <image-card :messages='messages.PitcherFilterInfo'></image-card>
+        <image-card :messages='messages.SinkFilterInfo'></image-card>
+        <image-card :messages='messages.HouseholdFilterInfo'></image-card>
+        <image-card :messages='messages.ShowerFilterInfo'></image-card>
+      </div>
+    </static-page-section>
   </div>
 </template>
 
@@ -16,6 +25,7 @@
 import { defineComponent } from 'vue';
 import * as messages from '../assets/messages/resources';
 import StaticPageSection, { Styles } from '../components/StaticPageSection.vue';
+import ImageCard from '../components/ImageCard.vue';
 
 const STYLES: Styles = {
   HEIGHT: '100px',
@@ -27,9 +37,9 @@ const STYLES: Styles = {
  */
 export default defineComponent({
   name: 'ResourceView',
-  components: { StaticPageSection },
-  props: {
-    image: { type: String, default: 'placeholder_image.png' },
+  components: {
+    StaticPageSection,
+    ImageCard,
   },
   data() {
     return {
@@ -54,6 +64,16 @@ export default defineComponent({
 .asset img {
   height: 472px;
   width: 494px;
+}
+
+.filter-cards {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  width: 852px;
+  height: 903px;
 }
 
 .text {
