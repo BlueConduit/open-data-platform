@@ -61,6 +61,7 @@ export const apiLambdaFactory = (
       RESOURCE_ARN: props.cluster.clusterArn,
     },
     bundling: {
-      externalModules: ['aws-sdk', ...nodeModules],
+      externalModules: ['aws-sdk'],
+      nodeModules: nodeModules,
     },
   });
