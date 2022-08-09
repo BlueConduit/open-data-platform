@@ -60,5 +60,6 @@ export const apiLambdaFactory = (
     },
     bundling: {
       externalModules: ['aws-sdk'],
+      nodeModules: ['moment'],
     },
   });

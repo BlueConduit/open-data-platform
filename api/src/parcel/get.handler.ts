@@ -45,7 +45,7 @@ async function getParcelData(
       public_lead_high_prediction: record[2].doubleValue,
       private_lead_low_prediction: record[3].doubleValue,
       private_lead_high_prediction: record[4].doubleValue,
-      geom: record[4].stringValue,
+      geom: record[5].stringValue,
     };
   }
   return body;

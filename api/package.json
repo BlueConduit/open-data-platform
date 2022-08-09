@@ -30,6 +30,7 @@
   "dependencies": {
     "@aws-cdk/aws-lambda": "^1.156.1",
     "aws-cdk-lib": "^2.31.0",
-    "aws-sdk": "^2.1148.0"
+    "aws-sdk": "^2.1148.0",
+    "moment": "^2.29.4"
   }
 }
