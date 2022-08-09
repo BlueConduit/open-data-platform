@@ -5,7 +5,6 @@
  */
 export class WaterFilterInfo {
   static HEADER = 'Choosing the right water filter';
-  static SUB_HEADER = 'Things to consider when looking for a water filter to protect against lead';
-  static BODY = `There are several types of water filters. Choosing the right one depends on your budget and needs.`;
-  static CTA_PLACEHOLDER = 'here are a few examples of types of filters: pitcher, under the Sink, Shower, Household';
+  static SUB_HEADER = 'Here are a few things to consider before buying a water filter along with a few questions you may have.';
+  static BODY = `You can get filters that cover an entire home or for a single person on the go. There are many options that can fit your budget or needs.`;
 }

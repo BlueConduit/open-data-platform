@@ -5,7 +5,7 @@
       <h2 v-if='$props.messages.SUB_HEADER'>
         {{ $props.messages.SUB_HEADER }}</h2>
     </div>
-    <slot></slot>
+    <slot class='content-slot'></slot>
   </div>
 </template>
 
@@ -56,33 +56,50 @@ export default defineComponent({
 
 <style scoped>
 h1 {
-  width: 952px;
-  height: 58px;
+  width: 974px;
+  height: 48px;
 
-  font-size: 48px;
-  font-weight: 600;
-  line-height: 58px;
-  /* identical to box height */
-  display: flex;
-  justify-content: center;
-  letter-spacing: 0.2px;
-  text-transform: capitalize;
+  /* Display 2 */
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 48px;
+  /* identical to box height, or 120% */
+  text-align: center;
+
+  /* Warm Grey/Warm Grey 800 */
+  color: #464646;
+
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+
 }
 
 h2 {
-  width: 746px;
-  height: 24px;
+  width: 733px;
+  height: 68px;
 
-  font-size: 20px;
-  font-weight: 400;
-  line-height: 24px;
-  display: flex;
-  justify-content: center;
-  letter-spacing: 0.2px;
-  text-transform: capitalize;
+  /* Headline 2 */
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 34px;
+  /* or 142% */
+  text-align: center;
 
-  /* Warm Grey/Warm Grey 600 */
-  color: #7A7A7A;
+  /* Warm Grey/Warm Grey 900 */
+  color: #252525;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 1;
+  flex-grow: 0;
 }
 
 .header-section {
@@ -90,23 +107,13 @@ h2 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 80px 120px;
 }
 
 .static-page-section {
-  /* Auto layout */
-  /*display: flex;*/
-  /*flex-direction: column;*/
-  /*justify-content: center;*/
-  /*align-items: center;*/
-  /*padding: 80px 120px;*/
-  /*gap: 70px;*/
-
   position: absolute;
-  width: 100%;
-  /*height: 816px;*/
   left: 0px;
   top: 100px;
+  padding: 35px 25px;
 
   background: #FFFFFF;
 }

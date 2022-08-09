@@ -3,9 +3,10 @@
     <static-page-section :messages='messages.WaterFilterInfo'
                          :styles='STYLES'>
       <div class='static-content'>
-        <span class='asset'><img :src='require(`@/assets/media/${image}`)'
-                                 alt=''></span>
-        <span>{{ messages.WaterFilterInfo.BODY }}</span>
+        <span class='asset'><img
+          :src='require(`@/assets/media/resource-image-1.png`)'
+          alt=''></span>
+        <span class='text'>{{ messages.WaterFilterInfo.BODY }}</span>
       </div>
     </static-page-section>
   </div>
@@ -42,21 +43,43 @@ export default defineComponent({
 <style scoped>
 
 .static-content {
-  font-weight: 500;
-  font-size: 32px;
-  line-height: 48px;
-  /* or 150% */
+  width: 932px;
   display: flex;
   align-items: center;
   letter-spacing: 0.2px;
   text-transform: capitalize;
-
-  /* Warm Grey/Warm Grey 900 */
-  color: #252525;
+  margin-top: 24px;
 }
 
 .asset img {
   height: 472px;
-  width: 652px;
+  width: 494px;
+}
+
+.text {
+  padding: 0 110px 0 38px;
+  width: 290px;
+  height: 204px;
+
+  /* Headline 2 */
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 34px;
+  /* or 142% */
+  display: flex;
+  align-items: center;
+
+  /* Warm Grey/Warm Grey 600 */
+  color: #7A7A7A;
+
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+
 }
 </style>
