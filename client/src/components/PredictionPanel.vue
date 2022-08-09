@@ -20,7 +20,7 @@ import { defineComponent } from 'vue';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 import { dispatch, useSelector } from '../model/store';
 import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_messages';
-import { getWaterSystem } from '../model/slices/lead_data_slice';
+import { getPrediction, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 
@@ -70,9 +70,16 @@ export default defineComponent({
   watch: {
     // Listen for changes to pws id. Once it changes, a new prediction
     // must be fetched.
-    'geoState.geoids.pwsId': function() {
+    'geoState.geoids.pwsid': function() {
       if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId));
+      }
+    },
+    // Listen for changes to pws id. Once it changes, a new prediction
+    // must be fetched.
+    'geoState.geoids.address': function() {
+      if (this.geoState?.geoids?.address != null) {
+        dispatch(getPrediction(this.geoState.geoids.lat, this.geoState.geoids.long));
       }
     },
   },

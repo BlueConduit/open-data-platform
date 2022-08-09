@@ -3,6 +3,7 @@ import { ApiClient } from '@/api/api_client';
 import { AppDispatch } from '@/model/store';
 import { LeadData } from '@/model/states/model/lead_data';
 import { LeadDataState } from '@/model/states/lead_data_state';
+import { queryLatLong } from '@/model/slices/geo_data_slice';
 
 const initialState: LeadDataState = {};
 const client = new ApiClient();
@@ -43,7 +44,7 @@ const leadDataSlice = createSlice({
  */
 export const getPrediction = (lat: string, long: string) => {
   return async (dispatch: AppDispatch) => {
-    dispatch(parcelQueried({ lat: null, long: null }));
+    dispatch(queryLatLong(lat, long));
 
     const apiResponse = await client.getParcel(lat, long);
     if (apiResponse.data != null) {
