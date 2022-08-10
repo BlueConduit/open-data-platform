@@ -299,7 +299,9 @@ export default defineComponent({
     },
     // Listens to query param to toggle layers.
     routerLayer: function(newLayer: string) {
-      this.setDataLayerVisibility(newLayer, true);
+      if (newLayer != null) {
+        this.setDataLayerVisibility(newLayer, true);
+      }
     },
     // Listen for changes to lat/long to update map location.
     'geoState.geoids.lat': function() {

@@ -60,7 +60,7 @@ export default defineComponent({
         const long = latLong[1];
 
         // TODO: Pass real geo type.
-        //dispatch(queryLatLong(lat, long, GeoType.postcode));
+        dispatch(queryLatLong(lat, long, GeoType.postcode));
       }
 
       // TODO: consider adding a string that says this is a non-prod environment, so devs can see
