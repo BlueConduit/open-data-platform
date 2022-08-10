@@ -40,7 +40,7 @@ export default defineComponent({
   data() {
     const routes: [string, string][] = [
       [Titles.HOME_TITLE, router.HOME_ROUTE],
-      [Titles.LEAD_STATUS_TITLE, router.MAP_ROUTE_BASE],
+      [Titles.LEAD_STATUS_TITLE, router.SCORECARD_BASE],
       [Titles.MAP_TITLE, router.MAP_ROUTE_BASE],
       [Titles.ABOUT_TITLE, router.ABOUT_ROUTE],
     ];
