@@ -8,15 +8,15 @@
         {{ ScorecardSummaryMessages.LEADOUT }}
       </div>
       <div class='h1-header semi-bold'
-           v-if='this.pwsId != null && percentLead != null'>
+           v-if='showWaterSystemPrediction'>
         Your neighborhood water system {{ pwsId }} is likely
         {{ percentLead }}% lead.
       </div>
       <div class='h1-header semi-bold'
-           v-if='this.publicLeadLikelihood != null'>
+           v-if='publicLeadLikelihood != null'>
         Your home's public service lines have a {{ publicLeadLikelihood }}%
         chance of lead.
-        <span v-if='this.privateLeadLikelihood != null'>
+        <span v-if='privateLeadLikelihood != null'>
           While your private service lines have a {{ privateLeadLikelihood }}%
           chance of lead.</span>
       </div>
@@ -91,6 +91,9 @@ export default defineComponent({
       // after the API has returned.
       return this.geoState?.geoids?.pwsId ?? null;
     },
+    showWaterSystemPrediction(): boolean {
+      return this.geoState?.geoids?.geoType != GeoType.address && this.pwsId != null && this.percentLead != null;
+    },
   },
   watch: {
     // Listen for changes to pws id. Once it changes, a new prediction
@@ -133,7 +136,7 @@ export default defineComponent({
 }
 
 .search {
-  max-width: 300px;
+  max-width: 350px;
 }
 
 </style>
