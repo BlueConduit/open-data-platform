@@ -20,6 +20,7 @@ import { leadServiceLinesByParcelLayer } from './data_layer_configs/lead_service
 import { queryLatLong } from './model/slices/geo_data_slice';
 import { dispatch } from './model/store';
 import { LAT_LONG_PARAM } from './router';
+import { GeoType } from './model/states/model/geo_data';
 
 const DEFAULT_TITLE = 'LeadOut';
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([
@@ -48,24 +49,25 @@ export default defineComponent({
       state,
     };
   },
-  // watch: {
-  //   // Current route location. See https://router.vuejs.org/api/#component-injections.
-  //   $route(to: RouteLocation) {
-  //     const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
-  //
-  //     if (latLongValue != null) {
-  //       const latLong = latLongValue.split(',');
-  //       const lat = latLong[0];
-  //       const long = latLong[1];
-  //
-  //       dispatch(queryLatLong(lat, long));
-  //     }
-  //
-  //     // TODO: consider adding a string that says this is a non-prod environment, so devs can see
-  //     // that at a glance in their browser tabs. E.g. "[sandbox] LeadOut - Home"
-  //     document.title = (to.meta.title as string) ?? DEFAULT_TITLE;
-  //   },
-  // },
+  watch: {
+    // Current route location. See https://router.vuejs.org/api/#component-injections.
+    $route(to: RouteLocation) {
+      const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
+
+      if (latLongValue != null) {
+        const latLong = latLongValue.split(',');
+        const lat = latLong[0];
+        const long = latLong[1];
+
+        // TODO: Pass real geo type.
+        dispatch(queryLatLong(lat, long, GeoType.postcode));
+      }
+
+      // TODO: consider adding a string that says this is a non-prod environment, so devs can see
+      // that at a glance in their browser tabs. E.g. "[sandbox] LeadOut - Home"
+      document.title = (to.meta.title as string) ?? DEFAULT_TITLE;
+    },
+  },
 });
 </script>
 <style>

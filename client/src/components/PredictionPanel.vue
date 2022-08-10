@@ -68,13 +68,13 @@ export default defineComponent({
       return this.formatPercentage(this.leadState?.data?.privateLeadLowPrediction);
     },
     // Predicted estimate of lead for water systems.
-    percentLead(): number | null {
+    percentLead(): string | null {
       const leadServiceLines = this.leadState?.data?.leadServiceLines;
       const serviceLines = this.leadState?.data?.serviceLines;
 
       // Protect against dividing by 0.
       if (leadServiceLines != null && serviceLines != null && serviceLines != 0) {
-        return Math.round(leadServiceLines / serviceLines);
+        return this.formatPercentage(leadServiceLines / serviceLines);
       }
       return null;
     },

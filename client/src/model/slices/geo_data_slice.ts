@@ -20,13 +20,7 @@ const geoSlice = createSlice({
       console.log(`Error fetching geos: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
     },
     geoIdsQueried(state: GeoDataState, action: PayloadAction<GeoData>) {
-      const { lat, long, geoType } = action.payload;
-      state.geoids = {
-        ...state.geoids,
-        lat: lat,
-        long: long,
-        geoType: geoType,
-      };
+      state.geoids = action.payload;
     },
   },
 });

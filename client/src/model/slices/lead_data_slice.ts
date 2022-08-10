@@ -15,17 +15,12 @@ const leadDataSlice = createSlice({
   initialState,
   reducers: {
     getParcelSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
-      console.log(`Parcel success: ${JSON.stringify(state)}, ${JSON.stringify(state)}`);
       state.data = { ...state.data, ...action.payload };
     },
     getParcelError(state: LeadDataState, action) {
       console.log(`Error fetching lead data: ${state} ${action}`);
     },
-    parcelQueried(state: LeadDataState, action: PayloadAction<LeadData>) {
-      state.data = { ...state.data, ...action.payload };
-    },
     getWaterSystemSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
-      console.log(`Water system success: ${JSON.stringify(state)}, ${JSON.stringify(state)}`);
       state.data = { ...state.data, ...action.payload };
     },
     getWaterSystemError(state: LeadDataState, action) {
@@ -45,7 +40,6 @@ const leadDataSlice = createSlice({
  */
 export const getPrediction = (lat: string, long: string) => {
   return async (dispatch: AppDispatch) => {
-    console.log(`Inside get prediction`);
     const apiResponse = await client.getParcel(lat, long);
     if (apiResponse.data != null) {
       dispatch(getParcelSuccess(apiResponse.data));
@@ -76,7 +70,6 @@ export const getWaterSystem = (pwsId: string) => {
 // See more about reducers:
 // https://redux-toolkit.js.org/api/createslice#reducers
 export const {
-  parcelQueried,
   getParcelSuccess,
   getParcelError,
   waterSystemQueried,
