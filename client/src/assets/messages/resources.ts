@@ -39,6 +39,11 @@ class ShowerFilterInfo {
   static SUB_HEADER = 'Hold for styling!';
 }
 
+class RecommendationsMessages {
+  static HEADER = 'Recommendations';
+  static SUB_HEADER = 'Here are a few sites that have  detailed recommendations before you purchase.';
+}
+
 export {
   WaterFilterInfo,
   FilterTypeInfo,
@@ -46,4 +51,5 @@ export {
   SinkFilterInfo,
   HouseholdFilterInfo,
   ShowerFilterInfo,
+  RecommendationsMessages,
 };

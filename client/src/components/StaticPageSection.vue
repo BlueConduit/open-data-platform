@@ -21,8 +21,9 @@ export interface Messages {
 }
 
 export interface Styles {
-  HEIGHT: string;
   BACKGROUND_COLOR: string;
+  HEADER_TEXT_COLOR?: string;
+  SUB_HEADER_TEXT_COLOR?: string;
 }
 
 /**
@@ -46,8 +47,9 @@ export default defineComponent({
   computed: {
     cssProps(): Object {
       return {
-        '--height': this.styles?.HEIGHT,
         '--background-color': this.styles?.BACKGROUND_COLOR,
+        '--header-text-color': this.styles?.HEADER_TEXT_COLOR,
+        '--sub-header-text-color': this.styles?.SUB_HEADER_TEXT_COLOR,
       };
     },
   },
@@ -67,9 +69,7 @@ h1 {
   /* identical to box height, or 120% */
   text-align: center;
 
-  /* Warm Grey/Warm Grey 800 */
-  color: #464646;
-
+  color: var(--header-text-color);
 
   /* Inside auto layout */
   flex: none;
@@ -93,7 +93,7 @@ h2 {
   text-align: center;
 
   /* Warm Grey/Warm Grey 900 */
-  color: #252525;
+  color: var(--sub-header-text-color);
 
   /* Inside auto layout */
   flex: none;
@@ -115,6 +115,6 @@ h2 {
   flex-direction: column;
   margin-top: 100px;
   padding: 35px 25px;
-  background: #FFFFFF;
+  background-color: var(--background-color);
 }
 </style>

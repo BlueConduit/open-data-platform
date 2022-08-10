@@ -1,7 +1,7 @@
 <template>
   <div>
     <static-page-section :messages='messages.WaterFilterInfo'
-                         :styles='STYLES'>
+                         :styles='DEFAULT_STYLE'>
       <div class='static-content'>
         <span class='asset'><img
           :src='require(`@/assets/media/resource-image-1.png`)'
@@ -9,7 +9,7 @@
         <span class='text'>{{ messages.WaterFilterInfo.BODY }}</span>
       </div>
     </static-page-section>
-    <static-page-section :styles='STYLES'
+    <static-page-section :styles='DEFAULT_STYLE'
                          :messages='messages.FilterTypeInfo'>
       <div class='filter-cards'>
         <image-card :messages='messages.PitcherFilterInfo'></image-card>
@@ -17,6 +17,9 @@
         <image-card :messages='messages.HouseholdFilterInfo'></image-card>
         <image-card :messages='messages.ShowerFilterInfo'></image-card>
       </div>
+    </static-page-section>
+    <static-page-section :styles='RECOMMENDATIONS_STYLE'
+                         :messages='messages.RecommendationsMessages'>
     </static-page-section>
   </div>
 </template>
@@ -27,9 +30,16 @@ import * as messages from '../assets/messages/resources';
 import StaticPageSection, { Styles } from '../components/StaticPageSection.vue';
 import ImageCard from '../components/ImageCard.vue';
 
-const STYLES: Styles = {
-  HEIGHT: '100px',
-  BACKGROUND_COLOR: 'green',
+const DEFAULT_STYLE: Styles = {
+  BACKGROUND_COLOR: '#FFFFFF', // White.
+  HEADER_TEXT_COLOR: '#464646',
+  SUB_HEADER_TEXT_COLOR: '#252525',
+};
+
+const RECOMMENDATIONS_STYLE: Styles = {
+  BACKGROUND_COLOR: '#05A8F4', // Light blue.
+  HEADER_TEXT_COLOR: '#FFFFFF',
+  SUB_HEADER_TEXT_COLOR: '#FFFFFF',
 };
 
 /**
@@ -44,7 +54,8 @@ export default defineComponent({
   data() {
     return {
       messages,
-      STYLES,
+      DEFAULT_STYLE,
+      RECOMMENDATIONS_STYLE,
     };
   },
 });
