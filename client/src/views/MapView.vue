@@ -3,7 +3,7 @@
     <SearchBar v-if='showSearch' />
     <PredictionPanel v-if='showResult' />
     <MapContainer />
-    <ScorecardSummaryPanel />
+    <ScorecardSummaryPanel v-if='showResult' />
   </div>
 </template>
 
