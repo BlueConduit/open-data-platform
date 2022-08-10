@@ -3,6 +3,7 @@
 
 const prefixes = {
   tileServer: '/tiles/v1',
+  api: '/api/v1',
 };
 
 export default prefixes;

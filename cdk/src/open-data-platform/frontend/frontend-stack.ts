@@ -18,6 +18,7 @@ import prefixes, { handler } from './url-prefixes';
 import { NetworkStack } from '../network/network-stack';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as route53targets from 'aws-cdk-lib/aws-route53-targets';
+import * as cdk from 'aws-cdk-lib';
 
 interface FrontendProps extends CommonProps {
   appPlaneStack: AppPlaneStack;
@@ -105,6 +106,16 @@ export class FrontendStack extends Stack {
         },
       ],
     });
+
+    // Add API to the distribution.
+    for (let { url, path } of appPlaneStack.api.apiLambdas) {
+      // CloudFront origin can't have the http(s) prefix. We can't use standard JS string
+      // manipulation here because the 'url' is actually a token that represents the URL, not the
+      // URL itself.
+      const hostname = cdk.Fn.select(2, cdk.Fn.split('/', url));
+      const prefixedPath = `${prefixes.api}${path}`;
+      this.distribution.addBehavior(prefixedPath, new origins.HttpOrigin(hostname));
+    }
 
     if (hostedZone) {
       new route53.ARecord(this, 'DnsRecord', {

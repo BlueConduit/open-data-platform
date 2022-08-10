@@ -9,6 +9,7 @@ import { Schema } from './schema/schema';
 import { DataImportStack } from './data-import/data-import-stack';
 import { DatabaseUserCredentials } from './db-user-credentials/db-user-credentials';
 import { AuroraCapacityUnit } from 'aws-cdk-lib/aws-rds';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
@@ -16,8 +17,9 @@ interface DataPlaneProps extends CommonProps {
 
 export class DataPlaneStack extends Stack {
   readonly cluster: rds.ServerlessCluster;
-  readonly tileserverCredentials: DatabaseUserCredentials;
   readonly databaseName: string;
+  readonly tileserverCredentials: DatabaseUserCredentials;
+  readonly apiLambdaRole: iam.Role;
 
   constructor(scope: Construct, id: string, props: DataPlaneProps) {
     super(scope, id, props);
@@ -78,5 +80,19 @@ export class DataPlaneStack extends Stack {
       db: this.databaseName,
       credentialsSecret: this.cluster.secret!,
     });
+
+    // Create the role here so the Data plane does not depend on the App plane creating it.
+    // The consequence is that each API lambda uses the same role.
+    this.apiLambdaRole = new iam.Role(this, 'APILambdaRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      // Pre-configured policies provided by AWS.
+      // https://stackoverflow.com/questions/52636929/specifying-a-custom-role-for-lambda-with-the-aws-cdk
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaVPCAccessExecutionRole'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
+      ],
+      description: 'Role used by each API lambda.',
+    });
+    this.cluster.grantDataApiAccess(this.apiLambdaRole);
   }
 }

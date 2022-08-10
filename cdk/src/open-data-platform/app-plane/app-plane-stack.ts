@@ -10,7 +10,7 @@ import { ApiStack } from './api/api-stack';
 
 // TODO: consider narrowing the props down to the specific things that the App Plane needs.
 // E.g. just the cluster object itself, rather than the entire network stack.
-interface AppPlaneStackProps extends CommonProps {
+export interface AppPlaneStackProps extends CommonProps {
   networkStack: NetworkStack;
   dataPlaneStack: DataPlaneStack;
 }
@@ -30,11 +30,6 @@ export class AppPlaneStack extends Stack {
       databaseUrlSecret: dataPlaneStack.tileserverCredentials.databaseUrlSecret,
     });
 
-    this.api = new ApiStack(this, 'ApiStack', {
-      cluster: dataPlaneStack.cluster,
-      vpc: networkStack.vpc,
-      db: dataPlaneStack.databaseName,
-      credentialsSecret: dataPlaneStack.cluster.secret!,
-    });
+    this.api = new ApiStack(this, 'ApiStack', props);
   }
 }
