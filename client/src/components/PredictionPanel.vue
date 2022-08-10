@@ -70,14 +70,17 @@ export default defineComponent({
   watch: {
     // Listen for changes to pws id. Once it changes, a new prediction
     // must be fetched.
-    'geoState.geoids': function() {
+    'geoState.geoids.pwsid': function() {
       if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId));
       }
-
-      if (this.geoState?.geoids?.lat != null && this.geoState?.geoids?.long != null) {
-        dispatch(getPrediction(this.geoState.geoids.lat, this.geoState.geoids.long));
-      }
+    },
+    // Listen for changes to pws id. Once it changes, a new prediction
+    // must be fetched.
+    'geoState.geoids.lat': function() {
+      // if (this.geoState?.geoids?.lat != null && this.geoState?.geoids?.long != null) {
+      //   dispatch(getPrediction(this.geoState.geoids.lat, this.geoState.geoids.long));
+      // }
     },
   },
 });
