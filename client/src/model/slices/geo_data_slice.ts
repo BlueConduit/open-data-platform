@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ApiClient } from '@/api/api_client';
-import { GeoData } from '@/model/states/model/geo_data';
+import { GeoData, GeoType } from '@/model/states/model/geo_data';
 import { AppDispatch } from '@/model/store';
 import { GeoDataState } from '@/model/states/geo_data_state';
 
@@ -20,8 +20,13 @@ const geoSlice = createSlice({
       console.log(`Error fetching geos: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
     },
     geoIdsQueried(state: GeoDataState, action: PayloadAction<GeoData>) {
-      const { lat, long } = action.payload;
-      state.geoids = { ...state.geoids, lat: lat, long: long };
+      const { lat, long, geoType } = action.payload;
+      state.geoids = {
+        ...state.geoids,
+        lat: lat,
+        long: long,
+        geoType: geoType,
+      };
     },
   },
 });
@@ -31,10 +36,11 @@ const geoSlice = createSlice({
  * when results are returned.
  * @param lat: The latitude that must intersect with the geos returned
  * @param long: The longitude that must intersect with the geos returned
+ * @param geoType: Granularity of the query
  */
-export const queryLatLong = (lat: string, long: string) => {
+export const queryLatLong = (lat: string, long: string, geoType: GeoType) => {
   return async (dispatch: AppDispatch) => {
-    dispatch(geoIdsQueried({ lat: lat, long: long }));
+    dispatch(geoIdsQueried({ lat: lat, long: long, geoType: geoType }));
 
     const apiResponse = await client.getGeoIds(lat, long);
     if (apiResponse.data != null) {

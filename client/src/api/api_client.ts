@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import axiosRetry from 'axios-retry';
 import { GeographicLevel } from '@/model/data_layer';
 
 /**
@@ -8,6 +9,16 @@ class ApiClient {
   static API_URL = 'https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev';
 
   request = async (endpoint: string, callback: (data: any) => any): Promise<ApiResponse> => {
+    axiosRetry(axios, {
+      retries: 3,
+      retryDelay: (retryCount) => {
+        return retryCount * 2000; // Time between retries
+      },
+      retryCondition: (error: AxiosError) => {
+        return error.response?.status === 502;
+      },
+    });
+
     const apiResponse: ApiResponse = {};
     try {
       const data = await axios.get<any>(endpoint, {

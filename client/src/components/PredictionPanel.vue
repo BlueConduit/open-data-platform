@@ -9,6 +9,14 @@
       Your neighborhood water system {{ pwsId }} is likely
       {{ percentLead }}% lead.
     </div>
+    <div class='h1-header semi-bold'
+         v-if='this.publicLeadLikelihood != null'>
+      Your home's public service lines have a {{ publicLeadLikelihood }}%
+      chance of lead.
+      <span v-if='this.privateLeadLikelihood != null'>
+        While your private service lines have a {{ privateLeadLikelihood }}%
+        chance of lead.</span>
+    </div>
     <div class='explain-text'>
       {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
     </div>
@@ -23,6 +31,7 @@ import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_m
 import { getPrediction, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
+import { GeoType } from '../model/states/model/geo_data';
 
 /**
  * Container lead prediction.
@@ -47,8 +56,18 @@ export default defineComponent({
       ScorecardSummaryMessages,
     };
   },
+  // TODO: Handle error state where there is no lead prediction
+  // after the API has returned.
   computed: {
-    // Predicted estimate of lead.
+    // Predicted lead likelihood for parcel's public lines.
+    publicLeadLikelihood(): string | null {
+      return this.formatPercentage(this.leadState?.data?.publicLeadLowPrediction);
+    },
+    // Predicted lead likelihood for parcel's private lines.
+    privateLeadLikelihood(): string | null {
+      return this.formatPercentage(this.leadState?.data?.privateLeadLowPrediction);
+    },
+    // Predicted estimate of lead for water systems.
     percentLead(): number | null {
       const leadServiceLines = this.leadState?.data?.leadServiceLines;
       const serviceLines = this.leadState?.data?.serviceLines;
@@ -57,8 +76,6 @@ export default defineComponent({
       if (leadServiceLines != null && serviceLines != null && serviceLines != 0) {
         return Math.round(leadServiceLines / serviceLines);
       }
-      // TODO: Handle error state where there is no lead prediction
-      // after the API has returned.
       return null;
     },
     pwsId(): string | null {
@@ -70,17 +87,25 @@ export default defineComponent({
   watch: {
     // Listen for changes to pws id. Once it changes, a new prediction
     // must be fetched.
-    'geoState.geoids.pwsid': function() {
-      if (this.geoState?.geoids?.pwsId != null) {
+    'geoState.geoids': function() {
+      // Check if an address was queried and another prediction should be
+      // fetched.
+      if (this.geoState?.geoids?.geoType == GeoType.address
+        && this.geoState?.geoids?.lat != null
+        && this.geoState?.geoids?.long != null) {
+
+        dispatch(getPrediction(this.geoState.geoids.lat, this.geoState.geoids.long));
+      } else if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId));
       }
     },
-    // Listen for changes to pws id. Once it changes, a new prediction
-    // must be fetched.
-    'geoState.geoids.lat': function() {
-      // if (this.geoState?.geoids?.lat != null && this.geoState?.geoids?.long != null) {
-      //   dispatch(getPrediction(this.geoState.geoids.lat, this.geoState.geoids.long));
-      // }
+  },
+  methods: {
+    formatPercentage(number: number | undefined): string | null {
+      if (number == null || number == 0) {
+        return null;
+      }
+      return Math.round(number * 100).toString();
     },
   },
 });

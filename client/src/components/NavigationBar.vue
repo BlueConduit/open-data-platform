@@ -8,14 +8,15 @@
       </div>
       <div class='right-align'>
         <div v-for='route in routes' :key='route[0]'>
-          <router-link :to='route[1]' class='semi-bold'>{{ route[0] }}</router-link>
+          <router-link :to='route[1]' class='semi-bold'>{{ route[0] }}
+          </router-link>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 import { Titles } from '../assets/messages/common';
 import * as router from '../router';
@@ -38,8 +39,8 @@ export default defineComponent({
   },
   data() {
     const routes: [string, string][] = [
-      // Redirect back home as the entry point for a user to search for a scorecard.
-      [Titles.SCORECARD_TITLE, router.HOME_ROUTE],
+      [Titles.HOME_TITLE, router.HOME_ROUTE],
+      [Titles.LEAD_STATUS_TITLE, router.MAP_ROUTE_BASE],
       [Titles.MAP_TITLE, router.MAP_ROUTE_BASE],
       [Titles.ABOUT_TITLE, router.ABOUT_ROUTE],
     ];

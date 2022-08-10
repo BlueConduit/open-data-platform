@@ -3,7 +3,6 @@ import { ApiClient } from '@/api/api_client';
 import { AppDispatch } from '@/model/store';
 import { LeadData } from '@/model/states/model/lead_data';
 import { LeadDataState } from '@/model/states/lead_data_state';
-import { queryLatLong } from '@/model/slices/geo_data_slice';
 
 const initialState: LeadDataState = {};
 const client = new ApiClient();
@@ -16,6 +15,7 @@ const leadDataSlice = createSlice({
   initialState,
   reducers: {
     getParcelSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
+      console.log(`Parcel success: ${JSON.stringify(state)}, ${JSON.stringify(state)}`);
       state.data = { ...state.data, ...action.payload };
     },
     getParcelError(state: LeadDataState, action) {
@@ -25,6 +25,7 @@ const leadDataSlice = createSlice({
       state.data = { ...state.data, ...action.payload };
     },
     getWaterSystemSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
+      console.log(`Water system success: ${JSON.stringify(state)}, ${JSON.stringify(state)}`);
       state.data = { ...state.data, ...action.payload };
     },
     getWaterSystemError(state: LeadDataState, action) {
@@ -44,8 +45,7 @@ const leadDataSlice = createSlice({
  */
 export const getPrediction = (lat: string, long: string) => {
   return async (dispatch: AppDispatch) => {
-    dispatch(queryLatLong(lat, long));
-
+    console.log(`Inside get prediction`);
     const apiResponse = await client.getParcel(lat, long);
     if (apiResponse.data != null) {
       dispatch(getParcelSuccess(apiResponse.data));
@@ -62,7 +62,7 @@ export const getPrediction = (lat: string, long: string) => {
  */
 export const getWaterSystem = (pwsId: string) => {
   return async (dispatch: AppDispatch) => {
-    dispatch(waterSystemQueried({ geoId: pwsId }));
+    dispatch(waterSystemQueried({ pwsId: pwsId }));
 
     const apiResponse = await client.getWaterSystem(pwsId);
     if (apiResponse.data != null) {

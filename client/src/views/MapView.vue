@@ -12,7 +12,7 @@ import MapContainer from '../components/MapContainer.vue';
 import PredictionPanel from '../components/PredictionPanel.vue';
 import SearchBar from '../components/SearchBar.vue';
 import { defineComponent } from 'vue';
-import { router, HOME_ROUTE, MAP_ROUTE, MAP_ROUTE_BASE } from '../router';
+import { router, SCORECARD_BASE, MAP_ROUTE_BASE } from '../router';
 import ScorecardSummaryPanel from '../components/ScorecardSummaryPanel.vue';
 
 /**
@@ -28,8 +28,8 @@ export default defineComponent({
   },
   data() {
     return {
-      showSearch: false,
-      showResult: router.currentRoute.value.path.startsWith(MAP_ROUTE_BASE),
+      showSearch: router.currentRoute.value.path.startsWith(MAP_ROUTE_BASE),
+      showResult: router.currentRoute.value.path.startsWith(SCORECARD_BASE),
     };
   },
 });
