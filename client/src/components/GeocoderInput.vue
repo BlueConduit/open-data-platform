@@ -39,10 +39,8 @@ export default defineComponent({
     this.geocoder.on('result', async (result: any) => {
       const place = result.result;
       if (place.place_type.length > 0) {
-        
         const geoType = Object.values(GeoType)
           .find((geo) => geo == place.place_type[0]) as GeoType;
-
 
         const long: number = place.center[0];
         const lat: number = place.center[1];
