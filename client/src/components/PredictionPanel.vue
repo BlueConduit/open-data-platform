@@ -1,24 +1,28 @@
 <template>
-  <div class='container'>
-    <div class='explain-text'>
-      {{ ScorecardSummaryMessages.LEADOUT }}
+  <div class='container-column'>
+    <div class='container-row justify-right'>
+      <map-geocoder-wrapper class='search' v-model:expandSearch='showSearch' />
     </div>
-    <map-geocoder-wrapper v-model:expandSearch='showSearch' />
-    <div class='h1-header semi-bold'
-         v-if='this.pwsId != null && percentLead != null'>
-      Your neighborhood water system {{ pwsId }} is likely
-      {{ percentLead }}% lead.
-    </div>
-    <div class='h1-header semi-bold'
-         v-if='this.publicLeadLikelihood != null'>
-      Your home's public service lines have a {{ publicLeadLikelihood }}%
-      chance of lead.
-      <span v-if='this.privateLeadLikelihood != null'>
-        While your private service lines have a {{ privateLeadLikelihood }}%
-        chance of lead.</span>
-    </div>
-    <div class='explain-text'>
-      {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
+    <div class='container-column center-container'>
+      <div class='explain-text'>
+        {{ ScorecardSummaryMessages.LEADOUT }}
+      </div>
+      <div class='h1-header semi-bold'
+           v-if='this.pwsId != null && percentLead != null'>
+        Your neighborhood water system {{ pwsId }} is likely
+        {{ percentLead }}% lead.
+      </div>
+      <div class='h1-header semi-bold'
+           v-if='this.publicLeadLikelihood != null'>
+        Your home's public service lines have a {{ publicLeadLikelihood }}%
+        chance of lead.
+        <span v-if='this.privateLeadLikelihood != null'>
+          While your private service lines have a {{ privateLeadLikelihood }}%
+          chance of lead.</span>
+      </div>
+      <div class='explain-text'>
+        {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
+      </div>
     </div>
   </div>
 </template>
@@ -116,13 +120,20 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.container {
+
+.center-container {
   align-items: center;
-  display: flex;
   gap: 20px;
   height: 200px;
   justify-content: center;
-  flex-direction: column;
+}
+
+.justify-right {
+  justify-content: right;
+}
+
+.search {
+  max-width: 300px;
 }
 
 </style>
