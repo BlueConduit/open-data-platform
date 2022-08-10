@@ -15,7 +15,7 @@ export interface ProcessRequest {
 
 interface ProcessResult {
   processedBatchCount: number;
-  sucessfulBatchCount: number;
+  successfulBatchCount: number;
   erroredBatchCount: number;
 }
 
@@ -52,12 +52,17 @@ export const geoJsonHandlerFactory =
     const rowOffset = event.rowOffset ?? 0;
     const rowLimit = event.rowLimit ?? Infinity;
     const batchSize = event.batchSize ?? 10;
-    console.log('Starting import:', { rowLimit, rowOffset, batchSize, s3Params });
+    console.log('Starting import:', {
+      rowLimit,
+      rowOffset,
+      batchSize,
+      s3Params,
+    });
 
     const db = new AWS.RDSDataService();
     let results: ProcessResult = {
       processedBatchCount: 0,
-      sucessfulBatchCount: 0,
+      successfulBatchCount: 0,
       erroredBatchCount: 0,
     };
 
