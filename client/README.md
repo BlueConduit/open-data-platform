@@ -24,9 +24,10 @@ npm run lint
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 #
-Note: You may have to add a .env file under the client directory with an 
-API key for Mapbox if you haven't already configured that:
+Note: You may have to add a .env file under the client directory with API keys
+for Mapbox and the tiles server if you haven't already configured those:
 
 ```
 VUE_APP_MAP_BOX_API_TOKEN=xxx
+VUE_APP_DEFAULT_TILESERVER_HOST=abc
 ```
