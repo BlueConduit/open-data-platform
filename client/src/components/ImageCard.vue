@@ -4,8 +4,8 @@
       :src='require(`@/assets/media/${image}`)'
       alt=''></span>
     <div class='text'>
-      <h1>{{ messages.HEADER }}</h1>
-      <h2>{{ messages.SUB_HEADER }}</h2>
+      <h1>{{ message.header }}</h1>
+      <h2>{{ message.subHeader }}</h2>
     </div>
   </div>
 </template>
@@ -15,11 +15,7 @@
 /* eslint-disable */
 
 import { defineComponent, PropType } from 'vue';
-
-export interface Messages {
-  SUB_HEADER?: string;
-  HEADER: string;
-}
+import { Message } from '../assets/messages/resources';
 
 /**
  * Wrapper for national map dashboard.
@@ -28,8 +24,8 @@ export default defineComponent({
   name: 'ImageCard',
   props: {
     image: { type: String, default: 'placeholder_image.png' },
-    messages: {
-      type: Object as PropType<Messages>,
+    message: {
+      type: Object as PropType<Message>,
       default: 'placeholder_image.png',
     },
   },

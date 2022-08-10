@@ -1,9 +1,9 @@
 <template>
   <div class='static-page-section' :style='cssProps'>
     <div class='header-section'>
-      <h1>{{ messages.HEADER }}</h1>
-      <h2 v-if='$props.messages.SUB_HEADER'>
-        {{ $props.messages.SUB_HEADER }}</h2>
+      <h1>{{ message.header }}</h1>
+      <h2 v-if='message.subHeader'>
+        {{ message.subHeader }}</h2>
     </div>
     <slot class='content-slot'></slot>
   </div>
@@ -11,14 +11,7 @@
 
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
-
-export interface Messages {
-  SUB_HEADER?: string;
-  HEADER: string;
-  BODY: string;
-  CTA_PLACEHOLDER?: string;
-  CTA_BUTTON?: string;
-}
+import { Message } from '../assets/messages/resources';
 
 export interface Styles {
   BACKGROUND_COLOR: string;
@@ -35,8 +28,8 @@ export default defineComponent({
   name: 'StaticPageSection',
   // TODO: add props to customize basic styling. E.g. background color.
   props: {
-    messages: {
-      type: Object as PropType<Messages>,
+    message: {
+      type: Object as PropType<Message>,
       required: true,
     },
     styles: {

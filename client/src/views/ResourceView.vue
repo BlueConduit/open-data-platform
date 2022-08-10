@@ -1,28 +1,31 @@
 <template>
 <!--  TODO refactor slot content into components-->
   <div>
-    <static-page-section :messages='messages.WaterFilterInfo'
-                         :styles='DEFAULT_STYLE'>
+    <static-page-section
+      :message='messages.WATER_FILTER_INFO_SECTION'
+      :styles='DEFAULT_STYLE'>
       <div class='static-content'>
         <span class='asset'><img
           :src='require(`@/assets/media/resource-image-1.png`)'
           alt=''></span>
-        <span class='text'>{{ messages.WaterFilterInfo.BODY }}</span>
+        <span
+          class='text'>{{ messages.WATER_FILTER_INFO_SECTION.body
+          }}</span>
       </div>
     </static-page-section>
     <static-page-section :styles='DEFAULT_STYLE'
-                         :messages='messages.FilterTypeInfo'>
+                         :message='messages.FILTER_TYPES_SECTION'>
       <div class='filter-cards'>
-        <image-card :messages='messages.PitcherFilterInfo'></image-card>
-        <image-card :messages='messages.SinkFilterInfo'></image-card>
-        <image-card :messages='messages.HouseholdFilterInfo'></image-card>
-        <image-card :messages='messages.ShowerFilterInfo'></image-card>
+        <image-card v-for='filter in messages.FILTER_TYPES'
+                    :key='filter.header'
+                    :message='filter'></image-card>
       </div>
     </static-page-section>
     <static-page-section :styles='RECOMMENDATIONS_STYLE'
-                         :messages='messages.RecommendationsMessages'>
+                         :message='messages.RECOMMENDATIONS_SECTION'>
       <div class='recommendations-content'>
-        <div v-for='rec in messages.RECOMMENDATIONS' :key='rec.url'>
+        <div v-for='rec in messages.RECOMMENDATIONS'
+             :key='rec.url'>
           <div class='recommendation-title'>{{ rec.title }}</div>
           <a class='recommendation-link' :href='rec.url'>{{ rec.linkText }}</a>
         </div>
@@ -33,9 +36,9 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import * as messages from '../assets/messages/resources';
 import StaticPageSection, { Styles } from '../components/StaticPageSection.vue';
 import ImageCard from '../components/ImageCard.vue';
+import { ResourcesPageMessages as messages } from '../assets/messages/resources';
 
 const DEFAULT_STYLE: Styles = {
   BACKGROUND_COLOR: '#FFFFFF', // White.
