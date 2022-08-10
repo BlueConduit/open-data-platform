@@ -44,6 +44,25 @@ class RecommendationsMessages {
   static SUB_HEADER = 'Here are a few sites that have  detailed recommendations before you purchase.';
 }
 
+interface Recommendation {
+  title: string;
+  linkText: string;
+  url: string;
+}
+
+const RECOMMENDATIONS: Recommendation[] = [
+  {
+    title: 'BOS (Best Osmosis Systems)',
+    linkText: 'The Best Water Filter for Lead Removal',
+    url: 'https://www.best-osmosis-systems.com/water-filters-for-lead-removal/',
+  },
+  {
+    title: 'WaterFilterGuru.com',
+    linkText: 'Best Water Filter for Lead Removal of 2022',
+    url: 'https://waterfilterguru.com/best-water-filter-for-lead/',
+  },
+];
+
 export {
   WaterFilterInfo,
   FilterTypeInfo,
@@ -52,4 +71,5 @@ export {
   HouseholdFilterInfo,
   ShowerFilterInfo,
   RecommendationsMessages,
+  RECOMMENDATIONS,
 };

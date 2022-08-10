@@ -1,4 +1,5 @@
 <template>
+<!--  TODO refactor slot content into components-->
   <div>
     <static-page-section :messages='messages.WaterFilterInfo'
                          :styles='DEFAULT_STYLE'>
@@ -20,6 +21,12 @@
     </static-page-section>
     <static-page-section :styles='RECOMMENDATIONS_STYLE'
                          :messages='messages.RecommendationsMessages'>
+      <div class='recommendations-content'>
+        <div v-for='rec in messages.RECOMMENDATIONS' :key='rec.url'>
+          <div class='recommendation-title'>{{ rec.title }}</div>
+          <a class='recommendation-link' :href='rec.url'>{{ rec.linkText }}</a>
+        </div>
+      </div>
     </static-page-section>
   </div>
 </template>
@@ -63,6 +70,10 @@ export default defineComponent({
 
 <style scoped>
 
+a {
+  text-decoration: none;
+}
+
 .static-content {
   width: 932px;
   display: flex;
@@ -85,6 +96,35 @@ export default defineComponent({
 
   width: 852px;
   height: 903px;
+}
+
+.recommendations-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 83px 61px;
+  gap: 30px;
+
+  background-color: #FFFFFF;
+  height: fit-content;
+  width: 912px;
+  border-radius: 16px;
+}
+
+.recommendation-title {
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 30px;
+  color: #464646;
+  font-family: 'IBM Plex Sans';
+}
+
+.recommendation-link {
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 40px;
+  color: #2553A0;
+  font-family: 'IBM Plex Sans';
 }
 
 .text {
