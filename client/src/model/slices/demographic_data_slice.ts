@@ -20,7 +20,6 @@ const demographicDataSlice = createSlice({
       state.data = { ...state.data, ...action.payload };
     },
     getDemographicsSuccess(state: DemographicDataState, action: PayloadAction<DemographicData>) {
-      console.log(`Demographic success: ${JSON.stringify(state)}, ${JSON.stringify(state)}`);
       state.data = { ...state.data, ...action.payload };
     },
     getDemographicsError(state: DemographicDataState, action) {

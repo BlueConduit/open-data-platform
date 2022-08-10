@@ -38,7 +38,7 @@ const leadDataSlice = createSlice({
  * @param lat
  * @param long
  */
-export const getPrediction = (lat: string, long: string) => {
+export const getParcel = (lat: string, long: string) => {
   return async (dispatch: AppDispatch) => {
     const apiResponse = await client.getParcel(lat, long);
     if (apiResponse.data != null) {

@@ -28,7 +28,7 @@ import { defineComponent } from 'vue';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 import { dispatch, useSelector } from '../model/store';
 import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_messages';
-import { getPrediction, getWaterSystem } from '../model/slices/lead_data_slice';
+import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { GeoType } from '../model/states/model/geo_data';
@@ -61,10 +61,14 @@ export default defineComponent({
   computed: {
     // Predicted lead likelihood for parcel's public lines.
     publicLeadLikelihood(): string | null {
+      // Note that low prediction is the same as high prediction in the DB
+      // right now bc we don't yet have intervals
       return this.formatPercentage(this.leadState?.data?.publicLeadLowPrediction);
     },
     // Predicted lead likelihood for parcel's private lines.
     privateLeadLikelihood(): string | null {
+      // Note that low prediction is the same as high prediction in the DB
+      // right now bc we don't yet have intervals
       return this.formatPercentage(this.leadState?.data?.privateLeadLowPrediction);
     },
     // Predicted estimate of lead for water systems.
@@ -94,7 +98,7 @@ export default defineComponent({
         && this.geoState?.geoids?.lat != null
         && this.geoState?.geoids?.long != null) {
 
-        dispatch(getPrediction(this.geoState.geoids.lat, this.geoState.geoids.long));
+        dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
       } else if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId));
       }
