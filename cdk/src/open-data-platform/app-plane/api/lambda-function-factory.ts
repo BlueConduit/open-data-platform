@@ -52,6 +52,7 @@ export const apiLambdaFactory = (
     path: `/${id}/*`,
     // This might be better handled in the frontend stack, which can lock down auth and CORS.
     url: f.addFunctionUrl({
+      // TODO: consider limiting this to only allow the CloudFront role to make this request.
       authType: FunctionUrlAuthType.NONE,
       // TODO: limit to blueconduit.com.
       cors: { allowedOrigins: Cors.ALL_ORIGINS },

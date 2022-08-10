@@ -1,4 +1,4 @@
-import { APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import {
@@ -6,6 +6,7 @@ import {
   FieldList,
   SqlParametersList,
 } from 'aws-sdk/clients/rdsdataservice';
+import { CORS_HEADERS } from '../util';
 
 const SCHEMA = 'public';
 
@@ -41,10 +42,16 @@ async function getGeoDataForLatLong(
   return geoids[0];
 }
 
-export const handler = async (event: {
-  pathParameters: GeolocatePathParameters;
-}): Promise<APIGatewayProxyResult> => {
-  const coordinates = event.pathParameters?.latlong ?? '';
+export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResult> => {
+  // Parse out the path parameters.
+  const coordinates = event.rawPath.split('/')[1];
+  if (!coordinates || coordinates == '')
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: 'No coordinates provided. Expected {lat},{long}.',
+    };
+
   const coordinatesAsLatLong = coordinates.split(',');
   const lat = parseFloat(coordinatesAsLatLong[0]);
   const long = parseFloat(coordinatesAsLatLong[1]);
@@ -83,11 +90,7 @@ export const handler = async (event: {
 
   return {
     statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'OPTIONS,GET',
-    },
+    headers: CORS_HEADERS,
     body: JSON.stringify(body),
   };
 };
@@ -104,12 +107,4 @@ interface GeolocateApiResponse {
   county?: string;
   // State abbreviation. i.e. "NY"
   state?: string;
-}
-
-/**
- * Acceptable path parameters for this endpoint
- */
-interface GeolocatePathParameters {
-  // Coordinates to look up geo identifiers, formatted as lat,long.
-  latlong: string;
 }

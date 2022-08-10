@@ -1,13 +1,9 @@
-import { APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
+import { CORS_HEADERS } from '../util';
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'OPTIONS,GET',
-};
 const SCHEMA = 'public';
 const SQL_QUERY = `SELECT pws_id,
                           lead_connections_count,
@@ -40,10 +36,11 @@ async function getWaterSystemData(
   return body;
 }
 
-export const handler = async (event: {
-  pathParameters: WaterSystemPathParameters;
-}): Promise<APIGatewayProxyResult> => {
-  const pwsId = event.pathParameters?.pws_id ?? '';
+export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResult> => {
+  // Parse out the path parameters.
+  const pwsId = event.rawPath.split('/')[1];
+  if (!pwsId || pwsId == '')
+    return { statusCode: 400, headers: CORS_HEADERS, body: 'No pws_id provided.' };
 
   const db = new AWS.RDSDataService();
   const params: SqlParametersList = [
@@ -76,11 +73,4 @@ interface WaterSystemApiResponse {
   pws_id?: string;
   lead_service_lines?: number;
   service_lines?: number;
-}
-
-/**
- * Acceptable path parameters for the water system endpoint.
- */
-interface WaterSystemPathParameters {
-  pws_id: string;
 }
