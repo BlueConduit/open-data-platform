@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, provide, reactive } from 'vue';
 import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/dist/css/copper.css';
@@ -48,24 +48,24 @@ export default defineComponent({
       state,
     };
   },
-  watch: {
-    // Current route location. See https://router.vuejs.org/api/#component-injections.
-    $route(to: RouteLocation) {
-      const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
-
-      if (latLongValue != null) {
-        const latLong = latLongValue.split(',');
-        const lat = latLong[0];
-        const long = latLong[1];
-
-        dispatch(queryLatLong(lat, long));
-      }
-
-      // TODO: consider adding a string that says this is a non-prod environment, so devs can see
-      // that at a glance in their browser tabs. E.g. "[sandbox] LeadOut - Home"
-      document.title = (to.meta.title as string) ?? DEFAULT_TITLE;
-    },
-  },
+  // watch: {
+  //   // Current route location. See https://router.vuejs.org/api/#component-injections.
+  //   $route(to: RouteLocation) {
+  //     const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
+  //
+  //     if (latLongValue != null) {
+  //       const latLong = latLongValue.split(',');
+  //       const lat = latLong[0];
+  //       const long = latLong[1];
+  //
+  //       dispatch(queryLatLong(lat, long));
+  //     }
+  //
+  //     // TODO: consider adding a string that says this is a non-prod environment, so devs can see
+  //     // that at a glance in their browser tabs. E.g. "[sandbox] LeadOut - Home"
+  //     document.title = (to.meta.title as string) ?? DEFAULT_TITLE;
+  //   },
+  // },
 });
 </script>
 <style>
