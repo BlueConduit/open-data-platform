@@ -1,6 +1,6 @@
 <template>
-  <static-page-section :styles='styles.RECOMMENDATIONS_STYLE'
-                       :message='messages.RECOMMENDATIONS_SECTION'>
+  <resources-page-section :styles='styles.RECOMMENDATIONS_STYLE'
+                          :message='messages.RECOMMENDATIONS_SECTION'>
     <div class='recommendations-content'>
       <div v-for='rec in messages.RECOMMENDATIONS'
            :key='rec.url'>
@@ -8,19 +8,19 @@
         <a class='recommendation-link' :href='rec.url'>{{ rec.linkText }}</a>
       </div>
     </div>
-  </static-page-section>
+  </resources-page-section>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import StaticPageSection from '../StaticPageSection.vue';
-import { ResourcesPageMessages as messages } from '../../assets/messages/resources';
-import { ResourcesPageStyles as styles } from '../../assets/styles/resources';
+import ResourcesPageSection from './ResourcesPageSection.vue';
+import { ResourcesPageMessages as messages } from '@/assets/messages/resources';
+import { ResourcesPageStyles as styles } from '@/assets/styles/resources';
 
 export default defineComponent({
   name: 'RecommendationsSection',
   components: {
-    StaticPageSection,
+    ResourcesPageSection,
   },
   data() {
     return {

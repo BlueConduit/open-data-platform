@@ -35,22 +35,18 @@ class ResourcesPageMessages {
   static FILTER_TYPES: Message[] = [
     {
       header: 'Renter or on a budget? pick a pitcher.',
-      subHeader: 'Hold for styling!',
       image: 'pitcher-filter.png',
     },
     {
       header: 'Under Sink Filters are a great choice for homeowners',
-      subHeader: 'Hold for styling!',
       image: 'under-sink-filter.png',
     },
     {
       header: 'Household Filtration Systems are a best in Class solution',
-      subHeader: 'Hold for styling!',
       image: 'house-filter.png',
     },
     {
       header: 'Shower filters have many benefits',
-      subHeader: 'Hold for styling!',
       image: 'shower-filter.png',
     },
   ];

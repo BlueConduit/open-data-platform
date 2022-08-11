@@ -1,18 +1,18 @@
 <template>
-  <static-page-section :styles='styles.DEFAULT_STYLE'
-                       :message='messages.FILTER_TYPES_SECTION'>
+  <resources-page-section :styles='styles.DEFAULT_STYLE'
+                          :message='messages.FILTER_TYPES_SECTION'>
     <div class='filter-cards'>
       <image-card v-for='filter in messages.FILTER_TYPES'
                   :key='filter.header'
                   :message='filter'
                   :image='filter.image'></image-card>
     </div>
-  </static-page-section>
+  </resources-page-section>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import StaticPageSection from '../StaticPageSection.vue';
+import ResourcesPageSection from './ResourcesPageSection.vue';
 import { ResourcesPageMessages as messages } from '@/assets/messages/resources';
 import { ResourcesPageStyles as styles } from '@/assets/styles/resources';
 import ImageCard from '../ImageCard.vue';
@@ -21,7 +21,7 @@ export default defineComponent({
   name: 'FilterTypesSection',
   components: {
     ImageCard,
-    StaticPageSection,
+    ResourcesPageSection,
   },
   data() {
     return {

@@ -1,5 +1,5 @@
 <template>
-  <static-page-section
+  <resources-page-section
     :message='messages.WATER_FILTER_INFO_SECTION'
     :styles='styles.DEFAULT_STYLE'>
     <div class='filter-static-content'>
@@ -10,19 +10,19 @@
       {{ messages.WATER_FILTER_INFO_SECTION.body }}
     </span>
     </div>
-  </static-page-section>
+  </resources-page-section>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import { ResourcesPageMessages as messages } from '../../assets/messages/resources';
 import { ResourcesPageStyles as styles } from '../../assets/styles/resources';
-import StaticPageSection from '../StaticPageSection.vue';
+import ResourcesPageSection from './ResourcesPageSection.vue';
 
 export default defineComponent({
   name: 'FilterInfoSection',
   components: {
-    StaticPageSection,
+    ResourcesPageSection,
   },
   data() {
     return {

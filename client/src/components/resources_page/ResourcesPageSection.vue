@@ -1,5 +1,5 @@
 <template>
-  <div class='static-page-section' :style='cssProps'>
+  <div class='resources-page-section' :style='cssProps'>
     <div class='header-section'>
       <div class='header-1'>{{ message.header }}</div>
       <div class='header-2' v-if='message.subHeader'>
@@ -12,8 +12,8 @@
 
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
-import { Message } from '../assets/messages/resources';
-import { Style } from '../assets/styles/resources';
+import { Message } from '@/assets/messages/resources';
+import { Style } from '@/assets/styles/resources';
 
 export interface Styles {
   BACKGROUND_COLOR: string;
@@ -85,7 +85,7 @@ export default defineComponent({
   padding: 0;
 }
 
-.static-page-section {
+.resources-page-section {
   display: flex;
   justify-content: center;
   align-items: center;
