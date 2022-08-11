@@ -2,7 +2,7 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
-import { CORS_HEADERS } from '../../util';
+import { CORS_HEADERS, trimPath } from '../../util';
 
 const moment = require('moment');
 
@@ -56,7 +56,7 @@ async function getZipCodeData(
 }
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResult> => {
-  const zipCode = event.rawPath.split('/')[1];
+  const zipCode = trimPath(event.rawPath)[3];
   if (!zipCode || zipCode == '')
     return {
       statusCode: 400,
@@ -79,6 +79,8 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     console.log(`Error fetching zipcode scorecard for zip code ${zipCode}`, error);
     throw error;
   }
+
+  console.log('Success:', { zipCode, body });
 
   return {
     statusCode: 200,

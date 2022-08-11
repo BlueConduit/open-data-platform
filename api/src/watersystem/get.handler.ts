@@ -2,7 +2,7 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
-import { CORS_HEADERS } from '../util';
+import { CORS_HEADERS, trimPath } from '../util';
 
 const SCHEMA = 'public';
 const SQL_QUERY = `SELECT pws_id,
@@ -38,7 +38,7 @@ async function getWaterSystemData(
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResult> => {
   // Parse out the path parameters.
-  const pwsId = event.rawPath.split('/')[1];
+  const pwsId = trimPath(event.rawPath)[2];
   if (!pwsId || pwsId == '')
     return { statusCode: 400, headers: CORS_HEADERS, body: 'No pws_id provided.' };
 
@@ -57,6 +57,8 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     console.log(`Error fetching water system data for pws id ${pwsId}`, error);
     throw error;
   }
+
+  console.log('Success:', { pwsId, body });
 
   return {
     statusCode: 200,

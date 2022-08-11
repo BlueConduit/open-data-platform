@@ -6,7 +6,7 @@ import {
   FieldList,
   SqlParametersList,
 } from 'aws-sdk/clients/rdsdataservice';
-import { CORS_HEADERS } from '../util';
+import { CORS_HEADERS, trimPath } from '../util';
 
 const SCHEMA = 'public';
 
@@ -44,7 +44,7 @@ async function getGeoDataForLatLong(
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResult> => {
   // Parse out the path parameters.
-  const coordinates = event.rawPath.split('/')[1];
+  const coordinates = trimPath(event.rawPath)[2];
   if (!coordinates || coordinates == '')
     return {
       statusCode: 400,
@@ -55,6 +55,7 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
   const coordinatesAsLatLong = coordinates.split(',');
   const lat = parseFloat(coordinatesAsLatLong[0]);
   const long = parseFloat(coordinatesAsLatLong[1]);
+  console.log('Parsed lat,long:', { coordinates, lat, long });
 
   // TODO(breuch): Throw error when lat, long are not passed in.
   const db = new AWS.RDSDataService();
@@ -87,6 +88,8 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     console.log(`Error fetching geo data for ${lat}, ${long}`, error);
     throw error;
   }
+
+  console.log('Success:', { coordinates, body });
 
   return {
     statusCode: 200,
