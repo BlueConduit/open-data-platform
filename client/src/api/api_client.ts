@@ -1,11 +1,13 @@
 import axios from 'axios';
 import { GeographicLevel } from '@/model/data_layer';
+import prefixes from '../../../cdk/src/open-data-platform/frontend/url-prefixes';
 
 /**
  * Client to interface with API.
  */
 class ApiClient {
-  static API_URL = 'https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev';
+  // A URL path prefix shared by all API routes.
+  static API_URL = prefixes.api;
 
   request = async (endpoint: string, callback: (data: any) => any): Promise<ApiResponse> => {
     const apiResponse: ApiResponse = {};
