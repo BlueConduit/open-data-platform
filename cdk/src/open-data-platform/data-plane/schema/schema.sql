@@ -174,11 +174,9 @@ CREATE TABLE IF NOT EXISTS epa_violations
     end_date             DATE,
     pws_id               varchar(255) NOT NULL,
     state_census_geo_id  varchar(255) references states (census_geo_id),
-    county_census_geo_id varchar(255) references counties (census_geo_id),
     PRIMARY KEY (violation_id)
 );
 CREATE INDEX IF NOT EXISTS census_state_geo_id_index ON epa_violations (state_census_geo_id);
-CREATE INDEX IF NOT EXISTS census_county_geo_id_index ON epa_violations (county_census_geo_id);
 
 -- Violation counts per water system --
 

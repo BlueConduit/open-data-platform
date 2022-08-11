@@ -31,13 +31,18 @@ async function insertBatch(
                                      lead_connections_count,
                                      service_connections_count,
                                      population_served,
+                                     state_census_geo_id,
                                      geom)
-          VALUES (:pws_id,
-                  :pws_name,
-                  :lead_connections_count,
-                  :service_connections_count,
-                  :population_served,
-                  ST_AsText(ST_GeomFromGeoJSON(:geom))) ON CONFLICT (pws_id) DO NOTHING`,
+          SELECT :pws_id,
+                 :pws_name,
+                 :lead_connections_count,
+                 :service_connections_count,
+                 :population_served,
+                 s.census_geo_id,
+                 ST_AsText(ST_GeomFromGeoJSON(:geom))
+          FROM states s
+          WHERE s.usps like
+                SUBSTRING(:pws_id, 1, 2) ON CONFLICT (pws_id) DO NOTHING`,
   };
   return rdsService.batchExecuteStatement(batchExecuteParams).promise();
 }
