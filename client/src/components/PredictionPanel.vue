@@ -99,8 +99,8 @@ export default defineComponent({
     },
   },
   watch: {
-    // Listen for changes to pws id. Once it changes, a new prediction
-    // must be fetched.
+    // Listen for changes to pws id or lat, long. Once it changes, a new
+    // prediction must be fetched.
     'geoState.geoids': function() {
       // Check if an address was queried and another prediction should be
       // fetched.
@@ -109,6 +109,7 @@ export default defineComponent({
         && this.geoState?.geoids?.long != null) {
 
         dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
+
       } else if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId));
       }
