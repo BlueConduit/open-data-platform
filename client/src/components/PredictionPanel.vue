@@ -13,7 +13,7 @@
         {{ percentLead }}% lead.
       </div>
       <div class='h1-header semi-bold'
-           v-if='publicLeadLikelihood != null'>
+           v-if='showParcelPrediction'>
         Your home's public service lines have a {{ publicLeadLikelihood }}%
         chance of lead.
         <span v-if='privateLeadLikelihood != null'>
@@ -90,6 +90,9 @@ export default defineComponent({
       // TODO: Handle error state where there is no water system id
       // after the API has returned.
       return this.geoState?.geoids?.pwsId ?? null;
+    },
+    showParcelPrediction(): boolean {
+      return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
     },
     showWaterSystemPrediction(): boolean {
       return this.geoState?.geoids?.geoType != GeoType.address && this.pwsId != null && this.percentLead != null;

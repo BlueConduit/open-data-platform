@@ -15,6 +15,7 @@ class ApiClient {
         return retryCount * 2000; // Time between retries
       },
       retryCondition: (error: AxiosError) => {
+        // Retry on internal errors.
         return error.response?.status === 502;
       },
     });
