@@ -6,7 +6,7 @@
 export class Titles {
   static APP_TITLE = 'LeadOut';
   static HOME_TITLE = 'Home';
-  static SCORECARD_TITLE = 'Scorecard';
+  static LEAD_STATUS_TITLE = 'Lead Status';
   static MAP_TITLE = 'Nationwide Map';
   static ABOUT_TITLE = 'About Us';
 }

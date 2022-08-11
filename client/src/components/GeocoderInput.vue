@@ -2,10 +2,12 @@
   <div class='geocoder'></div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import { GeographicLevel } from '../model/data_layer';
+import { GeoType } from '../model/states/model/geo_data';
 
 /**
  * Wrapper for Mapbox Geocoder.
@@ -28,16 +30,22 @@ export default defineComponent({
     };
   },
   emits: {
-    result: (lat: number, long: number) => true,
+    result: (lat: number, long: number, geoType: GeoType) => true,
   },
   mounted() {
     this.geocoder.addTo('.geocoder');
 
     // TODO: replace 'any' here with a meaningful type.
     this.geocoder.on('result', async (result: any) => {
-      const long: number = result.result.center[0];
-      const lat: number = result.result.center[1];
-      this.$emit('result', lat, long);
+      const place = result.result;
+      if (place.place_type.length > 0) {
+        const geoType = Object.values(GeoType)
+          .find((geo) => geo == place.place_type[0]) as GeoType;
+
+        const long: number = place.center[0];
+        const lat: number = place.center[1];
+        this.$emit('result', lat, long, geoType);
+      }
     });
   },
 });

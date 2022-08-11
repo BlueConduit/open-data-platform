@@ -23,6 +23,7 @@ import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import { queryLatLong } from '../model/slices/geo_data_slice';
 import { dispatch } from '../model/store';
+import { GeoType } from '../model/states/model/geo_data';
 
 /**
  * Expandable address search that performs a geocode.
@@ -42,9 +43,9 @@ export default defineComponent({
     expandSearch: { type: Boolean, default: false },
   },
   methods: {
-    async onGeocodeResults(lat: string, long: string) {
+    async onGeocodeResults(lat: string, long: string, geoType: GeoType) {
       // Emit action that a lat, long selection was made.
-      dispatch(queryLatLong(lat, long));
+      dispatch(queryLatLong(lat, long, geoType));
     },
   },
 });
