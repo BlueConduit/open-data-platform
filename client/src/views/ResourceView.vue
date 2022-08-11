@@ -1,27 +1,29 @@
 <template>
 <!--  TODO refactor slot content into components-->
-  <div>
+  <div class='content'>
     <static-page-section
       :message='messages.WATER_FILTER_INFO_SECTION'
-      :styles='DEFAULT_STYLE'>
-      <div class='static-content'>
+      :styles='styles.DEFAULT_STYLE'>
+      <div class='filter-static-content'>
         <span class='asset'><img
           :src='require(`@/assets/media/resource-image-1.png`)'
           alt=''></span>
         <span
-          class='text'>{{ messages.WATER_FILTER_INFO_SECTION.body
-          }}</span>
+          class='filter-text'>{{ messages.WATER_FILTER_INFO_SECTION.body
+          }}
+        </span>
       </div>
     </static-page-section>
-    <static-page-section :styles='DEFAULT_STYLE'
+    <static-page-section :styles='styles.DEFAULT_STYLE'
                          :message='messages.FILTER_TYPES_SECTION'>
       <div class='filter-cards'>
         <image-card v-for='filter in messages.FILTER_TYPES'
                     :key='filter.header'
-                    :message='filter'></image-card>
+                    :message='filter'
+                    :image='filter.image'></image-card>
       </div>
     </static-page-section>
-    <static-page-section :styles='RECOMMENDATIONS_STYLE'
+    <static-page-section :styles='styles.RECOMMENDATIONS_STYLE'
                          :message='messages.RECOMMENDATIONS_SECTION'>
       <div class='recommendations-content'>
         <div v-for='rec in messages.RECOMMENDATIONS'
@@ -36,21 +38,10 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import StaticPageSection, { Styles } from '../components/StaticPageSection.vue';
+import StaticPageSection from '../components/StaticPageSection.vue';
 import ImageCard from '../components/ImageCard.vue';
 import { ResourcesPageMessages as messages } from '../assets/messages/resources';
-
-const DEFAULT_STYLE: Styles = {
-  BACKGROUND_COLOR: '#FFFFFF', // White.
-  HEADER_TEXT_COLOR: '#464646',
-  SUB_HEADER_TEXT_COLOR: '#252525',
-};
-
-const RECOMMENDATIONS_STYLE: Styles = {
-  BACKGROUND_COLOR: '#05A8F4', // Light blue.
-  HEADER_TEXT_COLOR: '#FFFFFF',
-  SUB_HEADER_TEXT_COLOR: '#FFFFFF',
-};
+import { ResourcesPageStyles as styles } from '../assets/styles/resources';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -64,8 +55,7 @@ export default defineComponent({
   data() {
     return {
       messages,
-      DEFAULT_STYLE,
-      RECOMMENDATIONS_STYLE,
+      styles,
     };
   },
 });
@@ -77,13 +67,19 @@ a {
   text-decoration: none;
 }
 
-.static-content {
+.content {
+  margin-top: 109px;
+}
+
+.filter-static-content {
   width: 932px;
   display: flex;
+  flex-direction: row;
   align-items: center;
+  justify-content: center;
   letter-spacing: 0.2px;
-  text-transform: capitalize;
   margin-top: 24px;
+  gap: 38px;
 }
 
 .asset img {
@@ -130,30 +126,18 @@ a {
   font-family: 'IBM Plex Sans';
 }
 
-.text {
-  padding: 0 110px 0 38px;
-  width: 290px;
-  height: 204px;
+.filter-text {
+  width: 324px;
+  height: 170px;
+  padding: 0 60px 0 0;
 
-  /* Headline 2 */
   font-family: 'IBM Plex Sans';
   font-style: normal;
   font-weight: 500;
   font-size: 24px;
   line-height: 34px;
-  /* or 142% */
-  display: flex;
-  align-items: center;
 
-  /* Warm Grey/Warm Grey 600 */
+  /*!* Warm Grey/Warm Grey 600 *!*/
   color: #7A7A7A;
-
-
-  /* Inside auto layout */
-  flex: none;
-  order: 0;
-  align-self: stretch;
-  flex-grow: 0;
-
 }
 </style>

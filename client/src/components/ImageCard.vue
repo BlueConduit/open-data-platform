@@ -1,24 +1,21 @@
 <template>
   <div class='card'>
-    <span class='asset'><img
-      :src='require(`@/assets/media/${image}`)'
-      alt=''></span>
-    <div class='text'>
-      <h1>{{ message.header }}</h1>
-      <h2>{{ message.subHeader }}</h2>
-    </div>
+    <span class='asset'>
+      <img :src='require(`@/assets/media/${image}`)' alt=''>
+    </span>
+    <div class='header-1'>{{ message.header }}</div>
+    <div class='header-2'>{{ message.subHeader }}</div>
   </div>
 </template>
 
 <script lang='ts'>
-// TODO remove this and configure linter in intellij
 /* eslint-disable */
 
 import { defineComponent, PropType } from 'vue';
 import { Message } from '../assets/messages/resources';
 
 /**
- * Wrapper for national map dashboard.
+ * Component which contains an image, a header, and a subheader.
  */
 export default defineComponent({
   name: 'ImageCard',
@@ -44,61 +41,28 @@ export default defineComponent({
 
   width: 396px;
   height: 449px;
+  gap: 16px;
 }
 
-h1 {
+.header-1,
+.header-2 {
   width: 356px;
-  height: 58px;
+  text-align: center;
+  letter-spacing: 0.2px;
+  text-transform: capitalize;
+}
 
+.header-1 {
   font-weight: 600;
   font-size: 24px;
   line-height: 29px;
-  display: flex;
-  align-items: center;
-  text-align: center;
-  letter-spacing: 0.2px;
-  text-transform: capitalize;
-
-  /* systemGrey/900 */
   color: #212121;
-
-
-  /* Inside auto layout */
-  flex: none;
-  order: 0;
-  align-self: stretch;
-  flex-grow: 0;
 }
 
-h2 {
-  width: 356px;
-
+.header-2 {
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
-  /* or 150% */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  letter-spacing: 0.2px;
-  text-transform: capitalize;
-
-  /* systemGrey/600 */
   color: #757575;
-
-
-  /* Inside auto layout */
-  flex: none;
-  order: 1;
-  align-self: stretch;
-  flex-grow: 0;
-}
-
-.text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 </style>

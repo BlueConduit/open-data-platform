@@ -4,6 +4,7 @@ interface Message {
   header: string;
   subHeader?: string;
   body?: string;
+  image?: string;
 }
 
 interface Recommendation {
@@ -22,6 +23,7 @@ class ResourcesPageMessages {
     header: 'Choosing the right water filter',
     subHeader: 'Here are a few things to consider before buying a water filter along with a few questions you may have.',
     body: `You can get filters that cover an entire home or for a single person on the go. There are many options that can fit your budget or needs.`,
+    image: 'resource-image-1.png',
   };
 
   // Messages for the filter types section.
@@ -34,18 +36,22 @@ class ResourcesPageMessages {
     {
       header: 'Renter or on a budget? pick a pitcher.',
       subHeader: 'Hold for styling!',
+      image: 'pitcher-filter.png',
     },
     {
       header: 'Under Sink Filters are a great choice for homeowners',
       subHeader: 'Hold for styling!',
+      image: 'under-sink-filter.png',
     },
     {
       header: 'Household Filtration Systems are a best in Class solution',
       subHeader: 'Hold for styling!',
+      image: 'house-filter.png',
     },
     {
       header: 'Shower filters have many benefits',
       subHeader: 'Hold for styling!',
+      image: 'shower-filter.png',
     },
   ];
 
@@ -69,4 +75,8 @@ class ResourcesPageMessages {
   ];
 }
 
-export { Message, Recommendation, ResourcesPageMessages };
+export {
+  Message,
+  Recommendation,
+  ResourcesPageMessages,
+};
