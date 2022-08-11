@@ -17,6 +17,9 @@ import { ResourcesPageContent as content } from '@/assets/messages/resources';
 import { ResourcesPageStyles as styles } from '@/assets/styles/resources';
 import ImageCard from '../ImageCard.vue';
 
+/**
+ * Content for filter types section of the resources page.
+ */
 export default defineComponent({
   name: 'FilterTypesSection',
   components: {

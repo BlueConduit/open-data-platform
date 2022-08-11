@@ -19,6 +19,9 @@ import { ResourcesPageContent as content } from '../../assets/messages/resources
 import { ResourcesPageStyles as styles } from '../../assets/styles/resources';
 import ResourcesPageSection from './ResourcesPageSection.vue';
 
+/**
+ * Content for filter info section of the resources page.
+ */
 export default defineComponent({
   name: 'FilterInfoSection',
   components: {

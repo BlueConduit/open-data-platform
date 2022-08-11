@@ -21,4 +21,3 @@ export class ScorecardSummaryMessages {
     'Social vulnerability refers to the potential negative effects on ' +
     'communities caused by external stresses on human health';
 }
-//

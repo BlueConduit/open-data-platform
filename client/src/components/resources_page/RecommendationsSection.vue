@@ -17,6 +17,9 @@ import ResourcesPageSection from './ResourcesPageSection.vue';
 import { ResourcesPageContent as content } from '@/assets/messages/resources';
 import { ResourcesPageStyles as styles } from '@/assets/styles/resources';
 
+/**
+ * Content for recommendations section of the resources page.
+ */
 export default defineComponent({
   name: 'RecommendationsSection',
   components: {

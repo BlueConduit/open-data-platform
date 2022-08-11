@@ -13,7 +13,7 @@ import FilterTypesSection from '../components/resources_page/FilterTypesSection.
 import RecommendationsSection from '../components/resources_page/RecommendationsSection.vue';
 
 /**
- * Container for SearchBar and MapContainer.
+ * Resources page component.
  */
 export default defineComponent({
   name: 'ResourceView',
