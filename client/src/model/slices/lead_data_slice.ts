@@ -14,6 +14,12 @@ const leadDataSlice = createSlice({
   name: 'leadDataSlice',
   initialState,
   reducers: {
+    getParcelSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
+      state.data = { ...state.data, ...action.payload };
+    },
+    getParcelError(state: LeadDataState, action) {
+      console.log(`Error fetching lead data: ${state} ${action}`);
+    },
     getWaterSystemSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
       state.data = { ...state.data, ...action.payload };
     },
@@ -27,13 +33,30 @@ const leadDataSlice = createSlice({
 });
 
 /**
+ * Calls API to fetch parcel info based on lat,long intersection. Emits actions
+ * to update state when results are returned.
+ * @param lat
+ * @param long
+ */
+export const getParcel = (lat: string, long: string) => {
+  return async (dispatch: AppDispatch) => {
+    const apiResponse = await client.getParcel(lat, long);
+    if (apiResponse.data != null) {
+      dispatch(getParcelSuccess(apiResponse.data));
+    } else {
+      dispatch(getParcelError(apiResponse.error));
+    }
+  };
+};
+
+/**
  * Calls API to fetch water system info based on pws id. Emits actions to
  * update state when results are returned.
  * @param pwsId
  */
 export const getWaterSystem = (pwsId: string) => {
   return async (dispatch: AppDispatch) => {
-    dispatch(waterSystemQueried({ geoId: pwsId }));
+    dispatch(waterSystemQueried({ pwsId: pwsId }));
 
     const apiResponse = await client.getWaterSystem(pwsId);
     if (apiResponse.data != null) {
@@ -46,6 +69,11 @@ export const getWaterSystem = (pwsId: string) => {
 
 // See more about reducers:
 // https://redux-toolkit.js.org/api/createslice#reducers
-export const { waterSystemQueried, getWaterSystemSuccess, getWaterSystemError } =
-  leadDataSlice.actions;
+export const {
+  getParcelSuccess,
+  getParcelError,
+  waterSystemQueried,
+  getWaterSystemSuccess,
+  getWaterSystemError,
+} = leadDataSlice.actions;
 export default leadDataSlice.reducer;

@@ -15,3 +15,13 @@
 .explain-text {
   color: #656565;
 }
+
+/** Structure */
+.container-row {
+  display: flex;
+}
+
+.container-column {
+  display: flex;
+  flex-direction: column;
+}

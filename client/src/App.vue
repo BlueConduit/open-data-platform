@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, provide, reactive } from 'vue';
 import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/dist/css/copper.css';
@@ -20,6 +20,7 @@ import { leadServiceLinesByParcelLayer } from './data_layer_configs/lead_service
 import { queryLatLong } from './model/slices/geo_data_slice';
 import { dispatch } from './model/store';
 import { LAT_LONG_PARAM } from './router';
+import { GeoType } from './model/states/model/geo_data';
 
 const DEFAULT_TITLE = 'LeadOut';
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([
@@ -58,7 +59,8 @@ export default defineComponent({
         const lat = latLong[0];
         const long = latLong[1];
 
-        dispatch(queryLatLong(lat, long));
+        // TODO: Pass real geo type.
+        dispatch(queryLatLong(lat, long, GeoType.postcode));
       }
 
       // TODO: consider adding a string that says this is a non-prod environment, so devs can see

@@ -6,9 +6,9 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, PropType } from 'vue';
-import { MAP_ROUTE_BASE } from '../router';
+import { SCORECARD_BASE } from '../router';
 import { Messages } from './LandingPageSection.vue';
 import GeocoderInput from './GeocoderInput.vue';
 
@@ -36,7 +36,7 @@ export default defineComponent({
       this.long = long;
     },
     onSearch() {
-      this.$router.push(`${MAP_ROUTE_BASE}/${this.lat},${this.long}`);
+      this.$router.push(`${SCORECARD_BASE}/${this.lat},${this.long}`);
     },
   },
 });
