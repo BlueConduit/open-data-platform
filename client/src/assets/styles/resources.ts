@@ -1,3 +1,5 @@
+// Styles for resources page.
+
 interface Style {
   backgroundColor: string;
   headerTextColor: string;
