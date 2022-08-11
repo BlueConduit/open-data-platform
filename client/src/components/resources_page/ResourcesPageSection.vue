@@ -1,9 +1,9 @@
 <template>
   <div class='resources-page-section' :style='cssProps'>
     <div class='header-section'>
-      <div class='header-1'>{{ message.header }}</div>
-      <div class='header-2' v-if='message.subHeader'>
-        {{ message.subHeader }}
+      <div class='header-1'>{{ content.header }}</div>
+      <div class='header-2' v-if='content.subHeader'>
+        {{ content.subHeader }}
       </div>
     </div>
     <slot class='content-slot'></slot>
@@ -12,8 +12,8 @@
 
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
-import { Message } from '@/assets/messages/resources';
 import { Style } from '@/assets/styles/resources';
+import { Content } from '../../assets/messages/resources';
 
 export interface Styles {
   BACKGROUND_COLOR: string;
@@ -29,8 +29,8 @@ export interface Styles {
 export default defineComponent({
   name: 'StaticPageSection',
   props: {
-    message: {
-      type: Object as PropType<Message>,
+    content: {
+      type: Object as PropType<Content>,
       required: true,
     },
     styles: {

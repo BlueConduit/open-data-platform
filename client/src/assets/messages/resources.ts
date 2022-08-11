@@ -1,6 +1,6 @@
 // Strings for the resources page.
 
-interface Message {
+interface Content {
   header: string;
   subHeader?: string;
   body?: string;
@@ -16,23 +16,23 @@ interface Recommendation {
 /**
  * Strings related to the resources page.
  */
-class ResourcesPageMessages {
+class ResourcesPageContent {
 
-  // Messages for the water filter information section.
-  static WATER_FILTER_INFO_SECTION: Message = {
+  // Contents for the water filter information section.
+  static WATER_FILTER_INFO_SECTION: Content = {
     header: 'Choosing the right water filter',
     subHeader: 'Here are a few things to consider before buying a water filter along with a few questions you may have.',
     body: `You can get filters that cover an entire home or for a single person on the go. There are many options that can fit your budget or needs.`,
     image: 'resource-image-1.png',
   };
 
-  // Messages for the filter types section.
-  static FILTER_TYPES_SECTION: Message = {
+  // Content for the filter types section.
+  static FILTER_TYPES_SECTION: Content = {
     header: 'Filters to fit your needs and budget.',
     subHeader: 'Explore different types of water filters.',
   };
 
-  static FILTER_TYPES: Message[] = [
+  static FILTER_TYPES: Content[] = [
     {
       header: 'Renter or on a budget? pick a pitcher.',
       image: 'pitcher-filter.png',
@@ -51,8 +51,8 @@ class ResourcesPageMessages {
     },
   ];
 
-  // Messages for the filter recommendations section.
-  static RECOMMENDATIONS_SECTION: Message = {
+  // Content for the filter recommendations section.
+  static RECOMMENDATIONS_SECTION: Content = {
     header: 'Recommendations',
     subHeader: 'Here are a few sites that have  detailed recommendations before you purchase.',
   };
@@ -72,7 +72,7 @@ class ResourcesPageMessages {
 }
 
 export {
-  Message,
+  Content,
   Recommendation,
-  ResourcesPageMessages,
+  ResourcesPageContent,
 };

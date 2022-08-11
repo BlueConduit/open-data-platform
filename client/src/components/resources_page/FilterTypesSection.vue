@@ -1,10 +1,10 @@
 <template>
   <resources-page-section :styles='styles.DEFAULT_STYLE'
-                          :message='messages.FILTER_TYPES_SECTION'>
+                          :content='content.FILTER_TYPES_SECTION'>
     <div class='filter-cards'>
-      <image-card v-for='filter in messages.FILTER_TYPES'
+      <image-card v-for='filter in content.FILTER_TYPES'
                   :key='filter.header'
-                  :message='filter'
+                  :content='filter'
                   :image='filter.image'></image-card>
     </div>
   </resources-page-section>
@@ -13,7 +13,7 @@
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import ResourcesPageSection from './ResourcesPageSection.vue';
-import { ResourcesPageMessages as messages } from '@/assets/messages/resources';
+import { ResourcesPageContent as content } from '@/assets/messages/resources';
 import { ResourcesPageStyles as styles } from '@/assets/styles/resources';
 import ImageCard from '../ImageCard.vue';
 
@@ -25,7 +25,7 @@ export default defineComponent({
   },
   data() {
     return {
-      messages,
+      content,
       styles,
     };
   },

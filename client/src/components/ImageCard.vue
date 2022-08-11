@@ -1,10 +1,11 @@
 <template>
   <div class='card'>
     <span class='asset'>
-      <img :src='require(`@/assets/media/${image}`)' alt=''>
+      <img :src='require(`@/assets/media/${content.image ?? defaultImage}`)'
+           alt=''>
     </span>
-    <div class='header-1'>{{ message.header }}</div>
-    <div class='header-2'>{{ message.subHeader }}</div>
+    <div class='header-1'>{{ content.header }}</div>
+    <div class='header-2'>{{ content.subHeader }}</div>
   </div>
 </template>
 
@@ -12,7 +13,7 @@
 /* eslint-disable */
 
 import { defineComponent, PropType } from 'vue';
-import { Message } from '../assets/messages/resources';
+import { Content } from '../assets/messages/resources';
 
 /**
  * Component which contains an image, a header, and a subheader.
@@ -21,10 +22,15 @@ export default defineComponent({
   name: 'ImageCard',
   props: {
     image: { type: String, default: 'placeholder_image.png' },
-    message: {
-      type: Object as PropType<Message>,
-      default: 'placeholder_image.png',
+    content: {
+      type: Object as PropType<Content>,
+      required: true,
     },
+  },
+  data() {
+    return {
+      defaultImage: 'placeholder_image.png',
+    };
   },
 });
 </script>

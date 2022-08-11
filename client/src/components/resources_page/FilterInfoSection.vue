@@ -1,13 +1,13 @@
 <template>
   <resources-page-section
-    :message='messages.WATER_FILTER_INFO_SECTION'
+    :content='content.WATER_FILTER_INFO_SECTION'
     :styles='styles.DEFAULT_STYLE'>
     <div class='filter-static-content'>
     <span class='asset'><img
-      :src='require(`@/assets/media/${messages.WATER_FILTER_INFO_SECTION.image}`)'
+      :src='require(`@/assets/media/${content.WATER_FILTER_INFO_SECTION.image}`)'
       alt=''></span>
       <span class='filter-text'>
-      {{ messages.WATER_FILTER_INFO_SECTION.body }}
+      {{ content.WATER_FILTER_INFO_SECTION.body }}
     </span>
     </div>
   </resources-page-section>
@@ -15,7 +15,7 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import { ResourcesPageMessages as messages } from '../../assets/messages/resources';
+import { ResourcesPageContent as content } from '../../assets/messages/resources';
 import { ResourcesPageStyles as styles } from '../../assets/styles/resources';
 import ResourcesPageSection from './ResourcesPageSection.vue';
 
@@ -26,7 +26,7 @@ export default defineComponent({
   },
   data() {
     return {
-      messages,
+      content,
       styles,
     };
   },
