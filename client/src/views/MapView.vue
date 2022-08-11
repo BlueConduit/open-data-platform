@@ -3,16 +3,16 @@
     <SearchBar v-if='showSearch' />
     <PredictionPanel v-if='showResult' />
     <MapContainer />
-    <ScorecardSummaryPanel />
+    <ScorecardSummaryPanel v-if='showResult' />
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import MapContainer from '../components/MapContainer.vue';
 import PredictionPanel from '../components/PredictionPanel.vue';
 import SearchBar from '../components/SearchBar.vue';
 import { defineComponent } from 'vue';
-import { router, HOME_ROUTE, MAP_ROUTE } from '../router';
+import { router, SCORECARD_BASE, MAP_ROUTE_BASE } from '../router';
 import ScorecardSummaryPanel from '../components/ScorecardSummaryPanel.vue';
 
 /**
@@ -28,8 +28,8 @@ export default defineComponent({
   },
   data() {
     return {
-      showSearch: router.currentRoute.value.path == MAP_ROUTE,
-      showResult: router.currentRoute.value.path == HOME_ROUTE,
+      showSearch: router.currentRoute.value.path.startsWith(MAP_ROUTE_BASE),
+      showResult: router.currentRoute.value.path.startsWith(SCORECARD_BASE),
     };
   },
 });

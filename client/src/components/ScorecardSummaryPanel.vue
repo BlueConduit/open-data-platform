@@ -10,15 +10,18 @@
       <div class='container-column'>
         <ScorecardSummaryRow :header='ScorecardSummaryMessages.HOME_AGE'
                              :subheader='ScorecardSummaryMessages.HOME_AGE_EXPLAINED'
-                             :comparisonValue='homeAgeComparison' />
+                             :comparisonValue='homeAgeComparison'
+                             image='home_age.png' />
         <ScorecardSummaryRow
           :header='ScorecardSummaryMessages.SOCIAL_VULNERABILITY_INDEX'
           :subheader='ScorecardSummaryMessages.SOCIAL_VULNERABILITY_INDEX_EXPLAINED'
           :image-float-direction='ImageFloatDirection.right'
-          :comparisonValue='socialVulnerabilityComparison' />
+          :comparisonValue='socialVulnerabilityComparison'
+          image='vulnerability.png' />
         <ScorecardSummaryRow :header='ScorecardSummaryMessages.INCOME_LEVEL'
                              :subheader='ScorecardSummaryMessages.INCOME_LEVEL_EXPLAINED'
-                             :comparisonValue='incomeComparison' />
+                             :comparisonValue='incomeComparison'
+                             image='income.png' />
       </div>
     </div>
   </div>

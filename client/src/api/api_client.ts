@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import axiosRetry from 'axios-retry';
 import { GeographicLevel } from '@/model/data_layer';
 
 /**
@@ -8,6 +9,17 @@ class ApiClient {
   static API_URL = 'https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev';
 
   request = async (endpoint: string, callback: (data: any) => any): Promise<ApiResponse> => {
+    axiosRetry(axios, {
+      retries: 3,
+      retryDelay: (retryCount) => {
+        return retryCount * 2000; // Time between retries
+      },
+      retryCondition: (error: AxiosError) => {
+        // Retry on internal errors.
+        return error.response?.status === 502;
+      },
+    });
+
     const apiResponse: ApiResponse = {};
     try {
       const data = await axios.get<any>(endpoint, {
@@ -64,6 +76,21 @@ class ApiClient {
         pwsId: data?.data?.pws_id,
         leadServiceLines: data?.data?.lead_service_lines,
         serviceLines: data?.data?.service_lines,
+      };
+    });
+  };
+
+  /**
+   *   Retrieve parcel info based on lat,long.
+   */
+  getParcel = async (lat: string, long: string): Promise<ApiResponse> => {
+    return this.request(`${ApiClient.API_URL}/parcel/${lat},${long}`, (data) => {
+      return {
+        address: data?.data?.address,
+        publicLeadLowPrediction: data?.data?.public_lead_low_prediction,
+        publicLeadHighPrediction: data?.data?.public_lead_high_prediction,
+        privateLeadLowPrediction: data?.data?.private_lead_low_prediction,
+        privateLeadHighPrediction: data?.data?.private_lead_high_prediction,
       };
     });
   };
