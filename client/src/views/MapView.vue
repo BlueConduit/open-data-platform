@@ -7,14 +7,14 @@
                    :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
                    :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
                    :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-                   bgColor='#E1F5FE'
+                   :bgColor='actionBackgroundColor'
                    @onButtonClick='navigateToResourcePage' />
     <ScorecardSummaryPanel v-if='showResult' />
     <ActionSection v-if='showResult'
                    :header='ScorecardMessages.WANT_TO_KNOW_MORE'
                    :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
                    :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
-                   bgColor='#E1F5FE'
+                   :bgColor='actionBackgroundColor'
                    @onButtonClick='navigateToMapPage' />
   </div>
 </template>
@@ -44,6 +44,7 @@ export default defineComponent({
   },
   data() {
     return {
+      actionBackgroundColor: '#E1F5FE',
       showSearch: router.currentRoute.value.path.startsWith(MAP_ROUTE_BASE),
       showResult: router.currentRoute.value.path.startsWith(SCORECARD_BASE),
       ScorecardMessages,
@@ -52,13 +53,11 @@ export default defineComponent({
   },
   methods: {
     navigateToResourcePage() {
-      console.log('navigate to resources');
       router.push({
         path: '/resources',
       });
     },
     navigateToMapPage() {
-      console.log('navigate to map');
       router.push({
         path: '/map',
       });

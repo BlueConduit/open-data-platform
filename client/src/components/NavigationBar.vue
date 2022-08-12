@@ -12,9 +12,6 @@
           </router-link>
         </div>
       </div>
-      <div>
-        <router-link to='/resources' class='semi-bold'>Resources</router-link>
-      </div>
     </div>
   </div>
 </template>
@@ -46,6 +43,7 @@ export default defineComponent({
       [Titles.LEAD_STATUS_TITLE, router.SCORECARD_BASE],
       [Titles.MAP_TITLE, router.MAP_ROUTE_BASE],
       [Titles.ABOUT_TITLE, router.ABOUT_ROUTE],
+      [Titles.RESOURCES_TITLE, router.RESOURCES_ROUTE],
     ];
     return {
       routes,

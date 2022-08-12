@@ -37,7 +37,4 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.landing-page {
-  min-height: 100%;
-}
 </style>

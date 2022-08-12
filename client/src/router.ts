@@ -80,6 +80,7 @@ const router = createRouter({
 export {
   router,
   HOME_ROUTE,
+  RESOURCES_ROUTE,
   SCORECARD_BASE,
   SCORECARD_ROUTE,
   MAP_ROUTE_BASE,
