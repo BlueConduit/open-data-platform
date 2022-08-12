@@ -9,4 +9,5 @@ export class Titles {
   static LEAD_STATUS_TITLE = 'Lead Status';
   static MAP_TITLE = 'Nationwide Map';
   static ABOUT_TITLE = 'About Us';
+  static RESOURCES_TITLE = 'Resources';
 }

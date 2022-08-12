@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LandingPageView from './views/LandingPageView.vue';
 import MapView from './views/MapView.vue';
 import { Titles } from './assets/messages/common';
+import ResourceView from '@/views/ResourceView.vue';
 
 export const LAT_LONG_PARAM = 'latlong';
 
@@ -11,6 +12,7 @@ const SCORECARD_ROUTE = `${SCORECARD_BASE}/:${LAT_LONG_PARAM}?`;
 const MAP_ROUTE_BASE = `/map`;
 const MAP_ROUTE = `${MAP_ROUTE_BASE}/:${LAT_LONG_PARAM}?`;
 const ABOUT_ROUTE = '/about';
+const RESOURCES_ROUTE = '/resources';
 
 const routes = [
   {
@@ -46,6 +48,13 @@ const routes = [
     component: MapView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.MAP_TITLE}`,
+    },
+  },
+  {
+    path: RESOURCES_ROUTE,
+    component: ResourceView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.RESOURCES_TITLE}`,
     },
   },
   {
