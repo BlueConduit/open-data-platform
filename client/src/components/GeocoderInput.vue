@@ -3,11 +3,14 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent } from 'vue';
+import { defineComponent, inject } from 'vue';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
-import { GeographicLevel } from '../model/data_layer';
 import { GeoType } from '../model/states/model/geo_data';
+import mapboxgl, { Marker } from 'mapbox-gl';
+import { State } from '../model/state';
+import { stateKey } from '../injection_keys';
+import { DataLayer } from '../model/data_layer';
 
 /**
  * Wrapper for Mapbox Geocoder.
@@ -17,13 +20,22 @@ import { GeoType } from '../model/states/model/geo_data';
  */
 export default defineComponent({
   name: 'GeocoderInput',
+  setup() {
+    // TODO: remove all dependencies on old state and delete.
+    const state: State = inject(stateKey, State.default());
+    return {
+      state: state,
+    };
+  },
   data() {
     const geocoder = new MapboxGeocoder({
       // @ts-ignore
       accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '',
-      mapboxgl: undefined,
-      marker: false,
+      //mapboxgl: this.map,
       countries: 'US',
+      marker: new Marker({
+        color: '#0b2553',
+      }),
     });
     return {
       geocoder,
@@ -47,6 +59,12 @@ export default defineComponent({
         this.$emit('result', lat, long, geoType);
       }
     });
+  },
+  watch: {
+    'state.map': function(map: mapboxgl.Map | null) {
+      console.log(`Map updated`);
+      console.log(map);
+    },
   },
 });
 </script>
