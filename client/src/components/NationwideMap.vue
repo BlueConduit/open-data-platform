@@ -304,11 +304,20 @@ export default defineComponent({
       }
     },
     // Listen for changes to lat/long to update map location.
-    'geoState.geoids.lat': function() {
-      this.zoomToLongLat();
-    },
-    'geoState.geoids.long': function() {
-      this.zoomToLongLat();
+    'geoState.geoids': function() {
+      const lat = this.geoState?.geoids?.lat;
+      const long = this.geoState?.geoids?.long;
+
+      if (lat != null && long != null) {
+        const marker = new mapboxgl.Marker({
+          color: '#0b2553',
+        });
+
+        if (this.map != undefined) {
+          marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
+        }
+        this.zoomToLongLat();
+      }
     },
   },
 });
