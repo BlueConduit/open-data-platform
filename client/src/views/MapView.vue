@@ -32,6 +32,8 @@ import { Titles } from '../assets/messages/common';
 
 /**
  * Container for SearchBar and MapContainer.
+ * TODO: Pull out everything that's specific to scorecard into different
+ * component and keep this map view specific. Stop toggling on routes.
  */
 export default defineComponent({
   name: 'MapView',
