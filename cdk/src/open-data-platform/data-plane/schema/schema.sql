@@ -117,6 +117,36 @@ CREATE TABLE IF NOT EXISTS aggregate_us_demographics
 CREATE INDEX IF NOT EXISTS geo_type_index ON aggregate_us_demographics (geo_type);
 CREATE INDEX IF NOT EXISTS geom_index ON aggregate_us_demographics USING GIST (geom);
 
+-- Demographic aggregation tables.
+
+CREATE TABLE IF NOT EXISTS state_demographics
+(
+    census_geo_id         varchar(255) NOT NULL,
+    name                  varchar(255) NOT NULL,
+    black_population      real,
+    white_population      real,
+    total_population      real,
+    under_five_population real,
+    poverty_population    real,
+    geom                  geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON state_demographics USING GIST (geom);
+
+CREATE TABLE IF NOT EXISTS county_demographics
+(
+    census_geo_id         varchar(255) NOT NULL,
+    name                  varchar(255) NOT NULL,
+    black_population      real,
+    white_population      real,
+    total_population      real,
+    under_five_population real,
+    poverty_population    real,
+    geom                  geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS geom_index ON county_demographics USING GIST (geom);
+
 -- Water-system-level data
 
 CREATE TABLE IF NOT EXISTS water_systems
@@ -252,6 +282,40 @@ FROM states
 GROUP BY states.census_geo_id, states.name, states.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
+INSERT INTO state_demographics(census_geo_id, name, geom, black_population,
+                               white_population, total_population,
+                               under_five_population, poverty_population)
+SELECT states.census_geo_id            as census_geo_id,
+       states.name                     AS name,
+       ST_Transform(states.geom, 3857) AS geom,
+       SUM(black_population)           AS black_population,
+       SUM(white_population)           AS white_population,
+       SUM(total_population)           AS total_population,
+       SUM(under_five_population)      AS under_five_population,
+       SUM(poverty_population)         AS poverty_population
+FROM states
+         LEFT JOIN demographics
+                   ON demographics.state_census_geo_id = states.census_geo_id
+GROUP BY states.census_geo_id, states.name, states.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
+INSERT INTO county_demographics(census_geo_id, name, geom, black_population,
+                                white_population, total_population,
+                                under_five_population, poverty_population)
+SELECT counties.census_geo_id            as census_geo_id,
+       counties.name                     AS name,
+       ST_Transform(counties.geom, 3857) AS geom,
+       SUM(black_population)             AS black_population,
+       SUM(white_population)             AS white_population,
+       SUM(total_population)             AS total_population,
+       SUM(under_five_population)        AS under_five_population,
+       SUM(poverty_population)           AS poverty_population
+FROM counties
+         LEFT JOIN demographics
+                   ON demographics.county_census_geo_id = counties.census_geo_id
+GROUP BY counties.census_geo_id, counties.name, counties.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
 --- Tileserver function definitions.
 
 CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer,
@@ -271,15 +335,13 @@ BEGIN
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
                         census_geo_id,
                         name,
-                        geo_type,
-                        median_year_built,
-                        median_income,
-                        weighted_national_adi,
-                        weighted_state_adi,
-                        population_count
-                 FROM aggregate_us_demographics
-                 WHERE geo_type = 'state'
-                   AND geom && ST_TileEnvelope(z, x, y)
+                        black_population,
+                        white_population,
+                        total_population,
+                        under_five_population,
+                        poverty_population
+                 FROM state_demographics
+                 WHERE geom && ST_TileEnvelope(z, x, y)
              ) AS tile
         WHERE geom IS NOT NULL;
     ELSE
@@ -289,15 +351,13 @@ BEGIN
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
                         census_geo_id,
                         name,
-                        geo_type,
-                        median_year_built,
-                        median_income,
-                        weighted_national_adi,
-                        weighted_state_adi,
-                        population_count
-                 FROM aggregate_us_demographics
-                 WHERE geo_type = 'county'
-                   AND geom && ST_TileEnvelope(z, x, y)
+                        black_population,
+                        white_population,
+                        total_population,
+                        under_five_population,
+                        poverty_population
+                 FROM state_demographics
+                 WHERE geom && ST_TileEnvelope(z, x, y)
              ) AS tile
         WHERE geom IS NOT NULL;
     END IF;
