@@ -31,7 +31,7 @@
 import { defineComponent } from 'vue';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 import { dispatch, useSelector } from '../model/store';
-import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_messages';
+import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
@@ -57,7 +57,7 @@ export default defineComponent({
     return {
       expandSearch: true,
       showSearch: true,
-      ScorecardSummaryMessages,
+      ScorecardSummaryMessages: ScorecardMessages,
     };
   },
   // TODO: Handle error state where there is no lead prediction
@@ -129,10 +129,8 @@ export default defineComponent({
 <style scoped>
 
 .center-container {
-  align-items: center;
   gap: 20px;
   height: 200px;
-  justify-content: center;
 }
 
 .justify-right {
@@ -140,6 +138,7 @@ export default defineComponent({
 }
 
 .search {
+  margin: 20px;
   max-width: 350px;
 }
 

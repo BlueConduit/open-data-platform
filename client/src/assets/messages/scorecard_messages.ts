@@ -1,7 +1,12 @@
 /**
  * Text to use on the scorecard summary page.
  */
-export class ScorecardSummaryMessages {
+export class ScorecardMessages {
+  static ADDITIONAL_STEPS_HEADER = 'Additional steps you can take';
+  static ADDITIONAL_STEPS_SUBHEADER =
+    'The fastest way to protect your home ' +
+    'is to use a water filter. If you don’t already own one, learn more about ' +
+    'things to consider when choosing a filter that fits your needs.';
   static SCORECARD_SUMMARY_PANEL_HEADER = "What's in your score";
   static SCORECARD_SUMMARY_PANEL_SUBHEADER =
     'The most relevant data used to determine your lead score';

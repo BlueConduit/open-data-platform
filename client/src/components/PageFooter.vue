@@ -14,7 +14,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 import { Titles } from '../assets/messages/common';
 import * as router from '../router';
@@ -23,7 +23,7 @@ import * as router from '../router';
  * The navigational footer for the landing page.
  */
 export default defineComponent({
-  name: 'LandingPageFooter',
+  name: 'PageFooter',
   data() {
     const routes: [string, string][] = [
       [Titles.HOME_TITLE, router.HOME_ROUTE],
@@ -39,7 +39,9 @@ export default defineComponent({
 
 <style scoped>
 .landing-page-footer {
+  background-color: #0b2553;
   display: flex;
+  margin-top: 20px;
   width: 100%;
 }
 
