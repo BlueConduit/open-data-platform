@@ -6,7 +6,8 @@
     <div class='explain-text'>
       {{ subheader }}
     </div>
-    <button class='outline-button' v-on:click='onButtonClick'>{{ buttonText }}
+    <button class='outline-button' v-on:click='onButtonClick'>
+      {{ buttonText }}
     </button>
   </div>
 </template>
@@ -51,7 +52,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
 .center-container {
   background-color: var(--bg-color);
   gap: 20px;
@@ -62,6 +62,5 @@ export default defineComponent({
 .outline-button {
   color: var(--button-color)
 }
-
 
 </style>
