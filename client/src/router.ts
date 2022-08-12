@@ -70,11 +70,17 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes: routes,
+  // Ensures that navigating to different pages takes you to the top of
+  // each page, rather than where you were on the previous page.
+  scrollBehavior() {
+    document?.getElementById('app')?.scrollIntoView({ behavior: 'smooth' });
+  },
 });
 
 export {
   router,
   HOME_ROUTE,
+  RESOURCES_ROUTE,
   SCORECARD_BASE,
   SCORECARD_ROUTE,
   MAP_ROUTE_BASE,

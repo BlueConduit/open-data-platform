@@ -15,6 +15,7 @@
 
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
+import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 
 /**
  * Which side of the summary row to place the image.

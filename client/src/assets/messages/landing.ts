@@ -1,5 +1,7 @@
 // Strings for the landing page.
 
+import { Titles } from '@/assets/messages/common';
+
 /**
  * Strings related to the scorecard-related part of the landing page.
  */
@@ -17,7 +19,7 @@ export class MapInfo {
   static HEADER = 'Get up to date information about lead service lines';
   static BODY =
     'Stay informed by using the LeadOut Nationwide Map by exploring this ever-growing data set of lead piplines, DEP violations, demographics, and more.';
-  static CTA_BUTTON = 'Explore Nationwide Map';
+  static CTA_BUTTON = Titles.EXPLORE_NATION_WIDE_MAP;
 }
 
 /**
