@@ -41,7 +41,6 @@ export default defineComponent({
 .landing-page-footer {
   background-color: #0b2553;
   display: flex;
-  margin-top: 20px;
   width: 100%;
 }
 

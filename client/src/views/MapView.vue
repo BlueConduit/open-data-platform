@@ -6,9 +6,16 @@
     <ActionSection v-if='showResult'
                    :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
                    :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
-                   :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
+                   :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
+                   bgColor='#E1F5FE'
                    @onButtonClick='navigateToResourcePage' />
     <ScorecardSummaryPanel v-if='showResult' />
+    <ActionSection v-if='showResult'
+                   :header='ScorecardMessages.WANT_TO_KNOW_MORE'
+                   :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
+                   :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
+                   bgColor='#E1F5FE'
+                   @onButtonClick='navigateToMapPage' />
   </div>
 </template>
 
@@ -48,6 +55,12 @@ export default defineComponent({
       console.log('navigate to resources');
       router.push({
         path: '/resources',
+      });
+    },
+    navigateToMapPage() {
+      console.log('navigate to map');
+      router.push({
+        path: '/map',
       });
     },
   },

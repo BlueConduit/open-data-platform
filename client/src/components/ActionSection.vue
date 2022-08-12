@@ -1,12 +1,13 @@
 <template>
-  <div class='container-column center-container'>
-    <div class='h1-header'>
+  <div class='container-column center-container' :style='cssVars'>
+    <div class='h1-header semi-bold'>
       {{ header }}
     </div>
     <div class='explain-text'>
       {{ subheader }}
     </div>
-    <button class='' @click='$emit(&apos; onButtonClick &apos;)'>{{ buttonText }}</button>
+    <button class='outline-button' v-on:click='onButtonClick'>{{ buttonText }}
+    </button>
   </div>
 </template>
 
@@ -16,6 +17,18 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'ActionSection',
   props: {
+    bgColor: {
+      type: String,
+      default: '#FFFFFF',
+    },
+    buttonColor: {
+      type: String,
+      default: '#464646',
+    },
+    height: {
+      type: Number,
+      default: 300,
+    },
     header: String,
     subheader: String,
     buttonText: String,
@@ -23,8 +36,15 @@ export default defineComponent({
   computed: {
     cssVars() {
       return {
-        '--height': '225px',
+        '--bg-color': this.bgColor,
+        '--button-color': this.buttonColor,
+        '--height': `${this.height + 'px'}`,
       };
+    },
+  },
+  methods: {
+    onButtonClick() {
+      this.$emit('onButtonClick', true);
     },
   },
 });
@@ -33,8 +53,14 @@ export default defineComponent({
 <style scoped>
 
 .center-container {
+  background-color: var(--bg-color);
   gap: 20px;
   height: var(--height);
+  padding: 20px;
+}
+
+.outline-button {
+  color: var(--button-color)
 }
 
 

@@ -31,3 +31,29 @@
   align-items: center;
   justify-content: center;
 }
+
+/** Buttons **/
+.outline-button {
+  background-color: transparent;
+  padding: 0.5em 3em;
+  border: 0.16em solid;
+  margin: 0 0.3em 0.3em 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  text-transform: none;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.outline-button:hover {
+  color: #FFFFFF;
+  background-color: #0b2553;
+}
+
+@media all and (max-width: 30em) {
+  .outline-button {
+    display: block;
+    margin: 0.4em auto;
+  }
+}
