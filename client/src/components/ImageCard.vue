@@ -4,8 +4,8 @@
       <img :src='require(`@/assets/media/${content.image ?? defaultImage}`)'
            alt=''>
     </span>
-    <div class='header-1'>{{ content.header }}</div>
-    <div class='header-2'>{{ content.subHeader }}</div>
+    <h1>{{ content.header }}</h1>
+    <h2>{{ content.subHeader }}</h2>
   </div>
 </template>
 
@@ -50,22 +50,24 @@ export default defineComponent({
   gap: 16px;
 }
 
-.header-1,
-.header-2 {
+h1,
+h2 {
   width: 356px;
   text-align: center;
   letter-spacing: 0.2px;
   text-transform: capitalize;
+  padding: 0;
+  margin: 0;
 }
 
-.header-1 {
+h1 {
   font-weight: 600;
   font-size: 24px;
   line-height: 29px;
   color: #212121;
 }
 
-.header-2 {
+h2 {
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
