@@ -3,13 +3,11 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, inject } from 'vue';
+import { defineComponent } from 'vue';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import { GeographicLevel } from '../model/data_layer';
 import { GeoType } from '../model/states/model/geo_data';
-import mapboxgl from 'mapbox-gl';
-import { State } from '../model/state';
-import { stateKey } from '../injection_keys';
 
 /**
  * Wrapper for Mapbox Geocoder.
@@ -19,56 +17,36 @@ import { stateKey } from '../injection_keys';
  */
 export default defineComponent({
   name: 'GeocoderInput',
-  setup() {
-    // TODO: remove all dependencies on old state and delete.
-    const state: State = inject(stateKey, State.default());
-    return {
-      state: state,
-    };
-  },
   data() {
-    return { test: 'test' };
+    const geocoder = new MapboxGeocoder({
+      // @ts-ignore
+      accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '',
+      mapboxgl: undefined,
+      marker: false,
+      countries: 'US',
+    });
+    return {
+      geocoder,
+    };
   },
   emits: {
     result: (lat: number, long: number, geoType: GeoType) => true,
   },
   mounted() {
+    this.geocoder.addTo('.geocoder');
 
-  },
-  watch: {
-    'state.map': function(map: mapboxgl.Map | undefined) {
-      console.log(`Map updated`);
-      console.log(map);
+    // TODO: replace 'any' here with a meaningful type.
+    this.geocoder.on('result', async (result: any) => {
+      const place = result.result;
+      if (place.place_type.length > 0) {
+        const geoType = Object.values(GeoType)
+          .find((geo) => geo == place.place_type[0]) as GeoType;
 
-      const marker = new mapboxgl.Marker({
-        color: '#0b2553',
-      });
-
-      const geocoder = new MapboxGeocoder({
-        // @ts-ignore
-        accessToken: process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '',
-        mapboxgl: map,
-        countries: 'US',
-      });
-
-      geocoder.addTo('.geocoder');
-      geocoder.on('result', async (result: any) => {
-        const place = result.result;
-        if (place.place_type.length > 0) {
-          const geoType = Object.values(GeoType)
-            .find((geo) => geo == place.place_type[0]) as GeoType;
-
-          const long: number = place.center[0];
-          const lat: number = place.center[1];
-
-          if (map != undefined) {
-            marker.setLngLat([long, lat]).addTo(map);
-          }
-          
-          this.$emit('result', lat, long, geoType);
-        }
-      });
-    },
+        const long: number = place.center[0];
+        const lat: number = place.center[1];
+        this.$emit('result', lat, long, geoType);
+      }
+    });
   },
 });
 </script>
