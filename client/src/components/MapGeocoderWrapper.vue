@@ -24,6 +24,8 @@ import { stateKey } from '../injection_keys';
 import { queryLatLong } from '../model/slices/geo_data_slice';
 import { dispatch } from '../model/store';
 import { GeoType } from '../model/states/model/geo_data';
+import mapboxgl from 'mapbox-gl';
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 
 /**
  * Expandable address search that performs a geocode.
