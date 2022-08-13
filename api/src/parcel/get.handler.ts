@@ -1,8 +1,8 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
-import { CORS_HEADERS, trimPath } from '../util';
+import { CORS_HEADERS } from '../util';
 
 const COLUMNS_SELECTED = 6;
 const SCHEMA = 'public';
@@ -47,9 +47,10 @@ async function getParcelData(
   return body;
 }
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResult> => {
-  // Parse out the path parameters.
-  const coordinates = trimPath(event.rawPath)[2];
+export const handler = async (event: {
+  pathParameters: ParcelPathParameters;
+}): Promise<APIGatewayProxyResult> => {
+  const coordinates = event.pathParameters?.latlong;
   if (!coordinates || coordinates == '')
     return {
       statusCode: 400,
@@ -60,7 +61,12 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
   const coordinatesAsLatLong = coordinates.split(',');
   const lat = parseFloat(coordinatesAsLatLong[0]);
   const long = parseFloat(coordinatesAsLatLong[1]);
-  console.log('Parsed lat,long:', { coordinates, lat, long });
+  if (!lat || isNaN(lat) || !long || isNaN(long))
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: `Received "${coordinates}". Expected {lat},{long}.`,
+    };
 
   const db = new AWS.RDSDataService();
   const params: SqlParametersList = [

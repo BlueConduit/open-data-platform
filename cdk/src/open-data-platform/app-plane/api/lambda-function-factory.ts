@@ -1,21 +1,15 @@
 import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 import { Construct } from 'constructs';
 import { cwd } from 'process';
 import { SchemaProps } from '../../data-plane/schema/schema-props';
-import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
-import { Cors } from 'aws-cdk-lib/aws-apigateway';
 import { IRole } from 'aws-cdk-lib/aws-iam';
-
-export interface apiLambda {
-  lambda: lambda.NodejsFunction;
-  path: string;
-  url: string;
-}
 
 export interface apiLambdaProps extends SchemaProps {
   role: IRole;
+  gateway: apigateway.RestApi;
 }
 
 /**
@@ -23,12 +17,17 @@ export interface apiLambdaProps extends SchemaProps {
  * @param scope: the construct under which to provision resource.
  * @param props: schema identifiers passed to the function when reading data.
  * @param id: ID to assign resource.
+ * @param method: HTTP method.
+ * @param path: URL path to the handler. e.g. "/resource/{id}".
  */
 export const apiLambdaFactory = (
   scope: Construct,
   props: apiLambdaProps,
   id: string,
-): apiLambda => {
+  method: string,
+  path: string,
+): void => {
+  // Create lambda.
   const f = new lambda.NodejsFunction(scope, `${id}-handler`, {
     entry: `${cwd()}/../api/src/${id}/get.handler.ts`,
     handler: 'handler',
@@ -45,17 +44,14 @@ export const apiLambdaFactory = (
     },
     role: props.role,
   });
+  // Grant DB access.
   props.credentialsSecret.grantRead(f);
-  return {
-    lambda: f,
-    // Assumes that there is some URL parameter after the path.
-    path: `/${id}/*`,
-    // This might be better handled in the frontend stack, which can lock down auth and CORS.
-    url: f.addFunctionUrl({
-      // TODO: consider limiting this to only allow the CloudFront role to make this request.
-      authType: FunctionUrlAuthType.NONE,
-      // TODO: limit to blueconduit.com.
-      cors: { allowedOrigins: Cors.ALL_ORIGINS },
-    }).url,
-  };
+  // Add to API gateway.
+  if (path[0] === '/') path = path.substring(1); // Remove prefix slash for a cleaner split.
+  const resources = path.split('/');
+  const endpoint = resources.reduce<apigateway.IResource>(
+    (prev: apigateway.IResource, cur: string) => prev.addResource(cur),
+    props.gateway.root,
+  );
+  endpoint.addMethod(method, new apigateway.LambdaIntegration(f, { proxy: true }));
 };

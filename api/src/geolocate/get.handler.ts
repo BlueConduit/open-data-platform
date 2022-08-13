@@ -1,4 +1,4 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import {
@@ -6,7 +6,7 @@ import {
   FieldList,
   SqlParametersList,
 } from 'aws-sdk/clients/rdsdataservice';
-import { CORS_HEADERS, trimPath } from '../util';
+import { CORS_HEADERS } from '../util';
 
 const SCHEMA = 'public';
 
@@ -42,9 +42,10 @@ async function getGeoDataForLatLong(
   return geoids[0];
 }
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResult> => {
-  // Parse out the path parameters.
-  const coordinates = trimPath(event.rawPath)[2];
+export const handler = async (event: {
+  pathParameters: GeolocatePathParameters;
+}): Promise<APIGatewayProxyResult> => {
+  const coordinates = event.pathParameters?.latlong;
   if (!coordinates || coordinates == '')
     return {
       statusCode: 400,
@@ -55,7 +56,12 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
   const coordinatesAsLatLong = coordinates.split(',');
   const lat = parseFloat(coordinatesAsLatLong[0]);
   const long = parseFloat(coordinatesAsLatLong[1]);
-  console.log('Parsed lat,long:', { coordinates, lat, long });
+  if (!lat || isNaN(lat) || !long || isNaN(long))
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: `Received "${coordinates}". Expected {lat},{long}.`,
+    };
 
   // TODO(breuch): Throw error when lat, long are not passed in.
   const db = new AWS.RDSDataService();
@@ -110,4 +116,12 @@ interface GeolocateApiResponse {
   county?: string;
   // State abbreviation. i.e. "NY"
   state?: string;
+}
+
+/**
+ * Acceptable path parameters for this endpoint
+ */
+interface GeolocatePathParameters {
+  // Coordinates to look up geo identifiers, formatted as lat,long.
+  latlong: string;
 }

@@ -1,8 +1,8 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
-import { CORS_HEADERS, trimPath } from '../../util';
+import { CORS_HEADERS } from '../../util';
 
 const moment = require('moment');
 
@@ -55,8 +55,10 @@ async function getZipCodeData(
   return body;
 }
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResult> => {
-  const zipCode = trimPath(event.rawPath)[3];
+export const handler = async (event: {
+  pathParameters: ZipcodePathParameters;
+}): Promise<APIGatewayProxyResult> => {
+  const zipCode = event.pathParameters?.zip_code;
   if (!zipCode || zipCode == '')
     return {
       statusCode: 400,
@@ -100,4 +102,11 @@ interface ScorecardApiResponse {
   average_income?: number;
   income_index?: number;
   violation_count?: number;
+}
+
+/**
+ * Acceptable path parameters for the zip code endpoint.
+ */
+interface ZipcodePathParameters {
+  zip_code: string;
 }

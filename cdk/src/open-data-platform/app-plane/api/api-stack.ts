@@ -1,14 +1,25 @@
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
 import { AppPlaneStackProps } from '../app-plane-stack';
-import { apiLambda, apiLambdaFactory } from './lambda-function-factory';
+import { apiLambdaFactory } from './lambda-function-factory';
 
 export class ApiStack extends Construct {
-  readonly apiLambdas: apiLambda[];
+  readonly gateway: apigateway.RestApi;
 
   constructor(scope: Construct, id: string, props: AppPlaneStackProps) {
     super(scope, id);
 
     const { dataPlaneStack, networkStack } = props;
+
+    this.gateway = new apigateway.RestApi(this, 'API', {
+      // Enable CORS
+      defaultCorsPreflightOptions: {
+        allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key'],
+        allowMethods: ['GET,OPTIONS'],
+        allowCredentials: true,
+        allowOrigins: ['*'],
+      },
+    });
 
     const apiLambdaProps = {
       cluster: dataPlaneStack.cluster,
@@ -16,13 +27,19 @@ export class ApiStack extends Construct {
       db: dataPlaneStack.databaseName,
       credentialsSecret: dataPlaneStack.cluster.secret!,
       role: dataPlaneStack.apiLambdaRole,
+      gateway: this.gateway,
     };
 
-    this.apiLambdas = [
-      apiLambdaFactory(this, apiLambdaProps, 'geolocate'),
-      apiLambdaFactory(this, apiLambdaProps, 'parcel'),
-      apiLambdaFactory(this, apiLambdaProps, 'watersystem'),
-      apiLambdaFactory(this, apiLambdaProps, 'zipcode/scorecard'),
-    ];
+    // GET /geolocate/{latlong+}
+    apiLambdaFactory(this, apiLambdaProps, 'geolocate', 'GET', '/geolocate/{latlong+}');
+    apiLambdaFactory(this, apiLambdaProps, 'watersystem', 'GET', '/watersystem/{pws_id+}');
+    apiLambdaFactory(this, apiLambdaProps, 'parcel', 'GET', '/parcel/{latlong+}');
+    apiLambdaFactory(
+      this,
+      apiLambdaProps,
+      'zipcode/scorecard',
+      'GET',
+      '/zipcode/scorecard/{zipcode+}',
+    );
   }
 }

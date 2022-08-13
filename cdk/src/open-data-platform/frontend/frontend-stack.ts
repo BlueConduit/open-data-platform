@@ -90,7 +90,8 @@ export class FrontendStack extends Stack {
     });
     this.distribution.node.addDependency(prefixTrimFunction);
 
-    this.distribution.addBehavior(`${prefixes.tileServer}/*`, tileServerOrigin, {
+    // Add app plane to distribution.
+    const behaviorOptions = {
       allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
       responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
       // TODO: cache based on query strings if/when we use them.
@@ -98,24 +99,26 @@ export class FrontendStack extends Stack {
       originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
       functionAssociations: [
         // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.
-        // Since CloudFront is instantiated in us-east-1, so must this function:
-        // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/monitoring-functions.htmltions/tileServerPrefixTrim?tab=test
         {
           function: prefixTrimFunction,
           eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
         },
       ],
-    });
+    };
 
-    // Add API to the distribution.
-    for (let { url, path } of appPlaneStack.api.apiLambdas) {
-      // CloudFront origin can't have the http(s) prefix. We can't use standard JS string
-      // manipulation here because the 'url' is actually a token that represents the URL, not the
-      // URL itself.
-      const hostname = cdk.Fn.select(2, cdk.Fn.split('/', url));
-      const prefixedPath = `${prefixes.api}${path}`;
-      this.distribution.addBehavior(prefixedPath, new origins.HttpOrigin(hostname));
-    }
+    // Tile server.
+    this.distribution.addBehavior(`${prefixes.tileServer}/*`, tileServerOrigin, behaviorOptions);
+
+    // API.
+    // CloudFront origin can't have the http(s) prefix. We can't use standard JS string
+    // manipulation here because the 'url' is actually a token that represents the URL, not the
+    // URL itself.
+    const apiHostname = cdk.Fn.select(2, cdk.Fn.split('/', appPlaneStack.api.gateway.url));
+    this.distribution.addBehavior(
+      `${prefixes.api}/*`,
+      new origins.HttpOrigin(apiHostname, { originPath: '/prod' }),
+      behaviorOptions,
+    );
 
     if (hostedZone) {
       new route53.ARecord(this, 'DnsRecord', {
