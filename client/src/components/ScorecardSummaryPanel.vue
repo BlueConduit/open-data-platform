@@ -77,7 +77,7 @@ export default defineComponent({
     // must be fetched.
     'geoState.geoids.zipCode': function() {
       if (this.geoState?.geoids?.zipCode != null) {
-        dispatch(getDemographicData(GeographicLevel.Zipcode, this.geoState.geoids.zipCode));
+        dispatch(getDemographicData(GeographicLevel.Zipcode, this.geoState.geoids.zipCode.id));
       }
     },
   },

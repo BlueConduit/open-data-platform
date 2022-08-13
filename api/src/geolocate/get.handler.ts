@@ -3,7 +3,6 @@ import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import {
   ExecuteStatementRequest,
-  FieldList,
   SqlParametersList,
 } from 'aws-sdk/clients/rdsdataservice';
 
@@ -21,24 +20,48 @@ async function getGeoDataForLatLong(
   params: SqlParametersList,
   geoid: string,
   table: string,
-): Promise<string | undefined> {
+): Promise<BoundedGeoDatum | undefined> {
+  // TODO(breuch): Consider updating this to all geoids when we support
+  // county, states, etc.
   const executeParams: ExecuteStatementRequest = {
     database: process.env.DATABASE_NAME ?? 'postgres',
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    sql: `SELECT ${geoid}
-          FROM ${table}
-          WHERE geom && ST_SetSRID(ST_Point(:long, :lat), 4326)
-          LIMIT 1`,
+    sql: `
+      WITH target_row AS (
+        SELECT ${geoid} AS id, geom AS geom
+        FROM ${table}
+        WHERE geom && ST_SetSRID(ST_Point(:long, :lat), 4326)
+          ORDER BY id ASC
+          LIMIT 1
+      )
+      SELECT
+        STRING_AGG(id, '|') AS id,
+        ST_EXTENT(geom) AS bounding_box
+      FROM target_row`,
     parameters: params,
   };
+  //Example response: NY0700789	'BOX(-74.258843 40.476578,-73.700169 40.917705)'
   const results = await rdsService.executeStatement(executeParams).promise();
-  const geoids = results.records?.map((record: FieldList) => record[0].stringValue) ?? [];
+  const geoID = results.records ? (results.records[0] || undefined) : undefined;
+  if(!geoID) return undefined;
 
-  // TODO(breuch): Consider updating this to all geoids when we support
-  // county, states, etc.
-  return geoids[0];
+  const [rawId, rawBoundingBox] = geoID;
+
+  const boundingBoxVals = rawBoundingBox.stringValue
+  ?.replace('BOX(', '').replace(')', '') // strip out the BOX() wrapper
+  .split(',') // split into pairs
+  .map((pair) => pair.split(' ').map(parseFloat)) // [[-74.1,40.2],[-73.3,40.4]]
+  ?? undefined;
+
+  if(!boundingBoxVals || !rawId.stringValue) return undefined;
+  const [[minLat, minLon], [maxLat, maxLon]] = boundingBoxVals;
+
+  return {
+    id: rawId.stringValue,
+    bounding_box: { minLat, minLon, maxLat, maxLon }
+  };
 }
 
 export const handler = async (event: {
@@ -64,7 +87,7 @@ export const handler = async (event: {
   let body: GeolocateApiResponse = {};
 
   try {
-    await Promise.allSettled([
+    await Promise.all([
       getGeoDataForLatLong(db, params, 'pws_id', 'water_systems').then(
         (pws_id) => (body.water_system_pws_id = pws_id),
       ),
@@ -97,13 +120,13 @@ export const handler = async (event: {
  */
 interface GeolocateApiResponse {
   // Water system id
-  water_system_pws_id?: string;
+  water_system_pws_id?: BoundedGeoDatum;
   // Zipcode
-  zip_code?: string;
+  zip_code?: BoundedGeoDatum;
   // County geoid
-  county?: string;
+  county?: BoundedGeoDatum;
   // State abbreviation. i.e. "NY"
-  state?: string;
+  state?: BoundedGeoDatum;
 }
 
 /**
@@ -112,4 +135,16 @@ interface GeolocateApiResponse {
 interface GeolocatePathParameters {
   // Coordinates to look up geo identifiers, formatted as lat,long.
   latlong: string;
+}
+
+interface BoundingBox {
+  minLat: number;
+  minLon: number;
+  maxLat: number;
+  maxLon: number;
+}
+
+interface BoundedGeoDatum {
+  id: string;
+  bounding_box: BoundingBox;
 }
