@@ -6,7 +6,9 @@
     <div class='explain-text'>
       {{ subheader }}
     </div>
-    <button class='outline-button' v-on:click='onButtonClick'>
+    <button class='outline-button'
+            v-if='buttonText != null'
+            v-on:click='onButtonClick'>
       {{ buttonText }}
     </button>
   </div>

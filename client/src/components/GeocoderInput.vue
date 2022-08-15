@@ -6,7 +6,6 @@
 import { defineComponent } from 'vue';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
-import { GeographicLevel } from '../model/data_layer';
 import { GeoType } from '../model/states/model/geo_data';
 
 /**
