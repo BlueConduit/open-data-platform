@@ -58,7 +58,7 @@ async function getZipCodeData(
 export const handler = async (event: {
   pathParameters: ZipcodePathParameters;
 }): Promise<APIGatewayProxyResult> => {
-  const zipCode = event.pathParameters?.zip_code;
+  const zipCode = event.pathParameters?.zipcode;
   if (!zipCode || zipCode == '')
     return {
       statusCode: 400,
@@ -108,5 +108,5 @@ interface ScorecardApiResponse {
  * Acceptable path parameters for the zip code endpoint.
  */
 interface ZipcodePathParameters {
-  zip_code: string;
+  zipcode: string;
 }
