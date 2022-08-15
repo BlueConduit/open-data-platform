@@ -34,7 +34,7 @@ export class ApiStack extends Construct {
       }
     }
 
-    const api = new apigateway.RestApi(this, `${id}-open-data-platform-api`, {
+    const api = new apigateway.RestApi(this, 'open-data-platform-api', {
       description: 'Open data platform for BlueConduit',
       deployOptions: {
         stageName: 'dev',
