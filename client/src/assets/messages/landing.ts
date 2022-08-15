@@ -6,10 +6,10 @@ import { Titles } from '@/assets/messages/common';
  * Strings related to the scorecard-related part of the landing page.
  */
 export class ScorecardSearch {
-  static HEADER = 'Get your drinking water score';
-  static BODY = `Understand the likelihood of your home or community's exposure to lead service lines.`;
-  static CTA_PLACEHOLDER = 'Enter your address';
-  static CTA_BUTTON = 'Get Score';
+  static HEADER = 'How Safe is My Water?';
+  static BODY = `Enter your info to find out the likelihood you have lead in your water supply - and what to do about it.`;
+  static CTA_PLACEHOLDER = 'Enter your address or zip code';
+  static CTA_BUTTON = 'Check lead status';
 }
 
 /**

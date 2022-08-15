@@ -1,8 +1,12 @@
 <template>
   <div class='landing-page'>
-    <LandingPageSection :messages='messages.ScorecardSearch'>
-      <ScorecardSearch :messages='messages.ScorecardSearch' />
-    </LandingPageSection>
+    <div class='search-section'>
+      <LandingPageSection class='search-landing-page-section'
+                          :messages='messages.ScorecardSearch'
+                          text-color='#FFFFFF'>
+        <ScorecardSearch :messages='messages.ScorecardSearch' />
+      </LandingPageSection>
+    </div>
     <LandingPageSection :messages='messages.MapInfo'>
       <router-link :to='mapRoute'>{{ messages.MapInfo.CTA_BUTTON }}
       </router-link>
@@ -37,4 +41,26 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.landing-page {
+  background-color: #0b2553;
+  min-height: 100%;
+}
+
+.search-section {
+  background-image: url('~@/assets/media/landing-image-1.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 766.74px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-landing-page-section {
+  background: none;
+  width: 974px;
+  height: 358px;
+}
 </style>

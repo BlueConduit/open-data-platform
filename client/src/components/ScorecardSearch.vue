@@ -1,6 +1,8 @@
 <template>
   <div class='scorecard-search'>
-    <GeocoderInput @result='onGeocodeResults' />
+    <GeocoderInput class='geocoder'
+                   :placeholder='this.messages.CTA_PLACEHOLDER'
+                   @result='onGeocodeResults' />
     <!-- TODO: disable until there is a result selected -->
     <button @click='onSearch'>{{ messages.CTA_BUTTON }}</button>
   </div>
@@ -42,4 +44,26 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+button {
+  width: 190px;
+  height: 65px;
+  padding: 0 19px;
+  border-radius: 16px;
+  background-color: #FFC300;
+  border: 0px;
+  font-size: 18px;
+}
+
+.geocoder {
+  min-width: 587px;
+  min-height: 65px;
+}
+
+.scorecard-search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+</style>

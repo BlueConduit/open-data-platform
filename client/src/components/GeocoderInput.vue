@@ -28,11 +28,18 @@ export default defineComponent({
       geocoder,
     };
   },
+  props: {
+    placeholder: {
+      type: String,
+      default: 'Search',
+    },
+  },
   emits: {
     result: (lat: number, long: number, geoType: GeoType) => true,
   },
   mounted() {
     this.geocoder.addTo('.geocoder');
+    this.geocoder.setPlaceholder(this.placeholder);
 
     // TODO: replace 'any' here with a meaningful type.
     this.geocoder.on('result', async (result: any) => {
@@ -59,6 +66,11 @@ export default defineComponent({
 
 .mapboxgl-ctrl-geocoder {
   box-shadow: none;
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  border: solid 1px #A3A3A3;
 }
 
 .mapboxgl-ctrl-geocoder--icon-search {
@@ -68,8 +80,14 @@ export default defineComponent({
 }
 
 .mapboxgl-ctrl-geocoder--input {
-  padding: 10px 11px;
   line-height: 12px;
+  font-size: 18px;
+  font-family: 'IBM Plex Sans';
+  color: #7A7A7A;
+  font-weight: 400;
+  line-height: 23.4px;
+  height: 23px;
+  margin: 21px 20px;
 }
 
 .mapboxgl-ctrl-geocoder--input:focus {
