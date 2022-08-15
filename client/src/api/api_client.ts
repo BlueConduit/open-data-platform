@@ -28,6 +28,8 @@ class ApiClient {
         headers: {
           Accept: 'application/json',
         },
+        // By default, the baseURL is the current view's URL including path. Remove that path.
+        baseURL: '/',
       });
       apiResponse.data = callback(data);
     } catch (error) {
