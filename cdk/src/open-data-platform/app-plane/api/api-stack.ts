@@ -13,7 +13,7 @@ export class ApiStack extends Construct {
     const { dataPlaneStack, networkStack } = props;
 
     this.gateway = new apigateway.RestApi(this, 'API', {
-      // Enable CORS
+      // TODO: Lock this down for non-sandbox environments.
       defaultCorsPreflightOptions: {
         allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key'],
         allowMethods: ['GET,OPTIONS'],
