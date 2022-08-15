@@ -6,6 +6,7 @@ import { Construct } from 'constructs';
 import * as path from 'path';
 import { dataImportLambdaFactory } from './utils/lambda-function-factory';
 import { SchemaProps } from '../schema/schema-props';
+import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 
 export class DataImportStack extends Construct {
   constructor(scope: Construct, id: string, props: SchemaProps) {

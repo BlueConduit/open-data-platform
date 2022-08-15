@@ -6,6 +6,7 @@ import {
   FieldList,
   SqlParametersList,
 } from 'aws-sdk/clients/rdsdataservice';
+import { CORS_HEADERS } from '../util';
 
 const SCHEMA = 'public';
 
@@ -44,10 +45,23 @@ async function getGeoDataForLatLong(
 export const handler = async (event: {
   pathParameters: GeolocatePathParameters;
 }): Promise<APIGatewayProxyResult> => {
-  const coordinates = event.pathParameters?.latlong ?? '';
+  const coordinates = event.pathParameters?.latlong;
+  if (!coordinates || coordinates == '')
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: 'No coordinates provided. Expected {lat},{long}.',
+    };
+
   const coordinatesAsLatLong = coordinates.split(',');
   const lat = parseFloat(coordinatesAsLatLong[0]);
   const long = parseFloat(coordinatesAsLatLong[1]);
+  if (!lat || isNaN(lat) || !long || isNaN(long))
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: `Received "${coordinates}". Expected {lat},{long}.`,
+    };
 
   // TODO(breuch): Throw error when lat, long are not passed in.
   const db = new AWS.RDSDataService();
@@ -81,13 +95,11 @@ export const handler = async (event: {
     throw error;
   }
 
+  console.log('Success:', { coordinates, body });
+
   return {
     statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'OPTIONS,GET',
-    },
+    headers: CORS_HEADERS,
     body: JSON.stringify(body),
   };
 };

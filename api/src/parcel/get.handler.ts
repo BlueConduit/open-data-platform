@@ -2,12 +2,8 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
+import { CORS_HEADERS } from '../util';
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'OPTIONS,GET',
-};
 const COLUMNS_SELECTED = 6;
 const SCHEMA = 'public';
 const SQL_QUERY = `SELECT address,
@@ -54,10 +50,23 @@ async function getParcelData(
 export const handler = async (event: {
   pathParameters: ParcelPathParameters;
 }): Promise<APIGatewayProxyResult> => {
-  const coordinates = event.pathParameters?.latlong ?? '';
+  const coordinates = event.pathParameters?.latlong;
+  if (!coordinates || coordinates == '')
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: 'No coordinates provided. Expected {lat},{long}.',
+    };
+
   const coordinatesAsLatLong = coordinates.split(',');
   const lat = parseFloat(coordinatesAsLatLong[0]);
   const long = parseFloat(coordinatesAsLatLong[1]);
+  if (!lat || isNaN(lat) || !long || isNaN(long))
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: `Received "${coordinates}". Expected {lat},{long}.`,
+    };
 
   const db = new AWS.RDSDataService();
   const params: SqlParametersList = [
@@ -78,6 +87,8 @@ export const handler = async (event: {
     console.log(`Error fetching parcel data for ${lat}, ${long}`, error);
     throw error;
   }
+
+  console.log('Success:', { coordinates, body });
 
   return {
     statusCode: 200,

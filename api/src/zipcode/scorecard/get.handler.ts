@@ -2,14 +2,10 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
+import { CORS_HEADERS } from '../../util';
 
 const moment = require('moment');
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'OPTIONS,GET',
-};
 const COLUMNS_SELECTED = 6;
 const YEAR_BUILD_DATE_FORMAT = 'YYYY';
 const SCHEMA = 'public';
@@ -62,7 +58,13 @@ async function getZipCodeData(
 export const handler = async (event: {
   pathParameters: ZipcodePathParameters;
 }): Promise<APIGatewayProxyResult> => {
-  const zipCode = event.pathParameters?.zip_code ?? '';
+  const zipCode = event.pathParameters?.zipcode;
+  if (!zipCode || zipCode == '')
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: 'No ZIP code provided.',
+    };
 
   const db = new AWS.RDSDataService();
   const params: SqlParametersList = [
@@ -79,6 +81,8 @@ export const handler = async (event: {
     console.log(`Error fetching zipcode scorecard for zip code ${zipCode}`, error);
     throw error;
   }
+
+  console.log('Success:', { zipCode, body });
 
   return {
     statusCode: 200,
@@ -104,5 +108,5 @@ interface ScorecardApiResponse {
  * Acceptable path parameters for the zip code endpoint.
  */
 interface ZipcodePathParameters {
-  zip_code: string;
+  zipcode: string;
 }

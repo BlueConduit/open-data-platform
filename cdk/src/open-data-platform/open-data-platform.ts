@@ -31,4 +31,5 @@ export default (scope: Construct, props: CommonProps) => {
     appPlaneStack,
     networkStack,
   });
+  frontendStack.addDependency(appPlaneStack);
 };
