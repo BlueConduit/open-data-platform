@@ -2,9 +2,9 @@
 // This is a property of the Frontend, since only the frontend cares about it.
 
 const prefixes = {
-  tileServer: '/tiles/v1',
+  tileServer: 'tiles/v1',
   // No "v1" because this should match the API Gateway stage name, which can't have slashes.
-  api: '/api',
+  api: 'api',
 };
 
 export default prefixes;

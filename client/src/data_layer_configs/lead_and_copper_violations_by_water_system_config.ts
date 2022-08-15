@@ -9,6 +9,7 @@ import {
 } from '@/model/data_layer';
 import { Expression, FillLayer } from 'mapbox-gl';
 import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
+import prefixes from '../../../cdk/src/open-data-platform/frontend/url-prefixes';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 const TABLE_NAME = 'public.violations_function_source';
@@ -102,7 +103,7 @@ const popupInfo: PopupInfo = {
 export const leadAndCopperViolationsByCountyDataLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/rpc/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/${prefixes.tileServer}/rpc/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
     // Helps with latency to reduce fetching unneeded tiles.
     minzoom: 3,
     maxzoom: 16,

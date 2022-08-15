@@ -21,7 +21,7 @@ export class ApiStack extends Construct {
         allowOrigins: ['*'],
       },
       deployOptions: {
-        stageName: 'api',
+        stageName: prefixes.api,
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
         tracingEnabled: true,
         dataTraceEnabled: true,
