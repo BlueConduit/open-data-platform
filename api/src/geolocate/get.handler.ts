@@ -28,6 +28,20 @@ async function getGeoDataForLatLong(
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
+    /*
+    Subquery: selects the one row with the lowest id with that also intersects
+      with the provided :long and :lat. Will return a bounding box in the form:
+      'NY0700789	'BOX(-74.258843 40.476578,-73.700169 40.917705)'. See ST_EXTENT
+      below.
+    Outer Query:
+      ST_EXTENT: Aggregates the geometries of all rows returned in the subquery
+      to return their combined bounding box. See:
+      https://postgis.net/docs/manual-1.5/ST_Extent.html
+      STRING_AGG: Since ST_EXTENT is an aggregate function (like avg(), max()),
+      all other selected rows also need to be aggregated. STRING_AGG just
+      concats all the returned rows together. However, this has no effect
+      since the subquery already ensures that only one row is returned.
+    */
     sql: `
       WITH target_row AS (
         SELECT ${geoid} AS id, geom AS geom
@@ -42,7 +56,6 @@ async function getGeoDataForLatLong(
       FROM target_row`,
     parameters: params,
   };
-  //Example response: NY0700789	'BOX(-74.258843 40.476578,-73.700169 40.917705)'
   const results = await rdsService.executeStatement(executeParams).promise();
   const geoID = results.records ? (results.records[0] || undefined) : undefined;
   if(!geoID) return undefined;
