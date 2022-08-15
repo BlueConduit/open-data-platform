@@ -1,5 +1,6 @@
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
+import prefixes from '../../frontend/url-prefixes';
 import { AppPlaneStackProps } from '../app-plane-stack';
 import { apiLambdaFactory } from './lambda-function-factory';
 
@@ -18,6 +19,12 @@ export class ApiStack extends Construct {
         allowMethods: ['GET,OPTIONS'],
         allowCredentials: true,
         allowOrigins: ['*'],
+      },
+      deployOptions: {
+        stageName: 'api',
+        loggingLevel: apigateway.MethodLoggingLevel.INFO,
+        tracingEnabled: true,
+        dataTraceEnabled: true,
       },
     });
 
