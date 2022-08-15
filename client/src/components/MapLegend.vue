@@ -1,5 +1,5 @@
 <template>
-  <div class='map-overlay'>
+  <div class='map-overlay' :style='style'>
     <div>{{ this.title }}</div>
     <p></p>
     <div class='bucket'
@@ -75,6 +75,10 @@ export default defineComponent({
       deep: true,
     },
   },
+  props: {
+    // Allows parent to determine styling for this component.
+    style: [String, Object]
+  }
 });
 </script>
 
@@ -93,11 +97,8 @@ export default defineComponent({
 }
 
 .map-overlay {
-  position: absolute;
-  top: 250px;
-  right: 0;
+  height: 225px;
   background: #fff;
-  margin-right: 20px;
   overflow: auto;
   border-radius: 3px;
   padding: 10px;
