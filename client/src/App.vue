@@ -57,7 +57,7 @@ export default defineComponent({
     $route(to: RouteLocation) {
       const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
 
-      if (latLongValue != null) {
+      if (latLongValue?.length > 0) {
         const latLong = latLongValue.split(',');
         const lat = latLong[0];
         const long = latLong[1];

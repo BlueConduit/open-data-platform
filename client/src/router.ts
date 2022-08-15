@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LandingPageView from './views/LandingPageView.vue';
-import MapView from './views/MapView.vue';
+import ScorecardView from './views/ScorecardView.vue';
 import { Titles } from './assets/messages/common';
 import ResourceView from '@/views/ResourceView.vue';
+import NationwideMapView from '@/views/NationwideMapView.vue';
 
 export const LAT_LONG_PARAM = 'latlong';
 
@@ -24,28 +25,28 @@ const routes = [
   },
   {
     path: SCORECARD_BASE,
-    component: MapView,
+    component: ScorecardView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.LEAD_STATUS_TITLE}`,
     },
   },
   {
     path: SCORECARD_ROUTE,
-    component: MapView,
+    component: ScorecardView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.LEAD_STATUS_TITLE}`,
     },
   },
   {
     path: MAP_ROUTE_BASE,
-    component: MapView,
+    component: NationwideMapView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.MAP_TITLE}`,
     },
   },
   {
     path: MAP_ROUTE,
-    component: MapView,
+    component: NationwideMapView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.MAP_TITLE}`,
     },
