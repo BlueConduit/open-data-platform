@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class='container'>
     <div id='map-container'></div>
-    <MapLegend />
+    <MapLegend :style='legendStyle' />
   </div>
 </template>
 
@@ -47,6 +47,12 @@ export default defineComponent({
     return {
       state,
       geoState,
+      legendStyle: {
+        display: 'block',
+        position: 'absolute',
+        bottom: '0px',
+        right: '0px',
+      },
     };
   },
   data() {
@@ -325,7 +331,11 @@ export default defineComponent({
 
 <style>
 #map-container {
-  height: 50vh;
+  min-height: 50vh;
+}
+
+.container {
+  position: relative;
 }
 
 /** Override Mapbox Popup styles. */
