@@ -40,6 +40,7 @@ export const apiLambdaFactory = (
     },
     bundling: {
       externalModules: ['aws-sdk'],
+      // TODO: moment is EOL. Replace with a supported library like luxon.
       nodeModules: ['moment'],
     },
     role: props.role,
