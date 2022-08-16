@@ -1,10 +1,11 @@
 <template>
   <div class='landing-page-section' :style='cssProps'>
-    <h1>{{ messages.HEADER }}</h1>
-    <h2>{{ $props.messages.BODY }}</h2>
-    <!--    <p>{{ messages.BODY  }}</p>-->
+    <div class='header-section'>
+      <h2>{{ messages.SUPER_HEADER }}</h2>
+      <h1>{{ messages.HEADER }}</h1>
+      <h2>{{ $props.messages.BODY }}</h2>
+    </div>
     <slot></slot>
-    <!-- TODO: Add image -->
   </div>
 </template>
 
@@ -32,15 +33,30 @@ export default defineComponent({
       type: Object as PropType<Messages>,
       required: true,
     },
+    backgroundColor: {
+      type: String,
+      default: '#FFFFFF', // White.
+    },
     textColor: {
       type: String,
-      default: '#FFFFFF',
+      default: '#464646', // Warm grey.
+    },
+    headerSize: {
+      type: String,
+      default: '54px',
+    },
+    subheaderSize: {
+      type: String,
+      default: '20px',
     },
   },
   computed: {
     cssProps(): Object {
       return {
         '--text-color': this.textColor,
+        '--header-size': this.headerSize,
+        '--subheader-size': this.subheaderSize,
+        '--background-color': this.backgroundColor,
       };
     },
   },
@@ -53,22 +69,33 @@ h1, h2 {
   font-weight: 500;
   padding: 0;
   margin: 0;
+  text-align: center;
 }
 
 h1 {
-  font-size: 54px;
+  font-size: var(--header-size);
   line-height: 60px;
 }
 
 h2 {
-  font-size: 20px;
-  width: 606px;
+  font-size: var(--subheader-size);
+  max-width: 733px;
+  gap: 16px;
+  line-height: 30px;
+}
+
+.header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
 }
 
 .landing-page-section {
   margin: 0;
-  padding: 50px;
-  background-color: #fff;
+  padding: 71px 25px;
+  background-color: var(--background-color);
   text-align: center;
   vertical-align: middle;
 
@@ -76,6 +103,6 @@ h2 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 40px;
 }
 </style>

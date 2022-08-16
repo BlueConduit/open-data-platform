@@ -70,7 +70,7 @@ export default defineComponent({
   max-height: 100%;
   width: 100%;
   height: 100%;
-  border: solid 1px #A3A3A3;
+  border: solid 1px #A3A3A3; /*TODO fix!*/
 }
 
 .mapboxgl-ctrl-geocoder--icon-search {
@@ -86,8 +86,8 @@ export default defineComponent({
   color: #7A7A7A;
   font-weight: 400;
   line-height: 23.4px;
-  height: 23px;
-  margin: 21px 20px;
+  height: 23px; /*TODO fix!*/
+  padding: 21px 20px; /*TODO fix!*/
 }
 
 .mapboxgl-ctrl-geocoder--input:focus {

@@ -1,7 +1,5 @@
 // Strings for the landing page.
 
-import { Titles } from '@/assets/messages/common';
-
 /**
  * Strings related to the scorecard-related part of the landing page.
  */
@@ -16,19 +14,19 @@ export class ScorecardSearch {
  * Strings related to the map-related part of the landing page.
  */
 export class MapInfo {
-  static HEADER = 'Get up to date information about lead service lines';
-  static BODY =
-    'Stay informed by using the LeadOut Nationwide Map by exploring this ever-growing data set of lead piplines, DEP violations, demographics, and more.';
-  static CTA_BUTTON = Titles.EXPLORE_NATION_WIDE_MAP;
+  static HEADER = 'Is my community at risk for lead poisoning?';
+  static BODY = 'Lead water pipes can pose a serious health risk, particularly for children. We use ' +
+    'machine learning to identify at-risk areas. See how your neighborhood compares.';
+  static CTA_BUTTON = 'Explore Nationwide Map';
 }
 
 /**
  * Strings related to the filter-related part of the landing page.
  */
 export class FilterInfo {
-  static SUPER_HEADER = 'Take Action';
-  static HEADER = 'Chosing a water filter';
+  static SUPER_HEADER = 'Tips';
+  static HEADER = 'Choosing a water filter';
   static BODY =
     'There are several types of water filters. Choosing the right one depends on your budget and lifestyle.';
-  static CTA_BUTTON = 'Learn more about water filters';
+  static CTA_BUTTON = 'Learn more';
 }
