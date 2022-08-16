@@ -11,6 +11,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
+import { Style } from '../../assets/styles/style_props';
 
 export interface Messages {
   SUPER_HEADER?: string;
@@ -33,30 +34,19 @@ export default defineComponent({
       type: Object as PropType<Messages>,
       required: true,
     },
-    backgroundColor: {
-      type: String,
-      default: '#FFFFFF', // White.
-    },
-    textColor: {
-      type: String,
-      default: '#464646', // Warm grey.
-    },
-    headerSize: {
-      type: String,
-      default: '54px',
-    },
-    subheaderSize: {
-      type: String,
-      default: '20px',
+    styles: {
+      type: Object as PropType<Style>,
+      required: true,
     },
   },
   computed: {
     cssProps(): Object {
       return {
-        '--text-color': this.textColor,
-        '--header-size': this.headerSize,
-        '--subheader-size': this.subheaderSize,
-        '--background-color': this.backgroundColor,
+        '--header-text-color': this.styles.headerTextColor,
+        '--subheader-text-color': this.styles.subHeaderTextColor,
+        '--header-text-size': this.styles.headerTextSize,
+        '--subheader-text-size': this.styles.subheaderTextSize,
+        '--background-color': this.styles.backgroundColor,
       };
     },
   },
@@ -65,7 +55,6 @@ export default defineComponent({
 
 <style scoped>
 h1, h2 {
-  color: var(--text-color);
   font-weight: 500;
   padding: 0;
   margin: 0;
@@ -73,12 +62,14 @@ h1, h2 {
 }
 
 h1 {
-  font-size: var(--header-size);
+  color: var(--header-text-color);
+  font-size: var(--header-text-size);
   line-height: 60px;
 }
 
 h2 {
-  font-size: var(--subheader-size);
+  color: var(--subheader-text-color);
+  font-size: var(--subheader-text-size);
   max-width: 733px;
   gap: 16px;
   line-height: 30px;

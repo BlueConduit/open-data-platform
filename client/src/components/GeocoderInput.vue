@@ -53,6 +53,9 @@ export default defineComponent({
         this.$emit('result', lat, long, geoType);
       }
     });
+    this.geocoder.on('clear', () => {
+      this.$emit('result', 0, 0, GeoType.unknown);
+    });
   },
 });
 </script>

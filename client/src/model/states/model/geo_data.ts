@@ -7,6 +7,7 @@
 enum GeoType {
   address = 'address',
   postcode = 'postcode',
+  unknown = 'unknown',
 }
 
 /**

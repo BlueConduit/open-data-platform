@@ -3,16 +3,17 @@
     <GeocoderInput class='geocoder'
                    :placeholder='this.messages.CTA_PLACEHOLDER'
                    @result='onGeocodeResults' />
-    <!-- TODO: disable until there is a result selected -->
-    <button @click='onSearch'>{{ messages.CTA_BUTTON }}</button>
+    <button @click='onSearch' :disabled='!searchHasResult'>
+      {{ messages.CTA_BUTTON }}
+    </button>
   </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
-import { SCORECARD_BASE } from '../router';
+import { SCORECARD_BASE } from '../../router';
 import { Messages } from './LandingPageSection.vue';
-import GeocoderInput from './GeocoderInput.vue';
+import GeocoderInput from '../GeocoderInput.vue';
 
 /**
  * A component for searching for a scorecard.
@@ -31,6 +32,11 @@ export default defineComponent({
       lat: 0,
       long: 0,
     };
+  },
+  computed: {
+    searchHasResult(): boolean {
+      return this.lat != 0 && this.long != 0;
+    },
   },
   methods: {
     onGeocodeResults(lat: number, long: number) {
@@ -51,7 +57,7 @@ button {
   padding: 0 19px;
   border-radius: 16px;
   background-color: #FFC300;
-  border: 0px;
+  border: 0;
   font-size: 18px;
 }
 

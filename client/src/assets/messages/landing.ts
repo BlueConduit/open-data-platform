@@ -5,7 +5,8 @@
  */
 export class ScorecardSearch {
   static HEADER = 'How Safe is My Water?';
-  static BODY = `Enter your info to find out the likelihood you have lead in your water supply - and what to do about it.`;
+  static BODY = 'Enter your info to find out the likelihood you have lead in your water supply ' +
+    '- and what to do about it.';
   static CTA_PLACEHOLDER = 'Enter your address or zip code';
   static CTA_BUTTON = 'Check Lead Status';
 }
@@ -15,8 +16,8 @@ export class ScorecardSearch {
  */
 export class MapInfo {
   static HEADER = 'Is my community at risk for lead poisoning?';
-  static BODY = 'Lead water pipes can pose a serious health risk, particularly for children. We use ' +
-    'machine learning to identify at-risk areas. See how your neighborhood compares.';
+  static BODY = 'Lead water pipes can pose a serious health risk, particularly for children. ' +
+    'We use machine learning to identify at-risk areas. See how your neighborhood compares.';
   static CTA_BUTTON = 'Explore Nationwide Map';
 }
 
@@ -26,8 +27,8 @@ export class MapInfo {
 export class FilterInfo {
   static SUPER_HEADER = 'Tips';
   static HEADER = 'Choosing a Water Filter';
-  static BODY =
-    'There are several types of water filters. Choosing the right one depends on your budget and lifestyle.';
+  static BODY = 'There are several types of water filters. Choosing the right one depends on ' +
+    'your budget and lifestyle.';
   static CTA_BUTTON = 'Learn More';
 }
 
@@ -40,7 +41,6 @@ export class ResourcesInfo {
   static CTA_BUTTON = 'View More in Resources';
 }
 
-// TODO: modify these to use interface / be a list for dynamic rendering.
 interface ResourceMessage {
   header: string,
   body: string,
