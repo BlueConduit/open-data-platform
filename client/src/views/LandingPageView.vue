@@ -12,15 +12,32 @@
                         header-size='40px'>
       <img class='static-map' :src='require(`@/assets/media/static-map.png`)'
            alt=''>
-      <button class='explore-map-button' @click='exploreMap'>
+      <button class='explore-map-button' @click='goToMap'>
         {{ messages.MapInfo.CTA_BUTTON }}
       </button>
     </LandingPageSection>
     <LandingPageSection :messages='messages.FilterInfo'
                         background-color='#05A8F4' text-color='#FFFFFF'>
-      <button class='learn-more-button' @click='exploreMap'>
+      <button class='learn-more-button' @click='goToResources'>
         {{ messages.FilterInfo.CTA_BUTTON }}
       </button>
+    </LandingPageSection>
+    <LandingPageSection :messages='messages.ResourcesInfo'
+                        background-color='#E1F5FE'
+                        text-color='#212121'
+                        header-size='40px'
+                        subheader-size='24px'>
+      <div class='resources'>
+        <div class='resource-blurb'
+             v-for='resource in RESOURCE_MESSAGES'
+             :key='resource.header'>
+          <div class='resource-header'>{{ resource.header }}</div>
+          <div class='resource-body'>{{ resource.body }}</div>
+        </div>
+      </div>
+      <router-link class='link' :to='resourcesRoute'>
+        {{ messages.ResourcesInfo.CTA_BUTTON }}
+      </router-link>
     </LandingPageSection>
     <LandingPageFooter />
   </div>
@@ -31,7 +48,8 @@ import { defineComponent } from 'vue';
 import ScorecardSearch from '../components/ScorecardSearch.vue';
 import LandingPageSection from '../components/LandingPageSection.vue';
 import * as messages from '../assets/messages/landing';
-import { MAP_ROUTE_BASE, router } from '../router';
+import { RESOURCE_MESSAGES } from '../assets/messages/landing';
+import { MAP_ROUTE_BASE, RESOURCES_ROUTE, router } from '../router';
 
 /**
  * This view displays a landing page with search.
@@ -45,13 +63,20 @@ export default defineComponent({
   data() {
     return {
       messages,
+      RESOURCE_MESSAGES,
       mapRoute: MAP_ROUTE_BASE,
+      resourcesRoute: RESOURCES_ROUTE,
     };
   },
   methods: {
-    exploreMap(): void {
+    goToMap(): void {
       router.push({
         path: '/map',
+      });
+    },
+    goToResources(): void {
+      router.push({
+        path: '/resources',
       });
     },
   },
@@ -84,6 +109,47 @@ export default defineComponent({
   border-radius: 16px;
   border: 1px solid #A3A3A3;
   padding: 0 19px;
+}
+
+.link {
+  font-size: 18px;
+  color: #2553A0;
+}
+
+.resource-body {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 400;
+  text-align: center;
+  color: #464646;
+}
+
+.resource-blurb {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  gap: 16px;
+  padding: 10px;
+  width: 301px;
+  height: 180px;
+}
+
+.resource-header {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 34px;
+  text-align: center;
+  color: #212121;
+}
+
+.resources {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 26px;
 }
 
 .search-section {

@@ -87,4 +87,5 @@ export {
   MAP_ROUTE_BASE,
   MAP_ROUTE,
   ABOUT_ROUTE,
+  RESOURCES_ROUTE,
 };
