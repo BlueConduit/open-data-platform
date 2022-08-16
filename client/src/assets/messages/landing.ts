@@ -7,7 +7,7 @@ export class ScorecardSearch {
   static HEADER = 'How Safe is My Water?';
   static BODY = `Enter your info to find out the likelihood you have lead in your water supply - and what to do about it.`;
   static CTA_PLACEHOLDER = 'Enter your address or zip code';
-  static CTA_BUTTON = 'Check lead status';
+  static CTA_BUTTON = 'Check Lead Status';
 }
 
 /**
@@ -25,10 +25,10 @@ export class MapInfo {
  */
 export class FilterInfo {
   static SUPER_HEADER = 'Tips';
-  static HEADER = 'Choosing a water filter';
+  static HEADER = 'Choosing a Water Filter';
   static BODY =
     'There are several types of water filters. Choosing the right one depends on your budget and lifestyle.';
-  static CTA_BUTTON = 'Learn more';
+  static CTA_BUTTON = 'Learn More';
 }
 
 /**
@@ -36,8 +36,8 @@ export class FilterInfo {
  */
 export class ResourcesInfo {
   static SUPER_HEADER = 'Resources';
-  static HEADER = 'What to do if you have lead pipes';
-  static CTA_BUTTON = 'View more in resources';
+  static HEADER = 'What To Do If You Have Lead Pipes';
+  static CTA_BUTTON = 'View More in Resources';
 }
 
 // TODO: modify these to use interface / be a list for dynamic rendering.

@@ -85,7 +85,7 @@ export default defineComponent({
 
 <style scoped>
 .explore-map-button {
-  width: 190px;
+  width: fit-content;
   height: 65px;
   padding: 0 19px;
   border-radius: 16px;
@@ -142,6 +142,7 @@ export default defineComponent({
   line-height: 34px;
   text-align: center;
   color: #212121;
+  text-transform: capitalize;
 }
 
 .resources {
@@ -153,10 +154,10 @@ export default defineComponent({
 }
 
 .search-section {
-  background-image: url('~@/assets/media/landing-image-1.png');
+  background-image: url('~@/assets/media/landing-image-2.png'), url('~@/assets/media/landing-image-1.png');
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: center, center;
   height: 766.74px;
 
   display: flex;

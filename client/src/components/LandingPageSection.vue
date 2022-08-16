@@ -89,7 +89,7 @@ h2 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 24px;
 }
 
 .landing-page-section {
@@ -103,6 +103,6 @@ h2 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 40px;
+  gap: 50px;
 }
 </style>

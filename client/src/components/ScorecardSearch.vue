@@ -46,7 +46,7 @@ export default defineComponent({
 
 <style scoped>
 button {
-  width: 190px;
+  width: fit-content;
   height: 65px;
   padding: 0 19px;
   border-radius: 16px;
