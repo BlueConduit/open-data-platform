@@ -1,9 +1,9 @@
 <template>
   <div class='container-column center-container' :style='cssVars'>
-    <div class='h1-header semi-bold'>
+    <div class='h2-header semi-bold'>
       {{ header }}
     </div>
-    <div class='explain-text'>
+    <div class='explain-text' v-if='subheader != null'>
       {{ subheader }}
     </div>
     <button class='outline-button'

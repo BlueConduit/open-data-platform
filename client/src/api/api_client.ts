@@ -6,7 +6,7 @@ import { GeographicLevel } from '@/model/data_layer';
  * Client to interface with API.
  */
 class ApiClient {
-  static API_URL = 'https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev';
+  static API_URL = 'https://khybh1r4n8.execute-api.us-east-2.amazonaws.com/dev';
 
   request = async (endpoint: string, callback: (data: any) => any): Promise<ApiResponse> => {
     axiosRetry(axios, {

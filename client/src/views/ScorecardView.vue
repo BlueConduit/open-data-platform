@@ -1,12 +1,23 @@
 <template>
-  <div>
+  <div :style='cssVars'>
     <PredictionPanel />
     <NationwideMap height='60vh' />
-    <ActionSection :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
-                   :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
-                   :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-                   :bgColor='actionBackgroundColor'
-                   @onButtonClick='navigateToResourcePage' />
+    <div class='container-column center-container actions-to-take'>
+      <div class='h1-header semi-bold'>
+        {{ ScorecardMessages.TAKE_ACTION_HEADER }}
+      </div>
+      <ActionSection :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
+                     :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
+                     :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
+                     :bgColor='actionBackgroundColor'
+                     height='200px'
+                     @onButtonClick='navigateToResourcePage' />
+      <ActionSection :header='ScorecardMessages.SHARE_LEAD_OUT'
+                     :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
+                     :bgColor='actionBackgroundColor'
+                     height='200px'
+                     @onButtonClick='navigateToResourcePage' />
+    </div>
     <ScorecardSummaryPanel />
     <ActionSection :header='ScorecardMessages.WANT_TO_KNOW_MORE'
                    :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
@@ -37,12 +48,24 @@ export default defineComponent({
     PredictionPanel,
     ScorecardSummaryPanel,
   },
+  props: {
+    actionBackgroundColor: {
+      type: String,
+      default: '#E1F5FE',
+    },
+  },
   data() {
     return {
-      actionBackgroundColor: '#E1F5FE',
       ScorecardMessages,
       Titles,
     };
+  },
+  computed: {
+    cssVars() {
+      return {
+        '--bg-color': this.actionBackgroundColor,
+      };
+    },
   },
   methods: {
     navigateToResourcePage() {
@@ -59,4 +82,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.actions-to-take {
+  background-color: var(--bg-color);
+  padding: 20px;
+}
+</style>
