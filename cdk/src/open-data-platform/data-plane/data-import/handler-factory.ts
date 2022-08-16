@@ -66,10 +66,25 @@ export const geoJsonHandlerFactory =
       erroredBatchCount: 0,
     };
 
-    while (results.successfulBatchCount > 0) {
+    let keepReading = true;
+    while (keepReading) {
       try {
-        results = await readGeoJsonFile(db, s3Params, callback, rowOffset, rowLimit, batchSize);
+        const batchResults = await readGeoJsonFile(
+          db,
+          s3Params,
+          callback,
+          rowOffset,
+          rowLimit,
+          batchSize,
+        );
+        // Add batch results to total result returned from handler.
+        results.processedBatchCount += batchResults.processedBatchCount;
+        results.successfulBatchCount += batchResults.successfulBatchCount;
+        results.erroredBatchCount += batchResults.erroredBatchCount;
+
+        keepReading = batchResults.successfulBatchCount > 0;
         rowOffset += results.processedBatchCount;
+        console.log(`Importing rows starting from: ${rowOffset}`);
       } catch (error) {
         console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
         throw error;
@@ -201,6 +216,6 @@ const handleEndOfFilestream = async (promises: Promise<any>[]): Promise<ProcessR
   return {
     processedBatchCount: promises.length,
     erroredBatchCount: errors.length,
-    sucessfulBatchCount: promises.length - errors.length,
+    successfulBatchCount: promises.length - errors.length,
   };
 };
