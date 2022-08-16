@@ -29,7 +29,7 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import { ScorecardSummaryMessages } from '../assets/messages/scorecard_summary_messages';
+import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import ScorecardSummaryRow, { ImageFloatDirection } from './ScorecardSummaryRow.vue';
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
@@ -57,7 +57,7 @@ export default defineComponent({
   },
   data() {
     return {
-      ScorecardSummaryMessages,
+      ScorecardSummaryMessages: ScorecardMessages,
       ImageFloatDirection,
     };
   },

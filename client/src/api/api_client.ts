@@ -1,12 +1,14 @@
 import axios, { AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
 import { GeographicLevel } from '@/model/data_layer';
+import prefixes from '../../../cdk/src/open-data-platform/frontend/url-prefixes';
 
 /**
  * Client to interface with API.
  */
 class ApiClient {
-  static API_URL = 'https://ei2tz84crb.execute-api.us-east-2.amazonaws.com/dev';
+  // A URL path prefix shared by all API routes.
+  static API_URL = prefixes.api;
 
   request = async (endpoint: string, callback: (data: any) => any): Promise<ApiResponse> => {
     axiosRetry(axios, {
@@ -26,6 +28,8 @@ class ApiClient {
         headers: {
           Accept: 'application/json',
         },
+        // By default, the baseURL is the current view's URL including path. Remove that path.
+        baseURL: '/',
       });
       apiResponse.data = callback(data);
     } catch (error) {
@@ -56,12 +60,11 @@ class ApiClient {
     return this.request(
       `${ApiClient.API_URL}/${GeographicLevel[geoLevel].toLowerCase()}/scorecard/${geoId}`,
       (data) => {
-        // TODO(breuch): Update these values with new aggregated table columns
         return {
           geoId: data?.data?.pws_id,
           averageHomeAge: data?.data?.average_home_age,
           averageSocialVulnerabilityIndex: data?.data?.average_social_vulnerability,
-          averageIncome: data?.data?.average_social_vulnerability,
+          averageIncome: data?.data?.income_index,
         };
       },
     );

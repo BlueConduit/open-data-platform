@@ -18,6 +18,7 @@ import prefixes, { handler } from './url-prefixes';
 import { NetworkStack } from '../network/network-stack';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as route53targets from 'aws-cdk-lib/aws-route53-targets';
+import * as cdk from 'aws-cdk-lib';
 
 interface FrontendProps extends CommonProps {
   appPlaneStack: AppPlaneStack;
@@ -71,8 +72,17 @@ export class FrontendStack extends Stack {
       distributionPaths: ['/*'],
     });
 
-    // Add the tileserver to the Cloudfront distribution to make it publicly available.
-    // TODO: consider splitting this out into another file for organization.
+    const prefixTrimFunction = new cloudfront.Function(this, 'ViewerResponseFunction', {
+      functionName: `${id}-tileServerPrefixTrim`,
+      code: cloudfront.FunctionCode.fromInline(handler.toString()),
+      comment: `Trim "${prefixes.tileServer}" prefix from URL`,
+    });
+    this.distribution.node.addDependency(prefixTrimFunction);
+
+    // Add app plane to distribution.
+    // TODO: consider splitting behaviors and/or origins out into another file for organization.
+
+    // Tile server.
     const tileServerOrigin = new origins.HttpOrigin(
       // The URL for the load balancer in front of the tile server cluster.
       appPlaneStack.tileServer.ecsService.loadBalancer.loadBalancerDnsName,
@@ -81,24 +91,13 @@ export class FrontendStack extends Stack {
         protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
       },
     );
-
-    const prefixTrimFunction = new cloudfront.Function(this, 'ViewerResponseFunction', {
-      functionName: `${id}-tileServerPrefixTrim`,
-      code: cloudfront.FunctionCode.fromInline(handler.toString()),
-      comment: `Trim "${prefixes.tileServer}" prefix from URL`,
-    });
-    this.distribution.node.addDependency(prefixTrimFunction);
-
     this.distribution.addBehavior(`${prefixes.tileServer}/*`, tileServerOrigin, {
       allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
       responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
-      // TODO: cache based on query strings if/when we use them.
       cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
       functionAssociations: [
         // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.
-        // Since CloudFront is instantiated in us-east-1, so must this function:
-        // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/monitoring-functions.htmltions/tileServerPrefixTrim?tab=test
         {
           function: prefixTrimFunction,
           eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
@@ -106,6 +105,31 @@ export class FrontendStack extends Stack {
       ],
     });
 
+    // API.
+    // CloudFront origin can't have the http(s) prefix. We can't use standard JS string
+    // manipulation here because the 'url' is actually a token that represents the URL, not the
+    // URL itself.
+    const apiHostname = cdk.Fn.select(2, cdk.Fn.split('/', appPlaneStack.api.gateway.url));
+    const apiPath = cdk.Fn.select(3, cdk.Fn.split('/', appPlaneStack.api.gateway.url));
+    this.distribution.addBehavior(`${apiPath}/*`, new origins.HttpOrigin(apiHostname), {
+      allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+      responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+      // TODO: Cache based on query strings if/when we use them.
+      // TODO: re-enable caching after dev.
+      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+      // CF must not forward the "host" header, because that messes up the API Gateway.
+      // https://old.reddit.com/r/aws/comments/fyfwt7/cloudfront_api_gateway_error_403_bad_request/hv4l17k/
+      originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
+      functionAssociations: [
+        // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.
+        {
+          function: prefixTrimFunction,
+          eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+        },
+      ],
+    });
+
+    // DNS.
     if (hostedZone) {
       new route53.ARecord(this, 'DnsRecord', {
         zone: hostedZone,

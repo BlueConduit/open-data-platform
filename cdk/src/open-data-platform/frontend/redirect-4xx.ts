@@ -5,8 +5,12 @@
 export default function handler(event: { request: { uri: string } }) {
   // This is a manually maintained list of URL prefixes that shouldn't be redirected.
   if (
+    // Tile server.
     event.request.uri.startsWith('/tiles') ||
+    // API.
     event.request.uri.startsWith('/api') ||
+    event.request.uri.startsWith('/prod') ||
+    // Static files.
     event.request.uri.startsWith('/js') ||
     event.request.uri.startsWith('/css') ||
     event.request.uri.startsWith('/img')

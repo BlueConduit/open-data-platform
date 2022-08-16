@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class='container' :style='cssVars'>
     <div id='map-container'></div>
-    <MapLegend />
+    <MapLegend :style='legendStyle' />
   </div>
 </template>
 
@@ -47,6 +47,12 @@ export default defineComponent({
     return {
       state,
       geoState,
+      legendStyle: {
+        display: 'block',
+        position: 'absolute',
+        bottom: '0px',
+        right: '0px',
+      },
     };
   },
   data() {
@@ -56,6 +62,11 @@ export default defineComponent({
     };
   },
   computed: {
+    cssVars() {
+      return {
+        '--height': this.height,
+      };
+    },
     /**
      * Represents the current layer that should be shown based on the url
      * query parameter.
@@ -75,6 +86,7 @@ export default defineComponent({
       type: Object as PropType<[number, number]>,
       default: DEFAULT_LNG_LAT,
     },
+    height: { type: String, default: '80vh' },
   },
   methods: {
     zoomToLongLat() {
@@ -304,11 +316,20 @@ export default defineComponent({
       }
     },
     // Listen for changes to lat/long to update map location.
-    'geoState.geoids.lat': function() {
-      this.zoomToLongLat();
-    },
-    'geoState.geoids.long': function() {
-      this.zoomToLongLat();
+    'geoState.geoids': function() {
+      const lat = this.geoState?.geoids?.lat;
+      const long = this.geoState?.geoids?.long;
+
+      if (lat != null && long != null) {
+        const marker = new mapboxgl.Marker({
+          color: '#0b2553',
+        });
+
+        if (this.map != undefined) {
+          marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
+        }
+        this.zoomToLongLat();
+      }
     },
   },
 });
@@ -316,7 +337,11 @@ export default defineComponent({
 
 <style>
 #map-container {
-  height: 50vh;
+  height: var(--height);
+}
+
+.container {
+  position: relative;
 }
 
 /** Override Mapbox Popup styles. */

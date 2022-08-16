@@ -2,6 +2,7 @@
   <div class='main'>
     <NavigationBar />
     <router-view />
+    <PageFooter />
   </div>
 </template>
 
@@ -21,6 +22,7 @@ import { queryLatLong } from './model/slices/geo_data_slice';
 import { dispatch } from './model/store';
 import { LAT_LONG_PARAM } from './router';
 import { GeoType } from './model/states/model/geo_data';
+import PageFooter from './components/PageFooter.vue';
 
 const DEFAULT_TITLE = 'LeadOut';
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([
@@ -37,6 +39,7 @@ export default defineComponent({
   name: 'App',
   components: {
     NavigationBar,
+    PageFooter,
   },
   setup() {
     // Create and provide default state. This is updated once API data is fetched.
@@ -54,7 +57,7 @@ export default defineComponent({
     $route(to: RouteLocation) {
       const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
 
-      if (latLongValue != null) {
+      if (latLongValue?.length > 0) {
         const latLong = latLongValue.split(',');
         const lat = latLong[0];
         const long = latLong[1];

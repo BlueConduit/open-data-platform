@@ -1,6 +1,7 @@
 <template>
   <div
-    :class='containerRowClass'>
+    :class='containerRowClass'
+    :style='cssVars'>
     <div class='asset'><img :src='require(`@/assets/media/${image}`)' alt=''>
     </div>
     <div>
