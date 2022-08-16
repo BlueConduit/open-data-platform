@@ -49,7 +49,7 @@ export const geoJsonHandlerFactory =
   (s3Params: AWS.S3.GetObjectRequest, callback: ProcessCallback): ProcessHandler =>
   async (event: ProcessRequest): Promise<APIGatewayProxyResult> => {
     // Use arguments or defaults.
-    const rowOffset = event.rowOffset ?? 0;
+    let rowOffset = event.rowOffset ?? 0;
     const rowLimit = event.rowLimit ?? Infinity;
     const batchSize = event.batchSize ?? 10;
     console.log('Starting import:', {
@@ -66,11 +66,14 @@ export const geoJsonHandlerFactory =
       erroredBatchCount: 0,
     };
 
-    try {
-      results = await readGeoJsonFile(db, s3Params, callback, rowOffset, rowLimit, batchSize);
-    } catch (error) {
-      console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
-      throw error;
+    while (results.successfulBatchCount > 0) {
+      try {
+        results = await readGeoJsonFile(db, s3Params, callback, rowOffset, rowLimit, batchSize);
+        rowOffset += results.processedBatchCount;
+      } catch (error) {
+        console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
+        throw error;
+      }
     }
 
     return {
