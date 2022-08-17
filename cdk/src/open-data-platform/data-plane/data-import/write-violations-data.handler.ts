@@ -41,9 +41,17 @@ const SCHEMA = 'public';
 
 // Format function below needs these to be %s (string literals) or else
 // it produces invalid geometries.
-const insertIntoStatement =
-  'INSERT INTO epa_violations (violation_id, pws_id,violation_code, compliance_status, start_date) ' +
-  'VALUES %L ON CONFLICT (violation_id) DO NOTHING';
+const insertIntoStatement = `INSERT INTO epa_violations (violation_id,
+                                                         pws_id,
+                                                         violation_code,
+                                                         compliance_status,
+                                                         start_date)
+                             VALUES (:violation_id,
+                                     :pws_id,
+                                     :violation_code,
+                                     :compliance_status,
+                                     :start_date,
+                                     :end_date) ON CONFLICT (violation_id) DO NOTHING`;
 
 /**
  *  Writes rows into the water systems table.

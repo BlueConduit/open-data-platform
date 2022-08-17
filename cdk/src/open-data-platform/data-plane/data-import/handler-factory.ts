@@ -158,7 +158,7 @@ const readGeoJsonFile = (
         if (processedRowCount + inProcessRowCount >= rowLimit) {
           console.log(
             `${id}: Stopping processing after` +
-              ` ${processedRowCount} rows proccessed + ${inProcessRowCount} rows in progress` +
+              ` ${processedRowCount} rows processed + ${inProcessRowCount} rows in progress` +
               ` >= ${rowLimit} limit`,
           );
           pipeline.destroy();
