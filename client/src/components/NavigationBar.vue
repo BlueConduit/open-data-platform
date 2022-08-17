@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :style='cssVars' class='container'>
+    <div class='container'>
       <div>
         <router-link to='/'>
           <img src='../assets/lo-logo.png' class='logo' />
@@ -22,20 +22,6 @@ import * as router from '../router';
 
 export default defineComponent({
   name: 'NavigationBar',
-  props: {
-    bgColor: {
-      type: String,
-      default: '#0b2553',
-    },
-    textColor: {
-      type: String,
-      default: '#fff',
-    },
-    height: {
-      type: Number,
-      default: 50,
-    },
-  },
   data() {
     const routes: [string, string][] = [
       [Titles.HOME_TITLE, router.HOME_ROUTE],
@@ -47,15 +33,6 @@ export default defineComponent({
     return {
       routes,
     };
-  },
-  computed: {
-    cssVars() {
-      return {
-        '--bg-color': this.bgColor,
-        '--text-color': this.textColor,
-        '--height': `${this.height + 'px'}`,
-      };
-    },
   },
 });
 </script>
