@@ -7,7 +7,7 @@
     </div>
     <div class='right-align'>
       <a class='logo' href='https://blueconduit.com/'>
-        <img src='../assets/logo.png' class='logo' />
+        <img src='../assets/bc-logo.png' class='logo' />
       </a>
     </div>
   </div>

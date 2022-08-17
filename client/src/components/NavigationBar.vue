@@ -3,20 +3,19 @@
     <div :style='cssVars' class='container'>
       <div>
         <router-link to='/'>
-          <img src='../assets/logo.png' class='logo' />
+          <img src='../assets/lo-logo.png' class='logo' />
         </router-link>
       </div>
       <div class='right-align'>
-        <div v-for='route in routes' :key='route[0]'>
-          <router-link :to='route[1]' class='semi-bold'>{{ route[0] }}
-          </router-link>
+        <div v-for='route in routes' class='nav-link' :key='route[0]'>
+          <router-link :to='route[1]'>{{ route[0] }} </router-link>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { Titles } from '../assets/messages/common';
 import * as router from '../router';
@@ -61,11 +60,16 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@use '@blueconduit/copper/scss/01_settings/design-tokens' as dt;
+
 .container {
-  background-color: var(--bg-color);
+  background-color: dt.$white_background;
+  box-shadow: dt.$card-shadow-hovered;
   display: flex;
-  height: var(--height);
+  height: dt.$spacing-xl;
+  padding-left: dt.$spacing-xl;
+  padding-right: dt.$spacing-xl;
 }
 
 .right-align {
@@ -74,17 +78,27 @@ export default defineComponent({
 }
 
 .container div {
-  padding: 0 30px;
   display: flex;
   align-items: center;
 }
 
 .logo {
-  height: var(--height);
+  height: dt.$spacing-lg;
 }
 
-a {
-  color: var(--text-color);
+.nav-link {
+  padding: dt.$spacing-md;
+}
+
+.nav-link a {
+  color: dt.$text_inactive;
   text-decoration: none;
+}
+
+a:hover {
+  color: dt.$text_link;
+  // Maintains text width while adding a bold font weight.
+  -webkit-text-stroke-width: 0.7px;
+  -webkit-text-stroke-color: dt.$text_link;
 }
 </style>

@@ -7,18 +7,14 @@
       <div class='explain-text'>
         {{ ScorecardSummaryMessages.LEADOUT }}
       </div>
-      <div class='h1-header semi-bold'
-           v-if='showWaterSystemPrediction'>
-        Your neighborhood water system {{ pwsId }} is likely
-        {{ percentLead }}% lead.
+      <div class='h1-header semi-bold' v-if='showWaterSystemPrediction'>
+        Your neighborhood water system {{ pwsId }} is likely {{ percentLead }}% lead.
       </div>
-      <div class='h1-header semi-bold'
-           v-if='showParcelPrediction'>
-        Your home's public service lines have a {{ publicLeadLikelihood }}%
-        chance of lead.
+      <div class='h1-header semi-bold' v-if='showParcelPrediction'>
+        Your home's public service lines have a {{ publicLeadLikelihood }}% chance of lead.
         <span v-if='privateLeadLikelihood != null'>
-          While your private service lines have a {{ privateLeadLikelihood }}%
-          chance of lead.</span>
+          While your private service lines have a {{ privateLeadLikelihood }}% chance of lead.</span
+        >
       </div>
       <div class='explain-text'>
         {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
@@ -27,7 +23,7 @@
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 import { dispatch, useSelector } from '../model/store';
@@ -95,21 +91,25 @@ export default defineComponent({
       return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
     },
     showWaterSystemPrediction(): boolean {
-      return this.geoState?.geoids?.geoType != GeoType.address && this.pwsId != null && this.percentLead != null;
+      return (
+        this.geoState?.geoids?.geoType != GeoType.address &&
+        this.pwsId != null &&
+        this.percentLead != null
+      );
     },
   },
   watch: {
     // Listen for changes to pws id or lat, long. Once it changes, a new
     // prediction must be fetched.
-    'geoState.geoids': function() {
+    'geoState.geoids': function () {
       // Check if an address was queried and another prediction should be
       // fetched.
-      if (this.geoState?.geoids?.geoType == GeoType.address
-        && this.geoState?.geoids?.lat != null
-        && this.geoState?.geoids?.long != null) {
-
+      if (
+        this.geoState?.geoids?.geoType == GeoType.address &&
+        this.geoState?.geoids?.lat != null &&
+        this.geoState?.geoids?.long != null
+      ) {
         dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
-
       } else if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId));
       }
@@ -127,7 +127,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
 .center-container {
   gap: 20px;
   height: 200px;
@@ -141,5 +140,4 @@ export default defineComponent({
   margin: 20px;
   max-width: 350px;
 }
-
 </style>
