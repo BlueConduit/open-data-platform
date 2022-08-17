@@ -31,7 +31,7 @@ import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
-import { GeoType } from '../model/states/model/geo_data';
+import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
 
 /**
  * Container lead prediction.
@@ -82,7 +82,7 @@ export default defineComponent({
       }
       return null;
     },
-    pwsId(): string | null {
+    pwsId(): BoundedGeoDatum | null {
       // TODO: Handle error state where there is no water system id
       // after the API has returned.
       return this.geoState?.geoids?.pwsId ?? null;
@@ -111,7 +111,7 @@ export default defineComponent({
       ) {
         dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
       } else if (this.geoState?.geoids?.pwsId != null) {
-        dispatch(getWaterSystem(this.geoState.geoids.pwsId));
+        dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
       }
     },
   },
