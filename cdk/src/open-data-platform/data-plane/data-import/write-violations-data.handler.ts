@@ -45,7 +45,8 @@ const insertIntoStatement = `INSERT INTO epa_violations (violation_id,
                                                          pws_id,
                                                          violation_code,
                                                          compliance_status,
-                                                         start_date)
+                                                         start_date,
+                                                         end_date)
                              VALUES (:violation_id,
                                      :pws_id,
                                      :violation_code,
