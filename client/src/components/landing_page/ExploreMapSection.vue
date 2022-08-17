@@ -16,7 +16,6 @@
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import * as messages from '@/assets/messages/landing';
-import { LandingPageStyles as styles } from '@/assets/styles/style_props';
 import { router } from '@/router';
 
 /**
@@ -27,7 +26,6 @@ export default defineComponent({
   data() {
     return {
       messages,
-      styles,
     };
   },
   methods: {
@@ -41,7 +39,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang='scss'>
-/*TODO put below in global styles*/
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 

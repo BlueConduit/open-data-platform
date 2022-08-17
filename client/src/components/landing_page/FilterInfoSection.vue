@@ -1,18 +1,19 @@
 <template>
-  <LandingPageSection class='section'
-                      :messages='messages.FilterInfo'
-                      :styles='styles.FILTER_SECTION_STYLE'>
-    <button class='learn-more-button' @click='goToResources'>
+  <div class='section'>
+    <div class='header-section'>
+      <div class='h2-header-large'>{{ messages.FilterInfo.SUPER_HEADER }}</div>
+      <div class='h1-header-large'>{{ messages.FilterInfo.HEADER }}</div>
+      <div class='h2-header-large'>{{ messages.FilterInfo.BODY }}</div>
+    </div>
+    <button class='grey-button' @click='goToResources'>
       {{ messages.FilterInfo.CTA_BUTTON }}
     </button>
-  </LandingPageSection>
+  </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import * as messages from '@/assets/messages/landing';
-import { LandingPageStyles as styles } from '@/assets/styles/style_props';
-import LandingPageSection from '@/components/landing_page/LandingPageSection.vue';
 import { router } from '@/router';
 
 /**
@@ -20,13 +21,9 @@ import { router } from '@/router';
  */
 export default defineComponent({
   name: 'FilterInfoSection',
-  components: {
-    LandingPageSection,
-  },
   data() {
     return {
       messages,
-      styles,
     };
   },
   methods: {
@@ -39,20 +36,32 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.learn-more-button {
-  width: fit-content;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 65px;
+<style scoped lang='scss'>
+@import '../../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
+.h2-header-large {
+  max-width: 34 * $spacing-md;
   text-align: center;
-  color: #464646;
-  border-radius: 16px;
-  border: 1px solid #A3A3A3;
-  padding: 0 19px;
+}
+
+.header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
 }
 
 .section {
-  padding: 53px 241px;
+  padding: 14 * $spacing-xs 61 * $spacing-xs;
+  background-color: $light-blue;
+  color: $white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12 * $spacing-xs;
 }
 </style>

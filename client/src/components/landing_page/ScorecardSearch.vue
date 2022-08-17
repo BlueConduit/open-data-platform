@@ -1,18 +1,17 @@
 <template>
   <div class='scorecard-search'>
     <GeocoderInput class='geocoder'
-                   :placeholder='this.messages.CTA_PLACEHOLDER'
+                   :placeholder='this.placeholder'
                    @result='onGeocodeResults' />
-    <button @click='onSearch' :disabled='!searchHasResult'>
-      {{ messages.CTA_BUTTON }}
+    <button class='gold-button' @click='onSearch' :disabled='!searchHasResult'>
+      {{ ctaButtonText }}
     </button>
   </div>
 </template>
 
 <script lang='ts'>
-import { defineComponent, PropType } from 'vue';
+import { defineComponent } from 'vue';
 import { SCORECARD_BASE } from '../../router';
-import { Messages } from './LandingPageSection.vue';
 import GeocoderInput from '../GeocoderInput.vue';
 
 /**
@@ -22,8 +21,12 @@ export default defineComponent({
   name: 'ScorecardSearch',
   components: { GeocoderInput },
   props: {
-    messages: {
-      type: Object as PropType<Messages>,
+    placeholder: {
+      type: String,
+      default: 'Search',
+    },
+    ctaButtonText: {
+      type: String,
       required: true,
     },
   },
@@ -50,26 +53,19 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-button {
-  width: fit-content;
-  height: 65px;
-  padding: 0 19px;
-  border-radius: 16px;
-  background-color: #FFC300;
-  border: 0;
-  font-size: 18px;
-}
+<style scoped lang='scss'>
+@import '../../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .geocoder {
-  height: 65px;
-  width: 587px;
+  height: 4 * $spacing-md;
+  width: 147 * $spacing-xs;
 }
 
 .scorecard-search {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: $spacing-lg;
 }
 </style>

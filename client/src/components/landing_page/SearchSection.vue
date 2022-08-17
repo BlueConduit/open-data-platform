@@ -1,19 +1,18 @@
 <template>
   <div class='search-section'>
-    <LandingPageSection class='search-landing-page-section'
-                        :messages='messages.ScorecardSearch'
-                        :styles='styles.SEARCH_SECTION_STYLE'>
-      <ScorecardSearch :messages='messages.ScorecardSearch' />
-    </LandingPageSection>
+    <div class='header-section'>
+      <div class='h1-header-xl'>{{ messages.ScorecardSearch.HEADER }}</div>
+      <div class='h2-header-large'>{{ messages.ScorecardSearch.BODY }}</div>
+    </div>
+    <ScorecardSearch :placeholder='messages.ScorecardSearch.CTA_PLACEHOLDER'
+                     :cta-button-text='messages.ScorecardSearch.CTA_BUTTON' />
   </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import * as messages from '@/assets/messages/landing';
-import LandingPageSection from './LandingPageSection.vue';
 import ScorecardSearch from './ScorecardSearch.vue';
-import { LandingPageStyles as styles } from '@/assets/styles/style_props';
 
 /**
  * Content for the address search section of the landing page.
@@ -21,34 +20,46 @@ import { LandingPageStyles as styles } from '@/assets/styles/style_props';
 export default defineComponent({
   name: 'SearchSection',
   components: {
-    LandingPageSection,
     ScorecardSearch,
   },
   data() {
     return {
       messages,
-      styles,
     };
   },
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
+.h2-header-large {
+  max-width: 46 * $spacing-md;
+  text-align: center;
+}
+
+.header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+}
+
 .search-section {
   background-image: url('~@/assets/media/landing-image-2.png'), url('~@/assets/media/landing-image-1.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center, center;
-  height: 803px;
+  height: 201 * $spacing-xs;
 
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-}
+  gap: 12 * $spacing-xs;
 
-.search-landing-page-section {
-  background: none;
-  width: 974px;
-  height: 358px;
+  color: $white;
 }
 </style>
