@@ -8,7 +8,11 @@ import prefixes from '../../../cdk/src/open-data-platform/frontend/url-prefixes'
  */
 class ApiClient {
   // A URL path prefix shared by all API routes.
-  static API_URL = prefixes.api;
+  static API_URL = `${process.env.VUE_APP_API_ENDPOINT}/api`;
+
+  constructor() {
+    console.log('Using API:', ApiClient.API_URL);
+  }
 
   request = async (endpoint: string, callback: (data: any) => any): Promise<ApiResponse> => {
     axiosRetry(axios, {

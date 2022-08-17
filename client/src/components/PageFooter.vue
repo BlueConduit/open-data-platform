@@ -13,7 +13,7 @@
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { Titles } from '../assets/messages/common';
 import * as router from '../router';
@@ -36,20 +36,22 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@use '@blueconduit/copper/scss/01_settings/design-tokens' as dt;
+
 .page-footer {
-  background-color: #0b2553;
+  background-color: dt.$secondary01;
   display: flex;
   width: 100%;
 }
 
 .left-align {
-  padding: 30px;
+  padding: dt.$spacing-xl;
   flex-grow: 1;
 }
 
 .right-align {
-  padding: 30px;
+  padding: dt.$spacing-lg;
   flex-grow: 1;
   justify-content: flex-end;
   text-align: right;
@@ -61,7 +63,7 @@ export default defineComponent({
 }
 
 a {
-  color: #fff;
+  color: dt.$text_white;
   text-decoration: none;
   line-height: 2.5;
 }

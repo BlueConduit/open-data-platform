@@ -6,10 +6,10 @@
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent, provide, reactive } from 'vue';
 import { RouteLocation } from 'vue-router';
-import '@blueconduit/copper/dist/css/copper.css';
+import '@blueconduit/copper/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
 import { State } from './model/state';
 import { leadServiceLinesByWaterSystemLayer } from './data_layer_configs/lead_service_lines_by_water_systems_config';
