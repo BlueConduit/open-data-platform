@@ -62,8 +62,8 @@ button {
 }
 
 .geocoder {
-  min-width: 587px;
-  min-height: 65px;
+  height: 65px;
+  width: 587px;
 }
 
 .scorecard-search {

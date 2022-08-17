@@ -63,17 +63,17 @@ export default defineComponent({
 <style>
 .geocoder {
   display: inline-block;
+  height: 100%;
 }
 
 /** Override geocoder styles. **/
-
 .mapboxgl-ctrl-geocoder {
   box-shadow: none;
   max-width: 100%;
   max-height: 100%;
   width: 100%;
   height: 100%;
-  border: solid 1px #A3A3A3; /*TODO fix!*/
+  /*border: solid 1px #A3A3A3; !*TODO fix!*!*/
   display: flex;
   justify-content: center;
   align-items: center;
@@ -92,7 +92,7 @@ export default defineComponent({
   color: #7A7A7A;
   font-weight: 400;
   line-height: 23.4px;
-  height: 23px; /*TODO fix!*/
+  height: 100%; /*TODO fix!*/
   padding: 21px 20px; /*TODO fix!*/
 }
 
