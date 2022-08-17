@@ -24,7 +24,7 @@
         </div>
       </div>
       <div class='container-column center-container h1-header semi-bold navy'
-           v-if='!showWaterSystemPrediction'>
+           v-if='!showWaterSystemPrediction && !showParcelPrediction'>
         {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
       </div>
       <div class='explain-text'>
