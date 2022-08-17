@@ -1,5 +1,6 @@
 <template>
-  <LandingPageSection :messages='messages.FilterInfo'
+  <LandingPageSection class='section'
+                      :messages='messages.FilterInfo'
                       :styles='styles.FILTER_SECTION_STYLE'>
     <button class='learn-more-button' @click='goToResources'>
       {{ messages.FilterInfo.CTA_BUTTON }}
@@ -9,10 +10,10 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import * as messages from '@/assets/messages/landing.ts';
+import * as messages from '@/assets/messages/landing';
 import { LandingPageStyles as styles } from '@/assets/styles/style_props';
 import LandingPageSection from '@/components/landing_page/LandingPageSection.vue';
-import { router } from '@/router.ts';
+import { router } from '@/router';
 
 export default defineComponent({
   name: 'FilterInfoSection',
@@ -46,5 +47,9 @@ export default defineComponent({
   border-radius: 16px;
   border: 1px solid #A3A3A3;
   padding: 0 19px;
+}
+
+.section {
+  padding: 53px 241px;
 }
 </style>

@@ -36,7 +36,7 @@ export default defineComponent({
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center, center;
-  height: 766.74px;
+  height: 803px;
 
   display: flex;
   align-items: center;

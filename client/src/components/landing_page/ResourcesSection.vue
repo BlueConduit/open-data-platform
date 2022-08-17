@@ -1,5 +1,6 @@
 <template>
-  <LandingPageSection :messages='messages.ResourcesInfo'
+  <LandingPageSection class='section'
+                      :messages='messages.ResourcesInfo'
                       :styles='styles.RESOURCES_SECTION_STYLE'>
     <div class='resources'>
       <div class='resource-blurb'
@@ -80,5 +81,9 @@ export default defineComponent({
   align-items: flex-start;
   justify-content: center;
   gap: 26px;
+}
+
+.section {
+  padding: 72px 33px;
 }
 </style>

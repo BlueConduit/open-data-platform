@@ -9,9 +9,9 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, PropType } from 'vue';
-import { Style } from '../../assets/styles/style_props';
+import { LandingPageStyles, Style } from '../../assets/styles/style_props';
 
 export interface Messages {
   SUPER_HEADER?: string;
@@ -42,11 +42,12 @@ export default defineComponent({
   computed: {
     cssProps(): Object {
       return {
-        '--header-text-color': this.styles.headerTextColor,
-        '--subheader-text-color': this.styles.subHeaderTextColor,
-        '--header-text-size': this.styles.headerTextSize,
-        '--subheader-text-size': this.styles.subheaderTextSize,
-        '--background-color': this.styles.backgroundColor,
+        '--header-text-color': this.styles.headerTextColor ?? LandingPageStyles.DEFAULT_STYLE.headerTextColor,
+        '--subheader-text-color': this.styles.subHeaderTextColor ?? LandingPageStyles.DEFAULT_STYLE.subHeaderTextColor,
+        '--header-text-size': this.styles.headerTextSize ?? LandingPageStyles.DEFAULT_STYLE.headerTextSize,
+        '--subheader-text-size': this.styles.subheaderTextSize ?? LandingPageStyles.DEFAULT_STYLE.subheaderTextSize,
+        '--background-color': this.styles.backgroundColor ?? LandingPageStyles.DEFAULT_STYLE.backgroundColor,
+        '--height': this.styles.height ?? LandingPageStyles.DEFAULT_STYLE.height,
       };
     },
   },
@@ -85,10 +86,10 @@ h2 {
 
 .landing-page-section {
   margin: 0;
-  padding: 71px 25px;
   background-color: var(--background-color);
   text-align: center;
   vertical-align: middle;
+  height: var(--height);
 
   display: flex;
   flex-direction: column;
