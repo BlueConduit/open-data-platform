@@ -24,6 +24,9 @@ import { RESOURCE_MESSAGES } from '../../assets/messages/landing';
 import { RESOURCES_ROUTE } from '../../router';
 import { LandingPageStyles as styles } from '@/assets/styles/style_props';
 
+/**
+ * Content for resources section of the landing page.
+ */
 export default defineComponent({
   name: 'ResourcesSection',
   components: {

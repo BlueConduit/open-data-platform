@@ -15,6 +15,9 @@ import { LandingPageStyles as styles } from '@/assets/styles/style_props';
 import LandingPageSection from '@/components/landing_page/LandingPageSection.vue';
 import { router } from '@/router';
 
+/**
+ * Content for filter info section of the landing page.
+ */
 export default defineComponent({
   name: 'FilterInfoSection',
   components: {

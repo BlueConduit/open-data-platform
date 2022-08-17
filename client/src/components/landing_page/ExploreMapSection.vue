@@ -18,6 +18,9 @@ import * as messages from '@/assets/messages/landing';
 import { LandingPageStyles as styles } from '@/assets/styles/style_props';
 import { router } from '@/router';
 
+/**
+ * Content for 'Explore map' section of the landing page.
+ */
 export default defineComponent({
   name: 'ExploreMapSection',
   components: {

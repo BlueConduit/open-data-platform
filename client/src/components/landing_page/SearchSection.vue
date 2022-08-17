@@ -15,6 +15,9 @@ import LandingPageSection from './LandingPageSection.vue';
 import ScorecardSearch from './ScorecardSearch.vue';
 import { LandingPageStyles as styles } from '@/assets/styles/style_props';
 
+/**
+ * Content for the address search section of the landing page.
+ */
 export default defineComponent({
   name: 'SearchSection',
   components: {
