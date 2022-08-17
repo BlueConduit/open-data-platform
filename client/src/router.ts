@@ -4,6 +4,7 @@ import ScorecardView from './views/ScorecardView.vue';
 import { Titles } from './assets/messages/common';
 import ResourceView from '@/views/ResourceView.vue';
 import NationwideMapView from '@/views/NationwideMapView.vue';
+import AboutUsView from '@/views/AboutUsView.vue';
 
 export const LAT_LONG_PARAM = 'latlong';
 
@@ -60,7 +61,7 @@ const routes = [
   },
   {
     path: ABOUT_ROUTE,
-    component: LandingPageView,
+    component: AboutUsView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.ABOUT_TITLE}`,
     },
