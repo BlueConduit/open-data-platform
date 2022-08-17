@@ -44,28 +44,7 @@ export class DataImportStack extends Construct {
   constructor(scope: Construct, id: string, props: SchemaProps) {
     super(scope, id);
 
-    const { cluster, vpc, db, credentialsSecret } = props;
-
-    const writeViolationsDataFunction = new lambda.NodejsFunction(
-      this,
-      DataImportLambda.violations,
-      {
-        entry: `${path.resolve(__dirname)}/write-violations-data.handler.ts`,
-        handler: 'handler',
-        vpc: vpc,
-        vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
-        environment: {
-          CREDENTIALS_SECRET: credentialsSecret.secretArn,
-          DATABASE_NAME: db,
-        },
-        memorySize: 512,
-        timeout: Duration.minutes(15),
-        bundling: {
-          externalModules: ['aws-sdk'],
-          nodeModules: ['stream-json', 'stream-chain', 'pg', 'pg-format', 'moment'],
-        },
-      },
-    );
+    const { cluster, credentialsSecret } = props;
 
     const s3BucketWithDataFiles = new s3.Bucket(this, 'open_data_platform_static_files');
 
@@ -82,7 +61,7 @@ export class DataImportStack extends Construct {
     const lambdaFunctions: lambda.NodejsFunction[] = [
       dataImportLambdaFactory(this, props, DataImportLambda.demographics),
       dataImportLambdaFactory(this, props, DataImportLambda.waterSystems),
-      writeViolationsDataFunction,
+      dataImportLambdaFactory(this, props, DataImportLambda.violations),
       dataImportLambdaFactory(this, props, DataImportLambda.parcels),
       dataImportLambdaFactory(this, props, DataImportLambda.counties),
       dataImportLambdaFactory(this, props, DataImportLambda.zipCodes),
