@@ -3,6 +3,7 @@
     "@vue/cli-plugin-router": "~5.0.0"
   },
   "dependencies": {
+    "@blueconduit/copper": "^2.0.1",
     "vue-router": "^4.0.15"
   }
 }

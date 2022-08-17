@@ -1,19 +1,20 @@
 <template>
-  <LandingPageSection class='section'
-                      :messages='messages.MapInfo'
-                      :styles='styles.DEFAULT_STYLE'>
+  <div class='section'>
+    <div class='header-section'>
+      <div class='h1-header-large'>{{ messages.MapInfo.HEADER }}</div>
+      <div class='h2-header-large'>{{ messages.MapInfo.BODY }}</div>
+    </div>
     <img class='static-map'
          alt=''
          :src='require(`@/assets/media/static-map.png`)'>
-    <button class='explore-map-button' @click='goToMap'>
+    <button class='gold-button' @click='goToMap'>
       {{ messages.MapInfo.CTA_BUTTON }}
     </button>
-  </LandingPageSection>
+  </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import LandingPageSection from './LandingPageSection.vue';
 import * as messages from '@/assets/messages/landing';
 import { LandingPageStyles as styles } from '@/assets/styles/style_props';
 import { router } from '@/router';
@@ -23,9 +24,6 @@ import { router } from '@/router';
  */
 export default defineComponent({
   name: 'ExploreMapSection',
-  components: {
-    LandingPageSection,
-  },
   data() {
     return {
       messages,
@@ -42,27 +40,43 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.explore-map-button {
-  width: fit-content;
-  height: 65px;
-  padding: 0 19px;
-  border-radius: 16px;
-  background-color: #FFC300;
-  border: 0;
-  font-size: 18px;
+<style scoped lang='scss'>
+/*TODO put below in global styles*/
+@import '../../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
+.h2-header-large {
+  max-width: 46 * $spacing-md;
+}
+
+.header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
 }
 
 .static-map {
-  width: 920.5px;
-  height: 467.5px;
-  border-radius: 15px;
-
-  background: #FBFBFB;
-  box-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
+  width: 230 * $spacing-xs;
+  height: 116 * $spacing-xs;
+  border-radius: $spacing-md;
+  box-shadow: $image-shadow;
 }
 
 .section {
-  padding: 71px 25px;
+  color: $warm-grey-800;
+
+  padding: 18 * $spacing-xs 6 * $spacing-xs;
+  background-color: $white;
+  height: 60 * $spacing-md;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12 * $spacing-xs;
+
+  text-align: center;
 }
 </style>
