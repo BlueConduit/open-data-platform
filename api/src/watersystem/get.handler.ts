@@ -2,12 +2,8 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
+import { CORS_HEADERS } from '../util';
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'OPTIONS,GET',
-};
 const SCHEMA = 'public';
 const SQL_QUERY = `SELECT pws_id,
                           lead_connections_count,
@@ -43,7 +39,9 @@ async function getWaterSystemData(
 export const handler = async (event: {
   pathParameters: WaterSystemPathParameters;
 }): Promise<APIGatewayProxyResult> => {
-  const pwsId = event.pathParameters?.pws_id ?? '';
+  const pwsId = event.pathParameters?.pws_id;
+  if (!pwsId || pwsId == '')
+    return { statusCode: 400, headers: CORS_HEADERS, body: 'No pws_id provided.' };
 
   const db = new AWS.RDSDataService();
   const params: SqlParametersList = [
@@ -60,6 +58,8 @@ export const handler = async (event: {
     console.log(`Error fetching water system data for pws id ${pwsId}`, error);
     throw error;
   }
+
+  console.log('Success:', { pwsId, body });
 
   return {
     statusCode: 200,

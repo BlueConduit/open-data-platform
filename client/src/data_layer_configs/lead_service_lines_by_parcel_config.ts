@@ -9,6 +9,7 @@ import {
 } from '@/model/data_layer';
 import { FillLayer } from 'mapbox-gl';
 import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
+import prefixes from '../../../cdk/src/open-data-platform/frontend/url-prefixes';
 
 // TODO(kailamjeter): move from lead likelihood % -> known / not likely / high likely etc.
 
@@ -107,7 +108,7 @@ const popupInfo: PopupInfo = {
 export const leadServiceLinesByParcelLayer: TileDataLayer = {
   source: {
     type: DataSourceType.Vector,
-    tiles: [`https://${tileServerHost()}/tiles/v1/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
+    tiles: [`https://${tileServerHost()}/${prefixes.tileServer}/${TABLE_NAME}/{z}/{x}/{y}.pbf`],
   },
   id: MapLayer.LeadServiceLineByParcel,
   name: 'Lead Service Line Estimate (Home)',

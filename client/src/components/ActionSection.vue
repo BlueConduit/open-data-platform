@@ -64,4 +64,5 @@ export default defineComponent({
 .outline-button {
   color: var(--button-color)
 }
+
 </style>

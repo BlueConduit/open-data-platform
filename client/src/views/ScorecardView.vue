@@ -16,7 +16,7 @@
                      :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
                      :bgColor='actionBackgroundColor'
                      height='200px'
-                     @onButtonClick='copy' />
+                     @onButtonClick='copyToClipboard' />
     </div>
     <ScorecardSummaryPanel />
     <ActionSection :header='ScorecardMessages.WANT_TO_KNOW_MORE'
@@ -68,7 +68,7 @@ export default defineComponent({
     },
   },
   methods: {
-    async copy() {
+    async copyToClipboard() {
       // Requires lat,long to be in the URL.
       const urlToShare = `${process.env.VUE_APP_LEADOUT_DOMAIN}${router.currentRoute.value.fullPath}`;
       await navigator.clipboard.writeText(urlToShare);
