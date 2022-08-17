@@ -1,30 +1,28 @@
 <template>
   <div class='section'>
     <div class='header-section'>
-      <div class='h2-header-large'>{{ messages.ResourcesInfo.SUPER_HEADER }}
+      <div class='h2-header-large'>{{ messages.RESOURCES_SECTION_SUPER_HEADER }}
       </div>
-      <div class='h1-header-large'>{{ messages.MapInfo.HEADER }}</div>
+      <div class='h1-header-large'>{{ messages.RESOURCES_SECTION_HEADER }}</div>
     </div>
     <div class='resources'>
       <div class='resource-blurb'
-           v-for='resource in RESOURCE_MESSAGES'
+           v-for='resource in messages.RESOURCE_MESSAGES'
            :key='resource.header'>
         <div class='h1-header'>{{ resource.header }}</div>
         <div class='resource body'>{{ resource.body }}</div>
       </div>
     </div>
     <router-link class='link' :to='resourcesRoute'>
-      {{ messages.ResourcesInfo.CTA_BUTTON }}
+      {{ messages.VIEW_MORE_RESOURCES_BUTTON_TEXT }}
     </router-link>
   </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import * as messages from '../../assets/messages/landing';
-import { RESOURCE_MESSAGES } from '../../assets/messages/landing';
+import { LandingPageMessages as messages } from '@/assets/messages/landing';
 import { RESOURCES_ROUTE } from '../../router';
-import { LandingPageStyles as styles } from '@/assets/styles/style_props';
 
 /**
  * Content for resources section of the landing page.
@@ -34,8 +32,6 @@ export default defineComponent({
   data() {
     return {
       messages,
-      styles,
-      RESOURCE_MESSAGES,
       resourcesRoute: RESOURCES_ROUTE,
     };
   },

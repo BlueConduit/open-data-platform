@@ -1,19 +1,25 @@
 <template>
   <div class='section'>
     <div class='header-section'>
-      <div class='h2-header-large'>{{ messages.FilterInfo.SUPER_HEADER }}</div>
-      <div class='h1-header-large'>{{ messages.FilterInfo.HEADER }}</div>
-      <div class='h2-header-large'>{{ messages.FilterInfo.BODY }}</div>
+      <div class='h2-header-large'>
+        {{ messages.CHOOSING_FILTER_SECTION_SUPER_HEADER }}
+      </div>
+      <div class='h1-header-large'>
+        {{ messages.CHOOSING_FILTER_SECTION_HEADER }}
+      </div>
+      <div class='h2-header-large'>
+        {{ messages.CHOOSING_FILTER_SECTION_SUBHEADER }}
+      </div>
     </div>
-    <button class='grey-button' @click='goToResources'>
-      {{ messages.FilterInfo.CTA_BUTTON }}
+    <button class='grey-button' @click='navigateToResources'>
+      {{ messages.LEARN_MORE_BUTTON_TEXT }}
     </button>
   </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import * as messages from '@/assets/messages/landing';
+import { LandingPageMessages as messages } from '@/assets/messages/landing';
 import { router } from '@/router';
 
 /**
@@ -27,7 +33,7 @@ export default defineComponent({
     };
   },
   methods: {
-    goToResources(): void {
+    navigateToResources(): void {
       router.push({
         path: '/resources',
       });

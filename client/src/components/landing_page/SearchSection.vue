@@ -1,17 +1,17 @@
 <template>
   <div class='search-section'>
     <div class='header-section'>
-      <div class='h1-header-xl'>{{ messages.ScorecardSearch.HEADER }}</div>
-      <div class='h2-header-large'>{{ messages.ScorecardSearch.BODY }}</div>
+      <div class='h1-header-xl'>{{ messages.SEARCH_SECTION_HEADER }}</div>
+      <div class='h2-header-large'>{{ messages.SEARCH_SECTION_SUBHEADER }}</div>
     </div>
-    <ScorecardSearch :placeholder='messages.ScorecardSearch.CTA_PLACEHOLDER'
-                     :cta-button-text='messages.ScorecardSearch.CTA_BUTTON' />
+    <ScorecardSearch :placeholder='messages.GEOLOCATE_PLACEHOLDER_TEXT'
+                     :cta-button-text='messages.CHECK_LEAD_STATUS_BUTTON_TEXT' />
   </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import * as messages from '@/assets/messages/landing';
+import { LandingPageMessages as messages } from '../../assets/messages/landing';
 import ScorecardSearch from './ScorecardSearch.vue';
 
 /**
