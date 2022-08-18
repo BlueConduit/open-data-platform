@@ -34,7 +34,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 import { dispatch, useSelector } from '../model/store';
@@ -116,7 +116,7 @@ export default defineComponent({
   watch: {
     // Listen for changes to pws id or lat, long. Once it changes, a new
     // prediction must be fetched.
-    'geoState.geoids': function () {
+    'geoState.geoids': function() {
       // Check if an address was queried and another prediction should be
       // fetched.
       if (
@@ -182,14 +182,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
-<<<<<<< HEAD
 
 .container {
   padding-bottom: 20px;
 }
 
-=======
->>>>>>> main
 .center-container {
   gap: 20px;
   padding: 0 60px 0 60px;
