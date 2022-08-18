@@ -38,15 +38,15 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@use '@blueconduit/copper/scss/01_settings/design-tokens' as dt;
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .container {
-  background-color: dt.$white_background;
-  box-shadow: dt.$card-shadow-hovered;
+  background-color: $white_background;
+  box-shadow: $card-shadow-hovered;
   display: flex;
-  height: dt.$spacing-xl;
-  padding-left: dt.$spacing-xl;
-  padding-right: dt.$spacing-xl;
+  height: $spacing-xl;
+  padding-left: $spacing-xl;
+  padding-right: $spacing-xl;
 }
 
 .right-align {
@@ -60,22 +60,22 @@ export default defineComponent({
 }
 
 .logo {
-  height: dt.$spacing-lg;
+  height: $spacing-lg;
 }
 
 .nav-link {
-  padding: dt.$spacing-md;
+  padding: $spacing-md;
 }
 
 .nav-link a {
-  color: dt.$text_inactive;
+  color: $text_inactive;
   text-decoration: none;
 }
 
 a:hover {
-  color: dt.$text_link;
+  color: $text_link;
   // Maintains text width while adding a bold font weight.
   -webkit-text-stroke-width: 0.7px;
-  -webkit-text-stroke-color: dt.$text_link;
+  -webkit-text-stroke-color: $text_link;
 }
 </style>

@@ -37,21 +37,21 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@use '@blueconduit/copper/scss/01_settings/design-tokens' as dt;
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .page-footer {
-  background-color: dt.$secondary01;
+  background-color: $secondary01;
   display: flex;
   width: 100%;
 }
 
 .left-align {
-  padding: dt.$spacing-xl;
+  padding: $spacing-xl;
   flex-grow: 1;
 }
 
 .right-align {
-  padding: dt.$spacing-lg;
+  padding: $spacing-lg;
   flex-grow: 1;
   justify-content: flex-end;
   text-align: right;
@@ -63,7 +63,7 @@ export default defineComponent({
 }
 
 a {
-  color: dt.$text_white;
+  color: $text_white;
   text-decoration: none;
   line-height: 2.5;
 }
