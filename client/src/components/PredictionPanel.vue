@@ -49,6 +49,10 @@ const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
 const HIGH_LEAD_LIKELIHOOD = 1;
 
+const LOW_LEAD_LIKELIHOOD = 0.33;
+const MEDIUM_LEAD_LIKELIHOOD = 0.66;
+const HIGH_LEAD_LIKELIHOOD = 1;
+
 /**
  * Container lead prediction.
  */
@@ -107,7 +111,11 @@ export default defineComponent({
       return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
     },
     showWaterSystemPrediction(): boolean {
-      return this.geoState?.geoids?.geoType != GeoType.address && this.pwsId != null && this.percentLead != null;
+      return (
+        this.geoState?.geoids?.geoType != GeoType.address &&
+        this.pwsId != null &&
+        this.percentLead != null
+      );
     },
   },
   watch: {
@@ -116,12 +124,12 @@ export default defineComponent({
     'geoState.geoids': function() {
       // Check if an address was queried and another prediction should be
       // fetched.
-      if (this.geoState?.geoids?.geoType == GeoType.address
-        && this.geoState?.geoids?.lat != null
-        && this.geoState?.geoids?.long != null) {
-
+      if (
+        this.geoState?.geoids?.geoType == GeoType.address &&
+        this.geoState?.geoids?.lat != null &&
+        this.geoState?.geoids?.long != null
+      ) {
         dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
-
       } else if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
       }
@@ -202,5 +210,4 @@ export default defineComponent({
   margin: 20px;
   max-width: 350px;
 }
-
 </style>
