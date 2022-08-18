@@ -1,5 +1,5 @@
 <template>
-  <div :style='cssVars'>
+  <div>
     <PredictionPanel />
     <NationwideMap height='60vh' />
     <div class='container-column center-container actions-to-take'>
@@ -20,7 +20,6 @@
     <ActionSection :header='ScorecardMessages.WANT_TO_KNOW_MORE'
                    :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
                    :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
-                   :bgColor='actionBackgroundColor'
                    @onButtonClick='navigateToMapPage' />
   </div>
 </template>
@@ -45,12 +44,6 @@ export default defineComponent({
     NationwideMap,
     PredictionPanel,
     ScorecardSummaryPanel,
-  },
-  props: {
-    actionBackgroundColor: {
-      type: String,
-      default: '#E1F5FE',
-    },
   },
   data() {
     return {

@@ -43,6 +43,7 @@ import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
+import { Status } from '../model/states/status_state';
 
 const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
@@ -123,6 +124,11 @@ export default defineComponent({
 
       } else if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
+      }
+    },
+    'geoState.status': function() {
+      if (this.geoState?.status?.status == Status.error) {
+        console.log('Show error');
       }
     },
   },

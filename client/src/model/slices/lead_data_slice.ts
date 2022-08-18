@@ -3,6 +3,7 @@ import { ApiClient } from '@/api/api_client';
 import { AppDispatch } from '@/model/store';
 import { LeadData } from '@/model/states/model/lead_data';
 import { LeadDataState } from '@/model/states/lead_data_state';
+import { Status } from '@/model/states/status_state';
 
 const initialState: LeadDataState = {};
 const client = new ApiClient();

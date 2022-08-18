@@ -20,7 +20,6 @@ import { formatLegendBucket, getLegendForZoomLevel } from '../util/data_layer_ut
 
 /**
  * Map legend component.
- *
  * Takes title and map of string keys -> hex string color values.
  */
 export default defineComponent({
