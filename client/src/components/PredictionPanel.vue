@@ -133,6 +133,11 @@ export default defineComponent({
       }
       return Math.round(prediction * 100).toString();
     },
+    /**
+     * Takes in a prediction and produces a phrase to describe the likelihood
+     * as a phrase.
+     * @param prediction percent lead prediction
+     */
     formatPredictionAsLikelihood(prediction: number | undefined): string | null {
       if (prediction == null || prediction == 0) {
         return null;
@@ -148,6 +153,11 @@ export default defineComponent({
           return null;
       }
     },
+    /**
+     * Takes in a prediction and produces a phrase to describe the likelihood
+     * as an adverb.
+     * @param prediction percent lead prediction
+     */
     formatPredictionAsLikelihoodDescriptor(prediction: number | undefined): string | null {
       if (prediction == null || prediction == 0) {
         return null;
