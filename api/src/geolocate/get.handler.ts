@@ -44,7 +44,7 @@ async function getGeoDataForLatLong(
       WITH target_row AS (
         SELECT ${geoid} AS id, geom AS geom
         FROM ${table}
-        WHERE ST_Contains(geom,ST_SetSRID(ST_Point(:long, :lat), 4326))
+        WHERE ST_Contains(geom, ST_SetSRID(ST_Point(:long, :lat), 4326))
           ORDER BY id ASC
           LIMIT 1
       )

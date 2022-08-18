@@ -13,7 +13,7 @@ const SQL_QUERY = `SELECT address,
                           private_lead_connections_high_estimate,
                           geom
                    FROM parcels
-                   WHERE ST_Contains(geom,ST_SetSRID(ST_Point(:long, :lat), 4326))
+                   WHERE ST_Contains(geom, ST_SetSRID(ST_Point(:long, :lat), 4326))
                    LIMIT 1`;
 
 async function getParcelData(
