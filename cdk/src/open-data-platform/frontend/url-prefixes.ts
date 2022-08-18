@@ -24,7 +24,7 @@ export function handler(event: { request: { uri: string } }) {
   // This can't reference a variable outside of the handler, since CloudFront only sees the handler.
   // Maybe we could wrap this in a closure or something to address this.
   // TODO: put this in a loop or something cleaner.
-  const afterUrl = beforeUrl.replace('/tiles/v1', '');
+  var afterUrl = beforeUrl.replace('/tiles/v1', '');
   console.log(`Removing prefixes from URL. Before: ${beforeUrl}; After: ${afterUrl}`);
   request.uri = afterUrl;
   return request;
