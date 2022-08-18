@@ -19,8 +19,8 @@ export default prefixes;
  */
 export function handler(event: { request: { uri: string } }) {
   // CloudFront Functions doesn't support const: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/functions-javascript-runtime-features.html
-  const request = event.request;
-  const beforeUrl = request.uri;
+  var request = event.request;
+  var beforeUrl = request.uri;
   // This can't reference a variable outside of the handler, since CloudFront only sees the handler.
   // Maybe we could wrap this in a closure or something to address this.
   // TODO: put this in a loop or something cleaner.
