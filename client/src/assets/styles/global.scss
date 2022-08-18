@@ -10,6 +10,7 @@ $white: #FFFFFF;
 
 $light-blue-50: #E1F5FE;
 $light-blue: #05A8F4;
+$light-blue-800: #0576BD;
 $navy-blue: #2553A0;
 
 /** Typography */
@@ -34,6 +35,10 @@ $navy-blue: #2553A0;
   font-size: 54px;
   line-height: 60px;
   font-weight: 500;
+}
+
+.h1-header-xxl {
+  font-size: 80px;
 }
 
 .h2-header {

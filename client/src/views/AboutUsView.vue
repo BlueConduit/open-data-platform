@@ -1,8 +1,8 @@
 <template>
   <div class='about-us'>
     <div class='text'>
-      <h1>{{ messages.HEADER }}</h1>
-      <div class='body'>
+      <div class='h1-header-xxl'>{{ messages.HEADER }}</div>
+      <div class='h1-header'>
         {{ messages.BODY_1 }}
         <p></p>
         {{ messages.BODY_2 }}
@@ -28,38 +28,33 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 .about-us {
   height: 100%;
-  background-color: #0576BD;
+  background-color: $light-blue-800;
   background-image: url('~@/assets/media/about-us-image.png');
   background-size: cover;
   background-repeat: no-repeat;
-  color: #FFFFFF;
+  color: $white;
 }
 
-.body {
-  width: 675px;
-  height: 336px;
-  font-size: 27px;
-  font-weight: 400;
-  line-height: 32px;
+.h1-header {
+  width: 169 * $spacing-xs;
 }
 
-h1 {
-  margin: 0;
-  width: 500px;
-  height: 60px;
-  font-size: 80px;
+.h1-header-xxl {
   font-weight: 600;
-  line-height: 60px;
+  line-height: 15 * $spacing-xs;
   text-transform: capitalize;
 }
 
 .text {
   display: flex;
   flex-direction: column;
-  gap: 70px;
-  padding: 121px 472px 0 54px;
+  gap: 17 * $spacing-xs;
+  padding: 30 * $spacing-xs 14 * $spacing-xs;
 }
 </style>
