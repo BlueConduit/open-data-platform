@@ -2,16 +2,24 @@
   <div>
     <PredictionPanel />
     <NationwideMap height='60vh' />
-    <ActionSection :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
-                   :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
-                   :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-                   :bgColor='actionBackgroundColor'
-                   @onButtonClick='navigateToResourcePage' />
+    <div class='container-column center-container actions-to-take'>
+      <div class='h1-header semi-bold'>
+        {{ ScorecardMessages.TAKE_ACTION_HEADER }}
+      </div>
+      <ActionSection :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
+                     :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
+                     :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
+                     :style='style'
+                     @onButtonClick='navigateToResourcePage' />
+      <ActionSection :header='ScorecardMessages.SHARE_LEAD_OUT'
+                     :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
+                     :style='style'
+                     @onButtonClick='copyToClipboard' />
+    </div>
     <ScorecardSummaryPanel />
     <ActionSection :header='ScorecardMessages.WANT_TO_KNOW_MORE'
                    :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
                    :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
-                   :bgColor='actionBackgroundColor'
                    @onButtonClick='navigateToMapPage' />
   </div>
 </template>
@@ -39,12 +47,17 @@ export default defineComponent({
   },
   data() {
     return {
-      actionBackgroundColor: '#E1F5FE',
+      style: { 'color': '#464646' },
       ScorecardMessages,
       Titles,
     };
   },
   methods: {
+    async copyToClipboard() {
+      // Requires lat,long to be in the URL.
+      const urlToShare = `${process.env.VUE_APP_LEADOUT_DOMAIN}${router.currentRoute.value.fullPath}`;
+      await navigator.clipboard.writeText(urlToShare);
+    },
     navigateToResourcePage() {
       router.push({
         path: '/resources',
@@ -59,4 +72,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.actions-to-take {
+  background-color: #E1F5FE;
+  padding: 20px;
+}
+</style>
