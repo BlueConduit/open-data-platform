@@ -1,22 +1,18 @@
 <template>
   <div class='landing-page'>
-    <LandingPageSection :messages='messages.ScorecardSearch'>
-      <ScorecardSearch :messages='messages.ScorecardSearch' />
-    </LandingPageSection>
-    <LandingPageSection :messages='messages.MapInfo'>
-      <router-link :to='mapRoute'>{{ messages.MapInfo.CTA_BUTTON }}
-      </router-link>
-    </LandingPageSection>
-    <LandingPageSection :messages='messages.FilterInfo' />
+    <SearchSection />
+    <ExploreMapSection />
+    <FilterInfoSection />
+    <ResourcesSection />
   </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import ScorecardSearch from '../components/ScorecardSearch.vue';
-import LandingPageSection from '../components/LandingPageSection.vue';
-import * as messages from '../assets/messages/landing';
-import { MAP_ROUTE_BASE } from '../router';
+import SearchSection from '../components/landing_page/SearchSection.vue';
+import ExploreMapSection from '../components/landing_page/ExploreMapSection.vue';
+import FilterInfoSection from '../components/landing_page/FilterInfoSection.vue';
+import ResourcesSection from '../components/landing_page/ResourcesSection.vue';
 
 /**
  * This view displays a landing page with search.
@@ -24,17 +20,17 @@ import { MAP_ROUTE_BASE } from '../router';
 export default defineComponent({
   name: 'LandingPageView',
   components: {
-    ScorecardSearch,
-    LandingPageSection,
-  },
-  data() {
-    return {
-      messages,
-      mapRoute: MAP_ROUTE_BASE,
-    };
+    ExploreMapSection,
+    FilterInfoSection,
+    ResourcesSection,
+    SearchSection,
   },
 });
 </script>
 
 <style scoped>
+.landing-page {
+  background-color: #0b2553;
+  min-height: 100%;
+}
 </style>
