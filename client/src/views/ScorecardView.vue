@@ -9,13 +9,11 @@
       <ActionSection :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
                      :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
                      :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-                     :bgColor='actionBackgroundColor'
-                     height='200px'
+                     :style='style'
                      @onButtonClick='navigateToResourcePage' />
       <ActionSection :header='ScorecardMessages.SHARE_LEAD_OUT'
                      :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
-                     :bgColor='actionBackgroundColor'
-                     height='200px'
+                     :style='style'
                      @onButtonClick='copyToClipboard' />
     </div>
     <ScorecardSummaryPanel />
@@ -56,16 +54,10 @@ export default defineComponent({
   },
   data() {
     return {
+      style: { 'color': '#464646' },
       ScorecardMessages,
       Titles,
     };
-  },
-  computed: {
-    cssVars() {
-      return {
-        '--bg-color': this.actionBackgroundColor,
-      };
-    },
   },
   methods: {
     async copyToClipboard() {
@@ -89,7 +81,7 @@ export default defineComponent({
 
 <style scoped>
 .actions-to-take {
-  background-color: var(--bg-color);
+  background-color: #E1F5FE;
   padding: 20px;
 }
 </style>
