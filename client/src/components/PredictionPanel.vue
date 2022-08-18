@@ -44,6 +44,10 @@ import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
 
+const LOW_LEAD_LIKELIHOOD = 0.33;
+const MEDIUM_LEAD_LIKELIHOOD = 0.66;
+const HIGH_LEAD_LIKELIHOOD = 1;
+
 /**
  * Container lead prediction.
  */
@@ -134,11 +138,11 @@ export default defineComponent({
         return null;
       }
       switch (true) {
-        case prediction < 0.33:
+        case prediction < LOW_LEAD_LIKELIHOOD:
           return ScorecardMessages.LOW_LIKELIHOOD;
-        case prediction < 0.66:
+        case prediction < MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.MEDIUM_LIKELIHOOD;
-        case prediction < 1:
+        case prediction < HIGH_LEAD_LIKELIHOOD:
           return ScorecardMessages.HIGH_LIKELIHOOD;
         default:
           return null;
@@ -149,11 +153,11 @@ export default defineComponent({
         return null;
       }
       switch (true) {
-        case prediction < 0.33:
+        case prediction < LOW_LEAD_LIKELIHOOD:
           return ScorecardMessages.NOT_LIKELY;
-        case prediction < 0.66:
+        case prediction < MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.SOMEWHAT_LIKELY;
-        case prediction < 1:
+        case prediction < HIGH_LEAD_LIKELIHOOD:
           return ScorecardMessages.HIGHLY_LIKELY;
         default:
           return null;
