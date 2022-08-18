@@ -28,11 +28,18 @@ export default defineComponent({
       geocoder,
     };
   },
+  props: {
+    placeholder: {
+      type: String,
+      default: 'Search',
+    },
+  },
   emits: {
     result: (lat: number, long: number, geoType: GeoType) => true,
   },
   mounted() {
     this.geocoder.addTo('.geocoder');
+    this.geocoder.setPlaceholder(this.placeholder);
 
     // TODO: replace 'any' here with a meaningful type.
     this.geocoder.on('result', async (result: any) => {
@@ -46,19 +53,32 @@ export default defineComponent({
         this.$emit('result', lat, long, geoType);
       }
     });
+    this.geocoder.on('clear', () => {
+      this.$emit('result', 0, 0, GeoType.unknown);
+    });
   },
 });
 </script>
 
-<style>
+<style lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 .geocoder {
   display: inline-block;
+  height: 100%;
 }
 
 /** Override geocoder styles. **/
-
 .mapboxgl-ctrl-geocoder {
   box-shadow: none;
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .mapboxgl-ctrl-geocoder--icon-search {
@@ -68,8 +88,12 @@ export default defineComponent({
 }
 
 .mapboxgl-ctrl-geocoder--input {
-  padding: 10px 11px;
-  line-height: 12px;
+  font-size: 18px;
+  font-family: 'IBM Plex Sans';
+  color: $warm-grey-600;
+  font-weight: 400;
+  height: 100%;
+  padding: 5 * $spacing-xs;
 }
 
 .mapboxgl-ctrl-geocoder--input:focus {

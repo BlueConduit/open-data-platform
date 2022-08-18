@@ -16,7 +16,7 @@
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import { ResourcesPageContent as content } from '../../assets/messages/resources';
-import { ResourcesPageStyles as styles } from '../../assets/styles/resources';
+import { ResourcesPageStyles as styles } from '../../assets/styles/style_props';
 import ResourcesPageSection from './ResourcesPageSection.vue';
 
 /**

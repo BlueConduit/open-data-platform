@@ -12,7 +12,7 @@
 
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
-import { Style } from '@/assets/styles/resources';
+import { Style } from '../../assets/styles/style_props';
 import { Content } from '../../assets/messages/resources';
 
 export interface Styles {
