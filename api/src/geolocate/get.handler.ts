@@ -33,7 +33,7 @@ async function getGeoDataForLatLong(
       below.
     Outer Query:
       ST_EXTENT: Aggregates the geometries of all rows returned in the subquery
-      to return their combined bounding box. Sees
+      to return their combined bounding box. See:
       https://postgis.net/docs/manual-1.5/ST_Extent.html
       STRING_AGG: Since ST_EXTENT is an aggregate function (like avg(), max()),
       all other selected rows also need to be aggregated. STRING_AGG just
