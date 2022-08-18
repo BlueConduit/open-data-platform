@@ -84,7 +84,12 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
   // Skip violations outside of Lead and Copper Rule violations.
   if (LEAD_AND_COPPER_VIOLATIONS.has(properties[VIOLATION_CODE])) {
     const startDate = moment(properties[COMPL_PER_BEGIN_DATE], EPA_API_DATE_FORMAT);
-    const endDate = moment(properties[COMPL_PER_END_DATE], EPA_API_DATE_FORMAT);
+    let endDateFormatted;
+
+    if (properties[COMPL_PER_END_DATE] != '') {
+      const endDate = moment(properties[COMPL_PER_END_DATE], EPA_API_DATE_FORMAT);
+      endDateFormatted = endDate.format(POSTGRESQL_DATE_FORMAT);
+    }
 
     return new ViolationsTableRowBuilder()
       .violationId(properties[VIOLATION_ID])
@@ -92,7 +97,7 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
       .violationCode(properties[VIOLATION_CODE])
       .complianceStatus(COMPLIANCE_STATUS_MAP.get(properties[COMPLIANCE_STATUS_CODE]) ?? '')
       .startDate(startDate.format(POSTGRESQL_DATE_FORMAT))
-      .endDate(endDate.format(POSTGRESQL_DATE_FORMAT))
+      .endDate(endDateFormatted)
       .build();
   }
   return null;
