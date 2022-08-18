@@ -55,7 +55,7 @@ export default defineComponent({
 }
 
 .resource {
-  line-height: 22px;
+  line-height: 6 * $spacing-xs;
   text-align: center;
   color: $warm-grey-800;
 }

@@ -60,7 +60,10 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 .geocoder {
   display: inline-block;
   height: 100%;
@@ -85,14 +88,12 @@ export default defineComponent({
 }
 
 .mapboxgl-ctrl-geocoder--input {
-  line-height: 12px;
   font-size: 18px;
   font-family: 'IBM Plex Sans';
-  color: #7A7A7A;
+  color: $warm-grey-600;
   font-weight: 400;
-  line-height: 23.4px;
   height: 100%;
-  padding: 21px 20px;
+  padding: 5 * $spacing-xs;
 }
 
 .mapboxgl-ctrl-geocoder--input:focus {

@@ -66,18 +66,16 @@ export default defineComponent({
 }
 
 .section {
-  color: $warm-grey-800;
-
-  padding: 18 * $spacing-xs 6 * $spacing-xs;
   background-color: $white;
+  color: $warm-grey-800;
+  padding: 18 * $spacing-xs 6 * $spacing-xs;
   height: 60 * $spacing-md;
 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12 * $spacing-xs;
-
   text-align: center;
+  gap: 12 * $spacing-xs;
 }
 </style>
