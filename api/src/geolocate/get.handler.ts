@@ -1,10 +1,7 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { RDSDataService } from 'aws-sdk';
-import {
-  ExecuteStatementRequest,
-  SqlParametersList,
-} from 'aws-sdk/clients/rdsdataservice';
+import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 import { CORS_HEADERS } from '../util';
 
 const SCHEMA = 'public';
@@ -30,13 +27,13 @@ async function getGeoDataForLatLong(
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     /*
-    Subquery: selects the one row with the lowest id with that also intersects
+    Subquery: selects the one row with the lowest id with that also contains the point
       with the provided :long and :lat. Will return a bounding box in the form:
       'NY0700789	'BOX(-74.258843 40.476578,-73.700169 40.917705)'. See ST_EXTENT
       below.
     Outer Query:
       ST_EXTENT: Aggregates the geometries of all rows returned in the subquery
-      to return their combined bounding box. See:
+      to return their combined bounding box. Sees
       https://postgis.net/docs/manual-1.5/ST_Extent.html
       STRING_AGG: Since ST_EXTENT is an aggregate function (like avg(), max()),
       all other selected rows also need to be aggregated. STRING_AGG just
@@ -47,7 +44,7 @@ async function getGeoDataForLatLong(
       WITH target_row AS (
         SELECT ${geoid} AS id, geom AS geom
         FROM ${table}
-        WHERE geom && ST_SetSRID(ST_Point(:long, :lat), 4326)
+        WHERE ST_Contains(geom,ST_SetSRID(ST_Point(:long, :lat), 4326))
           ORDER BY id ASC
           LIMIT 1
       )
