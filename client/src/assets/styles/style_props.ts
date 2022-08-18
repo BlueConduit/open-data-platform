@@ -2,13 +2,9 @@
 
 // TODO: Remove this file and switch to string map if needed.
 interface Style {
-  backgroundColor?: string;
-  headerTextColor?: string;
-  subHeaderTextColor?: string;
-  bodyTextColor?: string;
-  headerTextSize?: string;
-  subheaderTextSize?: string;
-  height?: string;
+  backgroundColor: string;
+  headerTextColor: string;
+  subHeaderTextColor: string;
 }
 
 class ResourcesPageStyles {
@@ -25,4 +21,7 @@ class ResourcesPageStyles {
   };
 }
 
-export { ResourcesPageStyles, Style };
+export {
+  Style,
+  ResourcesPageStyles
+};
