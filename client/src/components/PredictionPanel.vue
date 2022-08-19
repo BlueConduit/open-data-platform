@@ -49,10 +49,6 @@ const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
 const HIGH_LEAD_LIKELIHOOD = 1;
 
-const LOW_LEAD_LIKELIHOOD = 0.33;
-const MEDIUM_LEAD_LIKELIHOOD = 0.66;
-const HIGH_LEAD_LIKELIHOOD = 1;
-
 /**
  * Container lead prediction.
  */
@@ -191,7 +187,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .container {
   padding-bottom: 20px;
