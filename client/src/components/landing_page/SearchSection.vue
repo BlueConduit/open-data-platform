@@ -36,8 +36,8 @@ export default defineComponent({
 
 .section {
   color: $white;
-  height: 700px; // Hard coded height is required to display full background image.
-
+  height: 700px;
+  
   background-image: url('~@/assets/media/landing-image-2.png'), url('~@/assets/media/landing-image-1.png');
   background-size: cover;
   background-repeat: no-repeat;
