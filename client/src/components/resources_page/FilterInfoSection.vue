@@ -1,7 +1,13 @@
 <template>
-  <resources-page-section
-    :content='content.WATER_FILTER_INFO_SECTION'
-    :styles='styles.DEFAULT_STYLE'>
+  <div class='section'>
+    <div class='header-section'>
+      <div class='h1-header-large'>
+        {{ content.WATER_FILTER_INFO_SECTION.header }}
+      </div>
+      <div class='h2-header-large'>
+        {{ content.WATER_FILTER_INFO_SECTION.subHeader }}
+      </div>
+    </div>
     <div class='filter-static-content'>
     <span class='asset'><img
       :src='require(`@/assets/media/${content.WATER_FILTER_INFO_SECTION.image}`)'
@@ -10,27 +16,21 @@
       {{ content.WATER_FILTER_INFO_SECTION.body }}
     </span>
     </div>
-  </resources-page-section>
+  </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import { ResourcesPageContent as content } from '../../assets/messages/resources';
-import { ResourcesPageStyles as styles } from '../../assets/styles/style_props';
-import ResourcesPageSection from './ResourcesPageSection.vue';
 
 /**
  * Content for filter info section of the resources page.
  */
 export default defineComponent({
   name: 'FilterInfoSection',
-  components: {
-    ResourcesPageSection,
-  },
   data() {
     return {
       content,
-      styles,
     };
   },
 });

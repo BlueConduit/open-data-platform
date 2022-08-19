@@ -1,20 +1,25 @@
 <template>
-  <resources-page-section :styles='styles.DEFAULT_STYLE'
-                          :content='content.FILTER_TYPES_SECTION'>
+  <div class='section'>
+    <div class='header-section'>
+      <div class='h1-header-large'>
+        {{ content.FILTER_TYPES_SECTION.header }}
+      </div>
+      <div class='h2-header-large'>
+        {{ content.FILTER_TYPES_SECTION.subHeader }}
+      </div>
+    </div>
     <div class='filter-cards'>
       <image-card v-for='filter in content.FILTER_TYPES'
                   :key='filter.header'
                   :content='filter'
                   :image='filter.image'></image-card>
     </div>
-  </resources-page-section>
+  </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import ResourcesPageSection from './ResourcesPageSection.vue';
 import { ResourcesPageContent as content } from '@/assets/messages/resources';
-import { ResourcesPageStyles as styles } from '../../assets/styles/style_props';
 import ImageCard from '../ImageCard.vue';
 
 /**
@@ -24,12 +29,10 @@ export default defineComponent({
   name: 'FilterTypesSection',
   components: {
     ImageCard,
-    ResourcesPageSection,
   },
   data() {
     return {
       content,
-      styles,
     };
   },
 });
