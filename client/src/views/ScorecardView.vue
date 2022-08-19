@@ -1,7 +1,7 @@
 <template>
   <div>
     <PredictionPanel />
-    <NationwideMap height='60vh' :pannable='false' />
+    <NationwideMap height='60vh' :static='true' />
     <div class='container-column center-container actions-to-take'>
       <div class='h1-header semi-bold'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}

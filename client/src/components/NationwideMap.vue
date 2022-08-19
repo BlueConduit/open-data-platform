@@ -86,22 +86,36 @@ export default defineComponent({
       default: DEFAULT_LNG_LAT,
     },
     height: { type: String, default: '80vh' },
-    pannable: { type: Boolean, default: true },
+    /**
+     * This disables panning and animations.
+     */
+    static: { type: Boolean, default: false },
   },
   methods: {
     zoomToLongLat() {
       if (this.geoState?.geoids?.pwsId?.bounding_box) {
         const { minLat, minLon, maxLat, maxLon } = this.geoState?.geoids?.pwsId?.bounding_box;
-        this.map?.fitBounds([
-          [minLat, minLon],
-          [maxLat, maxLon],
-        ]);
+        this.$props.static
+          ? this.map?.fitBounds(
+              [
+                [minLat, minLon],
+                [maxLat, maxLon],
+              ],
+              // Skip fly animation.
+              { duration: 0 },
+            )
+          : this.map?.fitBounds([
+              [minLat, minLon],
+              [maxLat, maxLon],
+            ]);
       } else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
         const lonLat: LngLatLike = {
           lon: parseInt(this.geoState?.geoids?.long),
           lat: parseInt(this.geoState?.geoids?.lat),
         };
-        this.map?.flyTo({ center: lonLat, zoom: GeographicLevel.Zipcode });
+        this.$props.static
+          ? this.map?.jumpTo({ center: lonLat, zoom: GeographicLevel.Zipcode })
+          : this.map?.flyTo({ center: lonLat, zoom: GeographicLevel.Zipcode });
       }
     },
     /**
@@ -208,7 +222,7 @@ export default defineComponent({
           }
         });
       }
-      if (!this.$props.pannable) this.map?.dragPan.disable();
+      if (this.$props.static) this.map?.dragPan.disable();
     },
 
     /**
