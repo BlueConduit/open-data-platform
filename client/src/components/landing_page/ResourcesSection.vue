@@ -6,11 +6,11 @@
       <div class='h1-header-large'>{{ messages.RESOURCES_SECTION_HEADER }}</div>
     </div>
     <div class='resources'>
-      <div class='resource-blurb'
+      <div class='resource'
            v-for='resource in messages.RESOURCE_MESSAGES'
            :key='resource.header'>
         <div class='h1-header'>{{ resource.header }}</div>
-        <div class='resource body'>{{ resource.body }}</div>
+        <div class='resource-blurb body'>{{ resource.body }}</div>
       </div>
     </div>
     <router-link class='link' :to='resourcesRoute'>
@@ -46,42 +46,33 @@ export default defineComponent({
   color: $warm-grey-600;
 }
 
-.header-section {
-  @include container-column;
-  @include center-container;
-  gap: $spacing-md;
-}
-
 .resource {
-  color: $warm-grey-800;
-  line-height: 6 * $spacing-xs;
-  text-align: center;
+  @include container-column;
+  gap: $spacing-md;
+  padding: $spacing-sm;
+  max-width: 300px;
+  max-height: 300px;
+
 }
 
 .resource-blurb {
-  @include container-column;
-  gap: $spacing-md;
-  padding: 2 * $spacing-xs;
-  width: 75 * $spacing-xs;
-  height: 45 * $spacing-xs;
+  color: $warm-grey-800;
+  text-align: center;
 }
 
 .h1-header {
   color: $warm-grey-900;
-  text-align: center;
   text-transform: capitalize;
 }
 
 .resources {
   @include container-row;
-  gap: 6 * $spacing-xs;
+  @include center-container;
+  align-items: flex-start;
+  gap: $spacing-md;
 }
 
 .section {
-  @include container-column;
-  @include center-container;
-  padding: 18 * $spacing-xs 8 * $spacing-xs;
   background-color: $light-blue-50;
-  gap: 12 * $spacing-xs;
 }
 </style>
