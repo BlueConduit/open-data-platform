@@ -47,25 +47,19 @@ export default defineComponent({
 }
 
 .header-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  @include container-column;
+  @include center-container;
   gap: $spacing-md;
 }
 
 .resource {
+  color: $warm-grey-800;
   line-height: 6 * $spacing-xs;
   text-align: center;
-  color: $warm-grey-800;
 }
 
 .resource-blurb {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-
+  @include container-column;
   gap: $spacing-md;
   padding: 2 * $spacing-xs;
   width: 75 * $spacing-xs;
@@ -73,27 +67,21 @@ export default defineComponent({
 }
 
 .h1-header {
-  text-align: center;
   color: $warm-grey-900;
+  text-align: center;
   text-transform: capitalize;
 }
 
 .resources {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
+  @include container-row;
   gap: 6 * $spacing-xs;
 }
 
 .section {
+  @include container-column;
+  @include center-container;
   padding: 18 * $spacing-xs 8 * $spacing-xs;
   background-color: $light-blue-50;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: 12 * $spacing-xs;
 }
 </style>

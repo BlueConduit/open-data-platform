@@ -52,22 +52,17 @@ export default defineComponent({
 }
 
 .header-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  @include container-column;
+  @include center-container;
   gap: $spacing-md;
 }
 
 .section {
+  @include container-column;
+  @include center-container;
   padding: 14 * $spacing-xs 61 * $spacing-xs;
   background-color: $light-blue;
   color: $white;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: 12 * $spacing-xs;
 }
 </style>

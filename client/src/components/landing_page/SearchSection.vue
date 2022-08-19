@@ -40,26 +40,20 @@ export default defineComponent({
 }
 
 .header-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  @include container-column;
+  @include center-container;
   gap: $spacing-md;
 }
 
 .search-section {
+  @include container-column;
+  @include center-container;
   background-image: url('~@/assets/media/landing-image-2.png'), url('~@/assets/media/landing-image-1.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center, center;
   height: 201 * $spacing-xs;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: 12 * $spacing-xs;
-
   color: $white;
 }
 </style>

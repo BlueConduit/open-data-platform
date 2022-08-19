@@ -76,18 +76,33 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
   display: flex;
 }
 
-.container-column {
+@mixin container-column {
   display: flex;
   flex-direction: column;
 }
 
-.center-container {
+@mixin container-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.container-column {
+  @include container-column;
+}
+
+@mixin center-container {
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
-/** Buttons **/
+.center-container {
+  @include center-container;
+}
+
+@mixin-
+  /** Buttons **/
 .outline-button {
   background-color: transparent;
   padding: 0.5em 3em;
