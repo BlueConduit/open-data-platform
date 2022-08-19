@@ -3,9 +3,8 @@
     <div class='container-row justify-right'>
       <map-geocoder-wrapper class='search' v-model:expandSearch='showSearch' />
     </div>
-    <div class='container-column center-container'>
-      <div class='container-column center-container'
-           v-if='showWaterSystemPrediction'>
+    <div class='prediction'>
+      <div v-if='showWaterSystemPrediction'>
         <div class='h1-header navy'>
           {{ formatPredictionAsLikelihood(percentLead) }}
         </div>
@@ -23,12 +22,21 @@
             chance of lead.</span>
         </div>
       </div>
-      <div class='container-column center-container h1-header navy'
-           v-if='!showWaterSystemPrediction && !showParcelPrediction'>
-        {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
+      <div v-if='!showPrediction && !showError'>
+        <div class='container-column center-container h1-header navy'>
+          {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
+        </div>
+        <div class='container-column center-container explain-text'>
+          {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
+        </div>
       </div>
-      <div class='explain-text'>
-        {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
+      <div v-if='showError'>
+        <div class='container-column center-container h1-header navy'>
+          {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE }}
+        </div>
+        <div class='container-column center-container explain-text'>
+          {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED }}
+        </div>
       </div>
     </div>
   </div>
@@ -63,6 +71,7 @@ export default defineComponent({
     return {
       geoState: geoState,
       leadState: leadDataState,
+      showError: geoState?.status?.status == Status.error,
     };
   },
   data() {
@@ -103,11 +112,15 @@ export default defineComponent({
       // after the API has returned.
       return this.geoState?.geoids?.pwsId ?? null;
     },
+    showPrediction(): boolean {
+      return (this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError;
+    },
     showParcelPrediction(): boolean {
       return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
     },
     showWaterSystemPrediction(): boolean {
       return (
+        // Anything but address gets a water system prediction for now.
         this.geoState?.geoids?.geoType != GeoType.address &&
         this.pwsId != null &&
         this.percentLead != null
@@ -131,9 +144,7 @@ export default defineComponent({
       }
     },
     'geoState.status': function() {
-      if (this.geoState?.status?.status == Status.error) {
-        console.log('Show error');
-      }
+      this.showError = this.geoState?.status?.status == Status.error;
     },
   },
   methods: {
@@ -189,6 +200,12 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
+
+.prediction {
+  div {
+    @include centered-container();
+  }
+}
 
 .container {
   padding-bottom: 20px;

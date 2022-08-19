@@ -66,6 +66,21 @@ $navy-blue: #2553A0;
 $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
 
 /** Structure */
+
+@mixin container-row() {
+  display: flex;
+}
+
+@mixin container-column() {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin centered-container() {
+  @include container-column();
+  justify-content: center;
+}
+
 .container-row {
   display: flex;
 }
