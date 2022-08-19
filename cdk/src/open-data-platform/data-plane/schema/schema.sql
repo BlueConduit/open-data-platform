@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS states
     PRIMARY KEY (census_geo_id)
 );
 
-CREATE INDEX IF NOT EXISTS ON states USING GIST (geom);
+CREATE INDEX IF NOT EXISTS states_geom_idx ON states USING GIST (geom);
 
 -- Counties
 CREATE TABLE IF NOT EXISTS counties
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS counties
     geom          geometry(Geometry, 4326),
     PRIMARY KEY (census_geo_id)
 );
-CREATE INDEX IF NOT EXISTS ON counties USING GIST (geom);
+CREATE INDEX IF NOT EXISTS counties_geom_idx ON counties USING GIST (geom);
 
 -- Zipcodes
 CREATE TABLE IF NOT EXISTS zipcodes
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS zipcodes
     PRIMARY KEY (census_geo_id)
 );
 
-CREATE INDEX IF NOT EXISTS ON zipcodes USING GIST (geom);
+CREATE INDEX IF NOT EXISTS zipcodes_geom_idx ON zipcodes USING GIST (geom);
 CREATE UNIQUE INDEX IF NOT EXISTS ON zipcodes (zipcode);
 
 -- Census-block-level data. TODO: consider renaming the table.
@@ -91,9 +91,9 @@ CREATE TABLE IF NOT EXISTS demographics
     geom                  GEOMETRY(Geometry, 4326),
     PRIMARY KEY (census_geo_id)
 );
-CREATE INDEX IF NOT EXISTS ON demographics (state_census_geo_id);
-CREATE INDEX IF NOT EXISTS ON demographics (county_census_geo_id);
-CREATE INDEX IF NOT EXISTS ON demographics USING GIST (geom);
+CREATE INDEX IF NOT EXISTS demographics_state_census_geo_id_idx ON demographics (state_census_geo_id);
+CREATE INDEX IF NOT EXISTS demographics_county_census_geo_id_idx ON demographics (county_census_geo_id);
+CREATE INDEX IF NOT EXISTS demographics_geom_idx ON demographics USING GIST (geom);
 
 --- Tables related to U.S. demographic information.
 
@@ -114,8 +114,8 @@ CREATE TABLE IF NOT EXISTS aggregate_us_demographics
     geom                  GEOMETRY(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
-CREATE INDEX IF NOT EXISTS ON aggregate_us_demographics (geo_type);
-CREATE INDEX IF NOT EXISTS ON aggregate_us_demographics USING GIST (geom);
+CREATE INDEX IF NOT EXISTS aggregate_us_demographics_geo_type_idx ON aggregate_us_demographics (geo_type);
+CREATE INDEX IF NOT EXISTS aggregate_us_demographics_geom_idx ON aggregate_us_demographics USING GIST (geom);
 
 -- Demographic aggregation tables.
 
@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS state_demographics
     geom                  geometry(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
-CREATE INDEX IF NOT EXISTS ON state_demographics USING GIST (geom);
+CREATE INDEX IF NOT EXISTS state_demographics_geom_idx ON state_demographics USING GIST (geom);
 
 CREATE TABLE IF NOT EXISTS county_demographics
 (
@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS county_demographics
     geom                  geometry(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
-CREATE INDEX IF NOT EXISTS ON county_demographics USING GIST (geom);
+CREATE INDEX IF NOT EXISTS county_demographics_geom_idx ON county_demographics USING GIST (geom);
 
 -- Water-system-level data
 
@@ -160,8 +160,8 @@ CREATE TABLE IF NOT EXISTS water_systems
     geom                      GEOMETRY(Geometry, 4326),
     PRIMARY KEY (pws_id)
 );
-CREATE INDEX IF NOT EXISTS ON water_systems (state_census_geo_id);
-CREATE INDEX IF NOT EXISTS ON water_systems USING GIST (geom);
+CREATE INDEX IF NOT EXISTS water_systems_state_census_geo_id_idx ON water_systems (state_census_geo_id);
+CREATE INDEX IF NOT EXISTS water_systems_geom_idx ON water_systems USING GIST (geom);
 
 -- EPA violations data
 
@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS epa_violations
     state_census_geo_id  varchar(255) references states (census_geo_id),
     PRIMARY KEY (violation_id)
 );
-CREATE INDEX IF NOT EXISTS ON epa_violations (state_census_geo_id);
+CREATE INDEX IF NOT EXISTS epa_violations_state_census_geo_id_idx ON epa_violations (state_census_geo_id);
 
 -- Violation counts per water system --
 
@@ -212,7 +212,7 @@ CREATE TABLE IF NOT EXISTS parcels
     PRIMARY KEY (address)
 );
 -- Either of these might be used for searching.
-CREATE INDEX IF NOT EXISTS ON parcels USING GIST (geom);
+CREATE INDEX IF NOT EXISTS parcels_geom_idx ON parcels USING GIST (geom);
 
 CREATE TRIGGER update_last_update_timestamp
     BEFORE UPDATE
@@ -236,7 +236,7 @@ CREATE TABLE IF NOT EXISTS state_lead_connections
     geom                      geometry(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
-CREATE INDEX IF NOT EXISTS ON state_lead_connections USING GIST (geom);
+CREATE INDEX IF NOT EXISTS state_lead_connections_geom_idx ON state_lead_connections USING GIST (geom);
 
 -- EPA Violations aggregation tables.
 
@@ -248,7 +248,7 @@ CREATE TABLE IF NOT EXISTS state_epa_violations
     geom            geometry(Geometry, 3857),
     PRIMARY KEY (census_geo_id)
 );
-CREATE INDEX IF NOT EXISTS ON state_epa_violations USING GIST (geom);
+CREATE INDEX IF NOT EXISTS state_epa_violations_geom_idx ON state_epa_violations USING GIST (geom);
 
 -- Populate pre-computed tables. These are only to be used by the functions
 -- defined below.
