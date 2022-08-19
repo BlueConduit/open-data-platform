@@ -1,11 +1,11 @@
 <template>
   <div class='about-us'>
-    <div class='text'>
-      <div class='h1-header-xxl'>{{ messages.HEADER }}</div>
+    <div class='text container-column'>
+      <div class='h1-header-xl'>{{ messages.ABOUT_US_HEADER }}</div>
       <div class='h1-header'>
-        {{ messages.BODY_1 }}
+        {{ messages.BLUE_CONDUIT_INTRO_TEXT }}
         <p></p>
-        {{ messages.BODY_2 }}
+        {{ messages.BLUE_CONDUIT_IMPACT_TEXT }}
       </div>
     </div>
   </div>
@@ -41,20 +41,9 @@ export default defineComponent({
   color: $white;
 }
 
-.h1-header {
-  width: 169 * $spacing-xs;
-}
-
-.h1-header-xxl {
-  font-weight: 600;
-  line-height: 15 * $spacing-xs;
-  text-transform: capitalize;
-}
-
 .text {
-  display: flex;
-  flex-direction: column;
-  gap: 17 * $spacing-xs;
-  padding: 30 * $spacing-xs 14 * $spacing-xs;
+  gap: $spacing-lg;
+  padding: $spacing-xl;
+  max-width: 700px; // TODO: Add CSS mixins for spacing constants.
 }
 </style>
