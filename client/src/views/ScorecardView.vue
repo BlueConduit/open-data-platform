@@ -6,25 +6,31 @@
       <div class='h1-header semi-bold'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
       </div>
-      <ActionSection :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
-                     :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
-                     :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-                     :style='style'
-                     @onButtonClick='navigateToResourcePage' />
-      <ActionSection :header='ScorecardMessages.SHARE_LEAD_OUT'
-                     :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
-                     :style='style'
-                     @onButtonClick='copyToClipboard' />
+      <ActionSection
+        :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
+        :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
+        :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
+        :style='style'
+        @onButtonClick='navigateToResourcePage'
+      />
+      <ActionSection
+        :header='ScorecardMessages.SHARE_LEAD_OUT'
+        :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
+        :style='style'
+        @onButtonClick='copyToClipboard'
+      />
     </div>
     <ScorecardSummaryPanel />
-    <ActionSection :header='ScorecardMessages.WANT_TO_KNOW_MORE'
-                   :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
-                   :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
-                   @onButtonClick='navigateToMapPage' />
+    <ActionSection
+      :header='ScorecardMessages.WANT_TO_KNOW_MORE'
+      :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
+      :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
+      @onButtonClick='navigateToMapPage'
+    />
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import PredictionPanel from '../components/PredictionPanel.vue';
 import ActionSection from '../components/ActionSection.vue';
 import { defineComponent } from 'vue';
@@ -47,7 +53,7 @@ export default defineComponent({
   },
   data() {
     return {
-      style: { 'color': '#464646' },
+      style: { color: '#464646' },
       ScorecardMessages,
       Titles,
     };
@@ -55,8 +61,7 @@ export default defineComponent({
   methods: {
     async copyToClipboard() {
       // Requires lat,long to be in the URL.
-      const urlToShare = `${process.env.VUE_APP_LEADOUT_DOMAIN}${router.currentRoute.value.fullPath}`;
-      await navigator.clipboard.writeText(urlToShare);
+      await navigator.clipboard.writeText(window.location.href);
     },
     navigateToResourcePage() {
       router.push({
@@ -74,7 +79,7 @@ export default defineComponent({
 
 <style scoped>
 .actions-to-take {
-  background-color: #E1F5FE;
+  background-color: #e1f5fe;
   padding: 20px;
 }
 </style>
