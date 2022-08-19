@@ -22,19 +22,19 @@
             chance of lead.</span>
         </div>
       </div>
-      <div v-if='!showPrediction && !showError'>
-        <div class='container-column center-container h1-header navy'>
+      <div class='no-prediction' v-if='!showPrediction && !showError'>
+        <div class='h1-header navy'>
           {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
         </div>
-        <div class='container-column center-container explain-text'>
+        <div class='explain-text'>
           {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
         </div>
       </div>
       <div v-if='showError'>
-        <div class='container-column center-container h1-header navy'>
+        <div class='h1-header navy'>
           {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE }}
         </div>
-        <div class='container-column center-container explain-text'>
+        <div class='explain-text'>
           {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED }}
         </div>
       </div>
@@ -201,10 +201,10 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 
-.prediction {
-  div {
-    @include centered-container();
-  }
+.prediction div {
+  @include centered-container();
+
+  text-align: center;
 }
 
 .container {
