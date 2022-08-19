@@ -2,16 +2,16 @@
   <div class='section'>
     <div class='header-section'>
       <div class='h1-header-large'>
-        {{ content.FILTER_TYPES_SECTION.header }}
+        {{ messages.FILTER_TYPES_SECTION_HEADER }}
       </div>
       <div class='h2-header-large'>
-        {{ content.FILTER_TYPES_SECTION.subHeader }}
+        {{ messages.FILTER_TYPES_SECTION_SUBHEADER }}
       </div>
     </div>
     <div class='filter-cards'>
-      <image-card v-for='filter in content.FILTER_TYPES'
+      <image-card v-for='filter in messages.FILTER_TYPES'
                   :key='filter.header'
-                  :content='filter'
+                  :header='filter.header'
                   :image='filter.image'></image-card>
     </div>
   </div>
@@ -19,7 +19,7 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import { ResourcesPageContent as content } from '@/assets/messages/resources';
+import { ResourcesPageMessages as messages } from '@/assets/messages/resources';
 import ImageCard from '../ImageCard.vue';
 
 /**
@@ -32,7 +32,7 @@ export default defineComponent({
   },
   data() {
     return {
-      content,
+      messages,
     };
   },
 });

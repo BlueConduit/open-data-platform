@@ -2,14 +2,14 @@
   <div class='section'>
     <div class='header-section'>
       <div class='h1-header-large'>
-        {{ content.RECOMMENDATIONS_SECTION.header }}
+        {{ messages.RECOMMENDATIONS_SECTION_HEADER }}
       </div>
       <div class='h2-header-large'>
-        {{ content.RECOMMENDATIONS_SECTION.subHeader }}
+        {{ messages.RECOMMENDATIONS_SECTION_SUBHEADER }}
       </div>
     </div>
     <div class='recommendations-content'>
-      <div v-for='rec in content.RECOMMENDATIONS'
+      <div v-for='rec in messages.RECOMMENDATIONS'
            :key='rec.url'>
         <div class='recommendation-title'>{{ rec.header }}</div>
         <a class='recommendation-link' :href='rec.url'>{{ rec.linkText }}</a>
@@ -20,7 +20,7 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import { ResourcesPageContent as content } from '@/assets/messages/resources';
+import { ResourcesPageMessages as messages } from '@/assets/messages/resources';
 
 /**
  * Content for recommendations section of the resources page.
@@ -29,7 +29,7 @@ export default defineComponent({
   name: 'RecommendationsSection',
   data() {
     return {
-      content,
+      messages,
     };
   },
 });

@@ -2,18 +2,18 @@
   <div class='section'>
     <div class='header-section'>
       <div class='h1-header-large'>
-        {{ content.WATER_FILTER_INFO_SECTION.header }}
+        {{ messages.WATER_FILTER_INFO_SECTION_HEADER }}
       </div>
       <div class='h2-header-large'>
-        {{ content.WATER_FILTER_INFO_SECTION.subHeader }}
+        {{ messages.WATER_FILTER_INFO_SECTION_SUBHEADER }}
       </div>
     </div>
     <div class='filter-static-content'>
     <span class='asset'><img
-      :src='require(`@/assets/media/${content.WATER_FILTER_INFO_SECTION.image}`)'
+      :src='require(`@/assets/media/resource-image-1.png`)'
       alt=''></span>
       <span class='filter-text'>
-      {{ content.WATER_FILTER_INFO_SECTION.body }}
+      {{ messages.WATER_FILTER_DESCRIPTION }}
     </span>
     </div>
   </div>
@@ -21,7 +21,7 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import { ResourcesPageContent as content } from '../../assets/messages/resources';
+import { ResourcesPageMessages as messages } from '../../assets/messages/resources';
 
 /**
  * Content for filter info section of the resources page.
@@ -30,7 +30,7 @@ export default defineComponent({
   name: 'FilterInfoSection',
   data() {
     return {
-      content,
+      messages,
     };
   },
 });
