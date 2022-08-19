@@ -1,7 +1,7 @@
 <template>
   <div class='center-container'>
     <div class='container-column center-container'>
-      <div class='semi-bold h1-header'>
+      <div class='h1-header'>
         <div> {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER }}
         </div>
       </div>
@@ -95,6 +95,11 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
+
+.center-container {
+  background-color: $light-blue;
+  color: $white;
+}
 
 .container-column {
   max-width: 12 * $spacing-xl;

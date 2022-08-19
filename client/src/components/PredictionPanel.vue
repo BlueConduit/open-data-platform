@@ -6,7 +6,7 @@
     <div class='container-column center-container'>
       <div class='container-column center-container'
            v-if='showWaterSystemPrediction'>
-        <div class='h1-header semi-bold navy'>
+        <div class='h1-header navy'>
           {{ formatPredictionAsLikelihood(percentLead) }}
         </div>
         <div class='h2-header'>
@@ -14,7 +14,7 @@
           formatPredictionAsLikelihoodDescriptor(percentLead)) }}
         </div>
 
-        <div class='h1-header semi-bold'
+        <div class='h1-header'
              v-if='showParcelPrediction'>
           Your home's public service lines have a {{ publicLeadLikelihood }}%
           chance of lead.
@@ -23,7 +23,7 @@
             chance of lead.</span>
         </div>
       </div>
-      <div class='container-column center-container h1-header semi-bold navy'
+      <div class='container-column center-container h1-header navy'
            v-if='!showWaterSystemPrediction && !showParcelPrediction'>
         {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
       </div>
@@ -189,7 +189,6 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
-@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .container {
   padding-bottom: 20px;

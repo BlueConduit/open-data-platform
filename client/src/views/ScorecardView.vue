@@ -3,7 +3,7 @@
     <PredictionPanel />
     <NationwideMap height='60vh' />
     <div class='container-column center-container actions-to-take'>
-      <div class='h1-header semi-bold'>
+      <div class='h1-header'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
       </div>
       <ActionSection :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'

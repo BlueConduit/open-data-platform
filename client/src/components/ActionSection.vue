@@ -1,6 +1,6 @@
 <template>
   <div class='container-column center-container' :style='style'>
-    <div class='h2-header semi-bold'>
+    <div class='h2-header'>
       {{ header }}
     </div>
     <div class='explain-text' v-if='subheader != null'>
@@ -36,7 +36,6 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
-@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .center-container {
   gap: 20px;

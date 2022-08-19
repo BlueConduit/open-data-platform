@@ -1,34 +1,51 @@
 // Strings for the landing page.
 
-import { Titles } from '@/assets/messages/common';
-
-/**
- * Strings related to the scorecard-related part of the landing page.
- */
-export class ScorecardSearch {
-  static HEADER = 'Get your drinking water score';
-  static BODY = `Understand the likelihood of your home or community's exposure to lead service lines.`;
-  static CTA_PLACEHOLDER = 'Enter your address';
-  static CTA_BUTTON = 'Get Score';
+interface ResourceMessage {
+  header: string;
+  body: string;
 }
 
-/**
- * Strings related to the map-related part of the landing page.
- */
-export class MapInfo {
-  static HEADER = 'Get up to date information about lead service lines';
-  static BODY =
-    'Stay informed by using the LeadOut Nationwide Map by exploring this ever-growing data set of lead piplines, DEP violations, demographics, and more.';
-  static CTA_BUTTON = Titles.EXPLORE_NATION_WIDE_MAP;
-}
+export class LandingPageMessages {
+  static SEARCH_SECTION_HEADER = 'How Safe is My Water?';
+  static SEARCH_SECTION_SUBHEADER =
+    'Enter your info to find out the likelihood you have lead in your water supply ' +
+    '- and what to do about it.';
+  static GEOLOCATE_PLACEHOLDER_TEXT = 'Enter your address or zip code';
+  static CHECK_LEAD_STATUS_BUTTON_TEXT = 'Check Lead Status';
+  static EXPLORE_MAP_SECTION_HEADER = 'Is my community at risk for lead poisoning?';
+  static EXPLORE_MAP_SECTION_SUBHEADER =
+    'Lead water pipes can pose a serious health risk, particularly for children. ' +
+    'We use machine learning to identify at-risk areas. See how your neighborhood compares.';
+  static EXPLORE_MAP_BUTTON_TEXT = 'Explore Nationwide Map';
+  static CHOOSING_FILTER_SECTION_SUPER_HEADER = 'Tips';
+  static CHOOSING_FILTER_SECTION_HEADER = 'Choosing a Water Filter';
+  static CHOOSING_FILTER_SECTION_SUBHEADER =
+    'There are several types of water filters. Choosing the right one depends on ' +
+    'your budget and lifestyle.';
+  static LEARN_MORE_BUTTON_TEXT = 'Learn More';
+  static RESOURCES_SECTION_SUPER_HEADER = 'Resources';
+  static RESOURCES_SECTION_HEADER = 'What To Do If You Have Lead Pipes';
+  static VIEW_MORE_RESOURCES_BUTTON_TEXT = 'View More in Resources';
 
-/**
- * Strings related to the filter-related part of the landing page.
- */
-export class FilterInfo {
-  static SUPER_HEADER = 'Take Action';
-  static HEADER = 'Chosing a water filter';
-  static BODY =
-    'There are several types of water filters. Choosing the right one depends on your budget and lifestyle.';
-  static CTA_BUTTON = 'Learn more about water filters';
+  static RESOURCE_MESSAGES: ResourceMessage[] = [
+    {
+      header: 'Call water provider',
+      body:
+        'Your water system may be responsible for finding and replacing lead pipes in their ' +
+        'system. Enter your address above and we’ll help connect you to your local system to find ' +
+        'out your options.',
+    },
+    {
+      header: 'Order filter',
+      body:
+        'Make your tap water safer by ordering a water filter. Some cities have programs for ' +
+        'free or discounted filters. Enter your address above and we’ll help identify options.',
+    },
+    {
+      header: 'Amplify your voice',
+      body:
+        'If you and your neighbors are at risk, alerting local community groups and speaking ' +
+        'with your representatives are ways to make your concerns heard.',
+    },
+  ];
 }
