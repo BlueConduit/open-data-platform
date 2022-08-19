@@ -202,7 +202,7 @@ export default defineComponent({
 @import '../assets/styles/global.scss';
 
 .prediction div {
-  @include centered-container();
+  @include centered-container;
 
   text-align: center;
 }
