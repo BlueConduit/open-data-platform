@@ -25,7 +25,7 @@
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
     "@types/mapbox__mapbox-gl-geocoder": "^4.7.2",
-    "@types/mapbox-gl": "^2.7.4",
+    "@types/mapbox-gl": "^2.7.5",
     "@types/vue-select": "^3.16.0",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",

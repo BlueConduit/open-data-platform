@@ -5,8 +5,7 @@
   </div>
 </template>
 
-<script lang='ts'>
-import mapboxgl from 'mapbox-gl';
+<script lang="ts">
 import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
@@ -57,8 +56,8 @@ export default defineComponent({
   },
   data() {
     return {
-      map: null as mapboxgl.Map | null,
-      popup: null as mapboxgl.Popup | null,
+      map: null as mapbox.Map | null,
+      popup: null as mapbox.Popup | null,
     };
   },
   computed: {
@@ -87,17 +86,17 @@ export default defineComponent({
       default: DEFAULT_LNG_LAT,
     },
     height: { type: String, default: '80vh' },
+    pannable: { type: Boolean, default: true },
   },
   methods: {
     zoomToLongLat() {
-      if(this.geoState?.geoids?.pwsId?.bounding_box){
-        const {minLat, minLon, maxLat, maxLon} = this.geoState?.geoids?.pwsId?.bounding_box;
+      if (this.geoState?.geoids?.pwsId?.bounding_box) {
+        const { minLat, minLon, maxLat, maxLon } = this.geoState?.geoids?.pwsId?.bounding_box;
         this.map?.fitBounds([
           [minLat, minLon],
-          [maxLat, maxLon]
+          [maxLat, maxLon],
         ]);
-      }
-      else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
+      } else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
         const lonLat: LngLatLike = {
           lon: parseInt(this.geoState?.geoids?.long),
           lat: parseInt(this.geoState?.geoids?.lat),
@@ -209,6 +208,7 @@ export default defineComponent({
           }
         });
       }
+      if (!this.$props.pannable) this.map?.dragPan.disable();
     },
 
     /**
@@ -222,7 +222,7 @@ export default defineComponent({
 
       // Add geolocate control to the map.
       this.map.addControl(
-        new mapboxgl.GeolocateControl({
+        new mapbox.GeolocateControl({
           positionOptions: {
             // If enabled, gets the best possible results. Can result in slower response times or
             // increased power consumption so set to false for now.
@@ -234,7 +234,7 @@ export default defineComponent({
       );
 
       // Add zoom in / zoom out buttons to map.
-      this.map.addControl(new mapboxgl.NavigationControl());
+      this.map.addControl(new mapbox.NavigationControl());
     },
 
     /**
@@ -313,22 +313,22 @@ export default defineComponent({
   },
   watch: {
     // Listens to app state to toggle layers.
-    'state.currentDataLayer': function(newDataLayer: DataLayer, oldDataLayer: DataLayer) {
+    'state.currentDataLayer': function (newDataLayer: DataLayer, oldDataLayer: DataLayer) {
       this.updateMapOnDataLayerChange(newDataLayer, oldDataLayer);
     },
     // Listens to query param to toggle layers.
-    routerLayer: function(newLayer: string) {
+    routerLayer: function (newLayer: string) {
       if (newLayer != null) {
         this.setDataLayerVisibility(newLayer, true);
       }
     },
     // Listen for changes to lat/long to update map location.
-    'geoState.geoids': function() {
+    'geoState.geoids': function () {
       const lat = this.geoState?.geoids?.lat;
       const long = this.geoState?.geoids?.long;
 
       if (lat != null && long != null) {
-        const marker = new mapboxgl.Marker({
+        const marker = new mapbox.Marker({
           color: '#0b2553',
         });
 
