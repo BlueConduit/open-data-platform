@@ -38,10 +38,11 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../../assets/styles/global.scss';
+
 .filter-cards {
-  display: flex;
-  flex-direction: row;
+  @include container-row;
   flex-wrap: wrap;
   justify-content: space-between;
 

@@ -12,7 +12,7 @@
     <span class='asset'><img
       :src='require(`@/assets/media/resource-image-1.png`)'
       alt=''></span>
-      <span class='filter-text'>
+      <span class='h1-header'>
       {{ messages.WATER_FILTER_DESCRIPTION }}
     </span>
     </div>
@@ -36,7 +36,8 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../../assets/styles/global.scss';
 
 .asset img {
   height: 472px;
@@ -44,28 +45,18 @@ export default defineComponent({
 }
 
 .filter-static-content {
+  @include container-row;
+  @include center-container;
   width: 932px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
   letter-spacing: 0.2px;
   margin-top: 24px;
   gap: 38px;
 }
 
-.filter-text {
+.h1-header {
   width: 324px;
   height: 170px;
   padding: 0 60px 0 0;
-
-  font-family: 'IBM Plex Sans';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 24px;
-  line-height: 34px;
-
-  /*!* Warm Grey/Warm Grey 600 *!*/
-  color: #7A7A7A;
+  color: $warm-grey-600;
 }
 </style>

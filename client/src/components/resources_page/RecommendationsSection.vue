@@ -43,13 +43,12 @@ a {
 }
 
 .recommendations-content {
-  display: flex;
-  flex-direction: column;
+  @include container-column;
   align-items: flex-start;
   padding: 83px 61px;
   gap: 30px;
 
-  background-color: #FFFFFF;
+  background-color: $white;
   height: fit-content;
   width: 912px;
   border-radius: 16px;
@@ -59,14 +58,14 @@ a {
   font-weight: 500;
   font-size: 20px;
   line-height: 30px;
-  color: #464646;
+  color: $warm-grey-800;
 }
 
 .recommendation-link {
   font-weight: 500;
   font-size: 32px;
   line-height: 40px;
-  color: #2553A0;
+  color: $navy-blue;
 }
 
 .section {
