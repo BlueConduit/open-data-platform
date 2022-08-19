@@ -222,7 +222,16 @@ export default defineComponent({
           }
         });
       }
-      if (this.$props.static) this.map?.dragPan.disable();
+      // Disable all user interaction handlers.
+      if (this.$props.static) {
+        this.map?.boxZoom.disable();
+        this.map?.scrollZoom.disable();
+        this.map?.dragPan.disable();
+        this.map?.dragRotate.disable();
+        this.map?.keyboard.disable();
+        this.map?.doubleClickZoom.disable();
+        this.map?.touchZoomRotate.disable();
+      }
     },
 
     /**
@@ -248,7 +257,7 @@ export default defineComponent({
       );
 
       // Add zoom in / zoom out buttons to map.
-      this.map.addControl(new mapbox.NavigationControl());
+      if (!this.$props.static) this.map.addControl(new mapbox.NavigationControl());
     },
 
     /**
