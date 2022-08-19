@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS zipcodes
     PRIMARY KEY (census_geo_id)
 );
 
-CREATE INDEX IF NOT EXISTS ON counties USING GIST (geom);
+CREATE INDEX IF NOT EXISTS ON zipcodes USING GIST (geom);
 CREATE UNIQUE INDEX IF NOT EXISTS ON zipcodes (zipcode);
 
 -- Census-block-level data. TODO: consider renaming the table.
