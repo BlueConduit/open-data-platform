@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS zipcodes
 );
 
 CREATE INDEX IF NOT EXISTS zipcodes_geom_idx ON zipcodes USING GIST (geom);
-CREATE UNIQUE INDEX IF NOT EXISTS ON zipcodes (zipcode);
+CREATE UNIQUE INDEX zipcodes_zipcode_unique_idx IF NOT EXISTS ON zipcodes (zipcode);
 
 -- Census-block-level data. TODO: consider renaming the table.
 
