@@ -1,20 +1,25 @@
 <template>
-  <resources-page-section :styles='styles.DEFAULT_STYLE'
-                          :content='content.FILTER_TYPES_SECTION'>
+  <div class='section'>
+    <div class='header-section'>
+      <div class='h1-header-large'>
+        {{ messages.FILTER_TYPES_SECTION_HEADER }}
+      </div>
+      <div class='h2-header-large'>
+        {{ messages.FILTER_TYPES_SECTION_SUBHEADER }}
+      </div>
+    </div>
     <div class='filter-cards'>
-      <image-card v-for='filter in content.FILTER_TYPES'
+      <image-card v-for='filter in messages.FILTER_TYPES'
                   :key='filter.header'
-                  :content='filter'
+                  :header='filter.header'
                   :image='filter.image'></image-card>
     </div>
-  </resources-page-section>
+  </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import ResourcesPageSection from './ResourcesPageSection.vue';
-import { ResourcesPageContent as content } from '@/assets/messages/resources';
-import { ResourcesPageStyles as styles } from '../../assets/styles/style_props';
+import { ResourcesPageMessages as messages } from '@/assets/messages/resources';
 import ImageCard from '../ImageCard.vue';
 
 /**
@@ -24,25 +29,23 @@ export default defineComponent({
   name: 'FilterTypesSection',
   components: {
     ImageCard,
-    ResourcesPageSection,
   },
   data() {
     return {
-      content,
-      styles,
+      messages,
     };
   },
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../../assets/styles/global.scss';
+
 .filter-cards {
-  display: flex;
-  flex-direction: row;
+  @include container-row;
   flex-wrap: wrap;
   justify-content: space-between;
 
-  width: 852px;
-  height: 903px;
+  max-width: 850px;
 }
 </style>

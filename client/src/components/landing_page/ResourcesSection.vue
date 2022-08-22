@@ -6,11 +6,11 @@
       <div class='h1-header-large'>{{ messages.RESOURCES_SECTION_HEADER }}</div>
     </div>
     <div class='resources'>
-      <div class='resource-blurb'
+      <div class='resource'
            v-for='resource in messages.RESOURCE_MESSAGES'
            :key='resource.header'>
         <div class='h1-header'>{{ resource.header }}</div>
-        <div class='resource body'>{{ resource.body }}</div>
+        <div class='resource-blurb body'>{{ resource.body }}</div>
       </div>
     </div>
     <router-link class='link' :to='resourcesRoute'>
@@ -46,54 +46,33 @@ export default defineComponent({
   color: $warm-grey-600;
 }
 
-.header-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-md;
-}
-
 .resource {
-  line-height: 6 * $spacing-xs;
-  text-align: center;
-  color: $warm-grey-800;
+  @include container-column;
+  gap: $spacing-md;
+  padding: $spacing-sm;
+  max-width: 300px;
+  max-height: 300px;
+
 }
 
 .resource-blurb {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-
-  gap: $spacing-md;
-  padding: 2 * $spacing-xs;
-  width: 75 * $spacing-xs;
-  height: 45 * $spacing-xs;
+  color: $warm-grey-800;
+  text-align: center;
 }
 
 .h1-header {
-  text-align: center;
   color: $warm-grey-900;
   text-transform: capitalize;
 }
 
 .resources {
-  display: flex;
-  flex-direction: row;
+  @include container-row;
+  @include center-container;
   align-items: flex-start;
-  justify-content: center;
-  gap: 6 * $spacing-xs;
+  gap: $spacing-md;
 }
 
 .section {
-  padding: 18 * $spacing-xs 8 * $spacing-xs;
   background-color: $light-blue-50;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12 * $spacing-xs;
 }
 </style>

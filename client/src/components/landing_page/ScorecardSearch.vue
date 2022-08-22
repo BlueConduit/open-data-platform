@@ -58,8 +58,8 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .geocoder {
-  height: 4 * $spacing-md;
-  width: 147 * $spacing-xs;
+  height: $spacing-xl;
+  width: 512px;
 }
 
 .scorecard-search {

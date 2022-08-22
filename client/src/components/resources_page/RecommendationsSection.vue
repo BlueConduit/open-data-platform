@@ -1,70 +1,72 @@
 <template>
-  <resources-page-section :styles='styles.RECOMMENDATIONS_STYLE'
-                          :content='content.RECOMMENDATIONS_SECTION'>
+  <div class='section'>
+    <div class='header-section'>
+      <div class='h1-header-large'>
+        {{ messages.RECOMMENDATIONS_SECTION_HEADER }}
+      </div>
+      <div class='h2-header-large'>
+        {{ messages.RECOMMENDATIONS_SECTION_SUBHEADER }}
+      </div>
+    </div>
     <div class='recommendations-content'>
-      <div v-for='rec in content.RECOMMENDATIONS'
+      <div v-for='rec in messages.RECOMMENDATIONS'
            :key='rec.url'>
-        <div class='recommendation-title'>{{ rec.header }}</div>
+        <div class='h2-header-large recommendation-title'>{{ rec.header }}</div>
         <a class='recommendation-link' :href='rec.url'>{{ rec.linkText }}</a>
       </div>
     </div>
-  </resources-page-section>
+  </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import ResourcesPageSection from './ResourcesPageSection.vue';
-import { ResourcesPageContent as content } from '@/assets/messages/resources';
-import { ResourcesPageStyles as styles } from '../../assets/styles/style_props';
+import { ResourcesPageMessages as messages } from '@/assets/messages/resources';
 
 /**
  * Content for recommendations section of the resources page.
  */
 export default defineComponent({
   name: 'RecommendationsSection',
-  components: {
-    ResourcesPageSection,
-  },
   data() {
     return {
-      content,
-      styles,
+      messages,
     };
   },
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 a {
   text-decoration: none;
 }
 
 .recommendations-content {
-  display: flex;
-  flex-direction: column;
+  @include container-column;
   align-items: flex-start;
-  padding: 83px 61px;
-  gap: 30px;
+  padding: $spacing-xl;
+  gap: $spacing-lg;
 
-  background-color: #FFFFFF;
-  height: fit-content;
-  width: 912px;
-  border-radius: 16px;
+  background-color: $white;
+  border-radius: $spacing-md;
 }
 
 .recommendation-title {
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 30px;
-  color: #464646;
-  font-family: 'IBM Plex Sans';
+  color: $warm-grey-800;
+  text-align: start;
 }
 
 .recommendation-link {
   font-weight: 500;
   font-size: 32px;
   line-height: 40px;
-  color: #2553A0;
-  font-family: 'IBM Plex Sans';
+  color: $navy-blue;
+}
+
+.section {
+  background-color: $light-blue;
+  color: $white;
 }
 </style>
