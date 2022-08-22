@@ -1,12 +1,12 @@
 <template>
   <div class='container-column center-container' :style='style'>
-    <div class='h1-header semi-bold'>
+    <div class='h2-header'>
       {{ header }}
     </div>
     <div class='explain-text' v-if='subheader != null'>
       {{ subheader }}
     </div>
-    <button class='outline-button'
+    <button class='gold-button'
             v-if='buttonText != null'
             v-on:click='onButtonClick'>
       {{ buttonText }}
@@ -34,14 +34,17 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 .center-container {
-  gap: 20px;
-  padding: 20px;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
 }
 
-.outline-button {
-  color: #464646;
+.explain-text {
+  text-align: center;
 }
 
 </style>

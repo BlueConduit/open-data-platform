@@ -16,6 +16,9 @@ export class ScorecardMessages {
   static HIGH_LIKELIHOOD = 'High likelihood';
   static HIGHLY_LIKELY = 'highly likely';
   static MEDIUM_LIKELIHOOD = 'Medium likelihood';
+  static NOT_ENOUGH_DATA_AVAILABLE = 'Not enough data available';
+  static NOT_ENOUGH_DATA_EXPLAINED =
+    'There isn’t sufficient data available about your area to confidently give a status.';
   static LOW_LIKELIHOOD = 'Low likelihood';
   static NOT_LIKELY = 'not likely';
   static HOME_AGE = 'Home age';

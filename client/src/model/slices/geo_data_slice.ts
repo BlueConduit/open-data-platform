@@ -3,6 +3,7 @@ import { ApiClient } from '@/api/api_client';
 import { GeoData, GeoType } from '@/model/states/model/geo_data';
 import { AppDispatch } from '@/model/store';
 import { GeoDataState } from '@/model/states/geo_data_state';
+import { Status } from '@/model/states/status_state';
 
 const initialState: GeoDataState = {};
 const client = new ApiClient();
@@ -15,12 +16,21 @@ const geoSlice = createSlice({
   reducers: {
     getGeoIdsSuccess(state: GeoDataState, action: PayloadAction<GeoData>) {
       state.geoids = { ...state.geoids, ...action.payload };
+      // Reset status.
+      state.status = { status: Status.success };
     },
     getGeoIdsError(state: GeoDataState, action) {
       console.log(`Error fetching geos: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
+      state.status = {
+        status: Status.error,
+        message: action.payload.error,
+        code: action.payload.status,
+      };
     },
     geoIdsQueried(state: GeoDataState, action: PayloadAction<GeoData>) {
       state.geoids = action.payload;
+      // Reset status.
+      state.status = { status: Status.pending };
     },
   },
 });

@@ -3,20 +3,18 @@
     <PredictionPanel />
     <NationwideMap height='60vh' />
     <div class='container-column center-container actions-to-take'>
-      <div class='h1-header semi-bold'>
+      <div class='h1-header'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
       </div>
       <ActionSection
         :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
         :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
         :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-        :style='style'
         @onButtonClick='navigateToResourcePage'
       />
       <ActionSection
         :header='ScorecardMessages.SHARE_LEAD_OUT'
         :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
-        :style='style'
         @onButtonClick='copyToClipboard'
       />
     </div>
@@ -53,8 +51,6 @@ export default defineComponent({
   },
   data() {
     return {
-      // TODO: Replace with a design token, or give ActionSection a "dark" and "light" theme.
-      style: { color: '#464646' },
       ScorecardMessages,
       Titles,
     };
@@ -79,10 +75,10 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+@import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .actions-to-take {
-  background-color: $product_background;
-  padding: 20px;
+  padding: $spacing-lg;
 }
 </style>

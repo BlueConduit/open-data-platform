@@ -1,4 +1,7 @@
 @use '@blueconduit/copper/scss/01_settings/design-tokens' as *;
+@use '@blueconduit/copper/scss/02_tools/functions';
+@use '@blueconduit/copper/scss/02_tools/mixins';
+
 
 /** Colors */
 /** TODO: Move colors to copper.*/
@@ -16,10 +19,8 @@ $light-blue-800: #0576BD;
 $navy-blue: #2553A0;
 
 /** Typography */
-
 .body {
-  font-size: 4 * $spacing-xs;
-  font-weight: 400;
+  @include mixins.typography-base();
 }
 
 .h1-header {
@@ -45,10 +46,6 @@ $navy-blue: #2553A0;
   font-size: 4.5 * $spacing-xs;
 }
 
-.medium {
-  font-weight: 400;
-}
-
 .h2-header-large {
   font-size: 5 * $spacing-xs;
   line-height: 7.5 * $spacing-xs;
@@ -56,8 +53,8 @@ $navy-blue: #2553A0;
   text-align: center;
 }
 
-.semi-bold {
-  font-weight: 600;
+.medium {
+  font-weight: 400;
 }
 
 .explain-text {
@@ -77,9 +74,6 @@ $navy-blue: #2553A0;
 $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
 
 /** Structure */
-.container-row {
-  display: flex;
-}
 
 @mixin container-column {
   display: flex;
@@ -89,11 +83,6 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
 @mixin container-row {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-}
-
-.container-column {
-  @include container-column;
 }
 
 @mixin center-container {
@@ -102,56 +91,48 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
   justify-content: center;
 }
 
+.container-column {
+  @include container-column;
+}
+
+.container-row {
+  @include container-row;
+}
+
 .center-container {
   @include center-container;
 }
 
-@mixin-
-  /** Buttons **/
-.outline-button {
-  background-color: transparent;
-  padding: 0.5em 3em;
-  border: 0.16em solid;
-  margin: 0 0.3em 0.3em 0;
-  box-sizing: border-box;
-  text-decoration: none;
-  text-transform: none;
-  font-weight: 600;
-  text-align: center;
-  transition: all 0.15s;
-}
+/** Buttons **/
 
-.outline-button:hover {
-  color: #FFFFFF;
-  background-color: #0b2553;
+@mixin button {
+  border: none;
+  border-radius: $border-radius;
+  box-shadow: $button-shadow-default;
+  padding: functions.getSpacing("sm") functions.getSpacing("md");
+
+  &:hover {
+    box-shadow: $button-shadow-hovered;
+  }
 }
 
 .gold-button {
-  background-color: $gold;
-  width: fit-content;
-  border-radius: 15px;
-  border: 0;
-  font-size: 18px;
-  padding: 0 20px;
-  height: 65px;
+  @include button;
+
+  background-color: $support;
+  color: $text_dark;
+
+  &:hover {
+    background-color: $support01;
+  }
 }
 
 .grey-button {
-  width: fit-content;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 65px;
-  text-align: center;
+  @include button;
   color: $warm-grey-800;
-  border-radius: 16px;
-  border: 1px solid $light-grey;
-  padding: 0 20px;
-}
 
-@media all and (max-width: 30em) {
-  .outline-button {
-    display: block;
-    margin: 0.4em auto;
+  &:hover {
+    background-color: $support01;
   }
 }
 
