@@ -47,20 +47,11 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .h2-header-large {
-  max-width: 46 * $spacing-md;
-}
-
-.header-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-md;
+  max-width: 70%;
 }
 
 .static-map {
-  width: 230 * $spacing-xs;
-  height: 116 * $spacing-xs;
+  max-width: 1000px;
   border-radius: $spacing-md;
   box-shadow: $image-shadow;
 }
@@ -68,14 +59,5 @@ export default defineComponent({
 .section {
   background-color: $white;
   color: $warm-grey-800;
-  padding: 18 * $spacing-xs 6 * $spacing-xs;
-  height: 60 * $spacing-md;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 12 * $spacing-xs;
 }
 </style>

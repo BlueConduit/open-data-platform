@@ -1,19 +1,17 @@
 <template>
   <div class='card'>
     <span class='asset'>
-      <img :src='require(`@/assets/media/${content.image ?? defaultImage}`)'
+      <img :src='require(`@/assets/media/${image}`)'
            alt=''>
     </span>
-    <h1>{{ content.header }}</h1>
-    <h2>{{ content.subHeader }}</h2>
+    <div class='h1-header'>{{ header }}</div>
   </div>
 </template>
 
 <script lang='ts'>
 /* eslint-disable */
 
-import { defineComponent, PropType } from 'vue';
-import { Content } from '../assets/messages/resources';
+import { defineComponent } from 'vue';
 
 /**
  * Component which contains an image, a header, and a subheader.
@@ -22,55 +20,34 @@ export default defineComponent({
   name: 'ImageCard',
   props: {
     image: { type: String, default: 'placeholder_image.png' },
-    content: {
-      type: Object as PropType<Content>,
+    header: {
+      type: String,
       required: true,
     },
   },
-  data() {
-    return {
-      defaultImage: 'placeholder_image.png',
-    };
-  },
 });
 </script>
-<style scoped>
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 .asset img {
-  width: 356px;
-  height: 236px;
+  width: 350px;
+  height: 240px;
 }
 
 .card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  @include center-container;
+  @include container-column;
 
-  width: 396px;
-  height: 449px;
-  gap: 16px;
+  width: 400px;
+  height: 425px;
+  gap: $spacing-sm;
 }
 
-h1,
-h2 {
-  width: 356px;
-  text-align: center;
-  letter-spacing: 0.2px;
+.h1-header {
+  color: $warm-grey-900;
   text-transform: capitalize;
-  padding: 0;
-  margin: 0;
-}
-
-h1 {
   font-weight: 600;
-  font-size: 24px;
-  line-height: 29px;
-  color: #212121;
-}
-
-h2 {
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: #757575;
 }
 </style>
