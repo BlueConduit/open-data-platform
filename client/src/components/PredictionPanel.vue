@@ -106,7 +106,7 @@ export default defineComponent({
       const serviceLines = this.leadState?.data?.serviceLines;
 
       // Protect against dividing by 0.
-      if (leadServiceLines != null && serviceLines != null && serviceLines != 0 && leadServiceLines != 0) {
+      if (leadServiceLines != null && serviceLines != null && serviceLines != 0) {
         return leadServiceLines / serviceLines;
       }
       return null;
@@ -169,11 +169,11 @@ export default defineComponent({
      * @param prediction percent lead prediction
      */
     formatPredictionAsLikelihood(prediction: number | undefined): string | null {
-      if (prediction == null || prediction == 0) {
+      if (prediction == null) {
         return null;
       }
       switch (true) {
-        case prediction < LOW_LEAD_LIKELIHOOD:
+        case prediction <= LOW_LEAD_LIKELIHOOD:
           return ScorecardMessages.LOW_LIKELIHOOD;
         case prediction < MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.MEDIUM_LIKELIHOOD;
@@ -189,11 +189,11 @@ export default defineComponent({
      * @param prediction percent lead prediction
      */
     formatPredictionAsLikelihoodDescriptor(prediction: number | undefined): string | null {
-      if (prediction == null || prediction == 0) {
+      if (prediction == null) {
         return null;
       }
       switch (true) {
-        case prediction < LOW_LEAD_LIKELIHOOD:
+        case prediction <= LOW_LEAD_LIKELIHOOD:
           return ScorecardMessages.NOT_LIKELY;
         case prediction < MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.SOMEWHAT_LIKELY;

@@ -74,7 +74,6 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .actions-to-take {
-  box-shadow: 0px 0px 8px #757575;
-  padding: 20px;
+  padding: $spacing-lg
 }
 </style>
