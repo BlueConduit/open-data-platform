@@ -36,10 +36,15 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .center-container {
-  gap: 20px;
-  padding: 20px;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
+}
+
+.explain-text {
+  text-align: center;
 }
 
 </style>
