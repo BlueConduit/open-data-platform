@@ -3,32 +3,41 @@
     <div class='container-row justify-right'>
       <map-geocoder-wrapper class='search' v-model:expandSearch='showSearch' />
     </div>
-    <div class='container-column center-container'>
-      <div class='container-column center-container'
-           v-if='showWaterSystemPrediction'>
-        <div class='h1-header semi-bold navy'>
+    <div class='prediction'>
+      <div v-if='showWaterSystemPrediction'>
+        <div class='h1-header navy'>
           {{ formatPredictionAsLikelihood(percentLead) }}
         </div>
         <div class='h2-header'>
           {{ ScorecardSummaryMessages.PREDICTION_EXPLANATION(
           formatPredictionAsLikelihoodDescriptor(percentLead)) }}
         </div>
-
-        <div class='h1-header semi-bold'
-             v-if='showParcelPrediction'>
-          Your home's public service lines have a {{ publicLeadLikelihood }}%
-          chance of lead.
-          <span v-if='privateLeadLikelihood != null'>
-            While your private service lines have a {{ privateLeadLikelihood }}%
-            chance of lead.</span>
+      </div>
+      <div class='h1-header'
+           v-if='showParcelPrediction'>
+        <div class='h1-header navy'>
+          {{ formatPredictionAsLikelihood(publicLeadPercent) }}
+        </div>
+        <div class='h2-header'>
+          {{ ScorecardSummaryMessages.PREDICTION_EXPLANATION(
+          formatPredictionAsLikelihoodDescriptor(publicLeadPercent)) }}
         </div>
       </div>
-      <div class='container-column center-container h1-header semi-bold navy'
-           v-if='!showWaterSystemPrediction && !showParcelPrediction'>
-        {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
+      <div class='no-prediction' v-if='!showPrediction && !showError'>
+        <div class='h1-header navy'>
+          {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
+        </div>
+        <div class='explain-text'>
+          {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
+        </div>
       </div>
-      <div class='explain-text'>
-        {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
+      <div v-if='showError'>
+        <div class='h1-header navy'>
+          {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE }}
+        </div>
+        <div class='explain-text'>
+          {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED }}
+        </div>
       </div>
     </div>
   </div>
@@ -43,10 +52,10 @@ import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
+import { Status } from '../model/states/status_state';
 
 const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
-const HIGH_LEAD_LIKELIHOOD = 1;
 
 /**
  * Container lead prediction.
@@ -62,6 +71,7 @@ export default defineComponent({
     return {
       geoState: geoState,
       leadState: leadDataState,
+      showError: geoState?.status?.status == Status.error,
     };
   },
   data() {
@@ -71,14 +81,15 @@ export default defineComponent({
       ScorecardSummaryMessages: ScorecardMessages,
     };
   },
-  // TODO: Handle error state where there is no lead prediction
-  // after the API has returned.
   computed: {
+    publicLeadPercent(): number | undefined {
+      return this.leadState?.data?.publicLeadLowPrediction;
+    },
     // Predicted lead likelihood for parcel's public lines.
     publicLeadLikelihood(): string | null {
       // Note that low prediction is the same as high prediction in the DB
       // right now bc we don't yet have intervals
-      return this.formatPercentage(this.leadState?.data?.publicLeadLowPrediction);
+      return this.formatPercentage(this.publicLeadPercent);
     },
     // Predicted lead likelihood for parcel's private lines.
     privateLeadLikelihood(): string | null {
@@ -98,15 +109,17 @@ export default defineComponent({
       return null;
     },
     pwsId(): BoundedGeoDatum | null {
-      // TODO: Handle error state where there is no water system id
-      // after the API has returned.
       return this.geoState?.geoids?.pwsId ?? null;
+    },
+    showPrediction(): boolean {
+      return (this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError;
     },
     showParcelPrediction(): boolean {
       return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
     },
     showWaterSystemPrediction(): boolean {
       return (
+        // Anything but address gets a water system prediction for now.
         this.geoState?.geoids?.geoType != GeoType.address &&
         this.pwsId != null &&
         this.percentLead != null
@@ -129,6 +142,9 @@ export default defineComponent({
         dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
       }
     },
+    'geoState.status': function() {
+      this.showError = this.geoState?.status?.status == Status.error;
+    },
   },
   methods: {
     formatPercentage(prediction: number | undefined): string | null {
@@ -143,15 +159,15 @@ export default defineComponent({
      * @param prediction percent lead prediction
      */
     formatPredictionAsLikelihood(prediction: number | undefined): string | null {
-      if (prediction == null || prediction == 0) {
+      if (prediction == null) {
         return null;
       }
       switch (true) {
-        case prediction < LOW_LEAD_LIKELIHOOD:
+        case prediction <= LOW_LEAD_LIKELIHOOD:
           return ScorecardMessages.LOW_LIKELIHOOD;
         case prediction < MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.MEDIUM_LIKELIHOOD;
-        case prediction < HIGH_LEAD_LIKELIHOOD:
+        case prediction >= MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.HIGH_LIKELIHOOD;
         default:
           return null;
@@ -163,15 +179,15 @@ export default defineComponent({
      * @param prediction percent lead prediction
      */
     formatPredictionAsLikelihoodDescriptor(prediction: number | undefined): string | null {
-      if (prediction == null || prediction == 0) {
+      if (prediction == null) {
         return null;
       }
       switch (true) {
-        case prediction < LOW_LEAD_LIKELIHOOD:
+        case prediction <= LOW_LEAD_LIKELIHOOD:
           return ScorecardMessages.NOT_LIKELY;
         case prediction < MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.SOMEWHAT_LIKELY;
-        case prediction < HIGH_LEAD_LIKELIHOOD:
+        case prediction >= MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.HIGHLY_LIKELY;
         default:
           return null;
@@ -181,15 +197,22 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
+.prediction div {
+  @include container-column;
+  @include center-container;
+}
 
 .container {
-  padding-bottom: 20px;
+  padding-bottom: $spacing-lg;
 }
 
 .center-container {
-  gap: 20px;
-  padding: 0 60px 0 60px;
+  gap: $spacing-lg;
+  padding: 0 3*$spacing-lg 0 3*$spacing-lg;
 }
 
 .justify-right {
@@ -197,7 +220,7 @@ export default defineComponent({
 }
 
 .search {
-  margin: 20px;
+  margin: $spacing-lg;
   max-width: 350px;
 }
 </style>
