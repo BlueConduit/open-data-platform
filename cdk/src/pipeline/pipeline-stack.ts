@@ -62,6 +62,11 @@ export class PipelineStack extends Stack {
         env: { account: '036999211278', region: 'us-east-2' },
         tags: { Project: util.projectName, Environment: util.EnvType.Development },
         envType: util.EnvType.Development,
+        slackConfig: {
+          slackChannelConfigurationName: 'LeadOut-dev',
+          slackWorkspaceId: 'TJTFN34NM',
+          slackChannelId: 'C03UFKFAK9C',
+        },
       }),
     );
   }

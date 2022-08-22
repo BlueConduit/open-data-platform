@@ -6,6 +6,7 @@ import { DataPlaneStack } from './data-plane/data-plane-stack';
 import { NetworkStack } from './network/network-stack';
 import { FrontendStack } from './frontend/frontend-stack';
 import { AppPlaneStack } from './app-plane/app-plane-stack';
+import { MonitoringStack } from './monitoring/monitoring';
 
 /**
  * Creates the constituent stacks for the platform.
@@ -14,6 +15,9 @@ import { AppPlaneStack } from './app-plane/app-plane-stack';
  */
 export default (scope: Construct, props: CommonProps) => {
   const { envType } = props;
+  const monitoringStack = new MonitoringStack(scope, stackName(StackId.Monitoring, envType), {
+    ...props,
+  });
   const networkStack = new NetworkStack(scope, stackName(StackId.Network, envType), {
     ...props,
   });

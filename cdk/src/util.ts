@@ -1,8 +1,10 @@
 import { StackProps } from 'aws-cdk-lib';
+import { SlackChannelConfigurationProps } from 'aws-cdk-lib/aws-chatbot';
 
 // Constants. Define anything that's referenced in multiple places here.
 // Use string enums for easy debugging, since these map to human-readable strings.
 export enum StackId {
+  Monitoring = 'Monitoring',
   Network = 'Network',
   DataPlane = 'DataPlane',
   Frontend = 'Frontend',
@@ -22,6 +24,7 @@ export const baseSubdomain = 'leadout'; // Winner of team vote.
 // https://github.com/BlueConduit/tributary/blob/main/cdk/lib/types.ts
 export interface CommonProps extends StackProps {
   envType: EnvType;
+  slackConfig: SlackChannelConfigurationProps;
 }
 
 export const stackName = (id: StackId, e: EnvType): string => {
