@@ -5,7 +5,7 @@
     </div>
     <div class='prediction'>
       <div v-if='showWaterSystemPrediction'>
-        <div class='h1-header navy'>
+        <div class='h1-header-large navy'>
           {{ formatPredictionAsLikelihood(percentLead) }}
         </div>
         <div class='h2-header'>

@@ -1,6 +1,6 @@
 <template>
   <div class='container-column center-container' :style='style'>
-    <div class='h2-header'>
+    <div class='h2-header-large'>
       {{ header }}
     </div>
     <div class='explain-text' v-if='subheader != null'>

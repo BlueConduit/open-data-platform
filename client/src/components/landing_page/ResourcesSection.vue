@@ -48,6 +48,7 @@ export default defineComponent({
 
 .resource {
   @include container-column;
+
   gap: $spacing-md;
   padding: $spacing-sm;
   max-width: 300px;
@@ -61,6 +62,8 @@ export default defineComponent({
 }
 
 .h1-header {
+  @include centered-text;
+  
   color: $warm-grey-900;
   text-transform: capitalize;
 }
@@ -68,6 +71,7 @@ export default defineComponent({
 .resources {
   @include container-row;
   @include center-container;
+
   align-items: flex-start;
   gap: $spacing-md;
 }

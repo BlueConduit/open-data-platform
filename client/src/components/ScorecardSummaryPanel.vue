@@ -1,8 +1,9 @@
 <template>
   <div class='center-container'>
     <div class='container-column center-container'>
-      <div class='h1-header'>
-        <div> {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER }}
+      <div class='h1-header-large'>
+        <div> {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER(
+          zipCode) }}
         </div>
       </div>
       <div> {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}
@@ -13,10 +14,11 @@
                              :comparisonValue='homeAgeComparison'
                              image='home_age.png' />
         <ScorecardSummaryRow
-          :header='ScorecardSummaryMessages.SOCIAL_VULNERABILITY_INDEX'
-          :subheader='ScorecardSummaryMessages.SOCIAL_VULNERABILITY_INDEX_EXPLAINED'
-          :image-float-direction='ImageFloatDirection.right'
-          :comparisonValue='socialVulnerabilityComparison'
+          :header='ScorecardSummaryMessages.AREA_DEPRIVATION_INDEX'
+          :subheader='ScorecardSummaryMessages.AREA_DEPRIVATION_INDEX_EXPLAINED'
+          :imageFloatDirection='ImageFloatDirection.right'
+          :comparisonValue='areaDeprivationIndexComparison'
+          learnMoreLink='https://www.neighborhoodatlas.medicine.wisc.edu/'
           image='vulnerability.png' />
         <ScorecardSummaryRow :header='ScorecardSummaryMessages.INCOME_LEVEL'
                              :subheader='ScorecardSummaryMessages.INCOME_LEVEL_EXPLAINED'
@@ -36,6 +38,14 @@ import { GeoDataState } from '../model/states/geo_data_state';
 import { DemographicDataState } from '../model/states/demographic_data_state';
 import { GeographicLevel } from '../model/data_layer';
 import { getDemographicData } from '../model/slices/demographic_data_slice';
+
+// Taken from https://www.neighborhoodatlas.medicine.wisc.edu/.
+const LOWEST_DISADVANTAGE = 33;
+const MEDIUM_DISADVANTAGE = 66;
+
+const HIGHEST_INCOME_PERCENTILE = 3;
+const MIDDLE_INCOME_PERCENTILE = 6;
+
 
 /**
  * Prediction explanation.
@@ -63,13 +73,47 @@ export default defineComponent({
   },
   computed: {
     homeAgeComparison(): string | null {
-      return this.formatNumber(this.demographicDataState?.data?.averageHomeAge);
+      const homeAge = this.roundNumber(this.demographicDataState?.data?.averageHomeAge);
+      return homeAge != null ? `${homeAge} years old` : null;
     },
     incomeComparison(): string | null {
-      return this.formatNumber(this.demographicDataState?.data?.averageIncome);
+      const income = this.roundNumber(this.demographicDataState?.data?.averageIncome);
+
+      if (income == null) {
+        return null;
+      }
+
+      switch (true) {
+        case income <= HIGHEST_INCOME_PERCENTILE:
+          return ScorecardMessages.HIGHER_INCOME;
+        case income < MIDDLE_INCOME_PERCENTILE:
+          return ScorecardMessages.AVERAGE_INCOME;
+        case income >= MIDDLE_INCOME_PERCENTILE:
+          return ScorecardMessages.LOWER_INCOME;
+        default:
+          return null;
+      }
     },
-    socialVulnerabilityComparison(): string | null {
-      return this.formatNumber(this.demographicDataState?.data?.averageSocialVulnerabilityIndex);
+    areaDeprivationIndexComparison(): string | null {
+      const adi = this.roundNumber(this.demographicDataState?.data?.averageSocialVulnerabilityIndex);
+
+      if (adi == null) {
+        return null;
+      }
+
+      switch (true) {
+        case adi <= LOWEST_DISADVANTAGE:
+          return ScorecardMessages.LESS_DISADVANTAGED;
+        case adi < MEDIUM_DISADVANTAGE:
+          return ScorecardMessages.SOMEWHAT_DISADVANTAGED;
+        case adi >= MEDIUM_DISADVANTAGE:
+          return ScorecardMessages.HIGHLY_DISADVANTAGED;
+        default:
+          return null;
+      }
+    },
+    zipCode(): string | null {
+      return this.geoState?.geoids?.zipCode?.id ?? null;
     },
   },
   watch: {
@@ -82,11 +126,11 @@ export default defineComponent({
     },
   },
   methods: {
-    formatNumber(number: number | undefined): string | null {
+    roundNumber(number: number | undefined): number | null {
       if (number == null) {
         return null;
       }
-      return Math.round(number).toString();
+      return Math.round(number);
     },
   },
 });
@@ -103,6 +147,7 @@ export default defineComponent({
 
 .container-column {
   max-width: 12 * $spacing-xl;
+  gap: $spacing-lg;
   padding: $spacing-lg;
 }
 </style>
