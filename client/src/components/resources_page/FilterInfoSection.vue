@@ -51,15 +51,6 @@ export default defineComponent({
   gap: $spacing-lg;
 }
 
-.filter-text {
-  width: 324px;
-  height: 170px;
-  padding: 0 60px 0 0;
-
-  /*!* Warm Grey/Warm Grey 600 *!*/
-  color: #7A7A7A;
-}
-
 .h1-header {
   max-width: 325px;
   color: $warm-grey-600;
