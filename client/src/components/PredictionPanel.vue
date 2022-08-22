@@ -12,14 +12,15 @@
           {{ ScorecardSummaryMessages.PREDICTION_EXPLANATION(
           formatPredictionAsLikelihoodDescriptor(percentLead)) }}
         </div>
-
-        <div class='h1-header'
-             v-if='showParcelPrediction'>
-          Your home's public service lines have a {{ publicLeadLikelihood }}%
-          chance of lead.
-          <span v-if='privateLeadLikelihood != null'>
-            While your private service lines have a {{ privateLeadLikelihood }}%
-            chance of lead.</span>
+      </div>
+      <div class='h1-header'
+           v-if='showParcelPrediction'>
+        <div class='h1-header navy'>
+          {{ formatPredictionAsLikelihood(publicLeadPercent) }}
+        </div>
+        <div class='h2-header'>
+          {{ ScorecardSummaryMessages.PREDICTION_EXPLANATION(
+          formatPredictionAsLikelihoodDescriptor(publicLeadPercent)) }}
         </div>
       </div>
       <div class='no-prediction' v-if='!showPrediction && !showError'>
@@ -55,7 +56,6 @@ import { Status } from '../model/states/status_state';
 
 const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
-const HIGH_LEAD_LIKELIHOOD = 1;
 
 /**
  * Container lead prediction.
@@ -84,11 +84,14 @@ export default defineComponent({
   // TODO: Handle error state where there is no lead prediction
   // after the API has returned.
   computed: {
+    publicLeadPercent(): number | undefined {
+      return this.leadState?.data?.publicLeadLowPrediction;
+    },
     // Predicted lead likelihood for parcel's public lines.
     publicLeadLikelihood(): string | null {
       // Note that low prediction is the same as high prediction in the DB
       // right now bc we don't yet have intervals
-      return this.formatPercentage(this.leadState?.data?.publicLeadLowPrediction);
+      return this.formatPercentage(this.publicLeadPercent);
     },
     // Predicted lead likelihood for parcel's private lines.
     privateLeadLikelihood(): string | null {
@@ -98,11 +101,12 @@ export default defineComponent({
     },
     // Predicted estimate of lead for water systems.
     percentLead(): number | null {
+      console.log(`percent lead: ${this.percentLead}`);
       const leadServiceLines = this.leadState?.data?.leadServiceLines;
       const serviceLines = this.leadState?.data?.serviceLines;
 
       // Protect against dividing by 0.
-      if (leadServiceLines != null && serviceLines != null && serviceLines != 0) {
+      if (leadServiceLines != null && serviceLines != null && serviceLines != 0 && leadServiceLines != 0) {
         return leadServiceLines / serviceLines;
       }
       return null;
@@ -113,12 +117,17 @@ export default defineComponent({
       return this.geoState?.geoids?.pwsId ?? null;
     },
     showPrediction(): boolean {
+      console.log(`show prediction: ${(this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError}`);
       return (this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError;
     },
     showParcelPrediction(): boolean {
+      console.log(`show parcel prediction: ${this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null}`);
       return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
     },
     showWaterSystemPrediction(): boolean {
+      console.log(`show ws prediction: ${this.geoState?.geoids?.geoType != GeoType.address &&
+      this.pwsId != null &&
+      this.percentLead != null}`);
       return (
         // Anything but address gets a water system prediction for now.
         this.geoState?.geoids?.geoType != GeoType.address &&
@@ -168,7 +177,7 @@ export default defineComponent({
           return ScorecardMessages.LOW_LIKELIHOOD;
         case prediction < MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.MEDIUM_LIKELIHOOD;
-        case prediction < HIGH_LEAD_LIKELIHOOD:
+        case prediction >= MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.HIGH_LIKELIHOOD;
         default:
           return null;
@@ -188,7 +197,7 @@ export default defineComponent({
           return ScorecardMessages.NOT_LIKELY;
         case prediction < MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.SOMEWHAT_LIKELY;
-        case prediction < HIGH_LEAD_LIKELIHOOD:
+        case prediction >= MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.HIGHLY_LIKELY;
         default:
           return null;

@@ -120,13 +120,14 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
 }
 
 .grey-button {
-  width: fit-content;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 65px;
-  text-align: center;
+  border-radius: dt.$border-radius;
+  box-shadow: dt.$button-shadow-default;
   color: $warm-grey-800;
-  border-radius: 16px;
-  border: 1px solid $light-grey;
-  padding: 0 20px;
+  padding: functions.getSpacing("sm") functions.getSpacing("md");
+  border: none;
+
+  &:hover {
+    background-color: dt.$support01;
+    box-shadow: dt.$button-shadow-hovered;
+  }
 }

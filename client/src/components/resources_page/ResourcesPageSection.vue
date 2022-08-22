@@ -1,10 +1,10 @@
 <template>
   <div class='resources-page-section' :style='cssProps'>
     <div class='header-section'>
-      <h1>{{ content.header }}</h1>
-      <h2 class='header-2' v-if='content.subHeader'>
+      <div class='h1-header'>{{ content.header }}</div>
+      <div class='h2-header' v-if='content.subHeader'>
         {{ content.subHeader }}
-      </h2>
+      </div>
     </div>
     <slot class='content-slot'></slot>
   </div>
@@ -51,34 +51,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-h1 {
-  width: 100%;
-  height: 48px;
-  padding: 0;
-  margin: 0;
-
-  font-weight: 500;
-  font-size: 40px;
-  line-height: 48px;
-  text-align: center;
-  text-transform: capitalize;
-
-  color: var(--header-text-color);
-}
-
-h2 {
-  width: 733px;
-  height: 68px;
-  padding: 0;
-  margin: 0;
-
-  font-weight: 500;
-  font-size: 24px;
-  line-height: 34px;
-  text-align: center;
-  color: var(--sub-header-text-color);
-}
-
 .header-section {
   display: flex;
   flex-direction: column;

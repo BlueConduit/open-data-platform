@@ -4,8 +4,8 @@
       <img :src='require(`@/assets/media/${content.image ?? defaultImage}`)'
            alt=''>
     </span>
-    <h1>{{ content.header }}</h1>
-    <h2>{{ content.subHeader }}</h2>
+    <div class='h2-header'>{{ content.header }}</div>
+    <div class='h2-header'>{{ content.subHeader }}</div>
   </div>
 </template>
 

@@ -39,8 +39,8 @@ export default defineComponent({
 <style scoped>
 
 .asset img {
-  height: 472px;
-  width: 494px;
+  height: 300px;
+  /*width: 494px;*/
 }
 
 .filter-static-content {
@@ -58,12 +58,6 @@ export default defineComponent({
   width: 324px;
   height: 170px;
   padding: 0 60px 0 0;
-
-  font-family: 'IBM Plex Sans';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 24px;
-  line-height: 34px;
 
   /*!* Warm Grey/Warm Grey 600 *!*/
   color: #7A7A7A;
