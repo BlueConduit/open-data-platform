@@ -46,8 +46,6 @@ export default defineComponent({
     this.geocoder.setPlaceholder(this.placeholder);
     
     if (this.acceptedTypes != null) {
-      const types = (this.acceptedTypes.join());
-      console.log('TYPES: ' + types);
       this.geocoder.setTypes(this.acceptedTypes.join());
     }
 
