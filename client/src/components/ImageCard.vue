@@ -25,11 +25,6 @@ export default defineComponent({
       required: true,
     },
   },
-  data() {
-    return {
-      defaultImage: 'placeholder_image.png',
-    };
-  },
 });
 </script>
 <style scoped>
