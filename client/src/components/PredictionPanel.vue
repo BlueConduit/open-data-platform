@@ -1,7 +1,9 @@
 <template>
   <div class='container'>
     <div class='container-row justify-right'>
-      <map-geocoder-wrapper class='search' v-model:expandSearch='showSearch' />
+      <map-geocoder-wrapper class='search'
+                            :accepted-types='acceptedTypes'
+                            v-model:expandSearch='showSearch' />
     </div>
     <div class='prediction'>
       <div v-if='showWaterSystemPrediction'>
@@ -76,6 +78,7 @@ export default defineComponent({
   },
   data() {
     return {
+      acceptedTypes: [GeoType.address, GeoType.postcode],
       expandSearch: true,
       showSearch: true,
       ScorecardSummaryMessages: ScorecardMessages,

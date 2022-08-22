@@ -2,6 +2,7 @@
   <div class='scorecard-search'>
     <GeocoderInput class='geocoder'
                    :placeholder='this.placeholder'
+                   :accepted-types='acceptedTypes'
                    @result='onGeocodeResults' />
     <button class='gold-button' @click='onSearch' :disabled='!searchHasResult'>
       {{ ctaButtonText }}
@@ -13,6 +14,7 @@
 import { defineComponent } from 'vue';
 import { SCORECARD_BASE } from '../../router';
 import GeocoderInput from '../GeocoderInput.vue';
+import { GeoType } from '../../model/states/model/geo_data';
 
 /**
  * A component for searching for a scorecard.
@@ -34,6 +36,7 @@ export default defineComponent({
     return {
       lat: 0,
       long: 0,
+      acceptedTypes: [GeoType.address, GeoType.postcode],
     };
   },
   computed: {

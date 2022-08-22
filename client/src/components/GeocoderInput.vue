@@ -3,7 +3,7 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import { GeoType } from '../model/states/model/geo_data';
@@ -29,6 +29,10 @@ export default defineComponent({
     };
   },
   props: {
+    acceptedTypes: {
+      type: Array as PropType<GeoType[]>,
+      required: false, // If not provided, defaults to allowing all types.
+    },
     placeholder: {
       type: String,
       default: 'Search',
@@ -40,6 +44,12 @@ export default defineComponent({
   mounted() {
     this.geocoder.addTo('.geocoder');
     this.geocoder.setPlaceholder(this.placeholder);
+    
+    if (this.acceptedTypes != null) {
+      const types = (this.acceptedTypes.join());
+      console.log('TYPES: ' + types);
+      this.geocoder.setTypes(this.acceptedTypes.join());
+    }
 
     // TODO: replace 'any' here with a meaningful type.
     this.geocoder.on('result', async (result: any) => {
