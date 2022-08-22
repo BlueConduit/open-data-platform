@@ -53,6 +53,7 @@ export default defineComponent({
   },
   data() {
     return {
+      // TODO: Replace with a design token, or give ActionSection a "dark" and "light" theme.
       style: { color: '#464646' },
       ScorecardMessages,
       Titles,
@@ -77,9 +78,11 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 .actions-to-take {
-  background-color: #e1f5fe;
+  background-color: $product_background;
   padding: 20px;
 }
 </style>
