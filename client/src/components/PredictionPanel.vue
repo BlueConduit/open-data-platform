@@ -81,8 +81,6 @@ export default defineComponent({
       ScorecardSummaryMessages: ScorecardMessages,
     };
   },
-  // TODO: Handle error state where there is no lead prediction
-  // after the API has returned.
   computed: {
     publicLeadPercent(): number | undefined {
       return this.leadState?.data?.publicLeadLowPrediction;
@@ -101,7 +99,6 @@ export default defineComponent({
     },
     // Predicted estimate of lead for water systems.
     percentLead(): number | null {
-      console.log(`percent lead: ${this.percentLead}`);
       const leadServiceLines = this.leadState?.data?.leadServiceLines;
       const serviceLines = this.leadState?.data?.serviceLines;
 
@@ -112,22 +109,15 @@ export default defineComponent({
       return null;
     },
     pwsId(): BoundedGeoDatum | null {
-      // TODO: Handle error state where there is no water system id
-      // after the API has returned.
       return this.geoState?.geoids?.pwsId ?? null;
     },
     showPrediction(): boolean {
-      console.log(`show prediction: ${(this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError}`);
       return (this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError;
     },
     showParcelPrediction(): boolean {
-      console.log(`show parcel prediction: ${this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null}`);
       return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
     },
     showWaterSystemPrediction(): boolean {
-      console.log(`show ws prediction: ${this.geoState?.geoids?.geoType != GeoType.address &&
-      this.pwsId != null &&
-      this.percentLead != null}`);
       return (
         // Anything but address gets a water system prediction for now.
         this.geoState?.geoids?.geoType != GeoType.address &&
