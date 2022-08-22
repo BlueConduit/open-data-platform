@@ -199,20 +199,20 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .prediction div {
-  @include centered-container;
-
-  text-align: center;
+  @include container-column;
+  @include center-container;
 }
 
 .container {
-  padding-bottom: 20px;
+  padding-bottom: $spacing-lg;
 }
 
 .center-container {
-  gap: 20px;
-  padding: 0 60px 0 60px;
+  gap: $spacing-lg;
+  padding: 0 3*$spacing-lg 0 3*$spacing-lg;
 }
 
 .justify-right {
@@ -220,7 +220,7 @@ export default defineComponent({
 }
 
 .search {
-  margin: 20px;
+  margin: $spacing-lg;
   max-width: 350px;
 }
 </style>

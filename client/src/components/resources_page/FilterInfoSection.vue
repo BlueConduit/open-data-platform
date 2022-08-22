@@ -1,57 +1,54 @@
 <template>
-  <resources-page-section
-    :content='content.WATER_FILTER_INFO_SECTION'
-    :styles='styles.DEFAULT_STYLE'>
+  <div class='section'>
+    <div class='header-section'>
+      <div class='h1-header-large'>
+        {{ messages.WATER_FILTER_INFO_SECTION_HEADER }}
+      </div>
+      <div class='h2-header-large'>
+        {{ messages.WATER_FILTER_INFO_SECTION_SUBHEADER }}
+      </div>
+    </div>
     <div class='filter-static-content'>
     <span class='asset'><img
-      :src='require(`@/assets/media/${content.WATER_FILTER_INFO_SECTION.image}`)'
+      :src='require(`@/assets/media/resource-image-1.png`)'
       alt=''></span>
-      <span class='filter-text'>
-      {{ content.WATER_FILTER_INFO_SECTION.body }}
+      <span class='h1-header'>
+      {{ messages.WATER_FILTER_DESCRIPTION }}
     </span>
     </div>
-  </resources-page-section>
+  </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import { ResourcesPageContent as content } from '../../assets/messages/resources';
-import { ResourcesPageStyles as styles } from '../../assets/styles/style_props';
-import ResourcesPageSection from './ResourcesPageSection.vue';
+import { ResourcesPageMessages as messages } from '../../assets/messages/resources';
 
 /**
  * Content for filter info section of the resources page.
  */
 export default defineComponent({
   name: 'FilterInfoSection',
-  components: {
-    ResourcesPageSection,
-  },
   data() {
     return {
-      content,
-      styles,
+      messages,
     };
   },
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .asset img {
-  height: 300px;
-  /*width: 494px;*/
+  height: auto;
+  max-width: 475px;
 }
 
 .filter-static-content {
-  width: 932px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  letter-spacing: 0.2px;
-  margin-top: 24px;
-  gap: 38px;
+  @include container-row;
+  @include center-container;
+  gap: $spacing-lg;
 }
 
 .filter-text {
@@ -61,5 +58,10 @@ export default defineComponent({
 
   /*!* Warm Grey/Warm Grey 600 *!*/
   color: #7A7A7A;
+}
+
+.h1-header {
+  max-width: 325px;
+  color: $warm-grey-600;
 }
 </style>

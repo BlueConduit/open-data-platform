@@ -1,38 +1,32 @@
 // Strings for the resources page.
 
-interface Content {
-  header: string;
-  subHeader?: string;
-  body?: string;
-  image?: string;
-}
-
 interface Recommendation {
   header: string;
   linkText: string;
   url: string;
 }
 
+interface FilterType {
+  header: string,
+  image: string,
+}
+
 /**
  * Strings related to the resources page.
  */
-class ResourcesPageContent {
+export class ResourcesPageMessages {
+  static WATER_FILTER_INFO_SECTION_HEADER = 'Choosing the right water filter';
+  static WATER_FILTER_INFO_SECTION_SUBHEADER = 'Here are a few things to consider before buying a water ' +
+    'filter along with a few questions you may have.';
+  static WATER_FILTER_DESCRIPTION = 'You can get filters that cover an entire home or for a ' +
+    'single person on the go. There are many options that can fit your budget or needs.';
+  static FILTER_TYPES_SECTION_HEADER = 'Filters to fit your needs and budget.';
+  static FILTER_TYPES_SECTION_SUBHEADER = 'Explore different types of water filters.';
+  static RECOMMENDATIONS_SECTION_HEADER = 'Recommendations';
+  static RECOMMENDATIONS_SECTION_SUBHEADER = 'Here are a few sites that have  detailed ' +
+    'recommendations before you purchase.';
 
-  // Contents for the water filter information section.
-  static WATER_FILTER_INFO_SECTION: Content = {
-    header: 'Choosing the right water filter',
-    subHeader: 'Here are a few things to consider before buying a water filter along with a few questions you may have.',
-    body: `You can get filters that cover an entire home or for a single person on the go. There are many options that can fit your budget or needs.`,
-    image: 'resource-image-1.png',
-  };
-
-  // Content for the filter types section.
-  static FILTER_TYPES_SECTION: Content = {
-    header: 'Filters to fit your needs and budget.',
-    subHeader: 'Explore different types of water filters.',
-  };
-
-  static FILTER_TYPES: Content[] = [
+  static FILTER_TYPES: FilterType[] = [
     {
       header: 'Renter or on a budget? pick a pitcher.',
       image: 'pitcher-filter.png',
@@ -51,12 +45,6 @@ class ResourcesPageContent {
     },
   ];
 
-  // Content for the filter recommendations section.
-  static RECOMMENDATIONS_SECTION: Content = {
-    header: 'Recommendations',
-    subHeader: 'Here are a few sites that have  detailed recommendations before you purchase.',
-  };
-
   static RECOMMENDATIONS: Recommendation[] = [
     {
       header: 'BOS (Best Osmosis Systems)',
@@ -70,9 +58,3 @@ class ResourcesPageContent {
     },
   ];
 }
-
-export {
-  Content,
-  Recommendation,
-  ResourcesPageContent,
-};

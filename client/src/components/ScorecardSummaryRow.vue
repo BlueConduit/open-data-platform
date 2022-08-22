@@ -43,7 +43,7 @@ export default defineComponent({
   data() {
     return {
       containerRowClass: this.imageFloatDirection == ImageFloatDirection.left
-        ? 'container-row center-container' : 'container-row center-container container-reverse',
+        ? 'center-container' : 'container-reverse',
     };
   },
   computed: {
@@ -61,12 +61,14 @@ export default defineComponent({
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
-.container-row {
+.center-container {
   height: var(--height);
   gap: $spacing-lg;
 }
 
 .container-reverse {
+  @include center-container;
+
   flex-direction: row-reverse;
 }
 

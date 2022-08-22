@@ -24,32 +24,33 @@ $navy-blue: #2553A0;
 }
 
 .h1-header {
-  @include mixins.typography-semi-bold();
-  font-size: 24px;
-  line-height: 34px;
+  font-size: 6 * $spacing-xs;
+  line-height: 9 * $spacing-xs;
+  text-align: center;
 }
 
 .h1-header-large {
-  font-size: 40px;
-  line-height: 60px;
+  font-size: 10 * $spacing-xs;
+  line-height: 15 * $spacing-xs;
   font-weight: 500;
+  text-align: center;
 }
 
 .h1-header-xl {
-  font-size: 54px;
-  line-height: 60px;
+  font-size: 13 * $spacing-xs;
+  line-height: 15 * $spacing-xs;
   font-weight: 500;
 }
 
 .h2-header {
-  @include mixins.typography-semi-bold();
-  font-size: 18px;
+  font-size: 4.5 * $spacing-xs;
 }
 
 .h2-header-large {
-  font-size: 20px;
-  line-height: 30px;
+  font-size: 5 * $spacing-xs;
+  line-height: 7.5 * $spacing-xs;
   font-weight: 500;
+  text-align: center;
 }
 
 .medium {
@@ -74,60 +75,76 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
 
 /** Structure */
 
-@mixin container-row {
-  display: flex;
-}
-
 @mixin container-column {
   display: flex;
   flex-direction: column;
 }
 
-@mixin centered-container {
-  justify-content: center;
-}
-
-.container-row {
+@mixin container-row {
   display: flex;
+  flex-direction: row;
 }
 
-.container-column {
-  display: flex;
-  flex-direction: column;
-}
-
-.center-container {
+@mixin center-container {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.container-column {
+  @include container-column;
+}
+
+.container-row {
+  @include container-row;
+}
+
+.center-container {
+  @include center-container;
+}
+
 /** Buttons **/
 
-.gold-button {
-
-  background-color: $support;
+@mixin button {
+  border: none;
   border-radius: $border-radius;
   box-shadow: $button-shadow-default;
-  color: $text_dark;
   padding: functions.getSpacing("sm") functions.getSpacing("md");
-  border: none;
 
   &:hover {
-    background-color: $support01;
     box-shadow: $button-shadow-hovered;
   }
 }
 
-.grey-button {
-  border-radius: $border-radius;
-  box-shadow: $button-shadow-default;
-  color: $warm-grey-800;
-  padding: functions.getSpacing("sm") functions.getSpacing("md");
-  border: none;
+.gold-button {
+  @include button;
+
+  background-color: $support;
+  color: $text_dark;
 
   &:hover {
     background-color: $support01;
-    box-shadow: $button-shadow-hovered;
   }
+}
+
+.grey-button {
+  @include button;
+  color: $warm-grey-800;
+
+  &:hover {
+    background-color: $support01;
+  }
+}
+
+.header-section {
+  @include container-column;
+  @include center-container;
+  gap: $spacing-md;
+}
+
+.section {
+  @include container-column;
+  @include center-container;
+  gap: $spacing-lg;
+  padding: $spacing-xl $spacing-md;
 }
