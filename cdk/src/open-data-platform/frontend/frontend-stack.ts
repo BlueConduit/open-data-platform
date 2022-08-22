@@ -119,13 +119,6 @@ export class FrontendStack extends Stack {
       // CF must not forward the "host" header, because that messes up the API Gateway.
       // https://old.reddit.com/r/aws/comments/fyfwt7/cloudfront_api_gateway_error_403_bad_request/hv4l17k/
       originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
-      functionAssociations: [
-        // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.
-        {
-          function: prefixTrimFunction,
-          eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-        },
-      ],
     });
 
     // DNS.
