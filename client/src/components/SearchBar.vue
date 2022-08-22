@@ -97,8 +97,12 @@ export default defineComponent({
 }
 
 .search-wrapper {
-  display: inline-block;
+  display: flex;
   padding-left: 15px;
+}
+
+.search {
+  display: flex;
 }
 
 .select-wrapper {

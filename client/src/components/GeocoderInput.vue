@@ -46,7 +46,7 @@ export default defineComponent({
     this.geocoder.setPlaceholder(this.placeholder);
     
     if (this.acceptedTypes != null) {
-      this.geocoder.setTypes(this.acceptedTypes.join());
+      this.geocoder.setTypes(this.acceptedTypes.join(','));
     }
 
     // TODO: replace 'any' here with a meaningful type.

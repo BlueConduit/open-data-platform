@@ -2,7 +2,7 @@
   <div class='container'>
     <div class='container-row justify-right'>
       <map-geocoder-wrapper class='search'
-                            :accepted-types='acceptedTypes'
+                            :acceptedTypes='acceptedTypes'
                             v-model:expandSearch='showSearch' />
     </div>
     <div class='prediction'>

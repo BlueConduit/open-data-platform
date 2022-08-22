@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-show='expandSearch' class='geocoder-content-is-expanded'>
-      <GeocoderInput :accepted-types='this.acceptedTypes' @result='onGeocodeResults' />
+      <GeocoderInput :acceptedTypes='this.acceptedTypes' @result='onGeocodeResults' />
       <div class='search-button'
            @click='$emit(&apos;update:expandSearch&apos;, !this.expandSearch)'>
         <img src='@/assets/icons/search.svg' />

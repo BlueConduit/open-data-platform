@@ -2,7 +2,7 @@
   <div class='scorecard-search'>
     <GeocoderInput class='geocoder'
                    :placeholder='this.placeholder'
-                   :accepted-types='acceptedTypes'
+                   :acceptedTypes='acceptedTypes'
                    @result='onGeocodeResults' />
     <button class='gold-button' @click='onSearch' :disabled='!searchHasResult'>
       {{ ctaButtonText }}
