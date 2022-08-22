@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS states
     geom          GEOMETRY(Geometry, 4326),
     PRIMARY KEY (census_geo_id)
 );
+
 CREATE INDEX IF NOT EXISTS states_geom_idx ON states USING GIST (geom);
 
 -- Counties
@@ -70,6 +71,7 @@ CREATE TABLE IF NOT EXISTS zipcodes
     geom          geometry(Geometry, 4326),
     PRIMARY KEY (census_geo_id)
 );
+
 CREATE INDEX IF NOT EXISTS zipcodes_geom_idx ON zipcodes USING GIST (geom);
 CREATE UNIQUE INDEX zipcodes_zipcode_unique_idx IF NOT EXISTS ON zipcodes (zipcode);
 
