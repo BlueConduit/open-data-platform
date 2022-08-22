@@ -47,6 +47,8 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .h2-header-large {
+  @include centered-text;
+  
   max-width: 70%;
 }
 

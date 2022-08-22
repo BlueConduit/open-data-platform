@@ -147,7 +147,6 @@ export default defineComponent({
 
 .container-column {
   max-width: 12 * $spacing-xl;
-  gap: $spacing-lg;
   padding: $spacing-lg;
 }
 </style>
