@@ -41,9 +41,13 @@ export default defineComponent({
   color: $white;
 }
 
+.h1-header {
+  text-align: start;
+}
+
 .text {
   gap: $spacing-lg;
   padding: $spacing-xl;
-  max-width: 700px; // TODO: Add CSS mixins for spacing constants.
+  max-width: 700px;
 }
 </style>
