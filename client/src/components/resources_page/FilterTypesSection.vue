@@ -46,7 +46,6 @@ export default defineComponent({
   flex-wrap: wrap;
   justify-content: space-between;
 
-  width: 852px;
-  height: 903px;
+  max-width: 850px;
 }
 </style>

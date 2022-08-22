@@ -11,7 +11,7 @@
     <div class='recommendations-content'>
       <div v-for='rec in messages.RECOMMENDATIONS'
            :key='rec.url'>
-        <div class='recommendation-title'>{{ rec.header }}</div>
+        <div class='h2-header-large recommendation-title'>{{ rec.header }}</div>
         <a class='recommendation-link' :href='rec.url'>{{ rec.linkText }}</a>
       </div>
     </div>
@@ -37,6 +37,7 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import '../../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 a {
   text-decoration: none;
@@ -45,20 +46,16 @@ a {
 .recommendations-content {
   @include container-column;
   align-items: flex-start;
-  padding: 83px 61px;
-  gap: 30px;
+  padding: $spacing-xl;
+  gap: $spacing-lg;
 
   background-color: $white;
-  height: fit-content;
-  width: 912px;
-  border-radius: 16px;
+  border-radius: $spacing-md;
 }
 
 .recommendation-title {
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 30px;
   color: $warm-grey-800;
+  text-align: start;
 }
 
 .recommendation-link {

@@ -38,25 +38,21 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import '../../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .asset img {
-  height: 472px;
-  width: 494px;
+  height: auto;
+  max-width: 475px;
 }
 
 .filter-static-content {
   @include container-row;
   @include center-container;
-  width: 932px;
-  letter-spacing: 0.2px;
-  margin-top: 24px;
-  gap: 38px;
+  gap: $spacing-lg;
 }
 
 .h1-header {
-  width: 324px;
-  height: 170px;
-  padding: 0 60px 0 0;
+  max-width: 325px;
   color: $warm-grey-600;
 }
 </style>
