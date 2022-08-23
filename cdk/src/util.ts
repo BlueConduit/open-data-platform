@@ -1,8 +1,8 @@
 import { StackProps } from 'aws-cdk-lib';
-import { SlackChannelConfigurationProps } from 'aws-cdk-lib/aws-chatbot';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import { Construct } from 'constructs';
+import { ITopic } from 'aws-cdk-lib/aws-sns';
 
 // Constants. Define anything that's referenced in multiple places here.
 // Use string enums for easy debugging, since these map to human-readable strings.
@@ -27,7 +27,7 @@ export const baseSubdomain = 'leadout'; // Winner of team vote.
 // https://github.com/BlueConduit/tributary/blob/main/cdk/lib/types.ts
 export interface CommonProps extends StackProps {
   envType: EnvType;
-  slackConfig: SlackChannelConfigurationProps;
+  ticketSNSTopicArn?: string;
 }
 
 export const stackName = (id: StackId, e: EnvType): string => {
@@ -46,7 +46,7 @@ export const lambdaErrorAlarm = (scope: Construct, lambda: NodejsFunction, lambd
     },
   }).createAlarm(scope, 'ErrorAlarm', {
     alarmName: `${lambdaName} lambda error`,
-    alarmDescription: `The ${lambdaName} lambda has failed. Check the logs for details: https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#logsV2:log-groups/log-group/${lambda.logGroup.logGroupName}`,
+    alarmDescription: `The ${lambdaName} lambda has failed. Check the logs for details: ${lambda.logGroup.logGroupName}`,
     evaluationPeriods: 1,
     threshold: 1,
     treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,

@@ -6,7 +6,8 @@ import { DataPlaneStack } from './data-plane/data-plane-stack';
 import { NetworkStack } from './network/network-stack';
 import { FrontendStack } from './frontend/frontend-stack';
 import { AppPlaneStack } from './app-plane/app-plane-stack';
-import { MonitoringStack } from './monitoring/monitoring';
+import { topicArn } from '../monitoring/monitoring-stack';
+import { Topic } from 'aws-cdk-lib/aws-sns';
 
 /**
  * Creates the constituent stacks for the platform.
@@ -14,17 +15,14 @@ import { MonitoringStack } from './monitoring/monitoring';
  * @param props - App-wide props passed down to stacks.
  */
 export default (scope: Construct, props: CommonProps) => {
-  const { envType } = props;
-  const monitoringStack = new MonitoringStack(scope, stackName(StackId.Monitoring, envType), {
-    ...props,
-  });
+  const { envType, env } = props;
+  if (env) props.ticketSNSTopicArn = topicArn(envType, env);
   const networkStack = new NetworkStack(scope, stackName(StackId.Network, envType), {
     ...props,
   });
   const dataPlaneStack = new DataPlaneStack(scope, stackName(StackId.DataPlane, envType), {
     ...props,
     vpc: networkStack.vpc,
-    monitoringStack,
   });
   const appPlaneStack = new AppPlaneStack(scope, stackName(StackId.AppPlane, envType), {
     ...props,

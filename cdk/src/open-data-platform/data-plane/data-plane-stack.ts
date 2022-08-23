@@ -10,12 +10,10 @@ import { DataImportStack } from './data-import/data-import-stack';
 import { DatabaseUserCredentials } from './db-user-credentials/db-user-credentials';
 import { AuroraCapacityUnit } from 'aws-cdk-lib/aws-rds';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as sns from 'aws-cdk-lib/aws-sns';
-import { MonitoringStack } from '../monitoring/monitoring';
+import { Topic } from 'aws-cdk-lib/aws-sns';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
-  monitoringStack?: MonitoringStack;
 }
 
 export class DataPlaneStack extends Stack {
@@ -27,7 +25,7 @@ export class DataPlaneStack extends Stack {
   constructor(scope: Construct, id: string, props: DataPlaneProps) {
     super(scope, id, props);
 
-    const { vpc } = props;
+    const { vpc, ticketSNSTopicArn } = props;
 
     // This uses Aurora Serverless, which supports the web-based Query Editor [1]. Therefore, engineers
     // can run queries on the privately-subnetted DB without the need to connect through a bastion VM.
@@ -74,6 +72,9 @@ export class DataPlaneStack extends Stack {
       schemaFileName: 'schema.sql',
       credentialsSecret: this.cluster.secret!,
       userCredentials: [this.tileserverCredentials.credentialsSecret],
+      ticketSNSTopic: ticketSNSTopicArn
+        ? Topic.fromTopicArn(this, 'ticketSNSTopic', ticketSNSTopicArn)
+        : undefined,
     });
     rootSchema.node.addDependency(this.tileserverCredentials.credentialsSecret);
 

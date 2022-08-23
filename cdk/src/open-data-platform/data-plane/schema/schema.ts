@@ -7,12 +7,12 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
-import * as actions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import { Construct } from 'constructs';
 import * as path from 'path';
 import { ResourceInitializer } from '../../../resource-initializer';
-import { MonitoringStack } from '../../monitoring/monitoring';
 import { lambdaErrorAlarm } from '../../../util';
+import { ITopic } from 'aws-cdk-lib/aws-sns';
+import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions';
 
 interface SchemaProps {
   cluster: rds.ServerlessCluster;
@@ -21,7 +21,7 @@ interface SchemaProps {
   schemaFileName: string; // This can be a path relative to this directory.
   credentialsSecret: secretsmanager.ISecret;
   userCredentials?: secretsmanager.ISecret[];
-  monitoringStack?: MonitoringStack;
+  ticketSNSTopic?: ITopic;
 }
 
 // NodejsFunction looks for a .ts file using the handler ID to use as the lambda code [1].
@@ -33,15 +33,8 @@ export class Schema extends Construct {
   constructor(scope: Construct, id: string, props: SchemaProps) {
     super(scope, id);
 
-    const {
-      cluster,
-      vpc,
-      db,
-      schemaFileName,
-      credentialsSecret,
-      userCredentials,
-      monitoringStack,
-    } = props;
+    const { cluster, vpc, db, schemaFileName, credentialsSecret, userCredentials, ticketSNSTopic } =
+      props;
 
     const initSchemaFunction = new NodejsFunction(this, handlerId, {
       description: `Updates the DB schema for the "${db}" database in "${cluster.clusterIdentifier}".`,
@@ -94,6 +87,6 @@ export class Schema extends Construct {
 
     // Monitor errors.
     const alarm = lambdaErrorAlarm(this, initSchemaFunction, 'Init Schema');
-    if (monitoringStack) alarm.addAlarmAction(new actions.SnsAction(monitoringStack.ticketTopic));
+    if (ticketSNSTopic) alarm.addAlarmAction(new SnsAction(ticketSNSTopic));
   }
 }
