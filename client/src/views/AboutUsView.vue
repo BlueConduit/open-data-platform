@@ -44,6 +44,6 @@ export default defineComponent({
 .text {
   gap: $spacing-lg;
   padding: $spacing-xl;
-  max-width: 700px; // TODO: Add CSS mixins for spacing constants.
+  max-width: 700px;
 }
 </style>
