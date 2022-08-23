@@ -1,21 +1,26 @@
 <template>
   <div
-    :class='containerRowClass'
-    :style='cssVars'>
+    :class='containerRowClass'>
     <div class='asset'><img :src='require(`@/assets/media/${image}`)' alt=''>
     </div>
-    <div>
-      <div class='h2-header'> {{ header }}</div>
-      <div class='explain-text'> {{ subheader }}</div>
+    <div class='factor-text'>
+      <div class='h2-header-large'> {{ header }}</div>
+      <div class='explain-text'> {{ subheader }} <br>
+        <a v-if='learnMoreLink != null' :href='learnMoreLink'>
+          {{ ScorecardMessages.LEARN_MORE }}</a>
+      </div>
       <!--      TODO: Handle error state where there is no demographic data -->
       <!--      after the API has returned.-->
-      <div v-if='comparisonValue != null'> {{ comparisonValue }}</div>
+      <div v-if='comparisonValue != null' class='comparison-value'>
+        {{ comparisonValue }}
+      </div>
     </div>
   </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
+import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 
 /**
  * Which side of the summary row to place the image.
@@ -39,19 +44,14 @@ export default defineComponent({
       default: ImageFloatDirection.left,
     },
     subheader: String,
+    learnMoreLink: String,
   },
   data() {
     return {
       containerRowClass: this.imageFloatDirection == ImageFloatDirection.left
         ? 'center-container' : 'container-reverse',
+      ScorecardMessages,
     };
-  },
-  computed: {
-    cssVars() {
-      return {
-        '--height': '225px',
-      };
-    },
   },
 });
 
@@ -72,13 +72,22 @@ export default defineComponent({
   flex-direction: row-reverse;
 }
 
+.comparison-value {
+  color: $warm-grey-800;
+  font-weight: 600;
+}
+
 .explain-text {
   color: white;
 }
 
+.factor-text {
+  @include container-column;
+  gap: $spacing-md;
+}
+
 .asset img {
-  height: var(--height);
-  width: 18 * $spacing-md;
+  width: 20 * $spacing-md;
 }
 
 </style>

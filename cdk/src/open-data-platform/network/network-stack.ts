@@ -60,6 +60,6 @@ export class NetworkStack extends Stack {
       enableFargateCapacityProviders: true,
     });
 
-    this.dns = new Dns(this, 'DNS', { envType });
+    this.dns = new Dns(this, 'DNS', props);
   }
 }
