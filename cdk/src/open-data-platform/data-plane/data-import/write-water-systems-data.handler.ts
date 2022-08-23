@@ -2,11 +2,12 @@ import { RDSDataService } from 'aws-sdk';
 import { BatchExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 import { geoJsonHandlerFactory } from './handler-factory';
 import { WaterSystemsTableRowBuilder } from '../model/water-systems-table';
+import { isNull } from 'util';
 
 // As of 2022-06-27, this should have 26010 rows.
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata',
-  Key: 'pwsid_lead_connections_even_smaller.geojson',
+  Key: 'cleaned_water_systems.geojson',
 };
 
 const SCHEMA = 'public';
@@ -51,27 +52,32 @@ async function insertBatch(
  * Sometimes these fields are negative because they are based on a regression.
  */
 function getValueOrDefault(field: string): number {
-  return Math.max(parseFloat(field == 'NaN' || field == null ? '0' : field), 0);
+  return Math.max(parseFloat(field == 'NaN' || field == null ? '-1' : field), -1);
 }
 
 /**
  * Maps a data row to a table row ready to write to the db.
  * @param row: row with all data needed to build a [WaterSystemsTableRow].
  */
-function getTableRowFromRow(row: any): SqlParametersList {
+function getTableRowFromRow(row: any): SqlParametersList | null {
   const value = row.value;
   const properties = value.properties;
-  return (
-    new WaterSystemsTableRowBuilder()
-      .pwsId(properties.pwsid)
-      .pwsName(properties.pws_name ?? '')
-      .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
-      .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
-      .populationServed(getValueOrDefault(properties.population_served_count))
-      // Keep JSON formatting. Post-GIS helpers depend on this.
-      .geom(JSON.stringify(value.geometry))
-      .build()
-  );
+  console.log(`properties: ${properties}`);
+
+  if (value.geometry != null) {
+    return (
+      new WaterSystemsTableRowBuilder()
+        .pwsId(properties.pwsid)
+        .pwsName(properties.pws_name ?? '')
+        .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
+        .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
+        .populationServed(getValueOrDefault(properties.population_served_count))
+        // Keep JSON formatting. Post-GIS helpers depend on this.
+        .geom(JSON.stringify(value.geometry))
+        .build()
+    );
+  }
+  return null;
 }
 
 /**
@@ -81,6 +87,9 @@ function getTableRowFromRow(row: any): SqlParametersList {
 export const handler = geoJsonHandlerFactory(
   s3Params,
   async (rows: any[], rdsDataService: RDSDataService) => {
-    await insertBatch(rdsDataService, rows.map(getTableRowFromRow));
+    await insertBatch(
+      rdsDataService,
+      rows.map(getTableRowFromRow).filter((row) => row != null) as SqlParametersList[],
+    );
   },
 );

@@ -52,12 +52,6 @@ export const geoJsonHandlerFactory =
     let rowOffset = event.rowOffset ?? 0;
     const rowLimit = event.rowLimit ?? Infinity;
     const batchSize = event.batchSize ?? 10;
-    console.log('Starting import:', {
-      rowLimit,
-      rowOffset,
-      batchSize,
-      s3Params,
-    });
 
     const db = new AWS.RDSDataService();
     let results: ProcessResult = {
@@ -66,29 +60,12 @@ export const geoJsonHandlerFactory =
       erroredBatchCount: 0,
     };
 
-    let keepReading = true;
-    while (keepReading) {
-      try {
-        const batchResults = await readGeoJsonFile(
-          db,
-          s3Params,
-          callback,
-          rowOffset,
-          rowLimit,
-          batchSize,
-        );
-        // Add batch results to total result returned from handler.
-        results.processedBatchCount += batchResults.processedBatchCount;
-        results.successfulBatchCount += batchResults.successfulBatchCount;
-        results.erroredBatchCount += batchResults.erroredBatchCount;
-
-        keepReading = batchResults.successfulBatchCount > 0;
-        rowOffset += results.processedBatchCount;
-        console.log(`Importing rows starting from: ${rowOffset}`);
-      } catch (error) {
-        console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
-        throw error;
-      }
+    try {
+      results = await readGeoJsonFile(db, s3Params, callback, rowOffset, rowLimit, batchSize);
+      console.log(`Importing rows starting from: ${rowOffset}`);
+    } catch (error) {
+      console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
+      throw error;
     }
 
     return {
