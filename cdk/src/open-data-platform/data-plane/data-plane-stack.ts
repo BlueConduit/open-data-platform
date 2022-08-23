@@ -21,6 +21,7 @@ export class DataPlaneStack extends Stack {
   readonly databaseName: string;
   readonly tileserverCredentials: DatabaseUserCredentials;
   readonly apiLambdaRole: iam.Role;
+  readonly notificationTopics: sns.ITopic[] = [];
 
   constructor(scope: Construct, id: string, props: DataPlaneProps) {
     super(scope, id, props);
@@ -77,6 +78,7 @@ export class DataPlaneStack extends Stack {
         : undefined,
     });
     rootSchema.node.addDependency(this.tileserverCredentials.credentialsSecret);
+    this.notificationTopics.push(...rootSchema.notificationTopics);
 
     new DataImportStack(this, 'DataImportStack', {
       cluster: this.cluster,

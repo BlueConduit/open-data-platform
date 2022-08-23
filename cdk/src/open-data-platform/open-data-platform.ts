@@ -35,4 +35,9 @@ export default (scope: Construct, props: CommonProps) => {
     networkStack,
   });
   frontendStack.addDependency(appPlaneStack);
+  const monitoringStack = new MonitoringStack(scope, stackName(StackId.Monitoring, envType), {
+    ...props,
+    notificationTopics: [...dataPlaneStack.notificationTopics],
+  });
+  monitoringStack.addDependency(dataPlaneStack);
 };

@@ -136,11 +136,16 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
 .gold-button {
   @include button;
 
-  background-color: $support;
+  background-color: $support01;
   color: $text_dark;
 
   &:hover {
-    background-color: $support01;
+    background-color: $support;
+  }
+
+  &:disabled {
+    background-color: $support;
+    color: $text_inactive
   }
 }
 
