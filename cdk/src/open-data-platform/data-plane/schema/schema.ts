@@ -88,19 +88,22 @@ export class Schema extends Construct {
 
     // Monitor errors.
     // TODO: make this general for all lambdas.
-    const topic = new sns.Topic(this, 'SchemaErrorTopic');
+    const topic = new sns.Topic(this, 'ErrorTopic');
     new cloudwatch.MathExpression({
       expression: 'errors / invocations',
+      label: 'Error Fraction',
       usingMetrics: {
         errors: initSchemaFunction.metricErrors(),
         invocations: initSchemaFunction.metricInvocations(),
       },
     })
-      .createAlarm(this, 'SchemaErrorAlarm', {
+      .createAlarm(this, 'ErrorAlarm', {
+        alarmName: 'Schema update lambda error',
         alarmDescription:
           'The schema update lambda has failed. Check the logs for details: https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#logsV2:log-groups$3FlogGroupNameFilter$3Drootschemahandler',
         evaluationPeriods: 1,
         threshold: 1,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       })
       .addAlarmAction(new actions.SnsAction(topic));
     this.notificationTopics.push(topic);
