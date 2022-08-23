@@ -13,6 +13,7 @@ import * as actions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import { Construct } from 'constructs';
 import * as path from 'path';
 import { ResourceInitializer } from '../../../resource-initializer';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 
 interface SchemaProps {
   cluster: rds.ServerlessCluster;
@@ -88,14 +89,16 @@ export class Schema extends Construct {
     // Monitor errors.
     // TODO: make this general for all lambdas.
     const topic = new sns.Topic(this, 'SchemaErrorTopic');
-    initSchemaFunction.logGroup
-      .addMetricFilter('SchemaErrorMetric', {
-        filterPattern: FilterPattern.exists('$.errorType'),
-        metricName: 'SchemaError',
-        metricNamespace: 'SchemaLambda',
-      })
-      .metric()
+    new cloudwatch.MathExpression({
+      expression: 'errors / invocations',
+      usingMetrics: {
+        errors: initSchemaFunction.metricErrors(),
+        invocations: initSchemaFunction.metricInvocations(),
+      },
+    })
       .createAlarm(this, 'SchemaErrorAlarm', {
+        alarmDescription:
+          'The schema update lambda has failed. Check the logs for details: https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#logsV2:log-groups$3FlogGroupNameFilter$3Drootschemahandler',
         evaluationPeriods: 1,
         threshold: 1,
       })
