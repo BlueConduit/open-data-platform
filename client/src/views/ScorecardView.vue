@@ -25,6 +25,8 @@
       :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
       @onButtonClick='navigateToMapPage'
     />
+    <LslrSection />
+    <!-- TODO add lslr section here -->
   </div>
 </template>
 
@@ -37,6 +39,7 @@ import ScorecardSummaryPanel from '../components/ScorecardSummaryPanel.vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
 import NationwideMap from '../components/NationwideMap.vue';
+import LslrSection from '@/components/LslrSection.vue';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -48,7 +51,8 @@ export default defineComponent({
     NationwideMap,
     PredictionPanel,
     ScorecardSummaryPanel,
-  },
+    LslrSection
+},
   data() {
     return {
       ScorecardMessages,
