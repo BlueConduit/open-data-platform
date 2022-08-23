@@ -15,7 +15,8 @@ OpenDataPlatform(app, {
   tags: { Project: util.projectName, Environment: util.defaultEnv },
   envType: util.defaultEnv,
   slackConfig: {
-    slackChannelConfigurationName: 'LeadOut-sandbox',
+    // Each environment needs its own channel config.
+    slackChannelConfigurationName: util.stackName(util.StackId.Monitoring, util.defaultEnv),
     slackWorkspaceId: 'TJTFN34NM',
     slackChannelId: 'C03V1FX7KC1',
   },
