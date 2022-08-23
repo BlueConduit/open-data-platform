@@ -141,6 +141,8 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .center-container {
+  @include centered-text;
+
   background-color: $light-blue;
   color: $white;
 }
