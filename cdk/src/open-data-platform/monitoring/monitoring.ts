@@ -22,6 +22,8 @@ export class MonitoringStack extends Stack {
     });
 
     // Subscribe to each topic from the other stacks.
+    // TODO: make this more independent of other stacks. Right now, updating other stacks sometimes
+    // will fail because this stack depends on the SNS topic resource consumed here.
     props.notificationTopics.forEach((topic) => this.chatbot.addNotificationTopic(topic));
   }
 }
