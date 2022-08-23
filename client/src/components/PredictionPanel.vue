@@ -1,11 +1,13 @@
 <template>
   <div class='container'>
     <div class='container-row justify-right'>
-      <map-geocoder-wrapper class='search' v-model:expandSearch='showSearch' />
+      <map-geocoder-wrapper class='search'
+                            :acceptedTypes='acceptedTypes'
+                            v-model:expandSearch='showSearch' />
     </div>
     <div class='prediction'>
       <div v-if='showWaterSystemPrediction'>
-        <div class='h1-header navy'>
+        <div class='h1-header-large navy'>
           {{ formatPredictionAsLikelihood(percentLead) }}
         </div>
         <div class='h2-header'>
@@ -76,6 +78,7 @@ export default defineComponent({
   },
   data() {
     return {
+      acceptedTypes: [GeoType.address, GeoType.postcode],
       expandSearch: true,
       showSearch: true,
       ScorecardSummaryMessages: ScorecardMessages,

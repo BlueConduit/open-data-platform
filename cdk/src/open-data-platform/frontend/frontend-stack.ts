@@ -115,18 +115,10 @@ export class FrontendStack extends Stack {
       allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
       responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
       // TODO: Cache based on query strings if/when we use them.
-      // TODO: re-enable caching after dev.
-      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+      cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       // CF must not forward the "host" header, because that messes up the API Gateway.
       // https://old.reddit.com/r/aws/comments/fyfwt7/cloudfront_api_gateway_error_403_bad_request/hv4l17k/
       originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
-      functionAssociations: [
-        // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.
-        {
-          function: prefixTrimFunction,
-          eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-        },
-      ],
     });
 
     // DNS.

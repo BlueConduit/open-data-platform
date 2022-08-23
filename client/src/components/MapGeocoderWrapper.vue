@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-show='expandSearch' class='geocoder-content-is-expanded'>
-      <GeocoderInput @result='onGeocodeResults' />
+      <GeocoderInput :acceptedTypes='this.acceptedTypes' @result='onGeocodeResults' />
       <div class='search-button'
            @click='$emit(&apos;update:expandSearch&apos;, !this.expandSearch)'>
         <img src='@/assets/icons/search.svg' />
@@ -17,7 +17,7 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, inject } from 'vue';
+import { defineComponent, inject, PropType } from 'vue';
 import GeocoderInput from './GeocoderInput.vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
@@ -42,6 +42,13 @@ export default defineComponent({
     };
   },
   props: {
+    acceptedTypes: {
+      type: Array as PropType<GeoType[]>,
+      // Default to all types, minus the unknown type.
+      default () {
+        return Object.keys(GeoType).filter((type) => type != GeoType.unknown);
+      }
+    },
     expandSearch: { type: Boolean, default: false },
   },
   methods: {
