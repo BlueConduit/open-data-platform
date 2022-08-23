@@ -41,10 +41,6 @@ export default defineComponent({
   color: $white;
 }
 
-.h1-header {
-  text-align: start;
-}
-
 .text {
   gap: $spacing-lg;
   padding: $spacing-xl;
