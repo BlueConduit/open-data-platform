@@ -2,9 +2,8 @@ import { RDSDataService } from 'aws-sdk';
 import { BatchExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 import { geoJsonHandlerFactory } from './handler-factory';
 import { WaterSystemsTableRowBuilder } from '../model/water-systems-table';
-import { isNull } from 'util';
 
-// As of 2022-06-27, this should have 26010 rows.
+// As of 2022-08-23, this should have 44261 rows.
 const s3Params = {
   Bucket: 'opendataplatformapistaticdata',
   Key: 'cleaned_water_systems.geojson',
@@ -62,7 +61,8 @@ function getValueOrDefault(field: string): number {
 function getTableRowFromRow(row: any): SqlParametersList | null {
   const value = row.value;
   const properties = value.properties;
-  console.log(`properties: ${properties}`);
+
+  console.log(`properties: ${JSON.stringify(properties)}`);
 
   if (value.geometry != null) {
     return (
@@ -71,7 +71,7 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
         .pwsName(properties.pws_name ?? '')
         .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
         .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
-        .populationServed(getValueOrDefault(properties.population_served_count))
+        .populationServed(getValueOrDefault(properties.population_served))
         // Keep JSON formatting. Post-GIS helpers depend on this.
         .geom(JSON.stringify(value.geometry))
         .build()
@@ -81,7 +81,7 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
 }
 
 /**
- * Parses S3 'pwsid_lead_connections_even_smaller.geojson' file and writes rows
+ * Parses S3 'cleaned_water_systems.geojson' file and writes rows
  * to water systems table in the MainCluster postgres db.
  */
 export const handler = geoJsonHandlerFactory(
