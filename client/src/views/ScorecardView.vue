@@ -25,8 +25,7 @@
       :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
       @onButtonClick='navigateToMapPage'
     />
-    <LslrSection />
-    <!-- TODO add lslr section here -->
+    <LslrSection v-if='showLslr' :city='geoState?.geoids?.city'/>
   </div>
 </template>
 
@@ -40,6 +39,8 @@ import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
 import NationwideMap from '../components/NationwideMap.vue';
 import LslrSection from '@/components/LslrSection.vue';
+import { GeoDataState } from '@/model/states/geo_data_state';
+import { useSelector } from '@/model/store';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -52,11 +53,19 @@ export default defineComponent({
     PredictionPanel,
     ScorecardSummaryPanel,
     LslrSection
-},
+  },
+  setup () {
+    const geoState = useSelector((state) => state.geos) as GeoDataState;
+
+    return {
+      geoState,
+    }
+  },
   data() {
     return {
       ScorecardMessages,
       Titles,
+      showLslr: false,
     };
   },
   methods: {
@@ -73,6 +82,11 @@ export default defineComponent({
       router.push({
         path: '/map',
       });
+    },
+  },
+  watch: {
+    'geoState.geoids': function() {
+        this.showLslr = this.geoState?.geoids?.city == null;
     },
   },
 });

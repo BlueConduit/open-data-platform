@@ -9,14 +9,24 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { ScorecardMessages as messages } from '@/assets/messages/scorecard_messages';
+import { City } from '@/model/states/model/geo_data';
+import { GeoDataState } from '@/model/states/geo_data_state';
+import { useSelector } from '@/model/store';
+
+const LSLR_CITY_LINKS = {
+    toledo : 'https://toledo.oh.gov/residents/water/lead-service-lines/customer-side',
+}
 
 /**
  * Lslr section component.
  */
 export default defineComponent({
   name: 'LslrSection',
+  props: {
+    city: Object as PropType<City>,
+  },
   data() {
     return {
       messages,

@@ -18,6 +18,15 @@ enum GeoType {
 }
 
 /**
+ * Represents cities which we have parcel data for. 
+ * 
+ * Used to display city-specific information.
+ */
+enum City {
+  toledo = 'toledo',
+}
+
+/**
  * Model for geo id selection.
  */
 interface GeoData {
@@ -27,6 +36,7 @@ interface GeoData {
   zipCode?: BoundedGeoDatum;
   lat?: string;
   long?: string;
+  city?: City;
 }
 
 
@@ -43,4 +53,4 @@ interface BoundedGeoDatum {
 }
 
 
-export { GeoData, GeoType, BoundedGeoDatum };
+export { City, GeoData, GeoType, BoundedGeoDatum };
