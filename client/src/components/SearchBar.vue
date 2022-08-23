@@ -15,7 +15,7 @@
         :options='this.options' />
     </div>
     <div class='search-wrapper'>
-      <map-geocoder-wrapper />
+      <map-geocoder-wrapper class='search' v-model:expandSearch='showSearch' />
     </div>
   </div>
 </template>
@@ -44,6 +44,7 @@ export default defineComponent({
     return {
       options: [] as DataLayer[],
       selectedOption: null as DataLayer | null,
+      showSearch: false,
     };
   },
   methods: {
@@ -96,8 +97,12 @@ export default defineComponent({
 }
 
 .search-wrapper {
-  display: inline-block;
+  display: flex;
   padding-left: 15px;
+}
+
+.search {
+  display: flex;
 }
 
 .select-wrapper {

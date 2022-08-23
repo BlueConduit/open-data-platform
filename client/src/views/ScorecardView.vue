@@ -2,21 +2,33 @@
   <div>
     <PredictionPanel />
     <NationwideMap height='60vh' />
-    <ActionSection :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
-                   :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
-                   :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-                   :bgColor='actionBackgroundColor'
-                   @onButtonClick='navigateToResourcePage' />
+    <div class='container-column center-container actions-to-take'>
+      <div class='h1-header'>
+        {{ ScorecardMessages.TAKE_ACTION_HEADER }}
+      </div>
+      <ActionSection
+        :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
+        :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
+        :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
+        @onButtonClick='navigateToResourcePage'
+      />
+      <ActionSection
+        :header='ScorecardMessages.SHARE_LEAD_OUT'
+        :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
+        @onButtonClick='copyToClipboard'
+      />
+    </div>
     <ScorecardSummaryPanel />
-    <ActionSection :header='ScorecardMessages.WANT_TO_KNOW_MORE'
-                   :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
-                   :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
-                   :bgColor='actionBackgroundColor'
-                   @onButtonClick='navigateToMapPage' />
+    <ActionSection
+      :header='ScorecardMessages.WANT_TO_KNOW_MORE'
+      :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
+      :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
+      @onButtonClick='navigateToMapPage'
+    />
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import PredictionPanel from '../components/PredictionPanel.vue';
 import ActionSection from '../components/ActionSection.vue';
 import { defineComponent } from 'vue';
@@ -39,12 +51,15 @@ export default defineComponent({
   },
   data() {
     return {
-      actionBackgroundColor: '#E1F5FE',
       ScorecardMessages,
       Titles,
     };
   },
   methods: {
+    async copyToClipboard() {
+      // Requires lat,long to be in the URL.
+      await navigator.clipboard.writeText(window.location.href);
+    },
     navigateToResourcePage() {
       router.push({
         path: '/resources',
@@ -59,4 +74,11 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
+.actions-to-take {
+  padding: $spacing-lg;
+}
+</style>

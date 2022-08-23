@@ -5,9 +5,9 @@
     <div class='asset'><img :src='require(`@/assets/media/${image}`)' alt=''>
     </div>
     <div>
-      <div class='semi-bold h2-header'> {{ header }}</div>
+      <div class='h2-header'> {{ header }}</div>
       <div class='explain-text'> {{ subheader }}</div>
-      <!--      TODO: Handle error state where there is no lead prediction -->
+      <!--      TODO: Handle error state where there is no demographic data -->
       <!--      after the API has returned.-->
       <div v-if='comparisonValue != null'> {{ comparisonValue }}</div>
     </div>
@@ -43,7 +43,7 @@ export default defineComponent({
   data() {
     return {
       containerRowClass: this.imageFloatDirection == ImageFloatDirection.left
-        ? 'container-row' : 'container-row container-reverse',
+        ? 'center-container' : 'container-reverse',
     };
   },
   computed: {
@@ -57,23 +57,28 @@ export default defineComponent({
 
 
 </script>
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
-<style scoped>
-
-.container-row {
-  align-items: center;
-  display: flex;
+.center-container {
   height: var(--height);
-  gap: 20px;
+  gap: $spacing-lg;
 }
 
 .container-reverse {
+  @include center-container;
+
   flex-direction: row-reverse;
+}
+
+.explain-text {
+  color: white;
 }
 
 .asset img {
   height: var(--height);
-  width: 300px;
+  width: 18 * $spacing-md;
 }
 
 </style>

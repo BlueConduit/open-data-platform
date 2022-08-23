@@ -1,12 +1,12 @@
 <template>
-  <div class='container-column center-container' :style='cssVars'>
-    <div class='h1-header semi-bold'>
+  <div class='container-column center-container' :style='style'>
+    <div class='h2-header'>
       {{ header }}
     </div>
-    <div class='explain-text'>
+    <div class='explain-text' v-if='subheader != null'>
       {{ subheader }}
     </div>
-    <button class='outline-button'
+    <button class='gold-button'
             v-if='buttonText != null'
             v-on:click='onButtonClick'>
       {{ buttonText }}
@@ -20,30 +20,11 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'ActionSection',
   props: {
-    bgColor: {
-      type: String,
-      default: '#FFFFFF',
-    },
-    buttonColor: {
-      type: String,
-      default: '#464646',
-    },
-    height: {
-      type: Number,
-      default: 300,
-    },
+    // Allows parent to determine styling for this component.
+    style: [String, Object],
     header: String,
     subheader: String,
     buttonText: String,
-  },
-  computed: {
-    cssVars() {
-      return {
-        '--bg-color': this.bgColor,
-        '--button-color': this.buttonColor,
-        '--height': `${this.height + 'px'}`,
-      };
-    },
   },
   methods: {
     onButtonClick() {
@@ -53,16 +34,17 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 .center-container {
-  background-color: var(--bg-color);
-  gap: 20px;
-  height: var(--height);
-  padding: 20px;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
 }
 
-.outline-button {
-  color: var(--button-color)
+.explain-text {
+  text-align: center;
 }
 
 </style>

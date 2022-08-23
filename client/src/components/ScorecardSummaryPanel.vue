@@ -1,13 +1,13 @@
 <template>
-  <div class='container-wrapper'>
-    <div class='container-column'>
-      <div class='semi-bold h1-header'>
+  <div class='center-container'>
+    <div class='container-column center-container'>
+      <div class='h1-header'>
         <div> {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER }}
         </div>
       </div>
       <div> {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}
       </div>
-      <div class='container-column'>
+      <div class='container-column center-container'>
         <ScorecardSummaryRow :header='ScorecardSummaryMessages.HOME_AGE'
                              :subheader='ScorecardSummaryMessages.HOME_AGE_EXPLAINED'
                              :comparisonValue='homeAgeComparison'
@@ -92,20 +92,17 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
-.container-wrapper {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  width: 100%
+.center-container {
+  background-color: $light-blue;
+  color: $white;
 }
 
 .container-column {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  max-width: 800px;
-  padding: 20px;
+  max-width: 12 * $spacing-xl;
+  padding: $spacing-lg;
 }
 </style>

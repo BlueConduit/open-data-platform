@@ -1,27 +1,45 @@
 <template>
-  <div class='container-column'>
+  <div class='container'>
     <div class='container-row justify-right'>
-      <map-geocoder-wrapper class='search' v-model:expandSearch='showSearch' />
+      <map-geocoder-wrapper class='search'
+                            :acceptedTypes='acceptedTypes'
+                            v-model:expandSearch='showSearch' />
     </div>
-    <div class='container-column center-container'>
-      <div class='explain-text'>
-        {{ ScorecardSummaryMessages.LEADOUT }}
+    <div class='prediction'>
+      <div v-if='showWaterSystemPrediction'>
+        <div class='h1-header navy'>
+          {{ formatPredictionAsLikelihood(percentLead) }}
+        </div>
+        <div class='h2-header'>
+          {{ ScorecardSummaryMessages.PREDICTION_EXPLANATION(
+          formatPredictionAsLikelihoodDescriptor(percentLead)) }}
+        </div>
       </div>
-      <div class='h1-header semi-bold'
-           v-if='showWaterSystemPrediction'>
-        Your neighborhood water system {{ pwsId }} is likely
-        {{ percentLead }}% lead.
-      </div>
-      <div class='h1-header semi-bold'
+      <div class='h1-header'
            v-if='showParcelPrediction'>
-        Your home's public service lines have a {{ publicLeadLikelihood }}%
-        chance of lead.
-        <span v-if='privateLeadLikelihood != null'>
-          While your private service lines have a {{ privateLeadLikelihood }}%
-          chance of lead.</span>
+        <div class='h1-header navy'>
+          {{ formatPredictionAsLikelihood(publicLeadPercent) }}
+        </div>
+        <div class='h2-header'>
+          {{ ScorecardSummaryMessages.PREDICTION_EXPLANATION(
+          formatPredictionAsLikelihoodDescriptor(publicLeadPercent)) }}
+        </div>
       </div>
-      <div class='explain-text'>
-        {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
+      <div class='no-prediction' v-if='!showPrediction && !showError'>
+        <div class='h1-header navy'>
+          {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
+        </div>
+        <div class='explain-text'>
+          {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
+        </div>
+      </div>
+      <div v-if='showError'>
+        <div class='h1-header navy'>
+          {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE }}
+        </div>
+        <div class='explain-text'>
+          {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED }}
+        </div>
       </div>
     </div>
   </div>
@@ -36,6 +54,10 @@ import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
+import { Status } from '../model/states/status_state';
+
+const LOW_LEAD_LIKELIHOOD = 0.33;
+const MEDIUM_LEAD_LIKELIHOOD = 0.66;
 
 /**
  * Container lead prediction.
@@ -51,23 +73,26 @@ export default defineComponent({
     return {
       geoState: geoState,
       leadState: leadDataState,
+      showError: geoState?.status?.status == Status.error,
     };
   },
   data() {
     return {
+      acceptedTypes: [GeoType.address, GeoType.postcode],
       expandSearch: true,
       showSearch: true,
       ScorecardSummaryMessages: ScorecardMessages,
     };
   },
-  // TODO: Handle error state where there is no lead prediction
-  // after the API has returned.
   computed: {
+    publicLeadPercent(): number | undefined {
+      return this.leadState?.data?.publicLeadLowPrediction;
+    },
     // Predicted lead likelihood for parcel's public lines.
     publicLeadLikelihood(): string | null {
       // Note that low prediction is the same as high prediction in the DB
       // right now bc we don't yet have intervals
-      return this.formatPercentage(this.leadState?.data?.publicLeadLowPrediction);
+      return this.formatPercentage(this.publicLeadPercent);
     },
     // Predicted lead likelihood for parcel's private lines.
     privateLeadLikelihood(): string | null {
@@ -76,26 +101,32 @@ export default defineComponent({
       return this.formatPercentage(this.leadState?.data?.privateLeadLowPrediction);
     },
     // Predicted estimate of lead for water systems.
-    percentLead(): string | null {
+    percentLead(): number | null {
       const leadServiceLines = this.leadState?.data?.leadServiceLines;
       const serviceLines = this.leadState?.data?.serviceLines;
 
       // Protect against dividing by 0.
       if (leadServiceLines != null && serviceLines != null && serviceLines != 0) {
-        return this.formatPercentage(leadServiceLines / serviceLines);
+        return leadServiceLines / serviceLines;
       }
       return null;
     },
     pwsId(): BoundedGeoDatum | null {
-      // TODO: Handle error state where there is no water system id
-      // after the API has returned.
       return this.geoState?.geoids?.pwsId ?? null;
+    },
+    showPrediction(): boolean {
+      return (this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError;
     },
     showParcelPrediction(): boolean {
       return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
     },
     showWaterSystemPrediction(): boolean {
-      return this.geoState?.geoids?.geoType != GeoType.address && this.pwsId != null && this.percentLead != null;
+      return (
+        // Anything but address gets a water system prediction for now.
+        this.geoState?.geoids?.geoType != GeoType.address &&
+        this.pwsId != null &&
+        this.percentLead != null
+      );
     },
   },
   watch: {
@@ -104,33 +135,87 @@ export default defineComponent({
     'geoState.geoids': function() {
       // Check if an address was queried and another prediction should be
       // fetched.
-      if (this.geoState?.geoids?.geoType == GeoType.address
-        && this.geoState?.geoids?.lat != null
-        && this.geoState?.geoids?.long != null) {
-
+      if (
+        this.geoState?.geoids?.geoType == GeoType.address &&
+        this.geoState?.geoids?.lat != null &&
+        this.geoState?.geoids?.long != null
+      ) {
         dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
-
       } else if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
       }
     },
+    'geoState.status': function() {
+      this.showError = this.geoState?.status?.status == Status.error;
+    },
   },
   methods: {
-    formatPercentage(number: number | undefined): string | null {
-      if (number == null || number == 0) {
+    formatPercentage(prediction: number | undefined): string | null {
+      if (prediction == null || prediction == 0) {
         return null;
       }
-      return Math.round(number * 100).toString();
+      return Math.round(prediction * 100).toString();
+    },
+    /**
+     * Takes in a prediction and produces a phrase to describe the likelihood
+     * as a phrase.
+     * @param prediction percent lead prediction
+     */
+    formatPredictionAsLikelihood(prediction: number | undefined): string | null {
+      if (prediction == null) {
+        return null;
+      }
+      switch (true) {
+        case prediction <= LOW_LEAD_LIKELIHOOD:
+          return ScorecardMessages.LOW_LIKELIHOOD;
+        case prediction < MEDIUM_LEAD_LIKELIHOOD:
+          return ScorecardMessages.MEDIUM_LIKELIHOOD;
+        case prediction >= MEDIUM_LEAD_LIKELIHOOD:
+          return ScorecardMessages.HIGH_LIKELIHOOD;
+        default:
+          return null;
+      }
+    },
+    /**
+     * Takes in a prediction and produces a phrase to describe the likelihood
+     * as an adverb.
+     * @param prediction percent lead prediction
+     */
+    formatPredictionAsLikelihoodDescriptor(prediction: number | undefined): string | null {
+      if (prediction == null) {
+        return null;
+      }
+      switch (true) {
+        case prediction <= LOW_LEAD_LIKELIHOOD:
+          return ScorecardMessages.NOT_LIKELY;
+        case prediction < MEDIUM_LEAD_LIKELIHOOD:
+          return ScorecardMessages.SOMEWHAT_LIKELY;
+        case prediction >= MEDIUM_LEAD_LIKELIHOOD:
+          return ScorecardMessages.HIGHLY_LIKELY;
+        default:
+          return null;
+      }
     },
   },
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
+.prediction div {
+  @include container-column;
+  @include center-container;
+}
+
+.container {
+  padding-bottom: $spacing-lg;
+}
 
 .center-container {
-  gap: 20px;
-  height: 200px;
+  gap: $spacing-lg;
+  padding: 0 3*$spacing-lg 0 3*$spacing-lg;
 }
 
 .justify-right {
@@ -138,8 +223,7 @@ export default defineComponent({
 }
 
 .search {
-  margin: 20px;
+  margin: $spacing-lg;
   max-width: 350px;
 }
-
 </style>

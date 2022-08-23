@@ -3,31 +3,53 @@ import { ApiClient } from '@/api/api_client';
 import { AppDispatch } from '@/model/store';
 import { LeadData } from '@/model/states/model/lead_data';
 import { LeadDataState } from '@/model/states/lead_data_state';
+import { Status } from '@/model/states/status_state';
 
 const initialState: LeadDataState = {};
 const client = new ApiClient();
 
 // Automatically generates action creators and action types that correspond
 // to the reducers and state. See: https://redux-toolkit.js.org/api/createslice
-// TODO(breuch): Consider showing user message on error.
 const leadDataSlice = createSlice({
   name: 'leadDataSlice',
   initialState,
   reducers: {
     getParcelSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
       state.data = { ...state.data, ...action.payload };
+      // Reset status.
+      state.status = { status: Status.success };
     },
     getParcelError(state: LeadDataState, action) {
-      console.log(`Error fetching lead data: ${state} ${action}`);
+      console.log(
+        `Error fetching lead data for parcel: ${JSON.stringify(state)} ${JSON.stringify(action)}`,
+      );
+      state.status = {
+        status: Status.error,
+        message: action.payload.error,
+        code: action.payload.status,
+      };
     },
     getWaterSystemSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
       state.data = { ...state.data, ...action.payload };
+      // Reset status.
+      state.status = { status: Status.success };
     },
     getWaterSystemError(state: LeadDataState, action) {
-      console.log(`Error fetching lead data: ${state} ${action}`);
+      console.log(
+        `Error fetching lead data for water system: ${JSON.stringify(state)} ${JSON.stringify(
+          action,
+        )}`,
+      );
+      state.status = {
+        status: Status.error,
+        message: action.payload.error,
+        code: action.payload.status,
+      };
     },
     waterSystemQueried(state: LeadDataState, action: PayloadAction<LeadData>) {
       state.data = { ...state.data, ...action.payload };
+      // Reset status.
+      state.status = { status: Status.pending };
     },
   },
 });

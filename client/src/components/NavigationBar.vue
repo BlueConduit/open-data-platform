@@ -1,42 +1,27 @@
 <template>
   <div>
-    <div :style='cssVars' class='container'>
+    <div class='container'>
       <div>
         <router-link to='/'>
-          <img src='../assets/logo.png' class='logo' />
+          <img src='../assets/lo-logo.png' class='logo' />
         </router-link>
       </div>
       <div class='right-align'>
-        <div v-for='route in routes' :key='route[0]'>
-          <router-link :to='route[1]' class='semi-bold'>{{ route[0] }}
-          </router-link>
+        <div v-for='route in routes' class='nav-link' :key='route[0]'>
+          <router-link :to='route[1]'>{{ route[0] }} </router-link>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { Titles } from '../assets/messages/common';
 import * as router from '../router';
 
 export default defineComponent({
   name: 'NavigationBar',
-  props: {
-    bgColor: {
-      type: String,
-      default: '#0b2553',
-    },
-    textColor: {
-      type: String,
-      default: '#fff',
-    },
-    height: {
-      type: Number,
-      default: 50,
-    },
-  },
   data() {
     const routes: [string, string][] = [
       [Titles.HOME_TITLE, router.HOME_ROUTE],
@@ -49,23 +34,19 @@ export default defineComponent({
       routes,
     };
   },
-  computed: {
-    cssVars() {
-      return {
-        '--bg-color': this.bgColor,
-        '--text-color': this.textColor,
-        '--height': `${this.height + 'px'}`,
-      };
-    },
-  },
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 .container {
-  background-color: var(--bg-color);
+  background-color: $white_background;
+  box-shadow: $card-shadow-hovered;
   display: flex;
-  height: var(--height);
+  height: $spacing-xl;
+  padding-left: $spacing-xl;
+  padding-right: $spacing-xl;
 }
 
 .right-align {
@@ -74,17 +55,27 @@ export default defineComponent({
 }
 
 .container div {
-  padding: 0 30px;
   display: flex;
   align-items: center;
 }
 
 .logo {
-  height: var(--height);
+  height: $spacing-lg;
 }
 
-a {
-  color: var(--text-color);
+.nav-link {
+  padding: $spacing-md;
+}
+
+.nav-link a {
+  color: $text_inactive;
   text-decoration: none;
+}
+
+a:hover {
+  color: $text_link;
+  // Maintains text width while adding a bold font weight.
+  -webkit-text-stroke-width: 0.7px;
+  -webkit-text-stroke-color: $text_link;
 }
 </style>

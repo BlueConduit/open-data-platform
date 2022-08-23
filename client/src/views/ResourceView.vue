@@ -26,7 +26,4 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.content {
-  margin-top: 109px;
-}
 </style>
