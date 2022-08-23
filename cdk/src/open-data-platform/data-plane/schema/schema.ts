@@ -5,8 +5,11 @@
 import { Duration } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { FilterPattern } from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as actions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import { Construct } from 'constructs';
 import * as path from 'path';
 import { ResourceInitializer } from '../../../resource-initializer';
@@ -26,6 +29,8 @@ const handlerId = 'handler';
 
 // This construct works by defining a lambda that connects to the DB and executes the provided SQL.
 export class Schema extends Construct {
+  readonly notificationTopics: sns.ITopic[] = [];
+
   constructor(scope: Construct, id: string, props: SchemaProps) {
     super(scope, id);
 
@@ -79,5 +84,22 @@ export class Schema extends Construct {
       },
     });
     init.node.addDependency(cluster);
+
+    // Monitor errors.
+    // TODO: make this general for all lambdas.
+    const topic = new sns.Topic(this, 'SchemaErrorTopic');
+    initSchemaFunction.logGroup
+      .addMetricFilter('SchemaErrorMetric', {
+        filterPattern: FilterPattern.exists('$.errorType'),
+        metricName: 'SchemaError',
+        metricNamespace: 'SchemaLambda',
+      })
+      .metric()
+      .createAlarm(this, 'SchemaErrorAlarm', {
+        evaluationPeriods: 1,
+        threshold: 1,
+      })
+      .addAlarmAction(new actions.SnsAction(topic));
+    this.notificationTopics.push(topic);
   }
 }

@@ -27,10 +27,6 @@ describe('Full stack', () => {
 
     // Set up stacks in dependency order. This has to be done before any `Template.fronStack` calls,
     // due to https://github.com/aws/aws-cdk/issues/18847#issuecomment-1121980507
-    monitoringStack = new MonitoringStack(app, stackName(StackId.Monitoring, envType), {
-      envType,
-      slackConfig,
-    });
     networkStack = new NetworkStack(app, stackName(StackId.Network, envType), {
       envType,
       slackConfig,
@@ -52,14 +48,17 @@ describe('Full stack', () => {
       networkStack,
       slackConfig,
     });
+    monitoringStack = new MonitoringStack(app, stackName(StackId.Monitoring, envType), {
+      envType,
+      slackConfig,
+      notificationTopics: [...dataPlaneStack.notificationTopics],
+    });
   });
 
   // This only checks that resources exist, not that they have any particular properties or behavior.
   test('Presence', () => {
     // Assert for presence. See this list of resource types to find the strings to use here:
     // https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html
-    const monitoringTemplate = Template.fromStack(monitoringStack);
-    monitoringTemplate.hasResourceProperties('AWS::Chatbot::SlackChannelConfiguration', {});
     const networkTemplate = Template.fromStack(networkStack);
     networkTemplate.hasResourceProperties('AWS::EC2::VPC', {});
     networkTemplate.hasResourceProperties('AWS::Route53::HostedZone', {});
@@ -77,6 +76,8 @@ describe('Full stack', () => {
       },
     });
     frontendTemplate.hasResourceProperties('AWS::CloudFront::Function', {}); // URL prefix trimmer.
+    const monitoringTemplate = Template.fromStack(monitoringStack);
+    monitoringTemplate.hasResourceProperties('AWS::Chatbot::SlackChannelConfiguration', {});
   });
 
   // TODO: Check that the lambda has write access to the DB.
