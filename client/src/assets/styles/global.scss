@@ -23,38 +23,42 @@ $navy-blue: #2553A0;
   @include mixins.typography-base();
 }
 
+a {
+  color: $navy-blue;
+}
+
+@mixin centered-text {
+  text-align: center;
+}
+
 .h1-header {
   font-size: 6 * $spacing-xs;
   line-height: 9 * $spacing-xs;
-  text-align: center;
 }
 
 .h1-header-large {
-  font-size: 10 * $spacing-xs;
+  @include centered-text;
+
+  font-size: 8 * $spacing-xs;
   line-height: 15 * $spacing-xs;
   font-weight: 500;
-  text-align: center;
 }
 
 .h1-header-xl {
-  font-size: 13 * $spacing-xs;
+  font-size: 10 * $spacing-xs;
   line-height: 15 * $spacing-xs;
   font-weight: 500;
 }
 
 .h2-header {
   font-size: 4.5 * $spacing-xs;
+  font-weight: 500;
 }
 
 .h2-header-large {
   font-size: 5 * $spacing-xs;
   line-height: 7.5 * $spacing-xs;
   font-weight: 500;
-  text-align: center;
-}
-
-.medium {
-  font-weight: 400;
 }
 
 .explain-text {
@@ -103,6 +107,19 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
   @include center-container;
 }
 
+.header-section {
+  @include container-column;
+  @include center-container;
+  gap: $spacing-md;
+}
+
+.section {
+  @include container-column;
+  @include center-container;
+  gap: $spacing-lg;
+  padding: $spacing-xl $spacing-md;
+}
+
 /** Buttons **/
 
 @mixin button {
@@ -136,15 +153,7 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
   }
 }
 
-.header-section {
-  @include container-column;
-  @include center-container;
-  gap: $spacing-md;
-}
-
-.section {
-  @include container-column;
-  @include center-container;
-  gap: $spacing-lg;
-  padding: $spacing-xl $spacing-md;
+/** Images **/
+img {
+  border-radius: $border-radius;
 }

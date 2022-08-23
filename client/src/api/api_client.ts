@@ -13,6 +13,7 @@ class ApiClient {
   constructor() {
     console.log('Using API:', ApiClient.API_URL);
   }
+
   request = async (endpoint: string, callback: (data: any) => any): Promise<ApiResponse> => {
     axiosRetry(axios, {
       retries: 3,
