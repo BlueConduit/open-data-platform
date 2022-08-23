@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS zipcodes
 );
 
 CREATE INDEX IF NOT EXISTS zipcodes_geom_idx ON zipcodes USING GIST (geom);
-CREATE UNIQUE INDEX zipcodes_zipcode_unique_idx IF NOT EXISTS ON zipcodes (zipcode);
+CREATE UNIQUE INDEX IF NOT EXISTS zipcodes_zipcode_unique_idx ON zipcodes (zipcode);
 
 -- Census-block-level data. TODO: consider renaming the table.
 
@@ -214,11 +214,11 @@ CREATE TABLE IF NOT EXISTS parcels
 -- Either of these might be used for searching.
 CREATE INDEX IF NOT EXISTS parcels_geom_idx ON parcels USING GIST (geom);
 
-CREATE TRIGGER update_last_update_timestamp
+SELECT safe_create($$CREATE TRIGGER update_last_update_timestamp
     BEFORE UPDATE
     ON parcels
     FOR EACH ROW
-EXECUTE PROCEDURE update_last_update_timestamp();
+EXECUTE PROCEDURE update_last_update_timestamp()$$);
 
 --- Create pre-computed tables.
 --- These are required to ensure acceptable latency for the tileserver.

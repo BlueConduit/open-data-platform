@@ -10,6 +10,7 @@ import { DataImportStack } from './data-import/data-import-stack';
 import { DatabaseUserCredentials } from './db-user-credentials/db-user-credentials';
 import { AuroraCapacityUnit } from 'aws-cdk-lib/aws-rds';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as sns from 'aws-cdk-lib/aws-sns';
 
 interface DataPlaneProps extends CommonProps {
   vpc: ec2.IVpc;
@@ -20,6 +21,7 @@ export class DataPlaneStack extends Stack {
   readonly databaseName: string;
   readonly tileserverCredentials: DatabaseUserCredentials;
   readonly apiLambdaRole: iam.Role;
+  readonly notificationTopics: sns.ITopic[] = [];
 
   constructor(scope: Construct, id: string, props: DataPlaneProps) {
     super(scope, id, props);
@@ -73,6 +75,7 @@ export class DataPlaneStack extends Stack {
       userCredentials: [this.tileserverCredentials.credentialsSecret],
     });
     rootSchema.node.addDependency(this.tileserverCredentials.credentialsSecret);
+    this.notificationTopics.push(...rootSchema.notificationTopics);
 
     new DataImportStack(this, 'DataImportStack', {
       cluster: this.cluster,
