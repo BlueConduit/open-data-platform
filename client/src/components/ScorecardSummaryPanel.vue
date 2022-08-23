@@ -6,7 +6,8 @@
           zipCode) }}
         </div>
       </div>
-      <div> {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}
+      <div class='subheader'>
+        {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}
       </div>
       <div class='container-column center-container'>
         <ScorecardSummaryRow :header='ScorecardSummaryMessages.HOME_AGE'
@@ -141,8 +142,6 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .center-container {
-  @include centered-text;
-
   background-color: $light-blue;
   color: $white;
 }
@@ -150,5 +149,9 @@ export default defineComponent({
 .container-column {
   max-width: 12 * $spacing-xl;
   padding: $spacing-lg;
+}
+
+.subheader {
+  @include centered-text;
 }
 </style>
