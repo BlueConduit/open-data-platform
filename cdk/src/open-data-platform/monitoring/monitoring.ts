@@ -4,26 +4,38 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import { CommonProps } from '../../util';
 
-interface MonitoringProps extends CommonProps {
-  notificationTopics: sns.ITopic[];
-}
+interface MonitoringProps extends CommonProps {}
 
 export class MonitoringStack extends Stack {
-  // This interface can be used by other stacks to send notifications.
-  readonly chatbot: chatbot.SlackChannelConfiguration;
+  /**
+   * An SNS topic for alarms that represent something going wrong, but doesn't require immediate
+   * attention yet.
+   */
+  readonly ticketTopic: sns.Topic;
+  /**
+   * An SNS topic for alarms that represent something on fire, such as a significant number of users
+   * cannot perform a CUJ.
+   */
+  readonly pageTopic: sns.Topic;
 
   constructor(scope: Construct, id: string, props: MonitoringProps) {
     super(scope, id, props);
 
     // The chatbot must be manually connected to Slack per AWS account. This can't be done in CDK.
-    this.chatbot = new chatbot.SlackChannelConfiguration(this, 'SlackChannel', {
+    const slackbot = new chatbot.SlackChannelConfiguration(this, 'SlackChannel', {
       ...props.slackConfig,
       loggingLevel: chatbot.LoggingLevel.INFO,
     });
 
     // Subscribe to each topic from the other stacks.
-    // TODO: make this more independent of other stacks. Right now, updating other stacks sometimes
-    // will fail because this stack depends on the SNS topic resource consumed here.
-    props.notificationTopics.forEach((topic) => this.chatbot.addNotificationTopic(topic));
+    // TODO: handle these differently, such as by tagging users or using a different channel.
+    this.ticketTopic = new sns.Topic(this, 'ticketSNSTopic', {
+      displayName: 'Ticket-level alarms',
+    });
+    slackbot.addNotificationTopic(this.ticketTopic);
+    this.pageTopic = new sns.Topic(this, 'pageSNSTopic', {
+      displayName: 'Page-level alarms',
+    });
+    slackbot.addNotificationTopic(this.pageTopic);
   }
 }

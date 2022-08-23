@@ -1,5 +1,8 @@
 import { StackProps } from 'aws-cdk-lib';
 import { SlackChannelConfigurationProps } from 'aws-cdk-lib/aws-chatbot';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import { Construct } from 'constructs';
 
 // Constants. Define anything that's referenced in multiple places here.
 // Use string enums for easy debugging, since these map to human-readable strings.
@@ -32,3 +35,19 @@ export const stackName = (id: StackId, e: EnvType): string => {
   if (e == EnvType.Sandbox && process.env.USER) return `${process.env.USER}-${base}`;
   return base;
 };
+
+export const lambdaErrorAlarm = (scope: Construct, lambda: NodejsFunction, lambdaName: string) =>
+  new cloudwatch.MathExpression({
+    expression: 'errors / invocations',
+    label: 'Error Fraction',
+    usingMetrics: {
+      errors: lambda.metricErrors(),
+      invocations: lambda.metricInvocations(),
+    },
+  }).createAlarm(scope, 'ErrorAlarm', {
+    alarmName: `${lambdaName} lambda error`,
+    alarmDescription: `The ${lambdaName} lambda has failed. Check the logs for details: https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#logsV2:log-groups/log-group/${lambda.logGroup.logGroupName}`,
+    evaluationPeriods: 1,
+    threshold: 1,
+    treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+  });

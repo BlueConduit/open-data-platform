@@ -15,12 +15,16 @@ import { MonitoringStack } from './monitoring/monitoring';
  */
 export default (scope: Construct, props: CommonProps) => {
   const { envType } = props;
+  const monitoringStack = new MonitoringStack(scope, stackName(StackId.Monitoring, envType), {
+    ...props,
+  });
   const networkStack = new NetworkStack(scope, stackName(StackId.Network, envType), {
     ...props,
   });
   const dataPlaneStack = new DataPlaneStack(scope, stackName(StackId.DataPlane, envType), {
     ...props,
     vpc: networkStack.vpc,
+    monitoringStack,
   });
   const appPlaneStack = new AppPlaneStack(scope, stackName(StackId.AppPlane, envType), {
     ...props,
@@ -33,9 +37,4 @@ export default (scope: Construct, props: CommonProps) => {
     networkStack,
   });
   frontendStack.addDependency(appPlaneStack);
-  const monitoringStack = new MonitoringStack(scope, stackName(StackId.Monitoring, envType), {
-    ...props,
-    notificationTopics: [...dataPlaneStack.notificationTopics],
-  });
-  monitoringStack.addDependency(dataPlaneStack);
 };
