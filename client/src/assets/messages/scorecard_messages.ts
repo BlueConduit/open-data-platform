@@ -40,7 +40,8 @@ export class ScorecardMessages {
   static LOWER_INCOME = 'Lower income';
   static RESEARCH_WATER_FILTERS = 'Research water filters';
   static SCORECARD_SUMMARY_PANEL_SUBHEADER =
-    'In addition to information from your water system, your score is also based on:';
+    'In addition to information from your water system, your score is also based on ' +
+    'these statistics for your zip code::';
   static SHARE_LEAD_OUT = 'Share LeadOut and help others know their status';
   static SOMEWHAT_DISADVANTAGED = 'Somewhat disadvantaged';
   static SOMEWHAT_LIKELY = 'somewhat likely';
