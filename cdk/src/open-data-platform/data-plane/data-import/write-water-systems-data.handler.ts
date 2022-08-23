@@ -51,7 +51,7 @@ async function insertBatch(
  * Sometimes these fields are negative because they are based on a regression.
  */
 function getValueOrDefault(field: string): number {
-  return Math.max(parseFloat(field == 'NaN' || field == null ? '-1' : field), -1);
+  return Math.max(parseFloat(field == 'NaN' || field == null ? '0' : field), 0);
 }
 
 /**
@@ -65,11 +65,22 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
   console.log(`properties: ${JSON.stringify(properties)}`);
 
   if (value.geometry != null) {
+    const reportedLeadConnections = getValueOrDefault(properties.lead_connections);
+    let leadConnectionsCount;
+
+    // If there is a reported lead count, use that
+    if (reportedLeadConnections > 0) {
+      leadConnectionsCount = reportedLeadConnections;
+      // Otherwise, get estimate from prediction interval.
+    } else {
+      leadConnectionsCount =
+        (getValueOrDefault(properties.low) + getValueOrDefault(properties.high)) / 2;
+    }
     return (
       new WaterSystemsTableRowBuilder()
         .pwsId(properties.pwsid)
         .pwsName(properties.pws_name ?? '')
-        .leadConnectionsCount(getValueOrDefault(properties.lead_connections))
+        .leadConnectionsCount(leadConnectionsCount)
         .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
         .populationServed(getValueOrDefault(properties.population_served))
         // Keep JSON formatting. Post-GIS helpers depend on this.
