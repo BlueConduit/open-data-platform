@@ -5,7 +5,7 @@ import { NetworkStack } from '../src/open-data-platform/network/network-stack';
 import { EnvType, stackName, StackId } from '../src/util';
 import { FrontendStack } from '../src/open-data-platform/frontend/frontend-stack';
 import { AppPlaneStack } from '../src/open-data-platform/app-plane/app-plane-stack';
-import { MonitoringStack } from '../src/open-data-platform/monitoring/monitoring';
+import { MonitoringStack } from '../src/monitoring/monitoring-stack';
 
 // Inspired by https://github.com/aws/aws-cdk/blob/master/packages/%40aws-cdk/aws-iam/test/policy.test.ts
 describe('Full stack', () => {
@@ -29,29 +29,24 @@ describe('Full stack', () => {
     // due to https://github.com/aws/aws-cdk/issues/18847#issuecomment-1121980507
     networkStack = new NetworkStack(app, stackName(StackId.Network, envType), {
       envType,
-      slackConfig,
     });
     dataPlaneStack = new DataPlaneStack(app, stackName(StackId.DataPlane, envType), {
       envType,
       vpc: networkStack.vpc,
-      slackConfig,
     });
     appPlaneStack = new AppPlaneStack(app, stackName(StackId.AppPlane, envType), {
       envType,
       networkStack,
       dataPlaneStack,
-      slackConfig,
     });
     frontendStack = new FrontendStack(app, stackName(StackId.Frontend, envType), {
       envType,
       appPlaneStack,
       networkStack,
-      slackConfig,
     });
     monitoringStack = new MonitoringStack(app, stackName(StackId.Monitoring, envType), {
       envType,
       slackConfig,
-      notificationTopics: [...dataPlaneStack.notificationTopics],
     });
   });
 
