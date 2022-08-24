@@ -1,5 +1,3 @@
-const commitUrl = 'https://github.com/BlueConduit/open-data-platform/commit';
-
 /**
  * Logs information about how this client code was built.
  */
@@ -11,6 +9,7 @@ export const logBuildInfo = () => {
   console.log(process.env);
   if (process.env.CODEBUILD_SOURCE_REPO_URL)
     console.log(
-      'Client built by CodeBuild from Git commit:', ${CODEBUILD_SOURCE_REPO_URL}${process.env.CODEBUILD_RESOLVED_SOURCE_VERSION}`,
+      'Client built by CodeBuild from Git commit:',
+      process.env.CODEBUILD_SOURCE_REPO_URL,
     );
 };
