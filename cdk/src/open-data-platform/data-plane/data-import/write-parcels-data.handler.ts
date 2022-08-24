@@ -64,7 +64,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
   return (
     new ParcelsTableRowBuilder()
       .address(properties.address)
-      .city(properties.city ?? '')
+      .city('toledo') // TODO: change this if we load other city parcel data.
       // TODO: Change to real properties once we have them.
       .publicLeadLowPrediction(getValueOrDefault(properties.y_score_pub))
       .publicLeadHighPrediction(getValueOrDefault(properties.y_score_pub))

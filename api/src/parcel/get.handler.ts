@@ -7,6 +7,7 @@ import { CORS_HEADERS } from '../util';
 const COLUMNS_SELECTED = 6;
 const SCHEMA = 'public';
 const SQL_QUERY = `SELECT address,
+                          city,
                           public_lead_connections_low_estimate,
                           public_lead_connections_high_estimate,
                           private_lead_connections_low_estimate,
@@ -37,11 +38,12 @@ async function getParcelData(
     }
     body = {
       address: record[0].stringValue,
-      public_lead_low_prediction: record[1].doubleValue,
-      public_lead_high_prediction: record[2].doubleValue,
-      private_lead_low_prediction: record[3].doubleValue,
-      private_lead_high_prediction: record[4].doubleValue,
-      geom: record[5].stringValue,
+      city: record[1].stringValue,
+      public_lead_low_prediction: record[2].doubleValue,
+      public_lead_high_prediction: record[3].doubleValue,
+      private_lead_low_prediction: record[4].doubleValue,
+      private_lead_high_prediction: record[5].doubleValue,
+      geom: record[6].stringValue,
     };
   }
   return body;
@@ -102,6 +104,7 @@ export const handler = async (event: {
  */
 interface ParcelApiResponse {
   address?: string;
+  city?: string;
   public_lead_low_prediction?: number;
   public_lead_high_prediction?: number;
   private_lead_low_prediction?: number;

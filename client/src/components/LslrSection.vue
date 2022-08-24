@@ -5,7 +5,7 @@
       <div class='h2-header-large'>{{ messages.LSLR_SUBHEADER }}</div>
       <button class='gold-button'>
         <a :href='cityLink' target='_blank' rel='noopener noreferrer'>
-        {{ messages.LSLR_CTA_TEXT }}
+          {{ messages.LSLR_CTA_TEXT }}
         </a>
       </button>
     </div>
