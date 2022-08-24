@@ -7,7 +7,6 @@ import { NetworkStack } from './network/network-stack';
 import { FrontendStack } from './frontend/frontend-stack';
 import { AppPlaneStack } from './app-plane/app-plane-stack';
 import { topicArn } from '../monitoring/monitoring-stack';
-import { Topic } from 'aws-cdk-lib/aws-sns';
 
 /**
  * Creates the constituent stacks for the platform.
@@ -35,9 +34,4 @@ export default (scope: Construct, props: CommonProps) => {
     networkStack,
   });
   frontendStack.addDependency(appPlaneStack);
-  const monitoringStack = new MonitoringStack(scope, stackName(StackId.Monitoring, envType), {
-    ...props,
-    notificationTopics: [...dataPlaneStack.notificationTopics],
-  });
-  monitoringStack.addDependency(dataPlaneStack);
 };
