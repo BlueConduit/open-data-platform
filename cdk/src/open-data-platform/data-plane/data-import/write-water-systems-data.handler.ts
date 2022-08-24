@@ -66,7 +66,7 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
     return null;
   }
 
-  const reportedLeadConnections = getValueOrDefault(properties.lead_connections);
+  const reportedLeadConnections = getValueOrDefault(properties.lead_connections_count);
   let leadConnectionsCount;
 
   // If there is a reported lead count, use that
