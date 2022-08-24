@@ -8,7 +8,7 @@ import prefixes from '../../../cdk/src/open-data-platform/frontend/url-prefixes'
  */
 class ApiClient {
   // A URL path prefix shared by all API routes.
-  static API_URL = `${process.env.VUE_APP_API_ENDPOINT}/api`;
+  static API_URL = `${process.env.VUE_APP_API_ENDPOINT ?? ''}/api`;
 
   constructor() {
     console.log('Using API:', ApiClient.API_URL);
