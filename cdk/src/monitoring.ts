@@ -8,7 +8,6 @@ import { stackName, StackId, defaultEnv, projectName } from './util';
 
 const app = new cdk.App();
 
-// TODO: Add this to the deployment pipeline.
 new MonitoringStack(app, StackId.Monitoring, {
   // Development account.
   env: { account: '036999211278', region: 'us-east-2' },
@@ -17,6 +16,7 @@ new MonitoringStack(app, StackId.Monitoring, {
   slackConfig: {
     slackChannelConfigurationName: `${defaultEnv}-${projectName}-channel-config`,
     slackWorkspaceId: 'TJTFN34NM',
+    // #leadout-sandbox-notifications
     slackChannelId: 'C03V1FX7KC1',
   },
 });
