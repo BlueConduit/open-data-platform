@@ -1,5 +1,7 @@
 // TODO: Modify the violations handler to use handler-factoy.ts.
 
+import { SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
+
 /**
  * Single row for violations table.
  */
@@ -18,7 +20,7 @@ class ViolationsTableRow {
   start_date: string;
   // Date the violation went back into compliance in the form of YYYY-mm-dd.
   // Could be null for ongoing violations.
-  end_date: string | null;
+  end_date?: string;
 
   constructor(
     pws_id: string,
@@ -77,7 +79,34 @@ class ViolationsTableRowBuilder {
     return this;
   }
 
-  build(): ViolationsTableRow {
-    return this._row;
+  build(): SqlParametersList {
+    return [
+      {
+        name: 'violation_id',
+        value: { stringValue: this._row.violation_id },
+      },
+      {
+        name: 'pws_id',
+        value: { stringValue: this._row.pws_id },
+      },
+      {
+        name: 'violation_code',
+        value: { stringValue: this._row.violation_code },
+      },
+      {
+        name: 'compliance_status',
+        value: { stringValue: this._row.compliance_status },
+      },
+      {
+        name: 'start_date',
+        value: { stringValue: this._row.start_date },
+      },
+      {
+        name: 'end_date',
+        value: { stringValue: this._row.end_date },
+      },
+    ];
   }
 }
+
+export { ViolationsTableRow, ViolationsTableRowBuilder };
