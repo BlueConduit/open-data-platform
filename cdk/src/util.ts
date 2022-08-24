@@ -45,7 +45,6 @@ export const lambdaErrorAlarm = (scope: Construct, lambda: NodejsFunction, lambd
       invocations: lambda.metricInvocations(),
     },
   }).createAlarm(scope, 'ErrorAlarm', {
-    alarmName: `${lambdaName} lambda error`,
     alarmDescription: `The ${lambdaName} lambda has failed. Check the logs for details: ${lambda.logGroup.logGroupName}`,
     evaluationPeriods: 1,
     threshold: 1,
