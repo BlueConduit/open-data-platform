@@ -90,14 +90,18 @@ export default defineComponent({
   },
   methods: {
     zoomToLongLat() {
-      if(this.geoState?.geoids?.pwsId?.bounding_box){
-        const {minLat, minLon, maxLat, maxLon} = this.geoState?.geoids?.pwsId?.bounding_box;
+      if (this.geoState?.geoids?.pwsId?.bounding_box) {
+        const {
+          minLat,
+          minLon,
+          maxLat,
+          maxLon,
+        } = this.geoState?.geoids?.pwsId?.bounding_box;
         this.map?.fitBounds([
           [minLat, minLon],
-          [maxLat, maxLon]
+          [maxLat, maxLon],
         ]);
-      }
-      else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
+      } else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
         const lonLat: LngLatLike = {
           lon: parseInt(this.geoState?.geoids?.long),
           lat: parseInt(this.geoState?.geoids?.lat),

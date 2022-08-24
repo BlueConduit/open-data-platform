@@ -15,7 +15,7 @@ export interface ProcessRequest {
 
 interface ProcessResult {
   processedBatchCount: number;
-  sucessfulBatchCount: number;
+  successfulBatchCount: number;
   erroredBatchCount: number;
 }
 
@@ -49,20 +49,20 @@ export const geoJsonHandlerFactory =
   (s3Params: AWS.S3.GetObjectRequest, callback: ProcessCallback): ProcessHandler =>
   async (event: ProcessRequest): Promise<APIGatewayProxyResult> => {
     // Use arguments or defaults.
-    const rowOffset = event.rowOffset ?? 0;
+    let rowOffset = event.rowOffset ?? 0;
     const rowLimit = event.rowLimit ?? Infinity;
     const batchSize = event.batchSize ?? 10;
-    console.log('Starting import:', { rowLimit, rowOffset, batchSize, s3Params });
 
     const db = new AWS.RDSDataService();
     let results: ProcessResult = {
       processedBatchCount: 0,
-      sucessfulBatchCount: 0,
+      successfulBatchCount: 0,
       erroredBatchCount: 0,
     };
 
     try {
       results = await readGeoJsonFile(db, s3Params, callback, rowOffset, rowLimit, batchSize);
+      console.log(`Importing rows starting from: ${rowOffset}`);
     } catch (error) {
       console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
       throw error;
@@ -135,7 +135,7 @@ const readGeoJsonFile = (
         if (processedRowCount + inProcessRowCount >= rowLimit) {
           console.log(
             `${id}: Stopping processing after` +
-              ` ${processedRowCount} rows proccessed + ${inProcessRowCount} rows in progress` +
+              ` ${processedRowCount} rows processed + ${inProcessRowCount} rows in progress` +
               ` >= ${rowLimit} limit`,
           );
           pipeline.destroy();
@@ -193,6 +193,6 @@ const handleEndOfFilestream = async (promises: Promise<any>[]): Promise<ProcessR
   return {
     processedBatchCount: promises.length,
     erroredBatchCount: errors.length,
-    sucessfulBatchCount: promises.length - errors.length,
+    successfulBatchCount: promises.length - errors.length,
   };
 };
