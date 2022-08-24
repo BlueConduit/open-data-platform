@@ -25,7 +25,9 @@
       :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
       @onButtonClick='navigateToMapPage'
     />
-    <LslrSection v-if='showLslr' :city='geoState?.geoids?.city'/>
+    <!-- TODO uncomment below and remove hard coded city after testing. -->
+    <!-- <LslrSection v-if='showLslr' :city='geoState?.geoids?.city'/> -->
+      <LslrSection v-if='true' city='toledo'/>
   </div>
 </template>
 
@@ -39,6 +41,7 @@ import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
 import NationwideMap from '../components/NationwideMap.vue';
 import LslrSection from '@/components/LslrSection.vue';
+import LSLR_CITY_LINKS from '@/components/LslrSection.vue';
 import { GeoDataState } from '@/model/states/geo_data_state';
 import { useSelector } from '@/model/store';
 
@@ -86,7 +89,8 @@ export default defineComponent({
   },
   watch: {
     'geoState.geoids': function() {
-        this.showLslr = this.geoState?.geoids?.city == null;
+        const city = this.geoState?.geoids?.city;
+        this.showLslr = city != null && LSLR_CITY_LINKS[city] != null;
     },
   },
 });
