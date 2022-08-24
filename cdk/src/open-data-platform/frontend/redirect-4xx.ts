@@ -13,7 +13,8 @@ export default function handler(event: { request: { uri: string } }) {
     // Static files.
     event.request.uri.startsWith('/js') ||
     event.request.uri.startsWith('/css') ||
-    event.request.uri.startsWith('/img')
+    event.request.uri.startsWith('/img') ||
+    event.request.uri.startsWith('/favicon')
   )
     return event.request;
   var beforeUrl = event.request.uri;

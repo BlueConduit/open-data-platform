@@ -98,7 +98,6 @@ export class Schema extends Construct {
       },
     })
       .createAlarm(this, 'ErrorAlarm', {
-        alarmName: 'Schema update lambda error',
         alarmDescription:
           'The schema update lambda has failed. Check the logs for details: https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#logsV2:log-groups$3FlogGroupNameFilter$3Drootschemahandler',
         evaluationPeriods: 1,
