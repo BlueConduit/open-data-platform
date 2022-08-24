@@ -36,6 +36,7 @@ export default defineComponent({
     return {
       lat: 0,
       long: 0,
+      geoType: GeoType.unknown,
       acceptedTypes: [GeoType.address, GeoType.postcode],
     };
   },
@@ -45,12 +46,13 @@ export default defineComponent({
     },
   },
   methods: {
-    onGeocodeResults(lat: number, long: number) {
+    onGeocodeResults(lat: number, long: number, geoType: GeoType) {
       this.lat = lat;
       this.long = long;
+      this.geoType = geoType;
     },
     onSearch() {
-      this.$router.push(`${SCORECARD_BASE}/${this.lat},${this.long}`);
+      this.$router.push(`${SCORECARD_BASE}/${this.geoType}/${this.lat},${this.long}`);
     },
   },
 });

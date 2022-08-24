@@ -20,7 +20,7 @@ import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/l
 import { leadServiceLinesByParcelLayer } from './data_layer_configs/lead_service_lines_by_parcel_config';
 import { queryLatLong } from './model/slices/geo_data_slice';
 import { dispatch } from './model/store';
-import { LAT_LONG_PARAM } from './router';
+import { GEOTYPE_PARAM, LAT_LONG_PARAM } from './router';
 import { GeoType } from './model/states/model/geo_data';
 import PageFooter from './components/PageFooter.vue';
 
@@ -56,14 +56,16 @@ export default defineComponent({
     // Current route location. See https://router.vuejs.org/api/#component-injections.
     $route(to: RouteLocation) {
       const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
+      const geoTypeValue: string = to.params[GEOTYPE_PARAM] as string;
 
       if (latLongValue?.length > 0) {
         const latLong = latLongValue.split(',');
         const lat = latLong[0];
         const long = latLong[1];
+        const geoType = Object.values(GeoType).find((geo) => geo == geoTypeValue) as GeoType;
 
         // TODO: Pass real geo type.
-        dispatch(queryLatLong(lat, long, GeoType.postcode));
+        dispatch(queryLatLong(lat, long, geoType));
       }
 
       // TODO: consider adding a string that says this is a non-prod environment, so devs can see
