@@ -62,33 +62,33 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
   const value = row.value;
   const properties = value.properties;
 
-  console.log(`properties: ${JSON.stringify(properties)}`);
-
-  if (value.geometry != null) {
-    const reportedLeadConnections = getValueOrDefault(properties.lead_connections);
-    let leadConnectionsCount;
-
-    // If there is a reported lead count, use that
-    if (reportedLeadConnections > 0) {
-      leadConnectionsCount = reportedLeadConnections;
-      // Otherwise, get estimate from prediction interval.
-    } else {
-      leadConnectionsCount =
-        (getValueOrDefault(properties.low) + getValueOrDefault(properties.high)) / 2;
-    }
-    return (
-      new WaterSystemsTableRowBuilder()
-        .pwsId(properties.pwsid)
-        .pwsName(properties.pws_name ?? '')
-        .leadConnectionsCount(leadConnectionsCount)
-        .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
-        .populationServed(getValueOrDefault(properties.population_served))
-        // Keep JSON formatting. Post-GIS helpers depend on this.
-        .geom(JSON.stringify(value.geometry))
-        .build()
-    );
+  if (value.geometry == null) {
+    return null;
   }
-  return null;
+
+  const reportedLeadConnections = getValueOrDefault(properties.lead_connections);
+  let leadConnectionsCount;
+
+  // If there is a reported lead count, use that
+  if (reportedLeadConnections > 0) {
+    leadConnectionsCount = reportedLeadConnections;
+    // Otherwise, get estimate from prediction interval.
+  } else {
+    // TODO: Switch to storing low, high in db.
+    leadConnectionsCount =
+      (getValueOrDefault(properties.low) + getValueOrDefault(properties.high)) / 2;
+  }
+  return (
+    new WaterSystemsTableRowBuilder()
+      .pwsId(properties.pwsid)
+      .pwsName(properties.pws_name ?? '')
+      .leadConnectionsCount(leadConnectionsCount)
+      .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
+      .populationServed(getValueOrDefault(properties.population_served))
+      // Keep JSON formatting. Post-GIS helpers depend on this.
+      .geom(JSON.stringify(value.geometry))
+      .build()
+  );
 }
 
 /**
