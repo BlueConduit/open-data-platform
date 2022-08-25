@@ -17,9 +17,9 @@ import { defineComponent, PropType } from 'vue';
 import { ScorecardMessages as messages } from '@/assets/messages/scorecard_messages';
 import { City } from '@/model/states/model/geo_data';
 
-export const LSLR_CITY_LINKS = {
-    toledo : 'https://toledo.oh.gov/residents/water/lead-service-lines/customer-side',
-}
+export const LSLR_CITY_LINKS: Map<City, string> = new Map<City, string>([
+  [City.toledo, 'https://toledo.oh.gov/residents/water/lead-service-lines/customer-side'],
+]);
 
 /**
  * Lslr section component.
@@ -28,13 +28,13 @@ export default defineComponent({
   name: 'LslrSection',
   props: {
     city: {
-      type: Object as PropType<City>,
+      type: String as PropType<City>,
       required: true,
-    }
+    },
   },
   computed: {
     cityLink: function(): string {
-      return LSLR_CITY_LINKS[this.city];
+      return LSLR_CITY_LINKS.get(this.city) ?? '';
     },
   },
   data() {
@@ -55,7 +55,7 @@ a {
 }
 
 .section {
-    background-color: $white;
-    color: $warm-grey-800;
+  background-color: $white;
+  color: $warm-grey-800;
 }
 </style>

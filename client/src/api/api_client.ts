@@ -94,6 +94,7 @@ class ApiClient {
     return this.request(`${ApiClient.API_URL}/parcel/${lat},${long}`, (data) => {
       return {
         address: data?.data?.address,
+        city: data?.data?.city,
         publicLeadLowPrediction: data?.data?.public_lead_low_prediction,
         publicLeadHighPrediction: data?.data?.public_lead_high_prediction,
         privateLeadLowPrediction: data?.data?.private_lead_low_prediction,
