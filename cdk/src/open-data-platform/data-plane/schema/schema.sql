@@ -172,6 +172,7 @@ CREATE TABLE IF NOT EXISTS water_systems
 );
 CREATE INDEX IF NOT EXISTS water_systems_state_census_geo_id_idx ON water_systems (state_census_geo_id);
 CREATE INDEX IF NOT EXISTS water_systems_geom_idx ON water_systems USING GIST (geom);
+CREATE INDEX IF NOT EXISTS water_systems_bbox_idx ON public.water_systems USING gist (bbox);
 SELECT safe_create($$CREATE TRIGGER set_bbox_to_envelope_of_geom_on_water_system_insertion
     BEFORE INSERT
     ON water_systems
