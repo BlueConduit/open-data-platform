@@ -46,7 +46,7 @@ export class DataImportStack extends Construct {
 
     const { cluster, credentialsSecret } = props;
 
-    const s3BucketWithDataFiles = new s3.Bucket(this, 'open_data_platform_static_files');
+    const s3BucketWithDataFiles = new s3.Bucket(this, `${id}-open_data_platform_static_files`);
 
     // Allow reads to all S3 buckets in account.
     const s3GetObjectPolicy = new iam.PolicyStatement({

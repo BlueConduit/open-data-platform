@@ -3,6 +3,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import demographicDataReducer from '@/model/slices/demographic_data_slice';
 import geosReducer from '@/model/slices/geo_data_slice';
 import leadDataReducer from '@/model/slices/lead_data_slice';
+import mapDataReducer from '@/model/slices/map_data_slice';
 import { storeKey } from '@/model/store_plugin';
 
 // Combines all reducers to single one.
@@ -10,6 +11,7 @@ const rootReducer = combineReducers({
   geos: geosReducer,
   leadData: leadDataReducer,
   demographicData: demographicDataReducer,
+  mapData: mapDataReducer,
 });
 
 const store = configureStore({

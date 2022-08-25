@@ -15,22 +15,28 @@ const geoSlice = createSlice({
   initialState,
   reducers: {
     getGeoIdsSuccess(state: GeoDataState, action: PayloadAction<GeoData>) {
-      state.geoids = { ...state.geoids, ...action.payload };
-      // Reset status.
-      state.status = { status: Status.success };
-    },
-    getGeoIdsError(state: GeoDataState, action) {
-      console.log(`Error fetching geos: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
-      state.status = {
-        status: Status.error,
-        message: action.payload.error,
-        code: action.payload.status,
+      return {
+        ...state,
+        geoids: { ...action.payload },
+        status: { status: Status.success },
       };
     },
-    geoIdsQueried(state: GeoDataState, action: PayloadAction<GeoData>) {
-      state.geoids = action.payload;
-      // Reset status.
-      state.status = { status: Status.pending };
+    getGeoIdsError: (state: GeoDataState, action) => {
+      console.log(`Error fetching geos: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
+      return {
+        status: {
+          status: Status.error,
+          message: action.payload.error,
+          code: action.payload.status,
+        },
+      };
+    },
+    geoIdsQueried: (state: GeoDataState, action: PayloadAction<GeoData>) => {
+      return {
+        ...state,
+        geoids: { ...action.payload },
+        status: { status: Status.pending },
+      };
     },
   },
 });

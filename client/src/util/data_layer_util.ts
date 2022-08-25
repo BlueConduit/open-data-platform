@@ -40,14 +40,14 @@ const formatLegendBucket = (legend: LegendInfo | undefined): Array<LegendBucketD
  * assigned to an enum value.
  */
 const getLegendForZoomLevel = (
-  legends: Map<GeographicLevel, LegendInfo>,
   zoom: number,
+  legends?: Map<GeographicLevel, LegendInfo>,
 ): LegendInfo | undefined => {
   // This looks for the first qualifying zoom.
   const mostGranularLegendForZoom = Object.values(GeographicLevel)
     .reverse()
-    .find((level) => level <= zoom && legends.has(level as GeographicLevel)) as GeographicLevel;
-  return legends.get(mostGranularLegendForZoom);
+    .find((level) => level <= zoom && legends?.has(level as GeographicLevel)) as GeographicLevel;
+  return legends?.get(mostGranularLegendForZoom);
 };
 
 /**

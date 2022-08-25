@@ -9,6 +9,8 @@
  */
 import { DataLayer } from '@/model/data_layer';
 import mapboxgl from 'mapbox-gl';
+import { setCurrentDataLayer } from '@/model/slices/map_data_slice';
+import { dispatch } from '@/model/store';
 
 export class State {
   currentDataLayer: DataLayer | null;

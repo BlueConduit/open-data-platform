@@ -29,15 +29,18 @@ import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import { DataLayer, MapLayer } from '../model/data_layer';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
+import { dispatch, useSelector } from '../model/store';
+import { ALL_DATA_LAYERS, setCurrentDataLayer } from '../model/slices/map_data_slice';
+import { MapDataState } from '../model/states/map_data_state';
 
 export default defineComponent({
   name: 'SearchBar',
   components: { MapGeocoderWrapper, SearchBarOption, VueSelect },
   setup() {
-    const state: State | undefined = inject(stateKey);
+    const mapState = useSelector((state) => state.mapData) as MapDataState;
 
     return {
-      state,
+      mapState,
     };
   },
   data() {
@@ -70,14 +73,19 @@ export default defineComponent({
   watch: {
     // If selectedOption changes update state data layer.
     selectedOption: function(newOption: DataLayer): void {
-      this.state?.setCurrentDataLayer(newOption);
+      if (newOption == null) {
+        return;
+      }
+      dispatch(setCurrentDataLayer(newOption.id));
     },
-    state: {
-      handler(newState: State): void {
-        if (newState != null) {
-          this.options = newState.dataLayers.filter(layer => layer.visibleInSearchBar);
-          if (newState.currentDataLayer?.id != MapLayer.LeadServiceLineByParcel) {
-            this.selectedOption = newState.currentDataLayer;
+    mapState: {
+      handler(newState: MapDataState): void {
+        if (newState?.mapData?.currentDataLayerId != null) {
+          const allLayers: Array<DataLayer> = Array.from(ALL_DATA_LAYERS.values());
+          this.options = allLayers.filter(layer => layer.visibleInSearchBar);
+          if (newState?.mapData?.currentDataLayerId != MapLayer.LeadServiceLineByParcel) {
+            console.log(this.options.find(option => option.id == newState.mapData?.currentDataLayerId));
+            //this.selectedOption = this.options.find(option => option.id == newState.mapData?.currentDataLayerId);
           }
         }
       },

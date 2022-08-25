@@ -17,6 +17,9 @@ import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import { LegendBucketData } from '../model/data_layer';
 import { formatLegendBucket, getLegendForZoomLevel } from '../util/data_layer_util';
+import { useSelector } from '../model/store';
+import { MapDataState } from '../model/states/map_data_state';
+import { ALL_DATA_LAYERS } from '../model/slices/map_data_slice';
 
 /**
  * Map legend component.
@@ -26,9 +29,11 @@ export default defineComponent({
   name: 'MapLegend',
   setup() {
     const state: State = inject(stateKey, State.default());
+    const mapState = useSelector((state) => state.mapData) as MapDataState;
 
     return {
       state,
+      mapState,
     };
   },
   data() {
@@ -45,11 +50,12 @@ export default defineComponent({
      * bucketMap is updated.
      */
     createLegend(): void {
-      if (this.state.map == null || this.state.currentDataLayer == null) {
+      if (this.mapState?.mapData?.currentDataLayerId == null) {
         return;
       }
 
-      const legendInfo = getLegendForZoomLevel(this.state.currentDataLayer.legendInfo, Math.floor(this.state.map.getZoom()));
+      const layerToUse = Array.from(ALL_DATA_LAYERS.values()).find(l => l.id == this.mapState?.mapData?.currentDataLayerId);
+      const legendInfo = getLegendForZoomLevel(Math.floor(this.state?.map?.getZoom() ?? 0), layerToUse?.legendInfo);
       this.title = legendInfo?.title ?? '';
       this.displayedBuckets = formatLegendBucket(legendInfo);
     },

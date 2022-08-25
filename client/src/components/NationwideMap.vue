@@ -17,8 +17,11 @@ import { DataLayer, FeatureProperty, GeographicLevel, MapLayer } from '../model/
 import { router } from '../router';
 import { leadServiceLinesByParcelLayer } from '../data_layer_configs/lead_service_lines_by_parcel_config';
 import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
-import { useSelector } from '../model/store';
+import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
+import { MapDataState } from '../model/states/map_data_state';
+import { ALL_DATA_LAYERS, setCurrentDataLayer } from '../model/slices/map_data_slice';
+import { MapData } from '../model/states/model/map_data';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -37,16 +40,15 @@ export default defineComponent({
   },
   setup() {
     mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
-
-    // TODO(kailamjeter): remove all dependencies on old state and delete.
-    const state: State = inject(stateKey, State.default());
-
+    
     // Listen to geoState updates.
     const geoState = useSelector((state) => state.geos) as GeoDataState;
+    const mapState = useSelector((state) => state.mapData) as MapDataState;
 
     return {
-      state,
+      //state,
       geoState,
+      mapState,
       legendStyle: {
         display: 'block',
         position: 'absolute',
@@ -57,6 +59,7 @@ export default defineComponent({
   },
   data() {
     return {
+      marker: null as mapboxgl.Marker | null,
       map: null as mapboxgl.Map | null,
       popup: null as mapboxgl.Popup | null,
     };
@@ -112,21 +115,27 @@ export default defineComponent({
     /**
      * Sets the visibility of the layer with the given styleLayerId.
      */
-    setDataLayerVisibility(styleLayerId: string, visible: boolean): void {
+    setDataLayerVisibility(layerId: string, visible: boolean): void {
       if (this.map == null) return;
 
+      const layer = ALL_DATA_LAYERS.get(layerId as MapLayer);
+      if (layer == null) {
+        return;
+      }
+
+      const styleLayerId = layer.styleLayer.id;
       this.map.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
 
       // Update the router params when toggling layers to visible. Do not update
       // for leadServiceLinesByParcelLayer, which is not a visible layer.
       const shouldUpdateRouterParam =
         visible &&
-        router.currentRoute.value.query.layer != styleLayerId &&
-        styleLayerId != leadServiceLinesByParcelLayer.styleLayer.id;
+        router.currentRoute.value.query.layer != layerId &&
+        layerId != leadServiceLinesByParcelLayer.id;
       if (shouldUpdateRouterParam) {
         router.push({
           query: Object.assign({}, router.currentRoute.value.query, {
-            layer: styleLayerId,
+            layer: layerId,
           }),
         });
       }
@@ -135,17 +144,18 @@ export default defineComponent({
     /**
      * Updates layer visibility based on current data layer.
      */
-    toggleLayerVisibility(newDataLayer: DataLayer | null, oldDataLayer: DataLayer | null): void {
+    toggleLayerVisibility(newDataLayer?: DataLayer, oldDataLayer?: DataLayer): void {
       if (this.map == null) return;
       if (this.popup != null) {
         this.popup.remove();
       }
 
+      console.log(`Toggling visibility: ${newDataLayer?.id}`);
       if (newDataLayer != null) {
-        this.setDataLayerVisibility(newDataLayer.styleLayer.id, true);
+        this.setDataLayerVisibility(newDataLayer.id, true);
       }
       if (oldDataLayer != null) {
-        this.setDataLayerVisibility(oldDataLayer.styleLayer.id, false);
+        this.setDataLayerVisibility(oldDataLayer.id, false);
       }
     },
 
@@ -156,12 +166,14 @@ export default defineComponent({
      * layer if the currentDataLayer changes.
      */
     updateMapOnDataLayerChange(
-      newDataLayer: DataLayer | null,
-      oldDataLayer: DataLayer | null,
+      newDataLayer?: DataLayer,
+      oldDataLayer?: DataLayer,
     ): void {
       if (this.map == null) {
+        console.log(`Map is null`);
         this.createMap();
       } else {
+        console.log(`Trying to toggle`);
         this.toggleLayerVisibility(newDataLayer, oldDataLayer);
       }
     },
@@ -194,14 +206,15 @@ export default defineComponent({
      */
     setUpInteractionHandlers(): void {
       if (this.map == null) return;
-      for (const layer of this.state.dataLayers) {
+      const possibleLayers = Array.from(ALL_DATA_LAYERS.values());
+      for (const layer of possibleLayers) {
         // Use MapBox's custom click handler, which takes the style layer that we
         // want to set up a handler for as a parameter.
         this.map?.on('click', layer.styleLayer.id, async (e: MapLayerMouseEvent): Promise<void> => {
-          if (e.features != undefined) {
+          if (e.features != null) {
             const clickedFeatureProperties: { [name: string]: any } = e.features[0]
               .properties as {};
-            const popupInfo = this.state?.currentDataLayer?.popupInfo;
+            const popupInfo = possibleLayers.find(l => l.id == this.mapState?.mapData?.currentDataLayerId)?.popupInfo;
 
             this.createMapPopup(e.lngLat /* popupData= */, {
               title: popupInfo?.title ?? '',
@@ -253,14 +266,14 @@ export default defineComponent({
         // Otherwise, switch to water system level.
         if (
           this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
-          this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByWaterSystem
+          this.mapState?.mapData?.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem
         ) {
-          this.state?.setCurrentDataLayer(leadServiceLinesByParcelLayer);
+          dispatch(setCurrentDataLayer(leadServiceLinesByParcelLayer.id));
         } else if (
           this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
-          this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByParcel
+          this.mapState?.mapData?.currentDataLayerId == MapLayer.LeadServiceLineByParcel
         ) {
-          this.state?.setCurrentDataLayer(leadServiceLinesByWaterSystemLayer);
+          dispatch(setCurrentDataLayer(leadServiceLinesByWaterSystemLayer.id));
         }
       });
     },
@@ -269,10 +282,13 @@ export default defineComponent({
      * Configure data layers and interaction handlers on the map.
      */
     configureMap(): void {
+      console.log(`On load: map is ${this.map}`);
       if (this.map == null) return;
 
-      this.state.map = this.map;
-      for (const layer of this.state.dataLayers) {
+      console.log(this.map);
+      console.log(this.mapState?.mapData?.currentDataLayerId);
+
+      for (const layer of ALL_DATA_LAYERS.values()) {
         this.map?.addSource(layer.id, layer.source);
         this.map?.addLayer(layer.styleLayer);
       }
@@ -282,11 +298,12 @@ export default defineComponent({
       this.setUpZoomListener();
 
       // Check whether there's a layer selected in the router.
-      this.state.setCurrentDataLayer(
-        this.state.dataLayers.find(
-          (layer) => layer.styleLayer.id == router.currentRoute.value.query?.layer,
-        ) ?? leadServiceLinesByWaterSystemLayer,
-      );
+      const currentDataLayer = this.mapState?.mapData?.dataLayers?.find(
+        (layer) => layer == router.currentRoute.value.query?.layer,
+      ) ?? leadServiceLinesByWaterSystemLayer.id;
+
+      console.log(`Dispatching current data layer as: ${currentDataLayer}`);
+      dispatch(setCurrentDataLayer(currentDataLayer));
     },
 
     /**
@@ -305,6 +322,13 @@ export default defineComponent({
         });
 
         this.map.on('load', this.configureMap);
+        this.map.on('error', (error) => {
+          console.log(`Error loading tiles: ${error}`);
+        });
+        // this.map.on('sourcedata', (e) => {
+        //   console.log(`A source data event occurred: ${e.sourceId}`);
+        //   console.log(this.state?.currentDataLayer?.id);
+        // });
         this.map.scrollZoom.disable();
       } catch (err) {
         // TODO: Add error handling.
@@ -317,9 +341,22 @@ export default defineComponent({
   },
   watch: {
     // Listens to app state to toggle layers.
-    'state.currentDataLayer': function(newDataLayer: DataLayer, oldDataLayer: DataLayer) {
-      this.updateMapOnDataLayerChange(newDataLayer, oldDataLayer);
+    'mapState.mapData': {
+      handler: function(newMapData: MapData, oldMapData: MapData) {
+        console.log(`Map heard state change for current data layer: ${JSON.stringify(newMapData.currentDataLayerId)}`);
+
+        if (newMapData?.currentDataLayerId == null) {
+          return;
+        }
+        console.log(`Map heard non-null state change for current data layer: ${JSON.stringify(newMapData.currentDataLayerId)}`);
+        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newMapData.currentDataLayerId), ALL_DATA_LAYERS.get(oldMapData?.currentDataLayerId ?? MapLayer.Unknown));
+      },
+      deep: true,
     },
+    // 'mapState.mapData.currentDataLayerId': function(newDataLayerId: MapLayer, oldDataLayerId: MapLayer) {
+    //   console.log(`Map heard state change for current data layer: ${JSON.stringify(newDataLayerId)}`);
+    //   this.updateMapOnDataLayerChange(DATA_LAYERS.get(newDataLayerId), DATA_LAYERS.get(oldDataLayerId));
+    // },
     // Listens to query param to toggle layers.
     routerLayer: function(newLayer: string) {
       if (newLayer != null) {
@@ -332,12 +369,17 @@ export default defineComponent({
       const long = this.geoState?.geoids?.long;
 
       if (lat != null && long != null) {
-        const marker = new mapboxgl.Marker({
+        // Remove the old marker.
+        if (this.marker != null) {
+          this.marker.remove();
+        }
+
+        this.marker = new mapboxgl.Marker({
           color: '#0b2553',
         });
 
-        if (this.map != undefined) {
-          marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
+        if (this.map != null) {
+          this.marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
         }
         this.zoomToLongLat();
       }

@@ -15,41 +15,51 @@ const leadDataSlice = createSlice({
   initialState,
   reducers: {
     getParcelSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
-      state.data = { ...state.data, ...action.payload };
-      // Reset status.
-      state.status = { status: Status.success };
+      return {
+        ...state,
+        data: { ...action.payload },
+        status: { status: Status.success },
+      };
     },
-    getParcelError(state: LeadDataState, action) {
+    getParcelError: (state: LeadDataState, action) => {
       console.log(
         `Error fetching lead data for parcel: ${JSON.stringify(state)} ${JSON.stringify(action)}`,
       );
-      state.status = {
-        status: Status.error,
-        message: action.payload.error,
-        code: action.payload.status,
+      return {
+        status: {
+          status: Status.error,
+          message: action.payload.error,
+          code: action.payload.status,
+        },
       };
     },
     getWaterSystemSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
-      state.data = { ...state.data, ...action.payload };
-      // Reset status.
-      state.status = { status: Status.success };
+      return {
+        ...state,
+        data: { ...action.payload },
+        status: { status: Status.success },
+      };
     },
-    getWaterSystemError(state: LeadDataState, action) {
+    getWaterSystemError: (state: LeadDataState, action) => {
       console.log(
         `Error fetching lead data for water system: ${JSON.stringify(state)} ${JSON.stringify(
           action,
         )}`,
       );
-      state.status = {
-        status: Status.error,
-        message: action.payload.error,
-        code: action.payload.status,
+      return {
+        status: {
+          status: Status.error,
+          message: action.payload.error,
+          code: action.payload.status,
+        },
       };
     },
     waterSystemQueried(state: LeadDataState, action: PayloadAction<LeadData>) {
-      state.data = { ...state.data, ...action.payload };
-      // Reset status.
-      state.status = { status: Status.pending };
+      return {
+        ...state,
+        data: { ...action.payload },
+        status: { status: Status.pending },
+      };
     },
   },
 });
