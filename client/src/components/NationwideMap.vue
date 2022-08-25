@@ -58,6 +58,7 @@ export default defineComponent({
   data() {
     return {
       map: null as mapboxgl.Map | null,
+      marker: null as mapboxgl.Marker | null,
       popup: null as mapboxgl.Popup | null,
     };
   },
@@ -332,12 +333,16 @@ export default defineComponent({
       const long = this.geoState?.geoids?.long;
 
       if (lat != null && long != null) {
-        const marker = new mapboxgl.Marker({
+        if (this.marker) {
+          this.marker.remove();
+        }
+        
+        this.marker = new mapboxgl.Marker({
           color: '#0b2553',
         });
 
         if (this.map != undefined) {
-          marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
+          this.marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
         }
         this.zoomToLongLat();
       }
