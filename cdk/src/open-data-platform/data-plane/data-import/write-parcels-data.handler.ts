@@ -4,6 +4,7 @@ import { ParcelsTableRowBuilder } from '../model/parcels-table';
 import { geoJsonHandlerFactory } from './handler-factory';
 
 const SCHEMA = 'schema';
+const CITY = 'toledo';
 
 // This file contains < 145k rows
 const s3Params = {
@@ -11,7 +12,7 @@ const s3Params = {
   // The geometries have been simplified. This file also only includes
   // the rows we currently write to the db to avoid large javascript
   // objects from being created on streamArray().
-  Key: 'parcels/toledo_parcel_preds.geojson',
+  Key: `parcels/${CITY}_parcel_preds.geojson`,
 };
 
 /**
@@ -64,7 +65,7 @@ function getTableRowFromRow(row: any): SqlParametersList {
   return (
     new ParcelsTableRowBuilder()
       .address(properties.address)
-      .city('toledo') // TODO: change this if we load other city parcel data.
+      .city(CITY)
       // TODO: Change to real properties once we have them.
       .publicLeadLowPrediction(getValueOrDefault(properties.y_score_pub))
       .publicLeadHighPrediction(getValueOrDefault(properties.y_score_pub))

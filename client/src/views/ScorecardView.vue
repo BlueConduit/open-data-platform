@@ -7,12 +7,14 @@
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
       </div>
       <ActionSection
+        class='section'
         :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
         :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
         :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
         @onButtonClick='navigateToResourcePage'
       />
       <ActionSection
+        class='section'
         :header='ScorecardMessages.SHARE_LEAD_OUT'
         :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
         @onButtonClick='copyToClipboard'
@@ -20,6 +22,7 @@
     </div>
     <ScorecardSummaryPanel />
     <ActionSection
+      class='nav-to-map section'
       :header='ScorecardMessages.WANT_TO_KNOW_MORE'
       :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
       :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
@@ -87,7 +90,7 @@ export default defineComponent({
     },
   },
   watch: {
-    leadDataState: function() {
+    'leadDataState.data.city': function() {
       const city = this.leadDataState?.data?.city ?? City.unknown;
       this.showLslr = city != null && LSLR_CITY_LINKS.get(city) != null;
     },
@@ -101,5 +104,9 @@ export default defineComponent({
 
 .actions-to-take {
   padding: $spacing-lg;
+}
+
+.nav-to-map {
+  background-color: $light-blue-50;
 }
 </style>
