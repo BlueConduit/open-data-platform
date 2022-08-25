@@ -15,10 +15,15 @@ export const logBuildInfo = () => {
   }
 
   // Log build commit ID.
-  // Other variables can be found at: https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-env-vars.html
   if (process.env.VUE_APP_CODEBUILD_SOURCE_REPO_URL)
     console.log(
       'Client built by CodeBuild from git commit:',
       process.env.VUE_APP_CODEBUILD_SOURCE_REPO_URL,
+    );
+  // Or manually construct the URL if not present.
+  else if (process.env.VUE_APP_CODEBUILD_RESOLVED_SOURCE_VERSION)
+    console.log(
+      'Client built by CodeBuild from git commit:',
+      `https://github.com/BlueConduit/open-data-platform/commit/${process.env.VUE_APP_CODEBUILD_RESOLVED_SOURCE_VERSION}`,
     );
 };
