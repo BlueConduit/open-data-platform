@@ -22,7 +22,9 @@ export const LSLR_CITY_LINKS: Map<City, string> = new Map<City, string>([
 ]);
 
 /**
- * Lslr section component.
+ * Lead service line replacement (LSLR) section component.
+ *
+ * Contains city-specific LSLR program information.
  */
 export default defineComponent({
   name: 'LslrSection',
