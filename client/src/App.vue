@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, provide, reactive } from 'vue';
 import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/css/copper.css';
@@ -18,7 +18,7 @@ import { DataLayer, MapLayer } from './model/data_layer';
 import { populationDataByCensusBlockLayer } from './data_layer_configs/population_by_census_block_config';
 import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_water_system_config';
 import { leadServiceLinesByParcelLayer } from './data_layer_configs/lead_service_lines_by_parcel_config';
-import { queryLatLong } from './model/slices/geo_data_slice';
+import { clearGeoIds, queryLatLong } from './model/slices/geo_data_slice';
 import { dispatch } from './model/store';
 import { GEOTYPE_PARAM, LAT_LONG_PARAM } from './router';
 import { GeoType } from './model/states/model/geo_data';
@@ -64,8 +64,9 @@ export default defineComponent({
         const long = latLong[1];
         const geoType = Object.values(GeoType).find((geo) => geo == geoTypeValue) as GeoType;
 
-        // TODO: Pass real geo type.
         dispatch(queryLatLong(lat, long, geoType));
+      } else {
+        dispatch(clearGeoIds);
       }
 
       // TODO: consider adding a string that says this is a non-prod environment, so devs can see
