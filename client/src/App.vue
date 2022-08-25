@@ -23,6 +23,8 @@ import { dispatch } from './model/store';
 import { GEOTYPE_PARAM, LAT_LONG_PARAM } from './router';
 import { GeoType } from './model/states/model/geo_data';
 import PageFooter from './components/PageFooter.vue';
+import { clearLeadData } from './model/slices/lead_data_slice';
+import { clearDemographicData } from './model/slices/demographic_data_slice';
 
 const DEFAULT_TITLE = 'LeadOut';
 const DATA_LAYERS = new Map<MapLayer, DataLayer>([
@@ -66,7 +68,9 @@ export default defineComponent({
 
         dispatch(queryLatLong(lat, long, geoType));
       } else {
-        dispatch(clearGeoIds);
+        dispatch(clearGeoIds());
+        dispatch(clearLeadData());
+        dispatch(clearDemographicData());
       }
 
       // TODO: consider adding a string that says this is a non-prod environment, so devs can see

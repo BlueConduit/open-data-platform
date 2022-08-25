@@ -51,6 +51,12 @@ const leadDataSlice = createSlice({
       // Reset status.
       state.status = { status: Status.pending };
     },
+    leadDataCleared(state: LeadDataState, action) {
+      return {
+        data: {},
+        status: { status: Status.success },
+      };
+    },
   },
 });
 
@@ -89,6 +95,15 @@ export const getWaterSystem = (pwsId: string) => {
   };
 };
 
+/**
+ * Clears LeadDataState.
+ */
+export const clearLeadData = () => {
+  return async (dispatch: AppDispatch) => {
+    dispatch(leadDataCleared({}));
+  };
+};
+
 // See more about reducers:
 // https://redux-toolkit.js.org/api/createslice#reducers
 export const {
@@ -97,5 +112,6 @@ export const {
   waterSystemQueried,
   getWaterSystemSuccess,
   getWaterSystemError,
+  leadDataCleared,
 } = leadDataSlice.actions;
 export default leadDataSlice.reducer;

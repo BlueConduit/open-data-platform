@@ -32,7 +32,7 @@ const geoSlice = createSlice({
       // Reset status.
       state.status = { status: Status.pending };
     },
-    geoIdsCleared(state: GeoDataState) {
+    geoIdsCleared(state: GeoDataState, action) {
       return {
         geoids: {},
         status: { status: Status.success },
@@ -61,9 +61,12 @@ export const queryLatLong = (lat: string, long: string, geoType: GeoType) => {
   };
 };
 
+/**
+ * Clears GeoDataState.
+ */
 export const clearGeoIds = () => {
   return async (dispatch: AppDispatch) => {
-    dispatch(clearGeoIds);
+    dispatch(geoIdsCleared({}));
   };
 };
 
