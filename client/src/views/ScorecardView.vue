@@ -26,8 +26,8 @@
       @onButtonClick='navigateToMapPage'
     />
     <!-- TODO uncomment below and remove hard coded city after testing. -->
-    <!-- <LslrSection v-if='showLslr' :city='geoState?.geoids?.city'/> -->
-      <LslrSection v-if='true' city='toledo'/>
+    <LslrSection v-if='showLslr' :city='geoState?.geoids?.city'/>
+      <!-- <LslrSection v-if='true' city='toledo'/> -->
   </div>
 </template>
 

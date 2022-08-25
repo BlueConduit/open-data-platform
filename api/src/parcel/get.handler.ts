@@ -4,7 +4,7 @@ import { RDSDataService } from 'aws-sdk';
 import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 import { CORS_HEADERS } from '../util';
 
-const COLUMNS_SELECTED = 6;
+const COLUMNS_SELECTED = 7;
 const SCHEMA = 'public';
 const SQL_QUERY = `SELECT address,
                           city,

@@ -5,7 +5,7 @@
       <div class='h2-header-large'>{{ messages.LSLR_SUBHEADER }}</div>
       <button class='gold-button'>
         <a :href='cityLink' target='_blank' rel='noopener noreferrer'>
-          {{ messages.LSLR_CTA_TEXT }}
+          Go to city of {{ city }} website
         </a>
       </button>
     </div>
@@ -33,9 +33,9 @@ export default defineComponent({
     }
   },
   computed: {
-    cityLink(): string {
+    cityLink: function(): string {
       return LSLR_CITY_LINKS[this.city];
-    }
+    },
   },
   data() {
     return {
