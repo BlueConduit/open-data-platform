@@ -6,6 +6,7 @@ import { DataPlaneStack } from './data-plane/data-plane-stack';
 import { NetworkStack } from './network/network-stack';
 import { FrontendStack } from './frontend/frontend-stack';
 import { AppPlaneStack } from './app-plane/app-plane-stack';
+import { topicArn } from '../monitoring/monitoring-stack';
 
 /**
  * Creates the constituent stacks for the platform.
@@ -13,7 +14,8 @@ import { AppPlaneStack } from './app-plane/app-plane-stack';
  * @param props - App-wide props passed down to stacks.
  */
 export default (scope: Construct, props: CommonProps) => {
-  const { envType } = props;
+  const { envType, env } = props;
+  if (env) props.ticketSNSTopicArn = topicArn(envType, env);
   const networkStack = new NetworkStack(scope, stackName(StackId.Network, envType), {
     ...props,
   });

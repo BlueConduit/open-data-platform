@@ -5,6 +5,7 @@
     "cdk": "bin/cdk.js"
   },
   "config": {
+    "monitoringCdkApp": "npx ts-node --prefer-ts-exts src/monitoring.ts",
     "pipelineCdkApp": "npx ts-node --prefer-ts-exts src/pipeline.ts"
   },
   "scripts": {
@@ -12,6 +13,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
+    "monitoring-deploy": "npx aws-cdk deploy --app '$npm_package_config_monitoringCdkApp'",
     "pipeline-synth": "cdk synth --app '$npm_package_config_pipelineCdkApp'",
     "pipeline-deploy": "npx aws-cdk deploy --app '$npm_package_config_pipelineCdkApp' --profile deployments"
   },
