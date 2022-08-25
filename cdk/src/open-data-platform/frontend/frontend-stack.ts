@@ -11,7 +11,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
-import { CommonProps } from '../../util';
+import { CommonProps, EnvType } from '../../util';
 import { AppPlaneStack } from '../app-plane/app-plane-stack';
 import redirect4xx from './redirect-4xx';
 import prefixes, { handler } from './url-prefixes';
@@ -82,6 +82,21 @@ export class FrontendStack extends Stack {
     // Add app plane to distribution.
     // TODO: consider splitting behaviors and/or origins out into another file for organization.
 
+    const policy = {
+      allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+      responseHeadersPolicy:
+        // Allow all origins in Sandbox to support local dev.
+        props.envType == EnvType.Sandbox
+          ? cloudfront.ResponseHeadersPolicy
+              .CORS_ALLOW_ALL_ORIGINS_WITH_PREFLIGHT_AND_SECURITY_HEADERS
+          : cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+      // TODO: Cache based on query strings if/when we use them.
+      cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+      // CF must not forward the "host" header, because that messes up the API Gateway.
+      // https://old.reddit.com/r/aws/comments/fyfwt7/cloudfront_api_gateway_error_403_bad_request/hv4l17k/
+      originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
+    };
+
     // Tile server.
     const tileServerOrigin = new origins.HttpOrigin(
       // The URL for the load balancer in front of the tile server cluster.
@@ -92,10 +107,7 @@ export class FrontendStack extends Stack {
       },
     );
     this.distribution.addBehavior(`${prefixes.tileServer}/*`, tileServerOrigin, {
-      allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-      responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
-      cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
-      originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+      ...policy,
       functionAssociations: [
         // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.
         {
@@ -111,15 +123,7 @@ export class FrontendStack extends Stack {
     // URL itself.
     const apiHostname = cdk.Fn.select(2, cdk.Fn.split('/', appPlaneStack.api.gateway.url));
     const apiPath = cdk.Fn.select(3, cdk.Fn.split('/', appPlaneStack.api.gateway.url));
-    this.distribution.addBehavior(`${apiPath}/*`, new origins.HttpOrigin(apiHostname), {
-      allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-      responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
-      // TODO: Cache based on query strings if/when we use them.
-      cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
-      // CF must not forward the "host" header, because that messes up the API Gateway.
-      // https://old.reddit.com/r/aws/comments/fyfwt7/cloudfront_api_gateway_error_403_bad_request/hv4l17k/
-      originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
-    });
+    this.distribution.addBehavior(`${apiPath}/*`, new origins.HttpOrigin(apiHostname), policy);
 
     // DNS.
     if (hostedZone) {
