@@ -41,7 +41,6 @@ const mapSlice = createSlice({
       };
     },
     setZoom: (state: MapDataState, action: PayloadAction<MapData>) => {
-      console.log(`Successfully updated zoom : ${JSON.stringify(state)} ${JSON.stringify(action)}`);
       return {
         ...state,
         mapData: { ...state.mapData, ...action.payload },

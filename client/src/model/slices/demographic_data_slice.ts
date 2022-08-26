@@ -41,6 +41,11 @@ const demographicDataSlice = createSlice({
         },
       };
     },
+    demographicDataCleared(state: DemographicDataState, action) {
+      return {
+        data: {},
+      };
+    },
   },
 });
 
@@ -63,8 +68,21 @@ export const getDemographicData = (geographicLevel: GeographicLevel, geoId: stri
   };
 };
 
+/**
+ * Clears DemographicDataState.
+ */
+export const clearDemographicData = () => {
+  return async (dispatch: AppDispatch) => {
+    dispatch(demographicDataCleared({}));
+  };
+};
+
 // See more about reducers:
 // https://redux-toolkit.js.org/api/createslice#reducers
-export const { demographicsQueried, getDemographicsSuccess, getDemographicsError } =
-  demographicDataSlice.actions;
+export const {
+  demographicsQueried,
+  getDemographicsSuccess,
+  getDemographicsError,
+  demographicDataCleared,
+} = demographicDataSlice.actions;
 export default demographicDataSlice.reducer;

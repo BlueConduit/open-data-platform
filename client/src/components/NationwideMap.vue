@@ -55,8 +55,8 @@ export default defineComponent({
   },
   data() {
     return {
-      marker: null as mapboxgl.Marker | null,
       map: null as mapboxgl.Map | null,
+      marker: null as mapboxgl.Marker | null,
       popup: null as mapboxgl.Popup | null,
     };
   },

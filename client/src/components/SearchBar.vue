@@ -15,7 +15,9 @@
         :options='this.options' />
     </div>
     <div class='search-wrapper'>
-      <map-geocoder-wrapper class='search' v-model:expandSearch='showSearch' />
+      <map-geocoder-wrapper class='search'
+                            :baseUrl='MAP_ROUTE_BASE'
+                            v-model:expandSearch='showSearch' />
     </div>
   </div>
 </template>
@@ -32,6 +34,7 @@ import { ALL_DATA_LAYERS, setCurrentDataLayer } from '../model/slices/map_data_s
 import { MapDataState } from '../model/states/map_data_state';
 import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
 import { MapData } from '../model/states/model/map_data';
+import { MAP_ROUTE_BASE } from '../router';
 
 export default defineComponent({
   name: 'SearchBar',
@@ -45,6 +48,7 @@ export default defineComponent({
   },
   data() {
     return {
+      MAP_ROUTE_BASE,
       options: [] as DataLayer[],
       selectedOption: null as DataLayer | null,
       showSearch: false,
