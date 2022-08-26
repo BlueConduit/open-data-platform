@@ -26,11 +26,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Some of our spatial indexes are ignored because we have few rows relative to the volume of
+-- geometry data (see https://postgis.net/docs/manual-1.3/ch05.html). One solution is to cache
+-- the bounding boxes of the geometries associated with each row, making an 'explicit' spatial
+-- index. This function adds a bounding box (named bbox) to any row it is given that also
+-- contains a column named named 'geom' of type geometry. It is used to ensure that water_systems
+-- have a bbox column that can be used to speed up queries when the spatial index is ignored.
 CREATE OR REPLACE FUNCTION set_bbox_to_envelope_of_geom()
     RETURNS TRIGGER AS
 $$
 BEGIN
-    NEW.bbox = ST_Envelope(geom);
+    NEW.bbox = ST_Envelope(new.geom);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
