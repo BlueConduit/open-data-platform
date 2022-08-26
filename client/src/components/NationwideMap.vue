@@ -20,7 +20,7 @@ import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_s
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
-import { ALL_DATA_LAYERS, setCurrentDataLayer } from '../model/slices/map_data_slice';
+import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom } from '../model/slices/map_data_slice';
 import { MapData } from '../model/states/model/map_data';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
@@ -40,7 +40,7 @@ export default defineComponent({
   },
   setup() {
     mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
-    
+
     // Listen to geoState updates.
     const geoState = useSelector((state) => state.geos) as GeoDataState;
     const mapState = useSelector((state) => state.mapData) as MapDataState;
@@ -70,12 +70,21 @@ export default defineComponent({
         '--height': this.height,
       };
     },
+    visibleLayer() {
+      return this.possibleLayers?.find(l => this.map?.getLayoutProperty(
+        l.styleLayer.id,
+        'visibility',
+      ));
+    },
     /**
      * Represents the current layer that should be shown based on the url
      * query parameter.
      */
     routerLayer() {
       return router.currentRoute.value.query.layer ?? null;
+    },
+    possibleLayers() {
+      return Array.from(ALL_DATA_LAYERS.values());
     },
   },
   props: {
@@ -115,7 +124,7 @@ export default defineComponent({
     /**
      * Sets the visibility of the layer with the given styleLayerId.
      */
-    setDataLayerVisibility(layerId: string, visible: boolean): void {
+    setDataLayerVisibility(layerId: string): void {
       if (this.map == null) return;
 
       const layer = ALL_DATA_LAYERS.get(layerId as MapLayer);
@@ -124,12 +133,17 @@ export default defineComponent({
       }
 
       const styleLayerId = layer.styleLayer.id;
-      this.map.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
+      this.map.setLayoutProperty(styleLayerId, 'visibility', 'visible');
+
+      // Turn off all other layers.
+      const allOtherLayers = Array.from(ALL_DATA_LAYERS.values()).filter(l => l.id != layerId);
+      for (let alternateLayer of allOtherLayers) {
+        this.map.setLayoutProperty(alternateLayer.styleLayer.id, 'visibility', 'none');
+      }
 
       // Update the router params when toggling layers to visible. Do not update
       // for leadServiceLinesByParcelLayer, which is not a visible layer.
       const shouldUpdateRouterParam =
-        visible &&
         router.currentRoute.value.query.layer != layerId &&
         layerId != leadServiceLinesByParcelLayer.id;
       if (shouldUpdateRouterParam) {
@@ -144,18 +158,15 @@ export default defineComponent({
     /**
      * Updates layer visibility based on current data layer.
      */
-    toggleLayerVisibility(newDataLayer?: DataLayer, oldDataLayer?: DataLayer): void {
+    toggleLayerVisibility(newDataLayer?: DataLayer): void {
       if (this.map == null) return;
       if (this.popup != null) {
         this.popup.remove();
       }
 
-      console.log(`Toggling visibility: ${newDataLayer?.id}`);
+      console.log(`Toggling visibility: ${newDataLayer?.id} to true `);
       if (newDataLayer != null) {
-        this.setDataLayerVisibility(newDataLayer.id, true);
-      }
-      if (oldDataLayer != null) {
-        this.setDataLayerVisibility(oldDataLayer.id, false);
+        this.setDataLayerVisibility(newDataLayer.id);
       }
     },
 
@@ -167,14 +178,11 @@ export default defineComponent({
      */
     updateMapOnDataLayerChange(
       newDataLayer?: DataLayer,
-      oldDataLayer?: DataLayer,
     ): void {
       if (this.map == null) {
-        console.log(`Map is null`);
         this.createMap();
       } else {
-        console.log(`Trying to toggle`);
-        this.toggleLayerVisibility(newDataLayer, oldDataLayer);
+        this.toggleLayerVisibility(newDataLayer);
       }
     },
 
@@ -206,15 +214,14 @@ export default defineComponent({
      */
     setUpInteractionHandlers(): void {
       if (this.map == null) return;
-      const possibleLayers = Array.from(ALL_DATA_LAYERS.values());
-      for (const layer of possibleLayers) {
+      for (const layer of this.possibleLayers) {
         // Use MapBox's custom click handler, which takes the style layer that we
         // want to set up a handler for as a parameter.
         this.map?.on('click', layer.styleLayer.id, async (e: MapLayerMouseEvent): Promise<void> => {
           if (e.features != null) {
             const clickedFeatureProperties: { [name: string]: any } = e.features[0]
               .properties as {};
-            const popupInfo = possibleLayers.find(l => l.id == this.mapState?.mapData?.currentDataLayerId)?.popupInfo;
+            const popupInfo = this.possibleLayers.find(l => l.id == this.mapState?.mapData?.currentDataLayerId)?.popupInfo;
 
             this.createMapPopup(e.lngLat /* popupData= */, {
               title: popupInfo?.title ?? '',
@@ -261,6 +268,8 @@ export default defineComponent({
     setUpZoomListener(): void {
       this.map?.on('zoom', () => {
         if (this.map == null) return;
+        dispatch(setZoom(this.map.getZoom()));
+        console.log(`setUpZoomListener`);
 
         // If zoomed past parcel zoom level, switch to parcel-level data source.
         // Otherwise, switch to water system level.
@@ -268,11 +277,13 @@ export default defineComponent({
           this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
           this.mapState?.mapData?.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem
         ) {
+          console.log(`Dispatching leadServiceLinesByParcelLayer`);
           dispatch(setCurrentDataLayer(leadServiceLinesByParcelLayer.id));
         } else if (
           this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
           this.mapState?.mapData?.currentDataLayerId == MapLayer.LeadServiceLineByParcel
         ) {
+          console.log(`Dispatching leadServiceLinesByWaterSystemLayer`);
           dispatch(setCurrentDataLayer(leadServiceLinesByWaterSystemLayer.id));
         }
       });
@@ -282,11 +293,7 @@ export default defineComponent({
      * Configure data layers and interaction handlers on the map.
      */
     configureMap(): void {
-      console.log(`On load: map is ${this.map}`);
       if (this.map == null) return;
-
-      console.log(this.map);
-      console.log(this.mapState?.mapData?.currentDataLayerId);
 
       for (const layer of ALL_DATA_LAYERS.values()) {
         this.map?.addSource(layer.id, layer.source);
@@ -296,14 +303,6 @@ export default defineComponent({
       this.setUpInteractionHandlers();
       this.setUpControls();
       this.setUpZoomListener();
-
-      // Check whether there's a layer selected in the router.
-      const currentDataLayer = this.mapState?.mapData?.dataLayers?.find(
-        (layer) => layer == router.currentRoute.value.query?.layer,
-      ) ?? leadServiceLinesByWaterSystemLayer.id;
-
-      console.log(`Dispatching current data layer as: ${currentDataLayer}`);
-      dispatch(setCurrentDataLayer(currentDataLayer));
     },
 
     /**
@@ -312,24 +311,39 @@ export default defineComponent({
      */
     async createMap(): Promise<void> {
       try {
+        const zoom = 4;
         this.map = new mapbox.Map({
           // Removes watermark by Mapbox.
           attributionControl: false,
           center: this.center,
           container: 'map-container',
           style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
-          zoom: 4,
+          zoom: zoom,
         });
 
         this.map.on('load', this.configureMap);
         this.map.on('error', (error) => {
-          console.log(`Error loading tiles: ${error}`);
+          console.log(`Error loading tiles: ${error.error}`);
         });
-        // this.map.on('sourcedata', (e) => {
-        //   console.log(`A source data event occurred: ${e.sourceId}`);
-        //   console.log(this.state?.currentDataLayer?.id);
-        // });
+
+        this.map.on('styledata', () => {
+
+          if (this.visibleLayer == null) {
+            console.log(`style loaded but no layer`);
+          }
+
+          // Check whether there's a layer selected in the router.
+          //THIS IS A LOOP.
+          // const currentDataLayer = this.mapState?.mapData?.dataLayers?.find(
+          //   (layer) => layer == router.currentRoute.value.query?.layer,
+          // ) ?? leadServiceLinesByWaterSystemLayer.id;
+          //
+          // console.log(`Dispatching current data layer as: ${currentDataLayer}`);
+          // dispatch(setCurrentDataLayer(currentDataLayer));
+        });
+
         this.map.scrollZoom.disable();
+        dispatch(setZoom(zoom));
       } catch (err) {
         // TODO: Add error handling.
         console.log('Error: ', err);
@@ -340,28 +354,15 @@ export default defineComponent({
     this.createMap();
   },
   watch: {
-    // Listens to app state to toggle layers.
-    'mapState.mapData': {
-      handler: function(newMapData: MapData, oldMapData: MapData) {
-        console.log(`Map heard state change for current data layer: ${JSON.stringify(newMapData.currentDataLayerId)}`);
-
-        if (newMapData?.currentDataLayerId == null) {
+    // Listens to map state to toggle different layers.
+    'mapState.mapData.currentDataLayerId': {
+      handler: function(newDataLayerId: MapLayer) {
+        if (newDataLayerId == null) {
           return;
         }
-        console.log(`Map heard non-null state change for current data layer: ${JSON.stringify(newMapData.currentDataLayerId)}`);
-        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newMapData.currentDataLayerId), ALL_DATA_LAYERS.get(oldMapData?.currentDataLayerId ?? MapLayer.Unknown));
+        console.log(`Map heard non-null state change for current data layer: ${JSON.stringify(newDataLayerId)}`);
+        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
       },
-      deep: true,
-    },
-    // 'mapState.mapData.currentDataLayerId': function(newDataLayerId: MapLayer, oldDataLayerId: MapLayer) {
-    //   console.log(`Map heard state change for current data layer: ${JSON.stringify(newDataLayerId)}`);
-    //   this.updateMapOnDataLayerChange(DATA_LAYERS.get(newDataLayerId), DATA_LAYERS.get(oldDataLayerId));
-    // },
-    // Listens to query param to toggle layers.
-    routerLayer: function(newLayer: string) {
-      if (newLayer != null) {
-        this.setDataLayerVisibility(newLayer, true);
-      }
     },
     // Listen for changes to lat/long to update map location.
     'geoState.geoids': function() {

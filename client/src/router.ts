@@ -7,6 +7,7 @@ import NationwideMapView from '@/views/NationwideMapView.vue';
 import AboutUsView from '@/views/AboutUsView.vue';
 
 export const LAT_LONG_PARAM = 'latlong';
+export const LAYER_PARAM = 'layer';
 
 const HOME_ROUTE = '/';
 const SCORECARD_BASE = `/scorecard`;

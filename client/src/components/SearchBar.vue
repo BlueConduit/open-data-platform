@@ -32,6 +32,7 @@ import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 import { dispatch, useSelector } from '../model/store';
 import { ALL_DATA_LAYERS, setCurrentDataLayer } from '../model/slices/map_data_slice';
 import { MapDataState } from '../model/states/map_data_state';
+import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
 
 export default defineComponent({
   name: 'SearchBar',
@@ -80,12 +81,13 @@ export default defineComponent({
     },
     mapState: {
       handler(newState: MapDataState): void {
+        const allLayers: Array<DataLayer> = Array.from(ALL_DATA_LAYERS.values());
+        this.options = allLayers.filter(layer => layer.visibleInSearchBar);
         if (newState?.mapData?.currentDataLayerId != null) {
-          const allLayers: Array<DataLayer> = Array.from(ALL_DATA_LAYERS.values());
-          this.options = allLayers.filter(layer => layer.visibleInSearchBar);
+
           if (newState?.mapData?.currentDataLayerId != MapLayer.LeadServiceLineByParcel) {
-            console.log(this.options.find(option => option.id == newState.mapData?.currentDataLayerId));
-            //this.selectedOption = this.options.find(option => option.id == newState.mapData?.currentDataLayerId);
+            const selected: DataLayer = this.options.find(option => option.id == newState.mapData?.currentDataLayerId) ?? leadServiceLinesByWaterSystemLayer;
+            this.selectedOption = selected;
           }
         }
       },
