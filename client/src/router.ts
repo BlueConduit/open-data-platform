@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, RouteLocationNormalized } from 'vue-router';
 import LandingPageView from './views/LandingPageView.vue';
 import ScorecardView from './views/ScorecardView.vue';
 import { Titles } from './assets/messages/common';
@@ -8,10 +8,11 @@ import AboutUsView from '@/views/AboutUsView.vue';
 
 export const LAT_LONG_PARAM = 'latlong';
 export const LAYER_PARAM = 'layer';
+export const GEOTYPE_PARAM = 'geotype';
 
 const HOME_ROUTE = '/';
 const SCORECARD_BASE = `/scorecard`;
-const SCORECARD_ROUTE = `${SCORECARD_BASE}/:${LAT_LONG_PARAM}?`;
+const SCORECARD_ROUTE = `${SCORECARD_BASE}/:${GEOTYPE_PARAM}/:${LAT_LONG_PARAM}`;
 const MAP_ROUTE_BASE = `/map`;
 const MAP_ROUTE = `${MAP_ROUTE_BASE}/:${LAT_LONG_PARAM}?`;
 const ABOUT_ROUTE = '/about';
@@ -78,6 +79,13 @@ const router = createRouter({
   scrollBehavior() {
     document?.getElementById('app')?.scrollIntoView({ behavior: 'smooth' });
   },
+});
+
+router.beforeEach((to: RouteLocationNormalized, _) => {
+  if (to.path.startsWith(SCORECARD_BASE)) {
+    console.log(`PLEASE `);
+    //router.push({ path: to.path, query: {} });
+  }
 });
 
 export {

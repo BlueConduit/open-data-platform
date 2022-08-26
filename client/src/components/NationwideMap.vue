@@ -10,7 +10,7 @@ import mapboxgl from 'mapbox-gl';
 import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
-import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
+import { createApp, defineComponent, nextTick, PropType } from 'vue';
 import { DataLayer, FeatureProperty, GeographicLevel, MapLayer } from '../model/data_layer';
 import { router } from '../router';
 import { leadServiceLinesByParcelLayer } from '../data_layer_configs/lead_service_lines_by_parcel_config';
@@ -308,8 +308,11 @@ export default defineComponent({
       this.setUpControls();
       this.setUpZoomListener();
 
-      if (this.visibleLayer == null && this.currentDataLayerId != null) {
-        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(this.currentDataLayerId));
+      console.log(this.visibleLayer);
+
+      if (this.visibleLayer == null) {
+        console.log(this.visibleLayer);
+        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(this.currentDataLayerId ?? MapLayer.LeadServiceLineByWaterSystem));
       }
 
     },

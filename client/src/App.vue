@@ -13,7 +13,7 @@ import '@blueconduit/copper/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
 import { queryLatLong } from './model/slices/geo_data_slice';
 import { dispatch, useSelector } from './model/store';
-import { LAT_LONG_PARAM, LAYER_PARAM } from './router';
+import { GEOTYPE_PARAM, LAT_LONG_PARAM, LAYER_PARAM } from './router';
 import { GeoType } from './model/states/model/geo_data';
 import PageFooter from './components/PageFooter.vue';
 import { setCurrentDataLayer } from './model/slices/map_data_slice';
@@ -44,14 +44,16 @@ export default defineComponent({
       const layerId = to.query[LAYER_PARAM];
       console.log(layerId);
       const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
+      const geoTypeValue: string = to.params[GEOTYPE_PARAM] as string;
 
       if (latLongValue?.length > 0) {
         const latLong = latLongValue.split(',');
         const lat = latLong[0];
         const long = latLong[1];
+        const geoType = Object.values(GeoType).find((geo) => geo == geoTypeValue) as GeoType;
 
         // TODO: Pass real geo type.
-        dispatch(queryLatLong(lat, long, GeoType.postcode));
+        dispatch(queryLatLong(lat, long, geoType));
       }
 
       // Check whether router has a param with the layer to show on the map.
