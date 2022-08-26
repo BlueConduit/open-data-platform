@@ -15,7 +15,9 @@
         :options='this.options' />
     </div>
     <div class='search-wrapper'>
-      <map-geocoder-wrapper class='search' v-model:expandSearch='showSearch' />
+      <map-geocoder-wrapper class='search'
+                            :baseUrl='MAP_ROUTE_BASE'
+                            v-model:expandSearch='showSearch' />
     </div>
   </div>
 </template>
@@ -29,6 +31,7 @@ import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
 import { DataLayer, MapLayer } from '../model/data_layer';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
+import { MAP_ROUTE_BASE } from '../router';
 
 export default defineComponent({
   name: 'SearchBar',
@@ -42,6 +45,7 @@ export default defineComponent({
   },
   data() {
     return {
+      MAP_ROUTE_BASE,
       options: [] as DataLayer[],
       selectedOption: null as DataLayer | null,
       showSearch: false,

@@ -21,11 +21,8 @@ import { defineComponent, inject, PropType } from 'vue';
 import GeocoderInput from './GeocoderInput.vue';
 import { State } from '../model/state';
 import { stateKey } from '../injection_keys';
-import { queryLatLong } from '../model/slices/geo_data_slice';
-import { dispatch } from '../model/store';
 import { GeoType } from '../model/states/model/geo_data';
-import mapboxgl from 'mapbox-gl';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import { SCORECARD_BASE } from '../router';
 
 /**
  * Expandable address search that performs a geocode.
@@ -49,12 +46,19 @@ export default defineComponent({
         return Object.keys(GeoType).filter((type) => type != GeoType.unknown);
       }
     },
+    baseUrl: {
+      type: String,
+      required: true,
+    },
     expandSearch: { type: Boolean, default: false },
   },
   methods: {
     async onGeocodeResults(lat: string, long: string, geoType: GeoType) {
-      // Emit action that a lat, long selection was made.
-      dispatch(queryLatLong(lat, long, geoType));
+      if (lat == '0' && long == '0') {
+        this.$router.push(this.baseUrl);
+      } else {
+        this.$router.push(`${this.baseUrl}/${geoType}/${lat},${long}`);
+      }
     },
   },
 });

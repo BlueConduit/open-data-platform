@@ -3,6 +3,7 @@
     <div class='container-row justify-right'>
       <map-geocoder-wrapper class='search'
                             :acceptedTypes='acceptedTypes'
+                            :baseUrl='SCORECARD_BASE'
                             v-model:expandSearch='showSearch' />
     </div>
     <div class='prediction'>
@@ -55,6 +56,7 @@ import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
 import { Status } from '../model/states/status_state';
+import { SCORECARD_BASE } from '../router';
 
 const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
@@ -80,6 +82,7 @@ export default defineComponent({
     return {
       acceptedTypes: [GeoType.address, GeoType.postcode],
       expandSearch: true,
+      SCORECARD_BASE,
       showSearch: true,
       ScorecardSummaryMessages: ScorecardMessages,
     };

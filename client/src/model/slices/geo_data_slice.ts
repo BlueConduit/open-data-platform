@@ -32,6 +32,12 @@ const geoSlice = createSlice({
       // Reset status.
       state.status = { status: Status.pending };
     },
+    geoIdsCleared(state: GeoDataState, action) {
+      return {
+        geoids: {},
+        status: { status: Status.success },
+      };
+    },
   },
 });
 
@@ -55,7 +61,16 @@ export const queryLatLong = (lat: string, long: string, geoType: GeoType) => {
   };
 };
 
+/**
+ * Clears GeoDataState.
+ */
+export const clearGeoIds = () => {
+  return async (dispatch: AppDispatch) => {
+    dispatch(geoIdsCleared({}));
+  };
+};
+
 // See more about reducers:
 // https://redux-toolkit.js.org/api/createslice#reducers
-export const { geoIdsQueried, getGeoIdsSuccess, getGeoIdsError } = geoSlice.actions;
+export const { geoIdsQueried, getGeoIdsSuccess, getGeoIdsError, geoIdsCleared } = geoSlice.actions;
 export default geoSlice.reducer;
