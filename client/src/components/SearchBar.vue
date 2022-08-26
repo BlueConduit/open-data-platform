@@ -77,20 +77,17 @@ export default defineComponent({
       }
       dispatch(setCurrentDataLayer(newOption.id));
     },
-    mapState: {
-      handler(newState: MapDataState): void {
+    'mapState.mapData.currentDataLayerId': {
+      handler(newDataLayerId: string): void {
         const allLayers: Array<DataLayer> = Array.from(ALL_DATA_LAYERS.values());
         this.options = allLayers.filter(layer => layer.visibleInSearchBar);
-        if (newState?.mapData?.currentDataLayerId != null) {
 
-          if (newState?.mapData?.currentDataLayerId != MapLayer.LeadServiceLineByParcel) {
-            const selected: DataLayer = this.options.find(option => option.id == newState.mapData?.currentDataLayerId) ?? leadServiceLinesByWaterSystemLayer;
-            this.selectedOption = selected;
-          }
+        if (newDataLayerId != null && newDataLayerId != MapLayer.LeadServiceLineByParcel) {
+          const selected: DataLayer = this.options.find(option => option.id == newDataLayerId) ?? leadServiceLinesByWaterSystemLayer;
+          this.selectedOption = selected;
         }
+
       },
-      // Make watcher deep, meaning that this will be triggered on a change to any nested field of state.
-      deep: true,
     },
   },
 });

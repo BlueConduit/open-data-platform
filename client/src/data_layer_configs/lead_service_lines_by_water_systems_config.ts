@@ -140,7 +140,7 @@ export const leadServiceLinesByWaterSystemLayer: TileDataLayer = {
     minzoom: 3,
     maxzoom: 16,
   },
-  id: MapLayer.LeadServiceLineByWaterSystem as string,
+  id: MapLayer.LeadServiceLineByWaterSystem,
   name: 'Lead Service Lines',
   legendInfo: legend,
   popupInfo: popupInfo,
