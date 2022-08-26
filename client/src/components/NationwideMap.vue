@@ -362,6 +362,14 @@ export default defineComponent({
           this.marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
         }
         this.zoomToLongLat();
+      } else {
+        // Reset map to full view of U.S. when geo IDs are cleared.
+        if (this.map?.isStyleLoaded()) {
+          this.map?.jumpTo({
+            center: this.center,
+            zoom: 4,
+          });
+        }
       }
     },
   },
