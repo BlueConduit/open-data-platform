@@ -1,15 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ApiClient } from '@/api/api_client';
 import { AppDispatch } from '@/model/store';
-import { LeadData } from '@/model/states/model/lead_data';
-import { LeadDataState } from '@/model/states/lead_data_state';
 import { DemographicDataState } from '@/model/states/demographic_data_state';
 import { DemographicData } from '@/model/states/model/demographic_data';
 import { GeographicLevel } from '@/model/data_layer';
-import { GeoDataState } from '@/model/states/geo_data_state';
-import { GeoData } from '@/model/states/model/geo_data';
-import { Status } from '@/model/states/status_state';
-import { geoIdsCleared } from '@/model/slices/geo_data_slice';
 
 const initialState: DemographicDataState = {};
 const client = new ApiClient();
@@ -29,7 +23,7 @@ const demographicDataSlice = createSlice({
     getDemographicsError(state: DemographicDataState, action) {
       console.log(`Error fetching demographic data: ${state} ${action}`);
     },
-    demographicDataCleared(state: GeoDataState, action) {
+    demographicDataCleared(state: DemographicDataState, action) {
       return {
         data: {},
       };
