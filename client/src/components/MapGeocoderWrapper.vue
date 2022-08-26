@@ -19,13 +19,9 @@
 <script lang='ts'>
 import { defineComponent, inject, PropType } from 'vue';
 import GeocoderInput from './GeocoderInput.vue';
-import { State } from '../model/state';
-import { stateKey } from '../injection_keys';
 import { queryLatLong } from '../model/slices/geo_data_slice';
 import { dispatch } from '../model/store';
 import { GeoType } from '../model/states/model/geo_data';
-import mapboxgl from 'mapbox-gl';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 
 /**
  * Expandable address search that performs a geocode.
@@ -34,12 +30,6 @@ export default defineComponent({
   name: 'MapGeocoderWrapper',
   components: {
     GeocoderInput,
-  },
-  setup() {
-    const state: State = inject(stateKey, State.default());
-    return {
-      state,
-    };
   },
   props: {
     acceptedTypes: {

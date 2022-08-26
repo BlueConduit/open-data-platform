@@ -45,7 +45,6 @@ export default defineComponent({
     const mapState = useSelector((state) => state.mapData) as MapDataState;
 
     return {
-      //state,
       geoState,
       mapState,
       legendStyle: {

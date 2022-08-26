@@ -42,7 +42,6 @@ export default defineComponent({
     // Current route location. See https://router.vuejs.org/api/#component-injections.
     $route(to: RouteLocation) {
       const layerId = to.query[LAYER_PARAM];
-      console.log(layerId);
       const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
       const geoTypeValue: string = to.params[GEOTYPE_PARAM] as string;
 

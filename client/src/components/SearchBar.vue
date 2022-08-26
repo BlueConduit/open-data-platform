@@ -25,8 +25,6 @@ import { defineComponent, inject } from 'vue';
 import SearchBarOption from './SearchBarOption.vue';
 import VueSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
-import { State } from '../model/state';
-import { stateKey } from '../injection_keys';
 import { DataLayer, MapLayer } from '../model/data_layer';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
 import { dispatch, useSelector } from '../model/store';

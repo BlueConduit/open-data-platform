@@ -13,8 +13,6 @@
 
 <script lang='ts'>
 import { defineComponent, inject } from 'vue';
-import { State } from '../model/state';
-import { stateKey } from '../injection_keys';
 import { LegendBucketData } from '../model/data_layer';
 import { formatLegendBucket, getLegendForZoomLevel } from '../util/data_layer_util';
 import { useSelector } from '../model/store';

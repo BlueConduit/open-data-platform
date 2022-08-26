@@ -107,6 +107,7 @@ export class FrontendStack extends Stack {
       },
     );
     this.distribution.addBehavior(`${prefixes.tileServer}/*`, tileServerOrigin, {
+      ...policy,
       functionAssociations: [
         // This function removes a URL prefix that CloudFront expects, but the tile server doesn't.
         {
