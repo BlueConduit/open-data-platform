@@ -183,13 +183,15 @@ CREATE INDEX IF NOT EXISTS epa_violations_state_census_geo_id_idx ON epa_violati
 CREATE OR REPLACE VIEW violation_counts AS
 SELECT pws_id,
        epa_violations.state_census_geo_id,
+       epa_violations.county_census_geo_id,
        geom,
        COUNT(violation_id) AS violation_count
 FROM epa_violations
          JOIN water_systems USING (pws_id)
 GROUP BY pws_id,
          geom,
-         epa_violations.state_census_geo_id;
+         epa_violations.state_census_geo_id,
+         epa_violations.county_census_geo_id;
 
 -- Parcel-level data
 
