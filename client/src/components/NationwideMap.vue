@@ -87,6 +87,8 @@ export default defineComponent({
     routerLayer() {
       return router.currentRoute.value.query.layer ?? null;
     },
+    // TODO: Replace with only the layers in the map data. Here and everywhere
+    // there is reference to ALL_LAYERS.
     possibleLayers() {
       return Array.from(ALL_DATA_LAYERS.values());
     },

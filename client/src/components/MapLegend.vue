@@ -47,12 +47,12 @@ export default defineComponent({
      * bucketMap is updated.
      */
     createLegend(): void {
-      if (this.mapState?.mapData?.currentDataLayerId == null) {
+      if (this.mapState?.mapData?.currentDataLayerId == null || this.mapState?.mapData?.zoom == null ) {
         return;
       }
 
       const layerToUse = Array.from(ALL_DATA_LAYERS.values()).find(l => l.id == this.mapState?.mapData?.currentDataLayerId);
-      const legendInfo = getLegendForZoomLevel(Math.floor(this.mapState?.mapData?.zoom ?? 0), layerToUse?.legendInfo);
+      const legendInfo = getLegendForZoomLevel(Math.floor(this.mapState.mapData.zoom), layerToUse?.legendInfo);
       this.title = legendInfo?.title ?? '';
       this.displayedBuckets = formatLegendBucket(legendInfo);
     },
