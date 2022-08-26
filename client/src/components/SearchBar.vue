@@ -31,6 +31,7 @@ import { dispatch, useSelector } from '../model/store';
 import { ALL_DATA_LAYERS, setCurrentDataLayer } from '../model/slices/map_data_slice';
 import { MapDataState } from '../model/states/map_data_state';
 import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
+import { MapData } from '../model/states/model/map_data';
 
 export default defineComponent({
   name: 'SearchBar',
@@ -77,17 +78,18 @@ export default defineComponent({
       }
       dispatch(setCurrentDataLayer(newOption.id));
     },
-    'mapState.mapData.currentDataLayerId': {
-      handler(newDataLayerId: string): void {
+    'mapState.mapData': {
+      handler(mapData: MapData): void {
         const allLayers: Array<DataLayer> = Array.from(ALL_DATA_LAYERS.values());
         this.options = allLayers.filter(layer => layer.visibleInSearchBar);
+        const newDataLayer = mapData?.currentDataLayerId;
 
-        if (newDataLayerId != null && newDataLayerId != MapLayer.LeadServiceLineByParcel) {
-          const selected: DataLayer = this.options.find(option => option.id == newDataLayerId) ?? leadServiceLinesByWaterSystemLayer;
+        if (newDataLayer != null && newDataLayer != MapLayer.LeadServiceLineByParcel) {
+          const selected: DataLayer = this.options.find(option => option.id == newDataLayer) ?? leadServiceLinesByWaterSystemLayer;
           this.selectedOption = selected;
         }
-
       },
+      deep: true,
     },
   },
 });
