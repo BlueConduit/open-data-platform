@@ -284,12 +284,12 @@ export default defineComponent({
           this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
           this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem
         ) {
-          dispatch(setCurrentDataLayer(leadServiceLinesByParcelLayer.id));
+          dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByParcel));
         } else if (
           this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
           this.currentDataLayerId == MapLayer.LeadServiceLineByParcel
         ) {
-          dispatch(setCurrentDataLayer(leadServiceLinesByWaterSystemLayer.id));
+          dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByWaterSystem));
         }
       });
     },
