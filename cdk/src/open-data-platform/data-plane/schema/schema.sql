@@ -26,6 +26,21 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Some of our spatial indexes are ignored because we have few rows relative to the volume of
+-- geometry data (see https://postgis.net/docs/manual-1.3/ch05.html). One solution is to cache
+-- the bounding boxes of the geometries associated with each row, making an 'explicit' spatial
+-- index. This function adds a bounding box (named bbox) to any row it is given that also
+-- contains a column named named 'geom' of type geometry. It is used to ensure that water_systems
+-- have a bbox column that can be used to speed up queries when the spatial index is ignored.
+CREATE OR REPLACE FUNCTION set_bbox_to_envelope_of_geom()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    NEW.bbox = ST_Envelope(new.geom);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 ------------
 -- Tables --
 ------------
@@ -157,11 +172,18 @@ CREATE TABLE IF NOT EXISTS water_systems
     service_connections_count real,
     population_served         real,
     state_census_geo_id       varchar(255) references states (census_geo_id),
+    bbox                      GEOMETRY(Geometry, 4326, 2),
     geom                      GEOMETRY(Geometry, 4326),
     PRIMARY KEY (pws_id)
 );
 CREATE INDEX IF NOT EXISTS water_systems_state_census_geo_id_idx ON water_systems (state_census_geo_id);
 CREATE INDEX IF NOT EXISTS water_systems_geom_idx ON water_systems USING GIST (geom);
+CREATE INDEX IF NOT EXISTS water_systems_bbox_idx ON public.water_systems USING gist (bbox);
+SELECT safe_create($$CREATE TRIGGER set_bbox_to_envelope_of_geom_on_water_system_insertion
+    BEFORE INSERT
+    ON water_systems
+    FOR EACH ROW
+EXECUTE PROCEDURE set_bbox_to_envelope_of_geom()$$);
 
 -- EPA violations data
 
@@ -406,7 +428,7 @@ BEGIN
                         SUM(w.service_connections_count)       AS service_connections_count,
                         SUM(w.population_served)               AS population_served
                  FROM water_systems w
-                 WHERE ST_Transform(w.geom, 3857) && ST_TileEnvelope(z, x, y)
+                 WHERE ST_Transform(w.bbox, 3857) && ST_TileEnvelope(z, x, y)
                  GROUP BY w.geom,
                           w.pws_id,
                           w.pws_name
