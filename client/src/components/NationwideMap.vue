@@ -24,6 +24,8 @@ const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
 const POPUP_CONTENT_BASE_ID = 'popup-content';
 const POPUP_CONTENT_BASE_HTML = `<div id='${POPUP_CONTENT_BASE_ID}'></div>`;
+const VISIBILITY = 'visibility';
+const VISIBLE = 'visible';
 
 const PARCEL_ZOOM_LEVEL = 12;
 
@@ -75,8 +77,8 @@ export default defineComponent({
         this.map?.getLayer(l.styleLayer.id) != null &&
         this.map?.getLayoutProperty(
           l.styleLayer.id,
-          'visibility',
-        ) == 'visible',
+          VISIBILITY,
+        ) == VISIBLE,
       );
     },
     /**
@@ -136,15 +138,15 @@ export default defineComponent({
       }
 
       const styleLayerId = layer.styleLayer.id;
-      this.map.setLayoutProperty(styleLayerId, 'visibility', 'visible');
+      this.map.setLayoutProperty(styleLayerId, VISIBILITY, VISIBLE);
 
-      // Turn off all other layers.
+      // Hide all other layers.
       const allOtherLayers = Array.from(ALL_DATA_LAYERS.values()).filter(l => l.id != layerId);
       for (let alternateLayer of allOtherLayers) {
 
         // Check if layer exists before setting property on it.
         if (this.map.getLayer(alternateLayer.styleLayer.id) != null) {
-          this.map.setLayoutProperty(alternateLayer.styleLayer.id, 'visibility', 'none');
+          this.map.setLayoutProperty(alternateLayer.styleLayer.id, VISIBILITY, 'none');
         }
       }
 
@@ -170,8 +172,6 @@ export default defineComponent({
       if (this.popup != null) {
         this.popup.remove();
       }
-
-      console.log(`Toggling visibility: ${newDataLayer?.id} to true `);
       if (newDataLayer != null) {
         this.setDataLayerVisibility(newDataLayer.id);
       }
@@ -276,7 +276,6 @@ export default defineComponent({
       this.map?.on('zoom', () => {
         if (this.map == null) return;
         dispatch(setZoom(this.map.getZoom()));
-        console.log(`setUpZoomListener`);
 
         // If zoomed past parcel zoom level, switch to parcel-level data source.
         // Otherwise, switch to water system level.
@@ -284,13 +283,11 @@ export default defineComponent({
           this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
           this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem
         ) {
-          console.log(`Dispatching leadServiceLinesByParcelLayer`);
           dispatch(setCurrentDataLayer(leadServiceLinesByParcelLayer.id));
         } else if (
           this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
           this.currentDataLayerId == MapLayer.LeadServiceLineByParcel
         ) {
-          console.log(`Dispatching leadServiceLinesByWaterSystemLayer`);
           dispatch(setCurrentDataLayer(leadServiceLinesByWaterSystemLayer.id));
         }
       });
@@ -302,7 +299,7 @@ export default defineComponent({
     configureMap(): void {
       if (this.map == null) return;
 
-      for (const layer of ALL_DATA_LAYERS.values()) {
+      for (const layer of this.possibleLayers) {
         this.map?.addSource(layer.id, layer.source);
         this.map?.addLayer(layer.styleLayer);
       }
@@ -311,11 +308,7 @@ export default defineComponent({
       this.setUpControls();
       this.setUpZoomListener();
 
-      console.log(`style load ${JSON.stringify(this.visibleLayer)}`);
-
-
       if (this.visibleLayer == null && this.currentDataLayerId != null) {
-        console.log(`style loaded but no layer`);
         this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(this.currentDataLayerId));
       }
 
