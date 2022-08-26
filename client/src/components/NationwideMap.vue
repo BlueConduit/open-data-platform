@@ -13,8 +13,6 @@ import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
 import { DataLayer, FeatureProperty, GeographicLevel, MapLayer } from '../model/data_layer';
 import { router } from '../router';
-import { leadServiceLinesByParcelLayer } from '../data_layer_configs/lead_service_lines_by_parcel_config';
-import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
@@ -155,7 +153,7 @@ export default defineComponent({
       // for leadServiceLinesByParcelLayer, which is not a visible layer.
       const shouldUpdateRouterParam =
         router.currentRoute.value.query.layer != layerId &&
-        layerId != leadServiceLinesByParcelLayer.id;
+        layerId != MapLayer.LeadServiceLineByParcel;
       if (shouldUpdateRouterParam) {
         router.push({
           query: Object.assign({}, router.currentRoute.value.query, {
