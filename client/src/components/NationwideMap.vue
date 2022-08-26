@@ -354,7 +354,6 @@ export default defineComponent({
         if (newDataLayerId == null) {
           return;
         }
-        console.log(`Map heard non-null state change for current data layer: ${JSON.stringify(newDataLayerId)}`);
         this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
       },
     },
