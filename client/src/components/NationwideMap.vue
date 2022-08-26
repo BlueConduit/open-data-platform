@@ -11,8 +11,6 @@ import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
-import { State } from '../model/state';
-import { stateKey } from '../injection_keys';
 import { DataLayer, FeatureProperty, GeographicLevel, MapLayer } from '../model/data_layer';
 import { router } from '../router';
 import { leadServiceLinesByParcelLayer } from '../data_layer_configs/lead_service_lines_by_parcel_config';
@@ -21,7 +19,6 @@ import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
 import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom } from '../model/slices/map_data_slice';
-import { MapData } from '../model/states/model/map_data';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -70,11 +67,17 @@ export default defineComponent({
         '--height': this.height,
       };
     },
+    currentDataLayerId() {
+      return this.mapState?.mapData?.currentDataLayerId;
+    },
     visibleLayer() {
-      return this.possibleLayers?.find(l => this.map?.getLayoutProperty(
-        l.styleLayer.id,
-        'visibility',
-      ));
+      return this.possibleLayers?.find(l =>
+        this.map?.getLayer(l.styleLayer.id) != null &&
+        this.map?.getLayoutProperty(
+          l.styleLayer.id,
+          'visibility',
+        ) == 'visible',
+      );
     },
     /**
      * Represents the current layer that should be shown based on the url
@@ -138,7 +141,11 @@ export default defineComponent({
       // Turn off all other layers.
       const allOtherLayers = Array.from(ALL_DATA_LAYERS.values()).filter(l => l.id != layerId);
       for (let alternateLayer of allOtherLayers) {
-        this.map.setLayoutProperty(alternateLayer.styleLayer.id, 'visibility', 'none');
+
+        // Check if layer exists before setting property on it.
+        if (this.map.getLayer(alternateLayer.styleLayer.id) != null) {
+          this.map.setLayoutProperty(alternateLayer.styleLayer.id, 'visibility', 'none');
+        }
       }
 
       // Update the router params when toggling layers to visible. Do not update
@@ -221,7 +228,7 @@ export default defineComponent({
           if (e.features != null) {
             const clickedFeatureProperties: { [name: string]: any } = e.features[0]
               .properties as {};
-            const popupInfo = this.possibleLayers.find(l => l.id == this.mapState?.mapData?.currentDataLayerId)?.popupInfo;
+            const popupInfo = this.possibleLayers.find(l => l.id == this.currentDataLayerId)?.popupInfo;
 
             this.createMapPopup(e.lngLat /* popupData= */, {
               title: popupInfo?.title ?? '',
@@ -275,13 +282,13 @@ export default defineComponent({
         // Otherwise, switch to water system level.
         if (
           this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
-          this.mapState?.mapData?.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem
+          this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem
         ) {
           console.log(`Dispatching leadServiceLinesByParcelLayer`);
           dispatch(setCurrentDataLayer(leadServiceLinesByParcelLayer.id));
         } else if (
           this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
-          this.mapState?.mapData?.currentDataLayerId == MapLayer.LeadServiceLineByParcel
+          this.currentDataLayerId == MapLayer.LeadServiceLineByParcel
         ) {
           console.log(`Dispatching leadServiceLinesByWaterSystemLayer`);
           dispatch(setCurrentDataLayer(leadServiceLinesByWaterSystemLayer.id));
@@ -303,6 +310,15 @@ export default defineComponent({
       this.setUpInteractionHandlers();
       this.setUpControls();
       this.setUpZoomListener();
+
+      console.log(`style load ${JSON.stringify(this.visibleLayer)}`);
+
+
+      if (this.visibleLayer == null && this.currentDataLayerId != null) {
+        console.log(`style loaded but no layer`);
+        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(this.currentDataLayerId));
+      }
+
     },
 
     /**
@@ -323,23 +339,8 @@ export default defineComponent({
 
         this.map.on('load', this.configureMap);
         this.map.on('error', (error) => {
-          console.log(`Error loading tiles: ${error.error}`);
-        });
-
-        this.map.on('styledata', () => {
-
-          if (this.visibleLayer == null) {
-            console.log(`style loaded but no layer`);
-          }
-
-          // Check whether there's a layer selected in the router.
-          //THIS IS A LOOP.
-          // const currentDataLayer = this.mapState?.mapData?.dataLayers?.find(
-          //   (layer) => layer == router.currentRoute.value.query?.layer,
-          // ) ?? leadServiceLinesByWaterSystemLayer.id;
-          //
-          // console.log(`Dispatching current data layer as: ${currentDataLayer}`);
-          // dispatch(setCurrentDataLayer(currentDataLayer));
+          console.log(`Error loading tiles: ${error.error} `);
+          console.log(error.error.stack);
         });
 
         this.map.scrollZoom.disable();
