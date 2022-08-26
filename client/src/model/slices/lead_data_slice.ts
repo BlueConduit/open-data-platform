@@ -17,7 +17,7 @@ const leadDataSlice = createSlice({
     getParcelSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
       return {
         ...state,
-        data: { ...action.payload },
+        data: { ...state.data, ...action.payload },
         status: { status: Status.success },
       };
     },
@@ -36,7 +36,7 @@ const leadDataSlice = createSlice({
     getWaterSystemSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
       return {
         ...state,
-        data: { ...action.payload },
+        data: { ...state.data, ...action.payload },
         status: { status: Status.success },
       };
     },
