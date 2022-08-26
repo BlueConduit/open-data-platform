@@ -154,7 +154,7 @@ export default defineComponent({
   },
   methods: {
     formatPercentage(prediction: number | undefined): string | null {
-      if (prediction == null || prediction == 0) {
+      if (prediction == null) {
         return null;
       }
       return Math.round(prediction * 100).toString();

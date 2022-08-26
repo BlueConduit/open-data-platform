@@ -27,20 +27,23 @@ import { defineComponent, inject } from 'vue';
 import SearchBarOption from './SearchBarOption.vue';
 import VueSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
-import { State } from '../model/state';
-import { stateKey } from '../injection_keys';
 import { DataLayer, MapLayer } from '../model/data_layer';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
+import { dispatch, useSelector } from '../model/store';
+import { ALL_DATA_LAYERS, setCurrentDataLayer } from '../model/slices/map_data_slice';
+import { MapDataState } from '../model/states/map_data_state';
+import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
+import { MapData } from '../model/states/model/map_data';
 import { MAP_ROUTE_BASE } from '../router';
 
 export default defineComponent({
   name: 'SearchBar',
   components: { MapGeocoderWrapper, SearchBarOption, VueSelect },
   setup() {
-    const state: State | undefined = inject(stateKey);
+    const mapState = useSelector((state) => state.mapData) as MapDataState;
 
     return {
-      state,
+      mapState,
     };
   },
   data() {
@@ -74,18 +77,22 @@ export default defineComponent({
   watch: {
     // If selectedOption changes update state data layer.
     selectedOption: function(newOption: DataLayer): void {
-      this.state?.setCurrentDataLayer(newOption);
+      if (newOption == null) {
+        return;
+      }
+      dispatch(setCurrentDataLayer(newOption.id));
     },
-    state: {
-      handler(newState: State): void {
-        if (newState != null) {
-          this.options = newState.dataLayers.filter(layer => layer.visibleInSearchBar);
-          if (newState.currentDataLayer?.id != MapLayer.LeadServiceLineByParcel) {
-            this.selectedOption = newState.currentDataLayer;
-          }
+    'mapState.mapData': {
+      handler(mapData: MapData): void {
+        const allLayers: Array<DataLayer> = Array.from(ALL_DATA_LAYERS.values());
+        this.options = allLayers.filter(layer => layer.visibleInSearchBar);
+        const newDataLayer = mapData?.currentDataLayerId;
+
+        if (newDataLayer != null && newDataLayer != MapLayer.LeadServiceLineByParcel) {
+          const selected: DataLayer = this.options.find(option => option.id == newDataLayer) ?? leadServiceLinesByWaterSystemLayer;
+          this.selectedOption = selected;
         }
       },
-      // Make watcher deep, meaning that this will be triggered on a change to any nested field of state.
       deep: true,
     },
   },

@@ -7,32 +7,25 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, provide, reactive } from 'vue';
+
+import { defineComponent } from 'vue';
 import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
-import { State } from './model/state';
-import { leadServiceLinesByWaterSystemLayer } from './data_layer_configs/lead_service_lines_by_water_systems_config';
-import { stateKey } from './injection_keys';
-import { DataLayer, MapLayer } from './model/data_layer';
-import { populationDataByCensusBlockLayer } from './data_layer_configs/population_by_census_block_config';
-import { leadAndCopperViolationsByCountyDataLayer } from './data_layer_configs/lead_and_copper_violations_by_water_system_config';
-import { leadServiceLinesByParcelLayer } from './data_layer_configs/lead_service_lines_by_parcel_config';
 import { clearGeoIds, queryLatLong } from './model/slices/geo_data_slice';
-import { dispatch } from './model/store';
-import { GEOTYPE_PARAM, LAT_LONG_PARAM } from './router';
+import { dispatch, useSelector } from './model/store';
+import { GEOTYPE_PARAM, LAT_LONG_PARAM, LAYER_PARAM } from './router';
 import { GeoType } from './model/states/model/geo_data';
 import PageFooter from './components/PageFooter.vue';
+import { setCurrentDataLayer } from './model/slices/map_data_slice';
+import { MapDataState } from './model/states/map_data_state';
+import { MapLayer } from './model/data_layer';
 import { clearLeadData } from './model/slices/lead_data_slice';
 import { clearDemographicData } from './model/slices/demographic_data_slice';
 
+
 const DEFAULT_TITLE = 'LeadOut';
-const DATA_LAYERS = new Map<MapLayer, DataLayer>([
-  [MapLayer.LeadServiceLineByWaterSystem, leadServiceLinesByWaterSystemLayer],
-  [MapLayer.LeadAndCopperRuleViolationsByWaterSystem, leadAndCopperViolationsByCountyDataLayer],
-  [MapLayer.PopulationByCensusBlock, populationDataByCensusBlockLayer],
-  [MapLayer.LeadServiceLineByParcel, leadServiceLinesByParcelLayer],
-]);
+
 
 /**
  * This file contains the component(s) that are visible in every view.
@@ -44,19 +37,15 @@ export default defineComponent({
     PageFooter,
   },
   setup() {
-    // Create and provide default state. This is updated once API data is fetched.
-    const state = reactive(new State([]));
-    state.dataLayers = Array.from(DATA_LAYERS.values());
-
-    provide(stateKey, state);
-
+    const mapState = useSelector((state) => state.mapData) as MapDataState;
     return {
-      state,
+      mapState,
     };
   },
   watch: {
     // Current route location. See https://router.vuejs.org/api/#component-injections.
     $route(to: RouteLocation) {
+      const layerId = to.query[LAYER_PARAM];
       const latLongValue: string = to.params[LAT_LONG_PARAM] as string;
       const geoTypeValue: string = to.params[GEOTYPE_PARAM] as string;
 
@@ -65,13 +54,19 @@ export default defineComponent({
         const lat = latLong[0];
         const long = latLong[1];
         const geoType = Object.values(GeoType).find((geo) => geo == geoTypeValue) as GeoType;
-
         dispatch(queryLatLong(lat, long, geoType));
       } else {
         dispatch(clearGeoIds());
         dispatch(clearLeadData());
         dispatch(clearDemographicData());
       }
+
+      // Check whether router has a param with the layer to show on the map.
+      // Otherwise, default to water systems.
+      const currentDataLayerId = this.mapState?.mapData?.dataLayers?.find(
+        (l) => layerId == l,
+      );
+      dispatch(setCurrentDataLayer(currentDataLayerId ?? MapLayer.LeadServiceLineByWaterSystem));
 
       // TODO: consider adding a string that says this is a non-prod environment, so devs can see
       // that at a glance in their browser tabs. E.g. "[sandbox] LeadOut - Home"

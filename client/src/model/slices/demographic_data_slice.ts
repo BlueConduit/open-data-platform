@@ -4,6 +4,7 @@ import { AppDispatch } from '@/model/store';
 import { DemographicDataState } from '@/model/states/demographic_data_state';
 import { DemographicData } from '@/model/states/model/demographic_data';
 import { GeographicLevel } from '@/model/data_layer';
+import { Status } from '@/model/states/status_state';
 
 const initialState: DemographicDataState = {};
 const client = new ApiClient();
@@ -15,13 +16,30 @@ const demographicDataSlice = createSlice({
   initialState,
   reducers: {
     demographicsQueried(state: DemographicDataState, action: PayloadAction<DemographicData>) {
-      state.data = { ...state.data, ...action.payload };
+      return {
+        ...state,
+        data: { ...action.payload },
+        status: { status: Status.pending },
+      };
     },
     getDemographicsSuccess(state: DemographicDataState, action: PayloadAction<DemographicData>) {
-      state.data = { ...state.data, ...action.payload };
+      return {
+        ...state,
+        data: { ...action.payload },
+        status: { status: Status.success },
+      };
     },
     getDemographicsError(state: DemographicDataState, action) {
-      console.log(`Error fetching demographic data: ${state} ${action}`);
+      console.log(
+        `Error fetching demographics: ${JSON.stringify(state)} ${JSON.stringify(action)}`,
+      );
+      return {
+        status: {
+          status: Status.error,
+          message: action.payload.error,
+          code: action.payload.status,
+        },
+      };
     },
     demographicDataCleared(state: DemographicDataState, action) {
       return {

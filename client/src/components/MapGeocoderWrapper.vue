@@ -17,12 +17,9 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, inject, PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import GeocoderInput from './GeocoderInput.vue';
-import { State } from '../model/state';
-import { stateKey } from '../injection_keys';
 import { GeoType } from '../model/states/model/geo_data';
-import { SCORECARD_BASE } from '../router';
 
 /**
  * Expandable address search that performs a geocode.
@@ -31,12 +28,6 @@ export default defineComponent({
   name: 'MapGeocoderWrapper',
   components: {
     GeocoderInput,
-  },
-  setup() {
-    const state: State = inject(stateKey, State.default());
-    return {
-      state,
-    };
   },
   props: {
     acceptedTypes: {
