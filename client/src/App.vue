@@ -7,7 +7,7 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, provide, reactive } from 'vue';
+import { defineComponent } from 'vue';
 import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/css/copper.css';
 import NavigationBar from './components/NavigationBar.vue';
@@ -18,7 +18,7 @@ import { GeoType } from './model/states/model/geo_data';
 import PageFooter from './components/PageFooter.vue';
 import { setCurrentDataLayer } from './model/slices/map_data_slice';
 import { MapDataState } from './model/states/map_data_state';
-import { leadServiceLinesByWaterSystemLayer } from './data_layer_configs/lead_service_lines_by_water_systems_config';
+import { MapLayer } from './model/data_layer';
 
 const DEFAULT_TITLE = 'LeadOut';
 
@@ -51,18 +51,15 @@ export default defineComponent({
         const lat = latLong[0];
         const long = latLong[1];
         const geoType = Object.values(GeoType).find((geo) => geo == geoTypeValue) as GeoType;
-
-        // TODO: Pass real geo type.
         dispatch(queryLatLong(lat, long, geoType));
       }
 
       // Check whether router has a param with the layer to show on the map.
-      if (layerId != null) {
-        const currentDataLayerId = this.mapState?.mapData?.dataLayers?.find(
-          (l) => layerId == l,
-        ) ?? leadServiceLinesByWaterSystemLayer.id;
-        dispatch(setCurrentDataLayer(currentDataLayerId));
-      }
+      // Otherwise, default to water systems.
+      const currentDataLayerId = this.mapState?.mapData?.dataLayers?.find(
+        (l) => layerId == l,
+      );
+      dispatch(setCurrentDataLayer(currentDataLayerId ?? MapLayer.LeadServiceLineByWaterSystem));
 
       // TODO: consider adding a string that says this is a non-prod environment, so devs can see
       // that at a glance in their browser tabs. E.g. "[sandbox] LeadOut - Home"

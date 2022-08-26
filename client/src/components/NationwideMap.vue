@@ -308,11 +308,9 @@ export default defineComponent({
       this.setUpControls();
       this.setUpZoomListener();
 
-      console.log(this.visibleLayer);
-
-      if (this.visibleLayer == null) {
-        console.log(this.visibleLayer);
-        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(this.currentDataLayerId ?? MapLayer.LeadServiceLineByWaterSystem));
+      // If the map has nothing on it, check the current data layer.
+      if (this.visibleLayer == null && this.currentDataLayerId != null) {
+        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(this.currentDataLayerId));
       }
 
     },
@@ -322,29 +320,24 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      try {
-        const zoom = 4;
-        this.map = new mapbox.Map({
-          // Removes watermark by Mapbox.
-          attributionControl: false,
-          center: this.center,
-          container: 'map-container',
-          style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
-          zoom: zoom,
-        });
+      const zoom = 4;
+      this.map = new mapbox.Map({
+        // Removes watermark by Mapbox.
+        attributionControl: false,
+        center: this.center,
+        container: 'map-container',
+        style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
+        zoom: zoom,
+      });
 
-        this.map.on('load', this.configureMap);
-        this.map.on('error', (error) => {
-          console.log(`Error loading tiles: ${error.error} `);
-          console.log(error.error.stack);
-        });
+      this.map.on('load', this.configureMap);
+      this.map.on('error', (error) => {
+        console.log(`Error loading tiles: ${error.error} `);
+        console.log(error.error.stack);
+      });
 
-        this.map.scrollZoom.disable();
-        dispatch(setZoom(zoom));
-      } catch (err) {
-        // TODO: Add error handling.
-        console.log('Error: ', err);
-      }
+      this.map.scrollZoom.disable();
+      dispatch(setZoom(zoom));
     },
   },
   mounted() {

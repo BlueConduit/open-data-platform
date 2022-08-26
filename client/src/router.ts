@@ -81,10 +81,10 @@ const router = createRouter({
   },
 });
 
+/// Remove layer query from scorecard page.
 router.beforeEach((to: RouteLocationNormalized, _) => {
-  if (to.path.startsWith(SCORECARD_BASE)) {
-    console.log(`PLEASE `);
-    //router.push({ path: to.path, query: {} });
+  if (to.path.startsWith(SCORECARD_BASE) && to.query.layer != null) {
+    router.push({ path: to.path, query: {} });
   }
 });
 
