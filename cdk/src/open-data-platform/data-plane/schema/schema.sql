@@ -41,6 +41,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION set_approx_area_sqkm_to_area_of_geom()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    NEW.approx_area_sq_km = ST_Area(ST_Transform(new.geom, 3857)) / 1000000;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 ------------
 -- Tables --
 ------------
@@ -173,17 +182,24 @@ CREATE TABLE IF NOT EXISTS water_systems
     population_served         real,
     state_census_geo_id       varchar(255) references states (census_geo_id),
     bbox                      GEOMETRY(Geometry, 4326, 2),
+    approx_area_sq_km         real,
     geom                      GEOMETRY(Geometry, 4326),
     PRIMARY KEY (pws_id)
 );
 CREATE INDEX IF NOT EXISTS water_systems_state_census_geo_id_idx ON water_systems (state_census_geo_id);
 CREATE INDEX IF NOT EXISTS water_systems_geom_idx ON water_systems USING GIST (geom);
 CREATE INDEX IF NOT EXISTS water_systems_bbox_idx ON public.water_systems USING gist (bbox);
+CREATE INDEX IF NOT EXISTS water_systems_approx_area_idx ON water_systems USING BTREE (approx_area_sq_km);
 SELECT safe_create($$CREATE TRIGGER set_bbox_to_envelope_of_geom_on_water_system_insertion
     BEFORE INSERT
     ON water_systems
     FOR EACH ROW
 EXECUTE PROCEDURE set_bbox_to_envelope_of_geom()$$);
+SELECT safe_create($$CREATE TRIGGER set_approx_area_sqkm_on_insertion
+    BEFORE INSERT
+    ON water_systems
+    FOR EACH ROW
+EXECUTE PROCEDURE set_approx_area_sqkm_to_area_of_geom()$$);
 
 -- EPA violations data
 
