@@ -1,5 +1,5 @@
 import { RDSDataService } from 'aws-sdk';
-import { BatchExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
+import { BatchExecuteStatementRequest, ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
 import { geoJsonHandlerFactory } from './handler-factory';
 import { WaterSystemsTableRowBuilder } from '../model/water-systems-table';
 
@@ -45,6 +45,25 @@ async function insertBatch(
                 SUBSTRING(:pws_id, 1, 2) ON CONFLICT (pws_id) DO NOTHING`,
   };
   return rdsService.batchExecuteStatement(batchExecuteParams).promise();
+}
+
+/**
+ * Idempotently reorders the physical table data on disk according to its proximity within the index.
+ * Reduces the number of disk seeks when fetching data that's closer together in the index, which
+ * makes access much faster. Needs to be rerun as more data is added to the table. Locks the table for
+ * access while running. When testing on water_systems with ~25k rows, this takes about 2.5 seconds.
+ * See: https://www.postgresql.org/docs/current/sql-cluster.html for detailed info.
+ * @param rdsService : RDS service to connect to the db.
+ */
+async function clusterRows(rdsService: RDSDataService): Promise<RDSDataService.ExecuteStatementResponse> {
+  const executeClusterCommand: ExecuteStatementRequest = {
+    database: process.env.DATABASE_NAME ?? 'postgres',
+    resourceArn: process.env.RESOURCE_ARN ?? '',
+    schema: SCHEMA,
+    secretArn: process.env.CREDENTIALS_SECRET ?? '',
+    sql: `CLUSTER water_systems_geom_idx ON water_systems; `
+  };
+  return rdsService.executeStatement(executeClusterCommand).promise();
 }
 
 /**
@@ -102,5 +121,7 @@ export const handler = geoJsonHandlerFactory(
       rdsDataService,
       rows.map(getTableRowFromRow).filter((row) => row != null) as SqlParametersList[],
     );
+
+    await clusterRows(rdsDataService);
   },
 );
