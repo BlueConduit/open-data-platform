@@ -38,6 +38,9 @@ export class ScorecardMessages {
     'collected from your utility and other sources';
   static LEARN_MORE = 'Learn more';
   static LOWER_INCOME = 'Lower income';
+  static LSLR_HEADER = 'Lead Service Line Replacement Pilot';
+  static LSLR_SUBHEADER = 'Learn more about lead service replacements happening in your area ' + 
+  'and your eligibility status.';
   static RESEARCH_WATER_FILTERS = 'Research water filters';
   static SCORECARD_SUMMARY_PANEL_SUBHEADER =
     'In addition to information from your water system, your score is also based on ' +

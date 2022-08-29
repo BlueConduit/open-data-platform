@@ -3,6 +3,7 @@
     <div class='container-row justify-right'>
       <map-geocoder-wrapper class='search'
                             :acceptedTypes='acceptedTypes'
+                            :baseUrl='SCORECARD_BASE'
                             v-model:expandSearch='showSearch' />
     </div>
     <div class='prediction'>
@@ -55,6 +56,7 @@ import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
 import { Status } from '../model/states/status_state';
+import { SCORECARD_BASE } from '../router';
 
 const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
@@ -80,6 +82,7 @@ export default defineComponent({
     return {
       acceptedTypes: [GeoType.address, GeoType.postcode],
       expandSearch: true,
+      SCORECARD_BASE,
       showSearch: true,
       ScorecardSummaryMessages: ScorecardMessages,
     };
@@ -122,8 +125,8 @@ export default defineComponent({
     },
     showWaterSystemPrediction(): boolean {
       return (
-        // Anything but address gets a water system prediction for now.
-        this.geoState?.geoids?.geoType != GeoType.address &&
+        // Show water system prediction if it has a value and there is no parcel prediction.
+        !this.showParcelPrediction &&
         this.pwsId != null &&
         this.percentLead != null
       );
@@ -141,7 +144,9 @@ export default defineComponent({
         this.geoState?.geoids?.long != null
       ) {
         dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
-      } else if (this.geoState?.geoids?.pwsId != null) {
+      }
+      // Request water system data if PWSID is not null, even for address search.
+      if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
       }
     },
@@ -151,7 +156,7 @@ export default defineComponent({
   },
   methods: {
     formatPercentage(prediction: number | undefined): string | null {
-      if (prediction == null || prediction == 0) {
+      if (prediction == null) {
         return null;
       }
       return Math.round(prediction * 100).toString();

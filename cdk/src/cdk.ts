@@ -14,9 +14,4 @@ OpenDataPlatform(app, {
   env: { account: '036999211278', region: 'us-east-2' },
   tags: { Project: util.projectName, Environment: util.defaultEnv },
   envType: util.defaultEnv,
-  slackConfig: {
-    slackChannelConfigurationName: 'LeadOut-sandbox',
-    slackWorkspaceId: 'TJTFN34NM',
-    slackChannelId: 'C03V1FX7KC1',
-  },
 });
