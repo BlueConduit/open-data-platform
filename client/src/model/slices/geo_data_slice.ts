@@ -15,22 +15,34 @@ const geoSlice = createSlice({
   initialState,
   reducers: {
     getGeoIdsSuccess(state: GeoDataState, action: PayloadAction<GeoData>) {
-      state.geoids = { ...state.geoids, ...action.payload };
-      // Reset status.
-      state.status = { status: Status.success };
-    },
-    getGeoIdsError(state: GeoDataState, action) {
-      console.log(`Error fetching geos: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
-      state.status = {
-        status: Status.error,
-        message: action.payload.error,
-        code: action.payload.status,
+      return {
+        ...state,
+        geoids: { ...state.geoids, ...action.payload },
+        status: { status: Status.success },
       };
     },
-    geoIdsQueried(state: GeoDataState, action: PayloadAction<GeoData>) {
-      state.geoids = action.payload;
-      // Reset status.
-      state.status = { status: Status.pending };
+    getGeoIdsError: (state: GeoDataState, action) => {
+      console.log(`Error fetching geos: ${JSON.stringify(state)} ${JSON.stringify(action)}`);
+      return {
+        status: {
+          status: Status.error,
+          message: action.payload.error,
+          code: action.payload.status,
+        },
+      };
+    },
+    geoIdsQueried: (state: GeoDataState, action: PayloadAction<GeoData>) => {
+      return {
+        ...state,
+        geoids: { ...state.geoids, ...action.payload },
+        status: { status: Status.pending },
+      };
+    },
+    geoIdsCleared(state: GeoDataState, _: PayloadAction<GeoData>) {
+      return {
+        geoids: {},
+        status: { status: Status.success },
+      };
     },
   },
 });
@@ -55,7 +67,16 @@ export const queryLatLong = (lat: string, long: string, geoType: GeoType) => {
   };
 };
 
+/**
+ * Clears GeoDataState.
+ */
+export const clearGeoIds = () => {
+  return async (dispatch: AppDispatch) => {
+    dispatch(geoIdsCleared({}));
+  };
+};
+
 // See more about reducers:
 // https://redux-toolkit.js.org/api/createslice#reducers
-export const { geoIdsQueried, getGeoIdsSuccess, getGeoIdsError } = geoSlice.actions;
+export const { geoIdsQueried, getGeoIdsSuccess, getGeoIdsError, geoIdsCleared } = geoSlice.actions;
 export default geoSlice.reducer;

@@ -10,22 +10,23 @@ import mapboxgl from 'mapbox-gl';
 import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
-import { createApp, defineComponent, inject, nextTick, PropType } from 'vue';
-import { State } from '../model/state';
-import { stateKey } from '../injection_keys';
+import { createApp, defineComponent, nextTick, PropType } from 'vue';
 import { DataLayer, FeatureProperty, GeographicLevel, MapLayer } from '../model/data_layer';
 import { router } from '../router';
-import { leadServiceLinesByParcelLayer } from '../data_layer_configs/lead_service_lines_by_parcel_config';
-import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
-import { useSelector } from '../model/store';
+import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
+import { MapDataState } from '../model/states/map_data_state';
+import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom } from '../model/slices/map_data_slice';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
 const POPUP_CONTENT_BASE_ID = 'popup-content';
 const POPUP_CONTENT_BASE_HTML = `<div id='${POPUP_CONTENT_BASE_ID}'></div>`;
+const VISIBILITY = 'visibility';
+const VISIBLE = 'visible';
 
 const PARCEL_ZOOM_LEVEL = 12;
+const DEFAULT_ZOOM_LEVEL = 4;
 
 /**
  * A browsable map of nationwide lead data.
@@ -38,15 +39,13 @@ export default defineComponent({
   setup() {
     mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
 
-    // TODO(kailamjeter): remove all dependencies on old state and delete.
-    const state: State = inject(stateKey, State.default());
-
     // Listen to geoState updates.
     const geoState = useSelector((state) => state.geos) as GeoDataState;
+    const mapState = useSelector((state) => state.mapData) as MapDataState;
 
     return {
-      state,
       geoState,
+      mapState,
       legendStyle: {
         display: 'block',
         position: 'absolute',
@@ -58,6 +57,7 @@ export default defineComponent({
   data() {
     return {
       map: null as mapboxgl.Map | null,
+      marker: null as mapboxgl.Marker | null,
       popup: null as mapboxgl.Popup | null,
     };
   },
@@ -67,12 +67,29 @@ export default defineComponent({
         '--height': this.height,
       };
     },
+    currentDataLayerId() {
+      return this.mapState?.mapData?.currentDataLayerId;
+    },
+    visibleLayer() {
+      return this.possibleLayers?.find(l =>
+        this.map?.getLayer(l.styleLayer.id) != null &&
+        this.map?.getLayoutProperty(
+          l.styleLayer.id,
+          VISIBILITY,
+        ) == VISIBLE,
+      );
+    },
     /**
      * Represents the current layer that should be shown based on the url
      * query parameter.
      */
     routerLayer() {
       return router.currentRoute.value.query.layer ?? null;
+    },
+    // TODO: Replace with only the layers in the map data. Here and everywhere
+    // there is reference to ALL_LAYERS.
+    possibleLayers() {
+      return Array.from(ALL_DATA_LAYERS.values());
     },
   },
   props: {
@@ -112,40 +129,42 @@ export default defineComponent({
     /**
      * Sets the visibility of the layer with the given styleLayerId.
      */
-    setDataLayerVisibility(styleLayerId: string, visible: boolean): void {
+    setDataLayerVisible(layerId?: string): void {
       if (this.map == null) return;
 
-      this.map.setLayoutProperty(styleLayerId, 'visibility', visible ? 'visible' : 'none');
-
-      // Update the router params when toggling layers to visible. Do not update
-      // for leadServiceLinesByParcelLayer, which is not a visible layer.
-      const shouldUpdateRouterParam =
-        visible &&
-        router.currentRoute.value.query.layer != styleLayerId &&
-        styleLayerId != leadServiceLinesByParcelLayer.styleLayer.id;
-      if (shouldUpdateRouterParam) {
-        router.push({
-          query: Object.assign({}, router.currentRoute.value.query, {
-            layer: styleLayerId,
-          }),
-        });
-      }
-    },
-
-    /**
-     * Updates layer visibility based on current data layer.
-     */
-    toggleLayerVisibility(newDataLayer: DataLayer | null, oldDataLayer: DataLayer | null): void {
-      if (this.map == null) return;
       if (this.popup != null) {
         this.popup.remove();
       }
 
-      if (newDataLayer != null) {
-        this.setDataLayerVisibility(newDataLayer.styleLayer.id, true);
+      const layer = ALL_DATA_LAYERS.get(layerId as MapLayer);
+      if (layer == null) {
+        return;
       }
-      if (oldDataLayer != null) {
-        this.setDataLayerVisibility(oldDataLayer.styleLayer.id, false);
+
+      const styleLayerId = layer.styleLayer.id;
+      this.map.setLayoutProperty(styleLayerId, VISIBILITY, VISIBLE);
+
+      // Hide all other layers.
+      const allOtherLayers = Array.from(ALL_DATA_LAYERS.values()).filter(l => l.id != layerId);
+      for (let alternateLayer of allOtherLayers) {
+
+        // Check if layer exists before setting property on it.
+        if (this.map.getLayer(alternateLayer.styleLayer.id) != null) {
+          this.map.setLayoutProperty(alternateLayer.styleLayer.id, VISIBILITY, 'none');
+        }
+      }
+
+      // Update the router params when toggling layers to visible. Do not update
+      // for leadServiceLinesByParcelLayer, which is not a visible layer.
+      const shouldUpdateRouterParam =
+        router.currentRoute.value.query.layer != layerId &&
+        layerId != MapLayer.LeadServiceLineByParcel;
+      if (shouldUpdateRouterParam) {
+        router.push({
+          query: Object.assign({}, router.currentRoute.value.query, {
+            layer: layerId,
+          }),
+        });
       }
     },
 
@@ -156,13 +175,12 @@ export default defineComponent({
      * layer if the currentDataLayer changes.
      */
     updateMapOnDataLayerChange(
-      newDataLayer: DataLayer | null,
-      oldDataLayer: DataLayer | null,
+      newDataLayer?: DataLayer,
     ): void {
       if (this.map == null) {
         this.createMap();
       } else {
-        this.toggleLayerVisibility(newDataLayer, oldDataLayer);
+        this.setDataLayerVisible(newDataLayer?.id);
       }
     },
 
@@ -194,14 +212,14 @@ export default defineComponent({
      */
     setUpInteractionHandlers(): void {
       if (this.map == null) return;
-      for (const layer of this.state.dataLayers) {
+      for (const layer of this.possibleLayers) {
         // Use MapBox's custom click handler, which takes the style layer that we
         // want to set up a handler for as a parameter.
         this.map?.on('click', layer.styleLayer.id, async (e: MapLayerMouseEvent): Promise<void> => {
-          if (e.features != undefined) {
+          if (e.features != null) {
             const clickedFeatureProperties: { [name: string]: any } = e.features[0]
               .properties as {};
-            const popupInfo = this.state?.currentDataLayer?.popupInfo;
+            const popupInfo = this.possibleLayers.find(l => l.id == this.currentDataLayerId)?.popupInfo;
 
             this.createMapPopup(e.lngLat /* popupData= */, {
               title: popupInfo?.title ?? '',
@@ -248,19 +266,20 @@ export default defineComponent({
     setUpZoomListener(): void {
       this.map?.on('zoom', () => {
         if (this.map == null) return;
+        dispatch(setZoom(this.map.getZoom()));
 
         // If zoomed past parcel zoom level, switch to parcel-level data source.
         // Otherwise, switch to water system level.
         if (
           this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
-          this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByWaterSystem
+          this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem
         ) {
-          this.state?.setCurrentDataLayer(leadServiceLinesByParcelLayer);
+          dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByParcel));
         } else if (
           this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
-          this.state?.currentDataLayer?.id == MapLayer.LeadServiceLineByParcel
+          this.currentDataLayerId == MapLayer.LeadServiceLineByParcel
         ) {
-          this.state?.setCurrentDataLayer(leadServiceLinesByWaterSystemLayer);
+          dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByWaterSystem));
         }
       });
     },
@@ -271,8 +290,7 @@ export default defineComponent({
     configureMap(): void {
       if (this.map == null) return;
 
-      this.state.map = this.map;
-      for (const layer of this.state.dataLayers) {
+      for (const layer of this.possibleLayers) {
         this.map?.addSource(layer.id, layer.source);
         this.map?.addLayer(layer.styleLayer);
       }
@@ -281,12 +299,11 @@ export default defineComponent({
       this.setUpControls();
       this.setUpZoomListener();
 
-      // Check whether there's a layer selected in the router.
-      this.state.setCurrentDataLayer(
-        this.state.dataLayers.find(
-          (layer) => layer.styleLayer.id == router.currentRoute.value.query?.layer,
-        ) ?? leadServiceLinesByWaterSystemLayer,
-      );
+      // If the map has nothing on it, check the current data layer.
+      if (this.visibleLayer == null && this.currentDataLayerId != null) {
+        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(this.currentDataLayerId));
+      }
+
     },
 
     /**
@@ -294,52 +311,65 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      try {
-        this.map = new mapbox.Map({
-          // Removes watermark by Mapbox.
-          attributionControl: false,
-          center: this.center,
-          container: 'map-container',
-          style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
-          zoom: 4,
-        });
+      this.map = new mapbox.Map({
+        // Removes watermark by Mapbox.
+        attributionControl: false,
+        center: this.center,
+        container: 'map-container',
+        style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
+        zoom: DEFAULT_ZOOM_LEVEL,
+      });
 
-        this.map.on('load', this.configureMap);
-        this.map.scrollZoom.disable();
-      } catch (err) {
-        // TODO: Add error handling.
-        console.log('Error: ', err);
-      }
+      this.map.on('load', this.configureMap);
+      this.map.on('error', (error) => {
+        console.log(`Error loading tiles: ${error.error} `);
+        console.log(error.error.stack);
+      });
+
+      this.map.scrollZoom.disable();
+      dispatch(setZoom(DEFAULT_ZOOM_LEVEL));
     },
   },
   mounted() {
     this.createMap();
   },
   watch: {
-    // Listens to app state to toggle layers.
-    'state.currentDataLayer': function(newDataLayer: DataLayer, oldDataLayer: DataLayer) {
-      this.updateMapOnDataLayerChange(newDataLayer, oldDataLayer);
-    },
-    // Listens to query param to toggle layers.
-    routerLayer: function(newLayer: string) {
-      if (newLayer != null) {
-        this.setDataLayerVisibility(newLayer, true);
-      }
+    // Listens to map state to toggle different layers.
+    'mapState.mapData.currentDataLayerId': {
+      handler: function(newDataLayerId: MapLayer) {
+        if (newDataLayerId == null) {
+          return;
+        }
+        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
+      },
     },
     // Listen for changes to lat/long to update map location.
     'geoState.geoids': function() {
+      // Remove the old marker.
+      if (this.marker != null) {
+        this.marker.remove();
+      }
+
       const lat = this.geoState?.geoids?.lat;
       const long = this.geoState?.geoids?.long;
 
       if (lat != null && long != null) {
-        const marker = new mapboxgl.Marker({
+        this.marker = new mapboxgl.Marker({
           color: '#0b2553',
         });
 
-        if (this.map != undefined) {
-          marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
+        if (this.map != null) {
+          this.marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
         }
         this.zoomToLongLat();
+      } else {
+        // Reset map to full view of U.S. when geo IDs are cleared.
+        if (this.map?.isStyleLoaded()) {
+          this.map?.jumpTo({
+            center: this.center,
+            zoom: DEFAULT_ZOOM_LEVEL,
+          });
+        }
       }
     },
   },

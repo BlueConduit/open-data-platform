@@ -18,6 +18,16 @@ enum GeoType {
 }
 
 /**
+ * Represents cities which we have parcel data for.
+ *
+ * Used to display city-specific information.
+ */
+enum City {
+  toledo = 'toledo',
+  unknown = 'unknown',
+}
+
+/**
  * Model for geo id selection.
  */
 interface GeoData {
@@ -28,7 +38,6 @@ interface GeoData {
   lat?: string;
   long?: string;
 }
-
 
 interface BoundingBox {
   minLat: number;
@@ -42,5 +51,4 @@ interface BoundedGeoDatum {
   bounding_box: BoundingBox;
 }
 
-
-export { GeoData, GeoType, BoundedGeoDatum };
+export { City, GeoData, GeoType, BoundedGeoDatum };

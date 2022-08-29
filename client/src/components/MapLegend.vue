@@ -13,10 +13,12 @@
 
 <script lang='ts'>
 import { defineComponent, inject } from 'vue';
-import { State } from '../model/state';
-import { stateKey } from '../injection_keys';
 import { LegendBucketData } from '../model/data_layer';
 import { formatLegendBucket, getLegendForZoomLevel } from '../util/data_layer_util';
+import { useSelector } from '../model/store';
+import { MapDataState } from '../model/states/map_data_state';
+import { ALL_DATA_LAYERS } from '../model/slices/map_data_slice';
+import { MapData } from '../model/states/model/map_data';
 
 /**
  * Map legend component.
@@ -25,10 +27,10 @@ import { formatLegendBucket, getLegendForZoomLevel } from '../util/data_layer_ut
 export default defineComponent({
   name: 'MapLegend',
   setup() {
-    const state: State = inject(stateKey, State.default());
+    const mapState = useSelector((state) => state.mapData) as MapDataState;
 
     return {
-      state,
+      mapState,
     };
   },
   data() {
@@ -45,11 +47,12 @@ export default defineComponent({
      * bucketMap is updated.
      */
     createLegend(): void {
-      if (this.state.map == null || this.state.currentDataLayer == null) {
+      if (this.mapState?.mapData?.currentDataLayerId == null || this.mapState?.mapData?.zoom == null ) {
         return;
       }
 
-      const legendInfo = getLegendForZoomLevel(this.state.currentDataLayer.legendInfo, Math.floor(this.state.map.getZoom()));
+      const layerToUse = Array.from(ALL_DATA_LAYERS.values()).find(l => l.id == this.mapState?.mapData?.currentDataLayerId);
+      const legendInfo = getLegendForZoomLevel(Math.floor(this.mapState.mapData.zoom), layerToUse?.legendInfo);
       this.title = legendInfo?.title ?? '';
       this.displayedBuckets = formatLegendBucket(legendInfo);
     },
@@ -64,13 +67,14 @@ export default defineComponent({
      * This could happen if the user toggles visual layers, which would change
      * the type and therefore buckets of the data we want to display.
      */
-    state: {
-      handler(newState: State): void {
-        if (newState.currentDataLayer != null) {
+    'mapState.mapData': {
+      handler(mapData: MapData): void {
+        if (mapData?.currentDataLayerId != null) {
           this.createLegend();
         }
       },
-      // Make watcher deep, meaning that this will be triggered on a change to any nested field of state.
+      // Make watcher deep, meaning that this will be triggered on a change to
+      // any nested field of map data (like zoom and data layer).
       deep: true,
     },
   },
