@@ -5,7 +5,7 @@ import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as pipelines from 'aws-cdk-lib/pipelines';
 import * as util from '../util';
-import { OpenDataPlatformStage } from './stage';
+import { MonitoringStage, OpenDataPlatformStage } from './stage';
 import { BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 
 const CODE_REPO = 'BlueConduit/open-data-platform';
@@ -56,6 +56,20 @@ export class PipelineStack extends Stack {
         }),
       },
     });
+
+    pipeline.addStage(
+      new MonitoringStage(this, 'Dev-Monitoring', {
+        env: { account: '036999211278', region: 'us-east-2' },
+        tags: { Project: util.projectName, Environment: util.EnvType.Development },
+        envType: util.EnvType.Development,
+        slackConfig: {
+          slackChannelConfigurationName: `${util.EnvType.Development}-${util.projectName}-channel-config`,
+          slackWorkspaceId: 'TJTFN34NM',
+          // #leadout-dev-notifications
+          slackChannelId: 'C03UFKFAK9C',
+        },
+      }),
+    );
 
     pipeline.addStage(
       new OpenDataPlatformStage(this, 'Dev', {
