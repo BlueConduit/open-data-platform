@@ -105,6 +105,7 @@ export class PipelineStack extends Stack {
       topicArn(util.EnvType.Deployments, env),
     );
 
+    pipeline.buildPipeline(); // `pipeline.pipeline` below is only available after build.
     new NotificationRule(this, 'FailureNotification', {
       detailType: DetailType.BASIC,
       // These are events that stop the pipeline, except in the 'superseded' case where another
