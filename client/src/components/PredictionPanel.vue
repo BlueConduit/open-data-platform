@@ -2,7 +2,7 @@
   <div class='container'>
     <div class='prediction'>
       <div v-if='showWaterSystemPrediction'>
-        <div class='h1-header-large navy'>
+        <div class='h1-header-xl navy'>
           {{ formatPredictionAsLikelihood(percentLead) }}
         </div>
         <div class='h2-header'>
@@ -12,7 +12,7 @@
       </div>
       <div class='h1-header'
            v-if='showParcelPrediction'>
-        <div class='h1-header navy'>
+        <div class='h1-header-xl navy'>
           {{ formatPredictionAsLikelihood(publicLeadPercent) }}
         </div>
         <div class='h2-header'>
@@ -21,7 +21,7 @@
         </div>
       </div>
       <div class='no-prediction' v-if='!showPrediction && !showError'>
-        <div class='h1-header navy'>
+        <div class='h1-header-large navy'>
           {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
         </div>
         <div class='explain-text'>
@@ -29,7 +29,7 @@
         </div>
       </div>
       <div v-if='showError'>
-        <div class='h1-header navy'>
+        <div class='h1-header-xl navy'>
           {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE }}
         </div>
         <div class='explain-text'>
