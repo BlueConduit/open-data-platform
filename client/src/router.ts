@@ -14,7 +14,7 @@ const HOME_ROUTE = '/';
 const SCORECARD_BASE = `/scorecard`;
 const SCORECARD_ROUTE = `${SCORECARD_BASE}/:${GEOTYPE_PARAM}/:${LAT_LONG_PARAM}`;
 const MAP_ROUTE_BASE = `/map`;
-const MAP_ROUTE = `${MAP_ROUTE_BASE}/:${LAT_LONG_PARAM}?`;
+const MAP_ROUTE = `${MAP_ROUTE_BASE}/:${GEOTYPE_PARAM}/:${LAT_LONG_PARAM}?`;
 const ABOUT_ROUTE = '/about';
 const RESOURCES_ROUTE = '/resources';
 

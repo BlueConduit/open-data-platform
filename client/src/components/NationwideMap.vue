@@ -55,8 +55,8 @@ export default defineComponent({
   },
   data() {
     return {
-      marker: null as mapboxgl.Marker | null,
       map: null as mapboxgl.Map | null,
+      marker: null as mapboxgl.Marker | null,
       popup: null as mapboxgl.Popup | null,
     };
   },
@@ -128,8 +128,12 @@ export default defineComponent({
     /**
      * Sets the visibility of the layer with the given styleLayerId.
      */
-    setDataLayerVisibility(layerId: string): void {
+    setDataLayerVisible(layerId?: string): void {
       if (this.map == null) return;
+
+      if (this.popup != null) {
+        this.popup.remove();
+      }
 
       const layer = ALL_DATA_LAYERS.get(layerId as MapLayer);
       if (layer == null) {
@@ -164,19 +168,6 @@ export default defineComponent({
     },
 
     /**
-     * Updates layer visibility based on current data layer.
-     */
-    toggleLayerVisibility(newDataLayer?: DataLayer): void {
-      if (this.map == null) return;
-      if (this.popup != null) {
-        this.popup.remove();
-      }
-      if (newDataLayer != null) {
-        this.setDataLayerVisibility(newDataLayer.id);
-      }
-    },
-
-    /**
      * Updates map when injected State's currentDataLayer changes.
      *
      * This will create a map if it does not exist and there is new data, or change the visual
@@ -188,7 +179,7 @@ export default defineComponent({
       if (this.map == null) {
         this.createMap();
       } else {
-        this.toggleLayerVisibility(newDataLayer);
+        this.setDataLayerVisible(newDataLayer?.id);
       }
     },
 
@@ -354,15 +345,15 @@ export default defineComponent({
     },
     // Listen for changes to lat/long to update map location.
     'geoState.geoids': function() {
+      // Remove the old marker.
+      if (this.marker != null) {
+        this.marker.remove();
+      }
+
       const lat = this.geoState?.geoids?.lat;
       const long = this.geoState?.geoids?.long;
 
       if (lat != null && long != null) {
-        // Remove the old marker.
-        if (this.marker != null) {
-          this.marker.remove();
-        }
-
         this.marker = new mapboxgl.Marker({
           color: '#0b2553',
         });
