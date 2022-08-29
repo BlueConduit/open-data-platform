@@ -4,7 +4,7 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import { CommonProps, EnvType } from '../util';
 
-interface MonitoringProps extends CommonProps {
+export interface MonitoringProps extends CommonProps {
   slackConfig: chatbot.SlackChannelConfigurationProps;
 }
 
