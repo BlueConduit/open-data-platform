@@ -112,8 +112,8 @@ export default defineComponent({
     },
     showWaterSystemPrediction(): boolean {
       return (
-        // Anything but address gets a water system prediction for now.
-        this.geoState?.geoids?.geoType != GeoType.address &&
+        // Show water system prediction if it has a value and there is no parcel prediction.
+        !this.showParcelPrediction &&
         this.pwsId != null &&
         this.percentLead != null
       );
@@ -131,7 +131,9 @@ export default defineComponent({
         this.geoState?.geoids?.long != null
       ) {
         dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
-      } else if (this.geoState?.geoids?.pwsId != null) {
+      }
+      // Request water system data if PWSID is not null, even for address search.
+      if (this.geoState?.geoids?.pwsId != null) {
         dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
       }
     },
