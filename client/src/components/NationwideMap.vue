@@ -26,6 +26,7 @@ const VISIBILITY = 'visibility';
 const VISIBLE = 'visible';
 
 const PARCEL_ZOOM_LEVEL = 12;
+const DEFAULT_ZOOM_LEVEL = 4;
 
 /**
  * A browsable map of nationwide lead data.
@@ -310,14 +311,13 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      const zoom = 4;
       this.map = new mapbox.Map({
         // Removes watermark by Mapbox.
         attributionControl: false,
         center: this.center,
         container: 'map-container',
         style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
-        zoom: zoom,
+        zoom: DEFAULT_ZOOM_LEVEL,
       });
 
       this.map.on('load', this.configureMap);
@@ -327,7 +327,7 @@ export default defineComponent({
       });
 
       this.map.scrollZoom.disable();
-      dispatch(setZoom(zoom));
+      dispatch(setZoom(DEFAULT_ZOOM_LEVEL));
     },
   },
   mounted() {
@@ -367,7 +367,7 @@ export default defineComponent({
         if (this.map?.isStyleLoaded()) {
           this.map?.jumpTo({
             center: this.center,
-            zoom: 4,
+            zoom: DEFAULT_ZOOM_LEVEL,
           });
         }
       }
