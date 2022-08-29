@@ -1,10 +1,12 @@
 <template>
+  <SearchBar />
   <NationwideMap />
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import NationwideMap from '../components/NationwideMap.vue';
+import SearchBar from '../components/SearchBar.vue';
 
 /**
  * Wrapper for national map dashboard.
@@ -12,6 +14,7 @@ import NationwideMap from '../components/NationwideMap.vue';
 export default defineComponent({
   name: 'NationwideMapView',
   components: {
+    SearchBar,
     NationwideMap,
   },
 });

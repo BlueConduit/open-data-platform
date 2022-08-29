@@ -130,7 +130,7 @@ export default defineComponent({
   max-width: 350px;
   position: absolute;
   top: $spacing-sm;
-  right: 0px;
+  right: 0;
 }
 
 </style>
