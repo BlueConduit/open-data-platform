@@ -4,7 +4,7 @@
       <div class='h1-header-large'>
         {{ messages.EXPLORE_MAP_SECTION_HEADER }}
       </div>
-      <div class='h2-header-large'>
+      <div class='h2-header-large centered-text'>
         {{ messages.EXPLORE_MAP_SECTION_SUBHEADER }}
       </div>
     </div>
@@ -59,5 +59,9 @@ export default defineComponent({
 .section {
   background-color: $white;
   color: $warm-grey-800;
+}
+
+.gold-button {
+  margin: $spacing-lg 0 $spacing-md 0;
 }
 </style>
