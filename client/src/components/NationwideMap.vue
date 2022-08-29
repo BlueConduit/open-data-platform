@@ -114,10 +114,14 @@ export default defineComponent({
           maxLat,
           maxLon,
         } = this.geoState?.geoids?.pwsId?.bounding_box;
-        this.map?.fitBounds([
+
+        const lngLatBounds: [LngLatLike, LngLatLike] = [
           [minLat, minLon],
           [maxLat, maxLon],
-        ]);
+        ];
+
+        this.map?.fitBounds(lngLatBounds);
+        this.map?.setMaxBounds(lngLatBounds);
       } else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
         const lonLat: LngLatLike = {
           lon: parseInt(this.geoState?.geoids?.long),
