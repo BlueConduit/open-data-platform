@@ -57,6 +57,20 @@ export class PipelineStack extends Stack {
       },
     });
 
+    // Monitor this release pipeline itself.
+    pipeline.addStage(
+      new MonitoringStage(this, 'Deployments-Monitoring', {
+        ...props,
+        envType: util.EnvType.Deployments,
+        slackConfig: {
+          slackChannelConfigurationName: `${util.EnvType.Deployments}-${util.projectName}-channel-config`,
+          slackWorkspaceId: 'TJTFN34NM',
+          // #leadout-deployment-notifications
+          slackChannelId: 'C0406KX4DPC',
+        },
+      }),
+    );
+
     pipeline.addStage(
       new MonitoringStage(this, 'Dev-Monitoring', {
         env: { account: '036999211278', region: 'us-east-2' },

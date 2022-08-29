@@ -10,7 +10,7 @@ import { PipelineStack } from './pipeline/pipeline-stack';
 const app = new cdk.App();
 
 new PipelineStack(app, `${util.projectName}Pipeline`, {
-  // Deployment account.
+  // Deployments account.
   env: { account: '223904267317', region: 'us-east-2' },
-  tags: { Project: util.projectName, Environment: 'Deployments' },
+  tags: { Project: util.projectName, Environment: util.EnvType.Deployments },
 });
