@@ -20,15 +20,7 @@
           formatPredictionAsLikelihoodDescriptor(publicLeadPercent)) }}
         </div>
       </div>
-      <div class='no-prediction' v-if='!showPrediction && !showError'>
-        <div class='h1-header-large navy'>
-          {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
-        </div>
-        <div class='explain-text'>
-          {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
-        </div>
-      </div>
-      <div v-if='showError'>
+      <div class='no-prediction' v-if='!showPrediction'>
         <div class='h1-header-xl navy'>
           {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE }}
         </div>
@@ -36,6 +28,7 @@
           {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED }}
         </div>
       </div>
+      <!--      TODO: show error message when content is finalized and showError is true.-->
     </div>
   </div>
 </template>
