@@ -116,8 +116,8 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
 .section {
   @include container-column;
   @include center-container;
-  gap: $spacing-lg;
-  padding: $spacing-xl $spacing-md;
+  gap: $spacing-md;
+  padding: $spacing-lg $spacing-lg;
 }
 
 /** Buttons **/

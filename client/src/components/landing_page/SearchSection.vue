@@ -5,7 +5,7 @@
       <div class='h2-header-large'>{{ messages.SEARCH_SECTION_SUBHEADER }}</div>
     </div>
     <ScorecardSearch :placeholder='messages.GEOLOCATE_PLACEHOLDER_TEXT'
-                     :cta-button-text='messages.CHECK_LEAD_STATUS_BUTTON_TEXT' />
+                     :ctaButtonText='messages.CHECK_LEAD_STATUS_BUTTON_TEXT' />
   </div>
 </template>
 
@@ -37,7 +37,7 @@ export default defineComponent({
 .section {
   color: $white;
   height: 700px;
-  
+
   background-image: url('~@/assets/media/landing-image-2.png'), url('~@/assets/media/landing-image-1.png');
   background-size: cover;
   background-repeat: no-repeat;

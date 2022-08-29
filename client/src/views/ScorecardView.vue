@@ -1,7 +1,13 @@
 <template>
   <div>
     <PredictionPanel />
-    <NationwideMap height='60vh' />
+    <div class='map-container'>
+      <MapGeocoderWrapper class='search'
+                          :acceptedTypes='acceptedTypes'
+                          :baseUrl='SCORECARD_BASE'
+                          v-model:expandSearch='showSearch' />
+      <NationwideMap height='60vh' />
+    </div>
     <div class='container-column center-container actions-to-take'>
       <div class='h1-header-large'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
@@ -36,7 +42,7 @@
 import PredictionPanel from '../components/PredictionPanel.vue';
 import ActionSection from '../components/ActionSection.vue';
 import { defineComponent } from 'vue';
-import { router } from '../router';
+import { router, SCORECARD_BASE } from '../router';
 import ScorecardSummaryPanel from '../components/ScorecardSummaryPanel.vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
@@ -45,7 +51,8 @@ import LslrSection from '@/components/LslrSection.vue';
 import { LSLR_CITY_LINKS } from '@/components/LslrSection.vue';
 import { useSelector } from '@/model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
-import { City } from '../model/states/model/geo_data';
+import { City, GeoType } from '../model/states/model/geo_data';
+import MapGeocoderWrapper from '../components/MapGeocoderWrapper.vue';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -54,10 +61,11 @@ export default defineComponent({
   name: 'ScorecardView',
   components: {
     ActionSection,
+    LslrSection,
+    MapGeocoderWrapper,
     NationwideMap,
     PredictionPanel,
     ScorecardSummaryPanel,
-    LslrSection,
   },
   setup() {
     const leadDataState = useSelector((state) => state.leadData) as LeadDataState;
@@ -68,9 +76,12 @@ export default defineComponent({
   },
   data() {
     return {
+      acceptedTypes: [GeoType.address, GeoType.postcode],
+      showSearch: true,
       ScorecardMessages,
-      Titles,
+      SCORECARD_BASE,
       showLslr: false,
+      Titles,
     };
   },
   methods: {
@@ -109,4 +120,17 @@ export default defineComponent({
 .nav-to-map {
   background-color: $light-blue-50;
 }
+
+.map-container {
+  position: relative;
+}
+
+.search {
+  margin-right: $spacing-md;
+  max-width: 350px;
+  position: absolute;
+  top: $spacing-sm;
+  right: 0px;
+}
+
 </style>
