@@ -2,7 +2,6 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
 import prefixes from '../../frontend/url-prefixes';
 import { AppPlaneStackProps } from '../app-plane-stack';
-import { ApiMonitoring } from './api-monitoring';
 import { apiLambdaFactory } from './lambda-function-factory';
 
 export class ApiStack extends Construct {
@@ -11,7 +10,7 @@ export class ApiStack extends Construct {
   constructor(scope: Construct, id: string, props: AppPlaneStackProps) {
     super(scope, id);
 
-    const { dataPlaneStack, networkStack, ticketSNSTopic } = props;
+    const { dataPlaneStack, networkStack } = props;
 
     this.gateway = new apigateway.RestApi(this, 'API', {
       // TODO: Lock this down for non-sandbox environments.
@@ -49,7 +48,5 @@ export class ApiStack extends Construct {
       'GET',
       '/zipcode/scorecard/{zipcode+}',
     );
-
-    new ApiMonitoring(this, 'APIMonitoring', { gateway: this.gateway, ticketSNSTopic });
   }
 }
