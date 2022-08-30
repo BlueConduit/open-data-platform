@@ -18,6 +18,7 @@ export enum EnvType {
   Sandbox = 'SANDBOX', // Developers' individual environments.
   Development = 'DEV', // Single shared dev environment.
   Production = 'PROD', // Not yet implemented.
+  Deployments = 'Deployments', // Title-case string matches the existing deployments tag.
 }
 export const defaultEnv = EnvType.Sandbox;
 export const projectName = 'OpenDataPlatform';
