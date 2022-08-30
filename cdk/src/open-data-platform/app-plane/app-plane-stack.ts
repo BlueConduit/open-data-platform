@@ -7,14 +7,12 @@ import { DataPlaneStack } from '../data-plane/data-plane-stack';
 import { NetworkStack } from '../network/network-stack';
 import { TileServer } from './tileserver/tileserver';
 import { ApiStack } from './api/api-stack';
-import { ITopic } from 'aws-cdk-lib/aws-sns';
 
 // TODO: consider narrowing the props down to the specific things that the App Plane needs.
 // E.g. just the cluster object itself, rather than the entire network stack.
 export interface AppPlaneStackProps extends CommonProps {
   networkStack: NetworkStack;
   dataPlaneStack: DataPlaneStack;
-  ticketSNSTopic?: ITopic;
 }
 
 export class AppPlaneStack extends Stack {
