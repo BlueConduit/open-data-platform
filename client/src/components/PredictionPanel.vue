@@ -105,6 +105,8 @@ export default defineComponent({
     pwsId(): BoundedGeoDatum | null {
       return this.geoState?.geoids?.pwsId ?? null;
     },
+    // True if and only if there is no current search criteria. This will be false if there is a
+    // search but there is no prediction data for that search.
     emptyGeoData(): boolean {
       return this.geoState?.geoids?.geoType == null
         && this.geoState?.geoids?.pwsId == null
@@ -125,6 +127,8 @@ export default defineComponent({
     showPrediction(): boolean {
       return (this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError;
     },
+    // This will be true when there is no prediction but there are geo IDs, meaning that there is
+    // just no prediction data for the search criteria.
     showNoPrediction(): boolean {
       return !this.showPrediction && !this.emptyGeoData;
     },

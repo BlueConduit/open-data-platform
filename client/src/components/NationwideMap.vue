@@ -6,8 +6,7 @@
 </template>
 
 <script lang='ts'>
-import mapboxgl from 'mapbox-gl';
-import mapbox, { LngLatBounds, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl, { LngLatBounds, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
@@ -28,6 +27,9 @@ const VISIBLE = 'visible';
 const PARCEL_ZOOM_LEVEL = 12;
 const DEFAULT_ZOOM_LEVEL = 4;
 
+// Define Toledo geometry bounding box to restrict parcel data layer to Toledo.
+// This is needed because we only have parcel-level predictions for Toledo, so this data layer will
+// be empty outside of these boundaries.
 const TOLEDO_BOUNDS: [LngLatLike, LngLatLike] = [
   [-84.3995471043526, 41.165751],
   [-82.711584, 41.742764],
@@ -42,7 +44,7 @@ export default defineComponent({
     MapLegend,
   },
   setup() {
-    mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
+    mapboxgl.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
 
     // Listen to geoState updates.
     const geoState = useSelector((state) => state.geos) as GeoDataState;
@@ -204,7 +206,7 @@ export default defineComponent({
      */
     createMapPopup(lngLat: LngLatLike, popupData: Record<string, any>): void {
       if (this.map == null) return;
-      this.popup = new mapbox.Popup({ className: 'mapbox-popup' })
+      this.popup = new mapboxgl.Popup({ className: 'mapbox-popup' })
         .setLngLat(lngLat)
         .setHTML(POPUP_CONTENT_BASE_HTML) // Add basic div to mount to.
         .addTo(this.map);
@@ -337,7 +339,7 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      this.map = new mapbox.Map({
+      this.map = new mapboxgl.Map({
         // Removes watermark by Mapbox.
         attributionControl: false,
         center: this.center,
@@ -347,13 +349,13 @@ export default defineComponent({
         dragPan: !this.restrictBoundsOnResult,
       });
 
-      this.map.on('load', this.configureMap);
-      this.map.on('error', (error) => {
+      this.map?.on('load', this.configureMap);
+      this.map?.on('error', (error) => {
         console.log(`Error loading tiles: ${error.error} `);
         console.log(error.error.stack);
       });
 
-      this.map.scrollZoom.disable();
+      this.map?.scrollZoom.disable();
       dispatch(setZoom(DEFAULT_ZOOM_LEVEL));
     },
   },
