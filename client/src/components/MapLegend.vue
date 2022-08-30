@@ -12,7 +12,7 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, inject } from 'vue';
+import { defineComponent } from 'vue';
 import { LegendBucketData } from '../model/data_layer';
 import { formatLegendBucket, getLegendForZoomLevel } from '../util/data_layer_util';
 import { useSelector } from '../model/store';

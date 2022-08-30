@@ -23,7 +23,7 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, inject } from 'vue';
+import { defineComponent } from 'vue';
 import SearchBarOption from './SearchBarOption.vue';
 import VueSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';

@@ -14,8 +14,8 @@ import SearchBar from '../components/SearchBar.vue';
 export default defineComponent({
   name: 'NationwideMapView',
   components: {
-    NationwideMap,
     SearchBar,
+    NationwideMap,
   },
 });
 </script>
