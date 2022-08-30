@@ -126,8 +126,7 @@ export default defineComponent({
       // Check if an address was queried and another prediction should be
       // fetched.
       if (
-        this.geoState?.geoids?.geoType == GeoType.address &&
-        this.geoState?.geoids?.lat != null &&
+        this.geoState?.geoids?.address != null && this.geoState?.geoids?.lat != null &&
         this.geoState?.geoids?.long != null
       ) {
         dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));

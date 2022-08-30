@@ -118,7 +118,7 @@ export default defineComponent({
     },
     zoomToLongLat() {
       const addressBoundingBox = this.geoState?.geoids?.address?.boundingBox;
-      const waterSystemBoundingBox = this.geoState?.geoids?.address?.boundingBox;
+      const waterSystemBoundingBox = this.geoState?.geoids?.pwsId?.boundingBox;
 
       const lat = this.geoState?.geoids?.lat;
       const long = this.geoState?.geoids?.long;
@@ -134,7 +134,7 @@ export default defineComponent({
         const ne = new mapboxgl.LngLat(waterSystemBoundingBox.maxLon, waterSystemBoundingBox.maxLat);
 
         this.map?.fitBounds(new LngLatBounds(sw, ne));
-        
+
         // When there are no bounding boxes available, go to zipcode.
       } else if (lat != null && long != null) {
         const lonLat = this.getLngLatLikeFromLatLong(lat, long);
