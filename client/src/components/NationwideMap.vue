@@ -130,9 +130,6 @@ export default defineComponent({
         ];
 
         this.map?.fitBounds(lngLatBounds);
-        if (this.restrictBoundsOnResult) {
-          this.map?.setMaxBounds(lngLatBounds);
-        }
       } else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
         const lonLat: LngLatLike = {
           lon: parseInt(this.geoState?.geoids?.long),
@@ -347,6 +344,7 @@ export default defineComponent({
         container: 'map-container',
         style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
         zoom: DEFAULT_ZOOM_LEVEL,
+        dragPan: !this.restrictBoundsOnResult,
       });
 
       this.map.on('load', this.configureMap);
@@ -392,9 +390,6 @@ export default defineComponent({
         }
         this.zoomToLongLat();
       } else {
-        if (this.restrictBoundsOnResult) {
-          this.map?.setMaxBounds(); // Removes max bounds.
-        }
         // Reset map to full view of U.S. when geo IDs are cleared.
         if (this.map?.isStyleLoaded()) {
           this.map?.jumpTo({
