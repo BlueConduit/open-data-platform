@@ -17,7 +17,6 @@ import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
 import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom } from '../model/slices/map_data_slice';
-import { BoundedGeoDatum, BoundingBox } from '../model/states/model/geo_data';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -118,7 +117,7 @@ export default defineComponent({
     },
     zoomToLongLat() {
       const addressBoundingBox = this.geoState?.geoids?.address?.boundingBox;
-      const waterSystemBoundingBox = this.geoState?.geoids?.address?.boundingBox;
+      const waterSystemBoundingBox = this.geoState?.geoids?.pwsId?.boundingBox;
 
       const lat = this.geoState?.geoids?.lat;
       const long = this.geoState?.geoids?.long;
@@ -134,7 +133,7 @@ export default defineComponent({
         const ne = new mapboxgl.LngLat(waterSystemBoundingBox.maxLon, waterSystemBoundingBox.maxLat);
 
         this.map?.fitBounds(new LngLatBounds(sw, ne));
-        
+
         // When there are no bounding boxes available, go to zipcode.
       } else if (lat != null && long != null) {
         const lonLat = this.getLngLatLikeFromLatLong(lat, long);
@@ -236,6 +235,10 @@ export default defineComponent({
               .properties as {};
             const popupInfo = this.possibleLayers.find(l => l.id == this.currentDataLayerId)?.popupInfo;
 
+            const calculatedProperties = popupInfo?.computedProperties;
+            for (let properties of calculatedProperties) {
+              properties.calculate(clickedFeatureProperties ?? {});
+            }
             this.createMapPopup(e.lngLat /* popupData= */, {
               title: popupInfo?.title ?? '',
               subtitle: popupInfo?.subtitle ?? '',

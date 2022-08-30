@@ -6,9 +6,10 @@ import {
   PopupInfo,
   TileDataLayer,
 } from '@/model/data_layer';
-import { FillLayer } from 'mapbox-gl';
+import { FillLayer, MapboxGeoJSONFeature } from 'mapbox-gl';
 import { getLegendBucketsAsList, tileServerHost } from '@/util/data_layer_util';
 import prefixes from '../../../cdk/src/open-data-platform/frontend/url-prefixes';
+import { GeoJsonProperties } from 'geojson';
 
 const DEFAULT_NULL_COLOR = '#d3d3d3';
 const TABLE_NAME = 'public.lead_connections_function_source';
@@ -128,6 +129,17 @@ const popupInfo: PopupInfo = {
       label: 'Population served',
       name: 'population_served',
       dataType: FeaturePropertyDataType.Number,
+    },
+  ],
+  computedProperties: [
+    {
+      label: 'Percent lead lines',
+      name: 'percent_lead',
+      dataType: FeaturePropertyDataType.Number,
+      calculate: (features: GeoJsonProperties) =>
+        features == null
+          ? null
+          : features.lead_connections_count / features.service_connections_count,
     },
   ],
 };
