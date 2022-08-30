@@ -56,13 +56,13 @@ const geoSlice = createSlice({
  */
 export const queryLatLong = (lat: string, long: string, geoType: GeoType) => {
   return async (dispatch: AppDispatch) => {
+    dispatch(geoIdsCleared({}));
     dispatch(geoIdsQueried({ lat: lat, long: long, geoType: geoType }));
-
     const apiResponse = await client.getGeoIds(lat, long);
     if (apiResponse.data != null) {
       dispatch(getGeoIdsSuccess(apiResponse.data));
     } else {
-      dispatch(getGeoIdsError(apiResponse.error));
+      dispatch(getGeoIdsError(apiResponse.error ?? { error: 'Unknown error' }));
     }
   };
 };

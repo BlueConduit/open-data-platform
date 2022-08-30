@@ -52,8 +52,8 @@ class ApiClient {
     return this.request(`${ApiClient.API_URL}/geolocate/${lat},${long}`, (data) => {
       return {
         address: {
-          id: data?.data?.address.id,
-          boundingBox: data?.data?.address.bounding_box,
+          id: data?.data?.address?.id,
+          boundingBox: data?.data?.address?.bounding_box,
         },
         pwsId: {
           id: data?.data?.water_system_pws_id?.id,

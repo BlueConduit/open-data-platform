@@ -1,6 +1,6 @@
 <template>
   <SearchBar />
-  <NationwideMap />
+  <NationwideMap :restrictBoundsOnResult='false' />
 </template>
 
 <script lang='ts'>

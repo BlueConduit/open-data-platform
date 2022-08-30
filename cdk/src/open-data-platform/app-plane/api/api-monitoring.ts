@@ -22,7 +22,7 @@ export class ApiMonitoring extends Construct {
     // TODO: Track the error budget, rather than looking at the error rate at any given time.
 
     const availabilitySlo = 0.95;
-    const latencyMsSlo = 2000; // Miliseconds
+    const latencyMsSlo = 2000; // Milliseconds
     const slowBurnPeriod = Duration.days(1);
     const fastBurnPeriod = Duration.hours(1);
 
@@ -42,7 +42,6 @@ export class ApiMonitoring extends Construct {
         }% SLO for ${slowBurnPeriod.toString()}.`,
         evaluationPeriods: 1,
         threshold: 1 - availabilitySlo,
-        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       }),
 
       new cloudwatch.MathExpression({
@@ -60,7 +59,6 @@ export class ApiMonitoring extends Construct {
         }% SLO for ${fastBurnPeriod.toString()}.`,
         evaluationPeriods: 1,
         threshold: (1 - availabilitySlo) * 10, // 10x error rate than SLO allows.
-        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       }),
 
       // TODO: This uses average latency. Additionally alert on 95%ile latency over a longer period.
@@ -68,7 +66,6 @@ export class ApiMonitoring extends Construct {
         alarmDescription: `The API has a higher latency than its ${latencyMsSlo} ms SLO for ${fastBurnPeriod.toString()}.`,
         evaluationPeriods: 1,
         threshold: latencyMsSlo,
-        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       }),
     ];
 

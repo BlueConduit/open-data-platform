@@ -20,15 +20,7 @@
           formatPredictionAsLikelihoodDescriptor(publicLeadPercent)) }}
         </div>
       </div>
-      <div class='no-prediction' v-if='!showPrediction && !showError'>
-        <div class='h1-header-large navy'>
-          {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
-        </div>
-        <div class='explain-text'>
-          {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
-        </div>
-      </div>
-      <div v-if='showError'>
+      <div class='no-prediction' v-if='showNoPrediction'>
         <div class='h1-header-xl navy'>
           {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE }}
         </div>
@@ -36,6 +28,15 @@
           {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED }}
         </div>
       </div>
+      <div v-if='emptyGeoData'>
+        <div class='h1-header-large navy'>
+          {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
+        </div>
+        <div class='explain-text'>
+          {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
+        </div>
+      </div>
+      <!--      TODO: show error message when content is finalized and showError is true.-->
     </div>
   </div>
 </template>
@@ -44,11 +45,12 @@
 import { defineComponent } from 'vue';
 import { dispatch, useSelector } from '../model/store';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
-import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
+import { clearLeadData, getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
 import { Status } from '../model/states/status_state';
+import { clearDemographicData } from '../model/slices/demographic_data_slice';
 
 const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
@@ -104,8 +106,13 @@ export default defineComponent({
     pwsId(): BoundedGeoDatum | null {
       return this.geoState?.geoids?.pwsId ?? null;
     },
-    showPrediction(): boolean {
-      return (this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError;
+    // True if and only if there is no current search criteria. This will be false if there is a
+    // search but there is no prediction data for that search.
+    emptyGeoData(): boolean {
+      return this.geoState?.geoids?.geoType == null
+        && this.geoState?.geoids?.pwsId == null
+        && this.geoState?.geoids?.address == null
+        && this.geoState?.geoids?.zipCode == null;
     },
     showParcelPrediction(): boolean {
       return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
@@ -118,11 +125,21 @@ export default defineComponent({
         this.percentLead != null
       );
     },
+    showPrediction(): boolean {
+      return (this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError;
+    },
+    // This will be true when there is no prediction but there are geo IDs, meaning that there is
+    // just no prediction data for the search criteria.
+    showNoPrediction(): boolean {
+      return !this.showPrediction && !this.emptyGeoData;
+    },
   },
   watch: {
     // Listen for changes to pws id or lat, long. Once it changes, a new
     // prediction must be fetched.
     'geoState.geoids': function() {
+      dispatch(clearLeadData());
+
       // Check if an address was queried and another prediction should be
       // fetched.
       if (

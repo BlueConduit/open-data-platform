@@ -38,7 +38,7 @@ import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { DemographicDataState } from '../model/states/demographic_data_state';
 import { GeographicLevel } from '../model/data_layer';
-import { getDemographicData } from '../model/slices/demographic_data_slice';
+import { clearDemographicData, getDemographicData } from '../model/slices/demographic_data_slice';
 
 // Taken from https://www.neighborhoodatlas.medicine.wisc.edu/.
 const LOWEST_DISADVANTAGE = 33;
@@ -122,6 +122,7 @@ export default defineComponent({
     // must be fetched.
     'geoState.geoids.zipCode': function() {
       if (this.geoState?.geoids?.zipCode != null) {
+        dispatch(clearDemographicData());
         dispatch(getDemographicData(GeographicLevel.Zipcode, this.geoState.geoids.zipCode.id));
       }
     },

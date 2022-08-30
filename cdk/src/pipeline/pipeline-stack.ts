@@ -7,10 +7,6 @@ import * as pipelines from 'aws-cdk-lib/pipelines';
 import * as util from '../util';
 import { MonitoringStage, OpenDataPlatformStage } from './stage';
 import { BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
-import { Topic } from 'aws-cdk-lib/aws-sns';
-import { env } from 'process';
-import { topicArn } from '../monitoring/monitoring-stack';
-import { DetailType, NotificationRule } from 'aws-cdk-lib/aws-codestarnotifications';
 
 const CODE_REPO = 'BlueConduit/open-data-platform';
 const CODE_CONNECTION_ARN =
@@ -96,26 +92,5 @@ export class PipelineStack extends Stack {
         envType: util.EnvType.Development,
       }),
     );
-
-    // Add monitoring.
-    // This will fail if the monitoring stage has not yet completed.
-    const ticketSNSTopic = Topic.fromTopicArn(
-      this,
-      'ticketSNSTopic',
-      topicArn(util.EnvType.Deployments, env),
-    );
-
-    pipeline.buildPipeline(); // `pipeline.pipeline` below is only available after build.
-    new NotificationRule(this, 'FailureNotification', {
-      detailType: DetailType.BASIC,
-      // These are events that stop the pipeline, except in the 'superseded' case where another
-      // execution took precedence.
-      events: [
-        'codepipeline-pipeline-pipeline-execution-failed',
-        'codepipeline-pipeline-pipeline-execution-canceled',
-      ],
-      source: pipeline.pipeline,
-      targets: [ticketSNSTopic],
-    });
   }
 }
