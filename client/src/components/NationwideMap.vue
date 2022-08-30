@@ -6,7 +6,7 @@
 </template>
 
 <script lang='ts'>
-import mapboxgl, { LngLatBounds, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl, { LngLatLike, LngLatBounds, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
@@ -24,7 +24,7 @@ const POPUP_CONTENT_BASE_HTML = `<div id='${POPUP_CONTENT_BASE_ID}'></div>`;
 const VISIBILITY = 'visibility';
 const VISIBLE = 'visible';
 
-const PARCEL_ZOOM_LEVEL = 12;
+const PARCEL_ZOOM_LEVEL = 16;
 const DEFAULT_ZOOM_LEVEL = 4;
 
 // Define Toledo geometry bounding box to restrict parcel data layer to Toledo.
@@ -117,26 +117,37 @@ export default defineComponent({
     },
   },
   methods: {
+    /**
+     * Convert lat,long strings to MapBox LngLatLike
+     */
+    getLngLatLikeFromLatLong(lat: string, long: string): LngLatLike {
+      return {
+        lon: parseFloat(long),
+        lat: parseFloat(lat),
+      };
+    },
     zoomToLongLat() {
-      if (this.geoState?.geoids?.pwsId?.bounding_box) {
-        const {
-          minLat,
-          minLon,
-          maxLat,
-          maxLon,
-        } = this.geoState?.geoids?.pwsId?.bounding_box;
+      const addressBoundingBox = this.geoState?.geoids?.address?.boundingBox;
+      const waterSystemBoundingBox = this.geoState?.geoids?.pwsId?.boundingBox;
 
-        const lngLatBounds: [LngLatLike, LngLatLike] = [
-          [minLat, minLon],
-          [maxLat, maxLon],
-        ];
+      const lat = this.geoState?.geoids?.lat;
+      const long = this.geoState?.geoids?.long;
 
-        this.map?.fitBounds(lngLatBounds);
-      } else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
-        const lonLat: LngLatLike = {
-          lon: parseInt(this.geoState?.geoids?.long),
-          lat: parseInt(this.geoState?.geoids?.lat),
-        };
+      // If there's an address to zoom to, choose that.
+      if (addressBoundingBox != null && lat != null && long != null) {
+        const lonLat = this.getLngLatLikeFromLatLong(lat, long);
+        this.map?.flyTo({ center: lonLat, zoom: PARCEL_ZOOM_LEVEL });
+
+        // Otherwise, default to water system if it's available.
+      } else if (waterSystemBoundingBox != null) {
+        const sw = new mapboxgl.LngLat(waterSystemBoundingBox.minLon, waterSystemBoundingBox.minLat);
+        const ne = new mapboxgl.LngLat(waterSystemBoundingBox.maxLon, waterSystemBoundingBox.maxLat);
+
+        this.map?.fitBounds(new LngLatBounds(sw, ne));
+
+        // When there are no bounding boxes available, go to zipcode.
+      } else if (lat != null && long != null) {
+        const lonLat = this.getLngLatLikeFromLatLong(lat, long);
         this.map?.flyTo({ center: lonLat, zoom: GeographicLevel.Zipcode });
       }
     },

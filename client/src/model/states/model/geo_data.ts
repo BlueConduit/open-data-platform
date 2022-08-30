@@ -32,7 +32,7 @@ enum City {
  */
 interface GeoData {
   pwsId?: BoundedGeoDatum;
-  address?: string;
+  address?: BoundedGeoDatum;
   geoType?: GeoType;
   zipCode?: BoundedGeoDatum;
   lat?: string;
@@ -48,7 +48,7 @@ interface BoundingBox {
 
 interface BoundedGeoDatum {
   id: string;
-  bounding_box: BoundingBox;
+  boundingBox: BoundingBox;
 }
 
-export { City, GeoData, GeoType, BoundedGeoDatum };
+export { City, GeoData, GeoType, BoundingBox, BoundedGeoDatum };

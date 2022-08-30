@@ -45,11 +45,12 @@
 import { defineComponent } from 'vue';
 import { dispatch, useSelector } from '../model/store';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
-import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
+import { clearLeadData, getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
 import { Status } from '../model/states/status_state';
+import { clearDemographicData } from '../model/slices/demographic_data_slice';
 
 const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
@@ -137,11 +138,12 @@ export default defineComponent({
     // Listen for changes to pws id or lat, long. Once it changes, a new
     // prediction must be fetched.
     'geoState.geoids': function() {
+      dispatch(clearLeadData());
+
       // Check if an address was queried and another prediction should be
       // fetched.
       if (
-        this.geoState?.geoids?.geoType == GeoType.address &&
-        this.geoState?.geoids?.lat != null &&
+        this.geoState?.geoids?.address != null && this.geoState?.geoids?.lat != null &&
         this.geoState?.geoids?.long != null
       ) {
         dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));

@@ -41,37 +41,38 @@ async function getGeoDataForLatLong(
       since the subquery already ensures that only one row is returned.
     */
     sql: `
-      WITH target_row AS (
-        SELECT ${geoid} AS id, geom AS geom
-        FROM ${table}
-        WHERE ST_Contains(geom, ST_SetSRID(ST_Point(:long, :lat), 4326))
-          ORDER BY id ASC
-          LIMIT 1
-      )
-      SELECT
-        STRING_AGG(id, '|') AS id,
-        ST_EXTENT(geom) AS bounding_box
-      FROM target_row`,
+        WITH target_row AS (
+            SELECT ${geoid} AS id, geom AS geom
+            FROM ${table}
+            WHERE ST_Contains(geom, ST_SetSRID(ST_Point(:long, :lat), 4326))
+            ORDER BY id ASC
+            LIMIT 1
+            )
+        SELECT STRING_AGG(id, '|') AS id,
+               ST_EXTENT(geom)     AS bounding_box
+        FROM target_row`,
     parameters: params,
   };
   const results = await rdsService.executeStatement(executeParams).promise();
-  const geoID = results.records ? (results.records[0] || undefined) : undefined;
-  if(!geoID) return undefined;
+  const geoID = results.records ? results.records[0] || undefined : undefined;
+  if (!geoID) return undefined;
 
   const [rawId, rawBoundingBox] = geoID;
 
-  const boundingBoxVals = rawBoundingBox.stringValue
-  ?.replace('BOX(', '').replace(')', '') // strip out the BOX() wrapper
-  .split(',') // split into pairs
-  .map((pair) => pair.split(' ').map(parseFloat)) // [[-74.1,40.2],[-73.3,40.4]]
-  ?? undefined;
+  const boundingBoxVals =
+    rawBoundingBox.stringValue
+      ?.replace('BOX(', '')
+      .replace(')', '') // strip out the BOX() wrapper
+      .split(',') // split into pairs
+      .map((pair) => pair.split(' ').map(parseFloat)) ?? // [[-74.1,40.2],[-73.3,40.4]]
+    undefined;
 
-  if(!boundingBoxVals || !rawId.stringValue) return undefined;
-  const [[minLat, minLon], [maxLat, maxLon]] = boundingBoxVals;
+  if (!boundingBoxVals || !rawId.stringValue) return undefined;
+  const [[minLon, minLat], [maxLon, maxLat]] = boundingBoxVals;
 
   return {
     id: rawId.stringValue,
-    bounding_box: { minLat, minLon, maxLat, maxLon }
+    bounding_box: { minLat, minLon, maxLat, maxLon },
   };
 }
 
@@ -112,6 +113,9 @@ export const handler = async (event: {
 
   try {
     await Promise.all([
+      getGeoDataForLatLong(db, params, 'address', 'parcels').then(
+        (address) => (body.address = address),
+      ),
       getGeoDataForLatLong(db, params, 'pws_id', 'water_systems').then(
         (pws_id) => (body.water_system_pws_id = pws_id),
       ),
@@ -141,6 +145,7 @@ export const handler = async (event: {
  * Geoidentifiers returned for a given lat, long point
  */
 interface GeolocateApiResponse {
+  address?: BoundedGeoDatum;
   // Water system id
   water_system_pws_id?: BoundedGeoDatum;
   // Zipcode

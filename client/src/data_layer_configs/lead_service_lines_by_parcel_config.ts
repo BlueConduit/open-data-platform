@@ -2,7 +2,6 @@ import {
   DataSourceType,
   FeaturePropertyDataType,
   GeographicLevel,
-  LegendInfo,
   MapLayer,
   PopupInfo,
   TileDataLayer,
@@ -50,7 +49,7 @@ const legend = new Map([
   ],
 ]);
 
-const percentLeadLikelihood = ['*', 100, ['get', 'public_lead_prediction']];
+const percentLeadLikelihood = ['*', 100, ['get', 'public_lead_connections_low_estimate']];
 
 /**
  * Mapbox expression which interpolates pairs of bucket 'stops' + colors to produce continuous
@@ -75,7 +74,7 @@ export const styleLayer: FillLayer = {
   paint: {
     'fill-color': [
       'case',
-      ['==', ['get', 'public_lead_prediction'], null],
+      ['==', ['get', 'public_lead_connections_low_estimate'], null],
       DEFAULT_NULL_COLOR,
       leadConnectionLegendInterpolation,
     ],
@@ -98,8 +97,8 @@ const popupInfo: PopupInfo = {
       dataType: FeaturePropertyDataType.Address,
     },
     {
-      label: 'Lead likelihood',
-      name: 'public_lead_prediction',
+      label: 'Likelihood of lead',
+      name: 'public_lead_connections_low_estimate',
       dataType: FeaturePropertyDataType.Percentage,
     },
   ],
