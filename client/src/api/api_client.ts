@@ -51,8 +51,18 @@ class ApiClient {
   getGeoIds = async (lat: string, long: string): Promise<ApiResponse> => {
     return this.request(`${ApiClient.API_URL}/geolocate/${lat},${long}`, (data) => {
       return {
-        pwsId: data?.data?.water_system_pws_id,
-        zipCode: data?.data?.zip_code,
+        address: {
+          id: data?.data?.address.id,
+          boundingBox: data?.data?.address.bounding_box,
+        },
+        pwsId: {
+          id: data?.data?.water_system_pws_id?.id,
+          boundingBox: data?.data?.water_system_pws_id?.bounding_box,
+        },
+        zipCode: {
+          id: data?.data?.zip_code?.id,
+          boundingBox: data?.data?.zip_code?.bounding_box,
+        },
       };
     });
   };
