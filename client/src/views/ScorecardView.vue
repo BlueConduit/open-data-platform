@@ -6,7 +6,7 @@
                           :acceptedTypes='acceptedTypes'
                           :baseUrl='SCORECARD_BASE'
                           v-model:expandSearch='showSearch' />
-      <NationwideMap height='60vh' />
+      <NationwideMap height='60vh' :restrictBoundsOnResult='true' />
     </div>
     <div class='container-column center-container actions-to-take'>
       <div class='h1-header-large'>
@@ -47,8 +47,7 @@ import ScorecardSummaryPanel from '../components/ScorecardSummaryPanel.vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
 import NationwideMap from '../components/NationwideMap.vue';
-import LslrSection from '@/components/LslrSection.vue';
-import { LSLR_CITY_LINKS } from '@/components/LslrSection.vue';
+import LslrSection, { LSLR_CITY_LINKS } from '@/components/LslrSection.vue';
 import { useSelector } from '@/model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { City, GeoType } from '../model/states/model/geo_data';

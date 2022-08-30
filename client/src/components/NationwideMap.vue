@@ -6,8 +6,7 @@
 </template>
 
 <script lang='ts'>
-import mapboxgl from 'mapbox-gl';
-import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl, { LngLatBounds, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
@@ -28,6 +27,14 @@ const VISIBLE = 'visible';
 const PARCEL_ZOOM_LEVEL = 12;
 const DEFAULT_ZOOM_LEVEL = 4;
 
+// Define Toledo geometry bounding box to restrict parcel data layer to Toledo.
+// This is needed because we only have parcel-level predictions for Toledo, so this data layer will
+// be empty outside of these boundaries.
+const TOLEDO_BOUNDS: [LngLatLike, LngLatLike] = [
+  [-84.3995471043526, 41.165751],
+  [-82.711584, 41.742764],
+];
+
 /**
  * A browsable map of nationwide lead data.
  */
@@ -37,7 +44,7 @@ export default defineComponent({
     MapLegend,
   },
   setup() {
-    mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
+    mapboxgl.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
 
     // Listen to geoState updates.
     const geoState = useSelector((state) => state.geos) as GeoDataState;
@@ -104,6 +111,10 @@ export default defineComponent({
       default: DEFAULT_LNG_LAT,
     },
     height: { type: String, default: '80vh' },
+    restrictBoundsOnResult: {
+      type: Boolean,
+      default: false,
+    },
   },
   methods: {
     zoomToLongLat() {
@@ -114,10 +125,13 @@ export default defineComponent({
           maxLat,
           maxLon,
         } = this.geoState?.geoids?.pwsId?.bounding_box;
-        this.map?.fitBounds([
+
+        const lngLatBounds: [LngLatLike, LngLatLike] = [
           [minLat, minLon],
           [maxLat, maxLon],
-        ]);
+        ];
+
+        this.map?.fitBounds(lngLatBounds);
       } else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
         const lonLat: LngLatLike = {
           lon: parseInt(this.geoState?.geoids?.long),
@@ -192,7 +206,7 @@ export default defineComponent({
      */
     createMapPopup(lngLat: LngLatLike, popupData: Record<string, any>): void {
       if (this.map == null) return;
-      this.popup = new mapbox.Popup({ className: 'mapbox-popup' })
+      this.popup = new mapboxgl.Popup({ className: 'mapbox-popup' })
         .setLngLat(lngLat)
         .setHTML(POPUP_CONTENT_BASE_HTML) // Add basic div to mount to.
         .addTo(this.map);
@@ -272,7 +286,8 @@ export default defineComponent({
         // Otherwise, switch to water system level.
         if (
           this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
-          this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem
+          this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem &&
+          this.toledoContainsMap()
         ) {
           dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByParcel));
         } else if (
@@ -282,6 +297,19 @@ export default defineComponent({
           dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByWaterSystem));
         }
       });
+    },
+
+    /**
+     * Whether the map is currently within the bounding box of Toledo.
+     *
+     * Returns true if the map's northeast and southwest corners fall within the 2D bounding box of
+     * Toledo's geometry.
+     */
+    toledoContainsMap(): boolean {
+      if (this.map == null) return false;
+      const toledoBounds = new LngLatBounds(TOLEDO_BOUNDS);
+      return toledoBounds.contains(this.map.getBounds().getNorthEast())
+        && toledoBounds.contains(this.map.getBounds().getSouthWest());
     },
 
     /**
@@ -311,22 +339,23 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      this.map = new mapbox.Map({
+      this.map = new mapboxgl.Map({
         // Removes watermark by Mapbox.
         attributionControl: false,
         center: this.center,
         container: 'map-container',
         style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
         zoom: DEFAULT_ZOOM_LEVEL,
+        dragPan: !this.restrictBoundsOnResult,
       });
 
-      this.map.on('load', this.configureMap);
-      this.map.on('error', (error) => {
+      this.map?.on('load', this.configureMap);
+      this.map?.on('error', (error) => {
         console.log(`Error loading tiles: ${error.error} `);
         console.log(error.error.stack);
       });
 
-      this.map.scrollZoom.disable();
+      this.map?.scrollZoom.disable();
       dispatch(setZoom(DEFAULT_ZOOM_LEVEL));
     },
   },
