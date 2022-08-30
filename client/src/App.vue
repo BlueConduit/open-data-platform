@@ -83,5 +83,6 @@ body,
 #app,
 .main {
   height: 100%;
+  min-width: 1105px;
 }
 </style>
