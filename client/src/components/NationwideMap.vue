@@ -109,6 +109,10 @@ export default defineComponent({
       default: DEFAULT_LNG_LAT,
     },
     height: { type: String, default: '80vh' },
+    restrictBoundsOnResult: {
+      type: Boolean,
+      default: false,
+    },
   },
   methods: {
     zoomToLongLat() {
@@ -126,7 +130,9 @@ export default defineComponent({
         ];
 
         this.map?.fitBounds(lngLatBounds);
-        this.map?.setMaxBounds(lngLatBounds);
+        if (this.restrictBoundsOnResult) {
+          this.map?.setMaxBounds(lngLatBounds);
+        }
       } else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
         const lonLat: LngLatLike = {
           lon: parseInt(this.geoState?.geoids?.long),
@@ -386,7 +392,9 @@ export default defineComponent({
         }
         this.zoomToLongLat();
       } else {
-        this.map?.setMaxBounds(); // Removes max bounds.
+        if (this.restrictBoundsOnResult) {
+          this.map?.setMaxBounds(); // Removes max bounds.
+        }
         // Reset map to full view of U.S. when geo IDs are cleared.
         if (this.map?.isStyleLoaded()) {
           this.map?.jumpTo({

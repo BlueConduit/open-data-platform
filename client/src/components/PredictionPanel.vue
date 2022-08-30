@@ -20,12 +20,20 @@
           formatPredictionAsLikelihoodDescriptor(publicLeadPercent)) }}
         </div>
       </div>
-      <div class='no-prediction' v-if='!showPrediction'>
+      <div class='no-prediction' v-if='showNoPrediction'>
         <div class='h1-header-xl navy'>
           {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE }}
         </div>
         <div class='explain-text'>
           {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED }}
+        </div>
+      </div>
+      <div v-if='emptyGeoData'>
+        <div class='h1-header-large navy'>
+          {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
+        </div>
+        <div class='explain-text'>
+          {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
         </div>
       </div>
       <!--      TODO: show error message when content is finalized and showError is true.-->
@@ -97,8 +105,11 @@ export default defineComponent({
     pwsId(): BoundedGeoDatum | null {
       return this.geoState?.geoids?.pwsId ?? null;
     },
-    showPrediction(): boolean {
-      return (this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError;
+    emptyGeoData(): boolean {
+      return this.geoState?.geoids?.geoType == null
+        && this.geoState?.geoids?.pwsId == null
+        && this.geoState?.geoids?.address == null
+        && this.geoState?.geoids?.zipCode == null;
     },
     showParcelPrediction(): boolean {
       return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
@@ -110,6 +121,12 @@ export default defineComponent({
         this.pwsId != null &&
         this.percentLead != null
       );
+    },
+    showPrediction(): boolean {
+      return (this.showWaterSystemPrediction || this.showParcelPrediction) && !this.showError;
+    },
+    showNoPrediction(): boolean {
+      return !this.showPrediction && !this.emptyGeoData;
     },
   },
   watch: {
