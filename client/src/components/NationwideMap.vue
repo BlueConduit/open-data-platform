@@ -109,7 +109,7 @@ export default defineComponent({
       default: DEFAULT_LNG_LAT,
     },
     height: { type: String, default: '80vh' },
-    restrictBoundsOnResult: {
+    static: {
       type: Boolean,
       default: false,
     },
@@ -130,7 +130,8 @@ export default defineComponent({
 
       // If there's an address to zoom to, choose that.
       if (addressBoundingBox != null) {
-        this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
+        if (this.static) this.map?.jumpTo({ center, zoom: PARCEL_ZOOM_LEVEL });
+        else this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
 
         // Otherwise, default to water system if it's available.
       } else if (waterSystemBoundingBox != null) {
@@ -147,7 +148,8 @@ export default defineComponent({
 
         // When there are no bounding boxes available, go to zipcode.
       } else {
-        this.map?.flyTo({ center, zoom: GeographicLevel.Zipcode });
+        if (this.static) this.map?.jumpTo({ center, zoom: GeographicLevel.Zipcode });
+        else this.map?.flyTo({ center, zoom: GeographicLevel.Zipcode });
       }
     },
     /**
@@ -357,7 +359,7 @@ export default defineComponent({
         container: 'map-container',
         style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
         zoom: DEFAULT_ZOOM_LEVEL,
-        dragPan: !this.restrictBoundsOnResult,
+        dragPan: !this.static,
       }));
 
       this.map?.on('load', this.configureMap);

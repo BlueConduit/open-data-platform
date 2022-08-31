@@ -1,9 +1,11 @@
 <template>
-  <SearchBar />
-  <NationwideMap :restrictBoundsOnResult='false' />
+  <div>
+    <SearchBar />
+    <NationwideMap :static='false' />
+  </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import NationwideMap from '../components/NationwideMap.vue';
 import SearchBar from '../components/SearchBar.vue';

@@ -2,11 +2,13 @@
   <div>
     <PredictionPanel />
     <div class='map-container'>
-      <MapGeocoderWrapper class='search'
-                          :acceptedTypes='acceptedTypes'
-                          :baseUrl='SCORECARD_BASE'
-                          v-model:expandSearch='showSearch' />
-      <NationwideMap height='60vh' :restrictBoundsOnResult='true' />
+      <MapGeocoderWrapper
+        class='search'
+        :acceptedTypes='acceptedTypes'
+        :baseUrl='SCORECARD_BASE'
+        v-model:expandSearch='showSearch'
+      />
+      <NationwideMap height='60vh' :static='true' />
     </div>
     <div class='container-column center-container actions-to-take'>
       <div class='h1-header-large'>
@@ -38,7 +40,7 @@
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import PredictionPanel from '../components/PredictionPanel.vue';
 import ActionSection from '../components/ActionSection.vue';
 import { defineComponent } from 'vue';
@@ -100,7 +102,7 @@ export default defineComponent({
     },
   },
   watch: {
-    'leadDataState.data.city': function() {
+    'leadDataState.data.city': function () {
       const city = this.leadDataState?.data?.city ?? City.unknown;
       this.showLslr = city != null && LSLR_CITY_LINKS.get(city) != null;
     },
@@ -108,7 +110,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
@@ -131,5 +133,4 @@ export default defineComponent({
   top: $spacing-sm;
   right: 0;
 }
-
 </style>
