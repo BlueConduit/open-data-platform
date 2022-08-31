@@ -291,26 +291,24 @@ export default defineComponent({
      * Set up listener on the zoom level. This is needed to toggle the data
      * source for the Lead Connections layer.
      */
-    setUpZoomListener(): void {
-      this.map?.on('zoom', () => {
-        if (this.map == null) return;
-        dispatch(setZoom(this.map.getZoom()));
+    toggleDataOnZoom(): void {
+      if (this.map == null) return;
+      dispatch(setZoom(this.map.getZoom()));
 
-        // If zoomed past parcel zoom level, switch to parcel-level data source.
-        // Otherwise, switch to water system level.
-        if (
-          this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
-          this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem &&
-          this.toledoContainsMap()
-        ) {
-          dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByParcel));
-        } else if (
-          this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
-          this.currentDataLayerId == MapLayer.LeadServiceLineByParcel
-        ) {
-          dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByWaterSystem));
-        }
-      });
+      // If zoomed past parcel zoom level, switch to parcel-level data source.
+      // Otherwise, switch to water system level.
+      if (
+        this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
+        this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem &&
+        this.toledoContainsMap()
+      ) {
+        dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByParcel));
+      } else if (
+        this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
+        this.currentDataLayerId == MapLayer.LeadServiceLineByParcel
+      ) {
+        dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByWaterSystem));
+      }
     },
 
     /**
@@ -341,7 +339,7 @@ export default defineComponent({
 
       this.setUpInteractionHandlers();
       this.setUpControls();
-      this.setUpZoomListener();
+      this.map?.on('zoom', this.toggleDataOnZoom);
 
       // If the map has nothing on it, check the current data layer.
       if (this.visibleLayer == null && this.currentDataLayerId != null) {
@@ -376,6 +374,7 @@ export default defineComponent({
 
       this.map?.scrollZoom.disable();
       dispatch(setZoom(zoom));
+      this.toggleDataOnZoom();
     },
   },
   mounted() {
