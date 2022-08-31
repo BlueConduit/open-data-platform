@@ -12,16 +12,16 @@ class ParcelsTableRow {
   city: string;
   // Reported or estimated likelihood of lead pipes (low end of a 95% confidence
   // interval) for public lines in the boundary.
-  public_lead_low_prediction: number;
+  public_lead_low_prediction?: number;
   // Reported or estimated likelihood of lead pipes (high end of a 95% confidence
   // interval) for public lines in the boundary.
-  public_lead_high_prediction: number;
+  public_lead_high_prediction?: number;
   // Reported or estimated likelihood of lead pipes (low end of a 95% confidence
   // interval) for private lines in the boundary.
-  private_lead_low_prediction: number;
+  private_lead_low_prediction?: number;
   // Reported or estimated likelihood of lead pipes (high end of a 95% confidence
   // interval) for private lines in the boundary.
-  private_lead_high_prediction: number;
+  private_lead_high_prediction?: number;
   // GeoJSON representation of the boundaries.
   geom: string;
 
@@ -62,22 +62,22 @@ export class ParcelsTableRowBuilder {
     return this;
   }
 
-  publicLeadLowPrediction(publicLeadLowPrediction: number): ParcelsTableRowBuilder {
+  publicLeadLowPrediction(publicLeadLowPrediction?: number): ParcelsTableRowBuilder {
     this._row.public_lead_low_prediction = publicLeadLowPrediction;
     return this;
   }
 
-  publicLeadHighPrediction(publicLeadHighPrediction: number): ParcelsTableRowBuilder {
+  publicLeadHighPrediction(publicLeadHighPrediction?: number): ParcelsTableRowBuilder {
     this._row.public_lead_high_prediction = publicLeadHighPrediction;
     return this;
   }
 
-  privateLeadLowPrediction(privateLeadLowPrediction: number): ParcelsTableRowBuilder {
+  privateLeadLowPrediction(privateLeadLowPrediction?: number): ParcelsTableRowBuilder {
     this._row.private_lead_low_prediction = privateLeadLowPrediction;
     return this;
   }
 
-  privateLeadHighPrediction(privateLeadHighPrediction: number): ParcelsTableRowBuilder {
+  privateLeadHighPrediction(privateLeadHighPrediction?: number): ParcelsTableRowBuilder {
     this._row.private_lead_high_prediction = privateLeadHighPrediction;
     return this;
   }

@@ -51,8 +51,11 @@ async function insertBatch(
 /**
  * Sometimes these fields are negative because they are based on a regression.
  */
-function getValueOrDefault(field: string): number {
-  return Math.max(parseFloat(field == 'NaN' || field == null ? '0' : field), 0);
+function getValueOrDefault(field: string): number | undefined {
+  if (field == 'NaN' || field == null) {
+    return undefined;
+  }
+  return Math.max(parseFloat(field), 0);
 }
 
 /**
