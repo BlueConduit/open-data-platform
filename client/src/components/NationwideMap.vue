@@ -109,6 +109,9 @@ export default defineComponent({
       default: DEFAULT_LNG_LAT,
     },
     height: { type: String, default: '80vh' },
+    /**
+     * Whether to disable some controls and animations.
+     */
     static: {
       type: Boolean,
       default: false,
@@ -373,7 +376,7 @@ export default defineComponent({
     },
   },
   mounted() {
-    this.createMap();
+    if (this.map == null) this.createMap();
   },
   watch: {
     // Listens to map state to toggle different layers.
