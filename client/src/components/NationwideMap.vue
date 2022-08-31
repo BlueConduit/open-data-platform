@@ -6,8 +6,7 @@
 </template>
 
 <script lang='ts'>
-import mapboxgl from 'mapbox-gl';
-import mapbox, { LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl, { LngLatLike, LngLatBounds, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
@@ -25,8 +24,16 @@ const POPUP_CONTENT_BASE_HTML = `<div id='${POPUP_CONTENT_BASE_ID}'></div>`;
 const VISIBILITY = 'visibility';
 const VISIBLE = 'visible';
 
-const PARCEL_ZOOM_LEVEL = 12;
+const PARCEL_ZOOM_LEVEL = 16;
 const DEFAULT_ZOOM_LEVEL = 4;
+
+// Define Toledo geometry bounding box to restrict parcel data layer to Toledo.
+// This is needed because we only have parcel-level predictions for Toledo, so this data layer will
+// be empty outside of these boundaries.
+const TOLEDO_BOUNDS: [LngLatLike, LngLatLike] = [
+  [-84.3995471043526, 41.165751],
+  [-82.711584, 41.742764],
+];
 
 /**
  * A browsable map of nationwide lead data.
@@ -37,7 +44,7 @@ export default defineComponent({
     MapLegend,
   },
   setup() {
-    mapbox.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
+    mapboxgl.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
 
     // Listen to geoState updates.
     const geoState = useSelector((state) => state.geos) as GeoDataState;
@@ -104,25 +111,43 @@ export default defineComponent({
       default: DEFAULT_LNG_LAT,
     },
     height: { type: String, default: '80vh' },
+    restrictBoundsOnResult: {
+      type: Boolean,
+      default: false,
+    },
   },
   methods: {
+    /**
+     * Convert lat,long strings to MapBox LngLatLike
+     */
+    getLngLatLikeFromLatLong(lat: string, long: string): LngLatLike {
+      return {
+        lon: parseFloat(long),
+        lat: parseFloat(lat),
+      };
+    },
     zoomToLongLat() {
-      if (this.geoState?.geoids?.pwsId?.bounding_box) {
-        const {
-          minLat,
-          minLon,
-          maxLat,
-          maxLon,
-        } = this.geoState?.geoids?.pwsId?.bounding_box;
-        this.map?.fitBounds([
-          [minLat, minLon],
-          [maxLat, maxLon],
-        ]);
-      } else if (this.geoState?.geoids?.lat != null && this.geoState?.geoids.long != null) {
-        const lonLat: LngLatLike = {
-          lon: parseInt(this.geoState?.geoids?.long),
-          lat: parseInt(this.geoState?.geoids?.lat),
-        };
+      const addressBoundingBox = this.geoState?.geoids?.address?.boundingBox;
+      const waterSystemBoundingBox = this.geoState?.geoids?.pwsId?.boundingBox;
+
+      const lat = this.geoState?.geoids?.lat;
+      const long = this.geoState?.geoids?.long;
+
+      // If there's an address to zoom to, choose that.
+      if (addressBoundingBox != null && lat != null && long != null) {
+        const lonLat = this.getLngLatLikeFromLatLong(lat, long);
+        this.map?.flyTo({ center: lonLat, zoom: PARCEL_ZOOM_LEVEL });
+
+        // Otherwise, default to water system if it's available.
+      } else if (waterSystemBoundingBox != null) {
+        const sw = new mapboxgl.LngLat(waterSystemBoundingBox.minLon, waterSystemBoundingBox.minLat);
+        const ne = new mapboxgl.LngLat(waterSystemBoundingBox.maxLon, waterSystemBoundingBox.maxLat);
+
+        this.map?.fitBounds(new LngLatBounds(sw, ne));
+
+        // When there are no bounding boxes available, go to zipcode.
+      } else if (lat != null && long != null) {
+        const lonLat = this.getLngLatLikeFromLatLong(lat, long);
         this.map?.flyTo({ center: lonLat, zoom: GeographicLevel.Zipcode });
       }
     },
@@ -192,7 +217,7 @@ export default defineComponent({
      */
     createMapPopup(lngLat: LngLatLike, popupData: Record<string, any>): void {
       if (this.map == null) return;
-      this.popup = new mapbox.Popup({ className: 'mapbox-popup' })
+      this.popup = new mapboxgl.Popup({ className: 'mapbox-popup' })
         .setLngLat(lngLat)
         .setHTML(POPUP_CONTENT_BASE_HTML) // Add basic div to mount to.
         .addTo(this.map);
@@ -272,7 +297,8 @@ export default defineComponent({
         // Otherwise, switch to water system level.
         if (
           this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
-          this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem
+          this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem &&
+          this.toledoContainsMap()
         ) {
           dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByParcel));
         } else if (
@@ -282,6 +308,19 @@ export default defineComponent({
           dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByWaterSystem));
         }
       });
+    },
+
+    /**
+     * Whether the map is currently within the bounding box of Toledo.
+     *
+     * Returns true if the map's northeast and southwest corners fall within the 2D bounding box of
+     * Toledo's geometry.
+     */
+    toledoContainsMap(): boolean {
+      if (this.map == null) return false;
+      const toledoBounds = new LngLatBounds(TOLEDO_BOUNDS);
+      return toledoBounds.contains(this.map.getBounds().getNorthEast())
+        && toledoBounds.contains(this.map.getBounds().getSouthWest());
     },
 
     /**
@@ -311,22 +350,23 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      this.map = new mapbox.Map({
+      this.map = new mapboxgl.Map({
         // Removes watermark by Mapbox.
         attributionControl: false,
         center: this.center,
         container: 'map-container',
         style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
         zoom: DEFAULT_ZOOM_LEVEL,
+        dragPan: !this.restrictBoundsOnResult,
       });
 
-      this.map.on('load', this.configureMap);
-      this.map.on('error', (error) => {
+      this.map?.on('load', this.configureMap);
+      this.map?.on('error', (error) => {
         console.log(`Error loading tiles: ${error.error} `);
         console.log(error.error.stack);
       });
 
-      this.map.scrollZoom.disable();
+      this.map?.scrollZoom.disable();
       dispatch(setZoom(DEFAULT_ZOOM_LEVEL));
     },
   },
