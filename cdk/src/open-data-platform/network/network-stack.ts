@@ -58,6 +58,7 @@ export class NetworkStack extends Stack {
     this.cluster = new ecs.Cluster(this, 'Cluster', {
       vpc: this.vpc,
       enableFargateCapacityProviders: true,
+      containerInsights: true,
     });
 
     this.dns = new Dns(this, 'DNS', props);
