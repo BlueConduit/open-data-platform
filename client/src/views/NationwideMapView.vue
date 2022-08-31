@@ -1,7 +1,7 @@
 <template>
   <div>
     <SearchBar />
-    <NationwideMap :static='false' />
+    <NationwideMap />
   </div>
 </template>
 

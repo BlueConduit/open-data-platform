@@ -8,7 +8,7 @@
         :baseUrl='SCORECARD_BASE'
         v-model:expandSearch='showSearch'
       />
-      <NationwideMap height='60vh' :static='true' />
+      <NationwideMap height='60vh' :scorecard='true' />
     </div>
     <div class='container-column center-container actions-to-take'>
       <div class='h1-header-large'>

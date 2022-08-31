@@ -112,7 +112,7 @@ export default defineComponent({
     /**
      * Whether to disable some controls and animations.
      */
-    static: {
+    scorecard: {
       type: Boolean,
       default: false,
     },
@@ -133,7 +133,7 @@ export default defineComponent({
 
       // If there's an address to zoom to, choose that.
       if (addressBoundingBox != null) {
-        if (this.static) this.map?.jumpTo({ center, zoom: PARCEL_ZOOM_LEVEL });
+        if (this.scorecard) this.map?.jumpTo({ center, zoom: PARCEL_ZOOM_LEVEL });
         else this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
 
         // Otherwise, default to water system if it's available.
@@ -151,7 +151,7 @@ export default defineComponent({
 
         // When there are no bounding boxes available, go to zipcode.
       } else {
-        if (this.static) this.map?.jumpTo({ center, zoom: GeographicLevel.Zipcode });
+        if (this.scorecard) this.map?.jumpTo({ center, zoom: GeographicLevel.Zipcode });
         else this.map?.flyTo({ center, zoom: GeographicLevel.Zipcode });
       }
     },
@@ -354,16 +354,19 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      // This happens before the water fires, so get the center directly.
-      const center = (this.map = new mapboxgl.Map({
+      // Start zoomed in for a scorecard to avoid unnecessary tile loads.
+      const zoom = this.scorecard ? PARCEL_ZOOM_LEVEL : DEFAULT_ZOOM_LEVEL;
+      // The map is created before the state watcher fires, so get the center directly.
+      const center = this.getLngLatFromState() ?? this.center;
+      this.map = new mapboxgl.Map({
         // Removes watermark by Mapbox.
         attributionControl: false,
-        center: this.getLngLatFromState() ?? this.center,
+        center,
         container: 'map-container',
         style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
-        zoom: DEFAULT_ZOOM_LEVEL,
-        dragPan: !this.static,
-      }));
+        zoom,
+        dragPan: !this.scorecard,
+      });
 
       this.map?.on('load', this.configureMap);
       this.map?.on('error', (error: any) => {
@@ -372,7 +375,7 @@ export default defineComponent({
       });
 
       this.map?.scrollZoom.disable();
-      dispatch(setZoom(DEFAULT_ZOOM_LEVEL));
+      dispatch(setZoom(zoom));
     },
   },
   mounted() {
