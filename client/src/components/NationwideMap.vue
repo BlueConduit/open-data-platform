@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import mapboxgl, { LngLatLike, LngLatBounds, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
@@ -78,12 +78,10 @@ export default defineComponent({
       return this.mapState?.mapData?.currentDataLayerId;
     },
     visibleLayer() {
-      return this.possibleLayers?.find(l =>
-        this.map?.getLayer(l.styleLayer.id) != null &&
-        this.map?.getLayoutProperty(
-          l.styleLayer.id,
-          VISIBILITY,
-        ) == VISIBLE,
+      return this.possibleLayers?.find(
+        (l) =>
+          this.map?.getLayer(l.styleLayer.id) != null &&
+          this.map?.getLayoutProperty(l.styleLayer.id, VISIBILITY) == VISIBLE,
       );
     },
     /**
@@ -117,38 +115,39 @@ export default defineComponent({
     },
   },
   methods: {
-    /**
-     * Convert lat,long strings to MapBox LngLatLike
-     */
-    getLngLatLikeFromLatLong(lat: string, long: string): LngLatLike {
-      return {
-        lon: parseFloat(long),
-        lat: parseFloat(lat),
-      };
+    getLngLatFromState(): LngLatLike | null {
+      const lat = this.geoState?.geoids?.lat;
+      const long = this.geoState?.geoids?.long;
+      if (!lat || !long) return null;
+      return { lon: parseFloat(long), lat: parseFloat(lat) };
     },
     zoomToLongLat() {
       const addressBoundingBox = this.geoState?.geoids?.address?.boundingBox;
       const waterSystemBoundingBox = this.geoState?.geoids?.pwsId?.boundingBox;
 
-      const lat = this.geoState?.geoids?.lat;
-      const long = this.geoState?.geoids?.long;
+      const center = this.getLngLatFromState();
+      if (!center) return;
 
       // If there's an address to zoom to, choose that.
-      if (addressBoundingBox != null && lat != null && long != null) {
-        const lonLat = this.getLngLatLikeFromLatLong(lat, long);
-        this.map?.flyTo({ center: lonLat, zoom: PARCEL_ZOOM_LEVEL });
+      if (addressBoundingBox != null) {
+        this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
 
         // Otherwise, default to water system if it's available.
       } else if (waterSystemBoundingBox != null) {
-        const sw = new mapboxgl.LngLat(waterSystemBoundingBox.minLon, waterSystemBoundingBox.minLat);
-        const ne = new mapboxgl.LngLat(waterSystemBoundingBox.maxLon, waterSystemBoundingBox.maxLat);
+        const sw = new mapboxgl.LngLat(
+          waterSystemBoundingBox.minLon,
+          waterSystemBoundingBox.minLat,
+        );
+        const ne = new mapboxgl.LngLat(
+          waterSystemBoundingBox.maxLon,
+          waterSystemBoundingBox.maxLat,
+        );
 
         this.map?.fitBounds(new LngLatBounds(sw, ne));
 
         // When there are no bounding boxes available, go to zipcode.
-      } else if (lat != null && long != null) {
-        const lonLat = this.getLngLatLikeFromLatLong(lat, long);
-        this.map?.flyTo({ center: lonLat, zoom: GeographicLevel.Zipcode });
+      } else {
+        this.map?.flyTo({ center, zoom: GeographicLevel.Zipcode });
       }
     },
     /**
@@ -170,9 +169,8 @@ export default defineComponent({
       this.map.setLayoutProperty(styleLayerId, VISIBILITY, VISIBLE);
 
       // Hide all other layers.
-      const allOtherLayers = Array.from(ALL_DATA_LAYERS.values()).filter(l => l.id != layerId);
+      const allOtherLayers = Array.from(ALL_DATA_LAYERS.values()).filter((l) => l.id != layerId);
       for (let alternateLayer of allOtherLayers) {
-
         // Check if layer exists before setting property on it.
         if (this.map.getLayer(alternateLayer.styleLayer.id) != null) {
           this.map.setLayoutProperty(alternateLayer.styleLayer.id, VISIBILITY, 'none');
@@ -199,9 +197,7 @@ export default defineComponent({
      * This will create a map if it does not exist and there is new data, or change the visual
      * layer if the currentDataLayer changes.
      */
-    updateMapOnDataLayerChange(
-      newDataLayer?: DataLayer,
-    ): void {
+    updateMapOnDataLayerChange(newDataLayer?: DataLayer): void {
       if (this.map == null) {
         this.createMap();
       } else {
@@ -244,7 +240,9 @@ export default defineComponent({
           if (e.features != null) {
             const clickedFeatureProperties: { [name: string]: any } = e.features[0]
               .properties as {};
-            const popupInfo = this.possibleLayers.find(l => l.id == this.currentDataLayerId)?.popupInfo;
+            const popupInfo = this.possibleLayers.find(
+              (l) => l.id == this.currentDataLayerId,
+            )?.popupInfo;
 
             this.createMapPopup(e.lngLat /* popupData= */, {
               title: popupInfo?.title ?? '',
@@ -319,8 +317,10 @@ export default defineComponent({
     toledoContainsMap(): boolean {
       if (this.map == null) return false;
       const toledoBounds = new LngLatBounds(TOLEDO_BOUNDS);
-      return toledoBounds.contains(this.map.getBounds().getNorthEast())
-        && toledoBounds.contains(this.map.getBounds().getSouthWest());
+      return (
+        toledoBounds.contains(this.map.getBounds().getNorthEast()) &&
+        toledoBounds.contains(this.map.getBounds().getSouthWest())
+      );
     },
 
     /**
@@ -342,7 +342,6 @@ export default defineComponent({
       if (this.visibleLayer == null && this.currentDataLayerId != null) {
         this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(this.currentDataLayerId));
       }
-
     },
 
     /**
@@ -350,18 +349,19 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      this.map = new mapboxgl.Map({
+      // This happens before the water fires, so get the center directly.
+      const center = (this.map = new mapboxgl.Map({
         // Removes watermark by Mapbox.
         attributionControl: false,
-        center: this.center,
+        center: this.getLngLatFromState() ?? this.center,
         container: 'map-container',
         style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
         zoom: DEFAULT_ZOOM_LEVEL,
         dragPan: !this.restrictBoundsOnResult,
-      });
+      }));
 
       this.map?.on('load', this.configureMap);
-      this.map?.on('error', (error) => {
+      this.map?.on('error', (error: any) => {
         console.log(`Error loading tiles: ${error.error} `);
         console.log(error.error.stack);
       });
@@ -376,7 +376,7 @@ export default defineComponent({
   watch: {
     // Listens to map state to toggle different layers.
     'mapState.mapData.currentDataLayerId': {
-      handler: function(newDataLayerId: MapLayer) {
+      handler: function (newDataLayerId: MapLayer) {
         if (newDataLayerId == null) {
           return;
         }
@@ -384,7 +384,7 @@ export default defineComponent({
       },
     },
     // Listen for changes to lat/long to update map location.
-    'geoState.geoids': function() {
+    'geoState.geoids': function () {
       // Remove the old marker.
       if (this.marker != null) {
         this.marker.remove();
