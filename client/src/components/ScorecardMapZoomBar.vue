@@ -26,7 +26,7 @@ import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
 import { ScorecardZoomLevel } from '../model/states/model/map_data';
-import { setScorecardZoom } from '../model/slices/map_data_slice';
+import { setScorecardZoomLevel } from '../model/slices/map_data_slice';
 import { BoundingBox } from '../model/states/model/geo_data';
 
 export default defineComponent({
@@ -70,21 +70,7 @@ export default defineComponent({
      * @param option
      */
     setSelected(option: ScorecardZoomLevel): void {
-      this.selectedOption = option;
-      const bounds = this.getBounds(option);
-      if (bounds) {
-        dispatch(setScorecardZoom(option, bounds));
-      }
-    },
-
-    getBounds(level: ScorecardZoomLevel): BoundingBox | null {
-      if (level == ScorecardZoomLevel.waterSystem) {
-        return this.geoState?.geoids?.pwsId?.boundingBox ?? null;
-      }
-      if (level == ScorecardZoomLevel.zipCode) {
-        return this.geoState?.geoids?.zipCode?.boundingBox ?? null;
-      }
-      return null;
+      dispatch(setScorecardZoomLevel(option));
     },
   },
   watch: {

@@ -6,7 +6,7 @@
 </template>
 
 <script lang='ts'>
-import mapboxgl, { LngLatLike, LngLatBounds, MapLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl, { LngLatBounds, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
@@ -15,9 +15,9 @@ import { MAP_ROUTE_BASE, router, SCORECARD_BASE } from '../router';
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
-import { ALL_DATA_LAYERS, setCurrentDataLayer, setScorecardZoom, setZoom } from '../model/slices/map_data_slice';
+import { ALL_DATA_LAYERS, setCurrentDataLayer, setScorecardZoomLevel, setZoom } from '../model/slices/map_data_slice';
 import { ScorecardZoomLevel } from '../model/states/model/map_data';
-import { GeoType } from '../model/states/model/geo_data';
+import { BoundingBox, GeoType } from '../model/states/model/geo_data';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -129,40 +129,41 @@ export default defineComponent({
     zoomToLongLat() {
       const addressBoundingBox = this.geoState?.geoids?.address?.boundingBox;
       const waterSystemBoundingBox = this.geoState?.geoids?.pwsId?.boundingBox;
+      const zipCodeBoundingBox = this.geoState?.geoids?.zipCode?.boundingBox;
+
 
       const center = this.getLngLatFromState();
       if (!center) return;
 
       // If there's an address to zoom to, choose that.
       if (addressBoundingBox != null) {
-        // TODO: figure out why this sometimes still animates.
-        if (this.scorecard) this.map?.jumpTo({
-          center,
-          zoom: PARCEL_ZOOM_LEVEL,
-        });
-        else this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
-
+        dispatch(setScorecardZoomLevel(ScorecardZoomLevel.address));
         // Otherwise, default to water system if it's available.
       } else if (waterSystemBoundingBox != null) {
-        const sw = new mapboxgl.LngLat(
-          waterSystemBoundingBox.minLon,
-          waterSystemBoundingBox.minLat,
-        );
-        const ne = new mapboxgl.LngLat(
-          waterSystemBoundingBox.maxLon,
-          waterSystemBoundingBox.maxLat,
-        );
-
-        dispatch(setScorecardZoom(ScorecardZoomLevel.waterSystem, waterSystemBoundingBox));
-
+        dispatch(setScorecardZoomLevel(ScorecardZoomLevel.waterSystem));
         // When there are no bounding boxes available, go to zipcode.
+      } else if (zipCodeBoundingBox) {
+        dispatch(setScorecardZoomLevel(ScorecardZoomLevel.zipCode));
       } else {
-        if (this.scorecard) this.map?.jumpTo({
-          center,
-          zoom: GeographicLevel.Zipcode,
-        });
-        else this.map?.flyTo({ center, zoom: GeographicLevel.Zipcode });
+        dispatch(setScorecardZoomLevel(ScorecardZoomLevel.unknown));
       }
+    },
+    zoom(center: LngLatLike, zoom: number) {
+      // TODO: figure out why this sometimes still animates.
+
+      if (this.scorecard) this.map?.jumpTo({
+        center,
+        zoom: PARCEL_ZOOM_LEVEL,
+      });
+      else this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
+    },
+    zoomToBounds(bounds: BoundingBox | undefined) {
+      if (!bounds) return null;
+
+      const sw = new mapboxgl.LngLat(bounds.minLon, bounds.minLat);
+      const ne = new mapboxgl.LngLat(bounds.maxLon, bounds.maxLat);
+
+      this.map?.fitBounds(new LngLatBounds(sw, ne));
     },
     /**
      * Sets the visibility of the layer with the given styleLayerId.
@@ -408,18 +409,33 @@ export default defineComponent({
         if (newDataLayerId == null) {
           return;
         }
-        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
+        // TODO: maybe remove this check after testing?
+        if (this.map?.isStyleLoaded()) {
+          this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
+        }
       },
     },
     'mapState.mapData.scorecardZoom': function() {
-      const bounds = this.mapState?.mapData?.scorecardZoom?.bounds;
-      // const level = this.mapState?.mapData?.scorecardZoom?.level;
+      const level = this.mapState?.mapData?.scorecardZoom?.level;
+      const center = this.getLngLatFromState();
+      if (!center) return;
 
-      if (bounds) {
-        const sw = new mapboxgl.LngLat(bounds.minLon, bounds.minLat);
-        const ne = new mapboxgl.LngLat(bounds.maxLon, bounds.maxLat);
-
-        this.map?.fitBounds(new LngLatBounds(sw, ne));
+      switch (level) {
+        case ScorecardZoomLevel.address: {
+          this.zoom(center, PARCEL_ZOOM_LEVEL);
+          break;
+        }
+        case ScorecardZoomLevel.waterSystem: {
+          this.zoomToBounds(this.geoState?.geoids?.pwsId?.boundingBox);
+          break;
+        }
+        case ScorecardZoomLevel.zipCode: {
+          this.zoomToBounds(this.geoState?.geoids?.zipCode?.boundingBox);
+          break;
+        }
+        default: {
+          this.zoom(center, GeographicLevel.Zipcode);
+        }
       }
     },
     // Listen for changes to lat/long to update map location.

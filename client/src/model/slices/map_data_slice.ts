@@ -77,13 +77,12 @@ export const setZoom = (zoom: number) => {
   };
 };
 
-export const setScorecardZoom = (level: ScorecardZoomLevel, bounds: BoundingBox) => {
+export const setScorecardZoomLevel = (level: ScorecardZoomLevel) => {
   return async (dispatch: AppDispatch) => {
     dispatch(
       setMapDataSuccess({
         scorecardZoom: {
           level: level,
-          bounds: bounds,
         },
       }),
     );
