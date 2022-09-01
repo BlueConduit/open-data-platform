@@ -6,6 +6,20 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 
 -- Function for object creates without existence safety
 
+-- Note on SRIDs.
+-- We use two SRID: 4326 and 3857
+--
+-- 4326 is a 3D coordinate system. Lat/Longs are implicitly converted to 3D space for the
+-- purposes of any calculations, including distances and areas. There is no way to display
+-- 4326 coordinates in 2D without projecting it into 2D in some way or another.
+--
+-- 3857 is a 2D projected coordinate system. When doing anything with tiles, we need them to
+-- be projected into two dimensions (because tiles are shown as squares), so all tile-related
+-- methods either implicitly cast coordinates to 3857 (e.g. ST_TileEnvelope, ST_AsMVT) or
+-- *should* cast them to 3857 for comparison. E.g., to compare a bounding box or other geometry
+--  with a tile from ST_TileEnvelope or ST_AsMVT, we should use ST_Transform to translate it
+-- from 4326 to 3857.
+
 CREATE OR REPLACE FUNCTION safe_create(command TEXT)
     RETURNS void
 AS
@@ -41,6 +55,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION set_approx_area_sqkm_to_area_of_geom()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    NEW.approx_area_sq_km = ST_Area(ST_Transform(new.geom, 4326)) / 1000000;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 ------------
 -- Tables --
 ------------
@@ -173,17 +196,24 @@ CREATE TABLE IF NOT EXISTS water_systems
     population_served         real,
     state_census_geo_id       varchar(255) references states (census_geo_id),
     bbox                      GEOMETRY(Geometry, 4326, 2),
+    approx_area_sq_km         real,
     geom                      GEOMETRY(Geometry, 4326),
     PRIMARY KEY (pws_id)
 );
 CREATE INDEX IF NOT EXISTS water_systems_state_census_geo_id_idx ON water_systems (state_census_geo_id);
 CREATE INDEX IF NOT EXISTS water_systems_geom_idx ON water_systems USING GIST (geom);
 CREATE INDEX IF NOT EXISTS water_systems_bbox_idx ON public.water_systems USING gist (bbox);
+CREATE INDEX IF NOT EXISTS water_systems_approx_area_idx ON water_systems USING BTREE (approx_area_sq_km);
 SELECT safe_create($$CREATE TRIGGER set_bbox_to_envelope_of_geom_on_water_system_insertion
     BEFORE INSERT
     ON water_systems
     FOR EACH ROW
 EXECUTE PROCEDURE set_bbox_to_envelope_of_geom()$$);
+SELECT safe_create($$CREATE TRIGGER set_approx_area_sqkm_on_insertion
+    BEFORE INSERT
+    ON water_systems
+    FOR EACH ROW
+EXECUTE PROCEDURE set_approx_area_sqkm_to_area_of_geom()$$);
 
 -- EPA violations data
 
@@ -428,7 +458,19 @@ BEGIN
                         SUM(w.service_connections_count)       AS service_connections_count,
                         SUM(w.population_served)               AS population_served
                  FROM water_systems w
-                 WHERE ST_Transform(w.bbox, 3857) && ST_TileEnvelope(z, x, y)
+                 WHERE
+                    ST_Transform(w.bbox, 3857) && ST_TileEnvelope(z, x, y) AND
+                    -- Require nearer zoom levels to see smaller polygons. Cutoffs are arbitrary.
+                    -- Necessary because some tiles failed to load because they return too much data.
+                    -- Alternative is to simplify polygons, but that takes more work/tuning.
+                    w.approx_area_sq_km >= (
+                        CASE
+                        WHEN z <= 5 THEN 100
+                        WHEN z <= 7 THEN 10
+                        WHEN z <= 8 THEN 5
+                        ELSE 0
+                        END
+                    )
                  GROUP BY w.geom,
                           w.pws_id,
                           w.pws_name
