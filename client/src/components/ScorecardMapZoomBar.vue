@@ -95,13 +95,13 @@ export default defineComponent({
     'geoState.geoids': function() {
       const geoIds = this.geoState?.geoids;
       const options = [];
-      if (geoIds?.address) {
+      if (geoIds?.address?.id) {
         options.push(ScorecardZoomLevel.address);
       }
-      if (geoIds?.pwsId) {
+      if (geoIds?.pwsId?.id) {
         options.push(ScorecardZoomLevel.waterSystem);
       }
-      if (geoIds?.zipCode) {
+      if (geoIds?.zipCode?.id) {
         options.push(ScorecardZoomLevel.zipCode);
       }
       this.options = options;
