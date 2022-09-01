@@ -21,6 +21,7 @@ interface ScorecardZoomInfo {
 }
 
 enum ScorecardZoomLevel {
+  address = 'Address',
   waterSystem = 'Water system',
   zipCode = 'Zip code',
 }
