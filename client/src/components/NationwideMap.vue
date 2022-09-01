@@ -11,7 +11,7 @@ import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
 import { DataLayer, FeatureProperty, GeographicLevel, MapLayer } from '../model/data_layer';
-import { router, SCORECARD_BASE } from '../router';
+import { MAP_ROUTE_BASE, router, SCORECARD_BASE } from '../router';
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
@@ -289,14 +289,11 @@ export default defineComponent({
       });
 
       geolocateControl.on('geolocate', (result: any) => {
-        console.log('geolocating!');
-        console.log(result);
         const lat = result?.coords?.latitude;
         const long = result?.coords?.longitude;
+        const baseUrl = this.scorecard ? SCORECARD_BASE : MAP_ROUTE_BASE;
 
-        console.log('CURRENT ROUTE: ' + this.$router?.currentRoute.value);
-
-        this.$router.push(`${SCORECARD_BASE}/${GeoType.address}/${lat},${long}`);
+        this.$router.push(`${baseUrl}/${GeoType.address}/${lat},${long}`);
       });
 
       // Add geolocate control to the map.
