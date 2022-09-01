@@ -17,7 +17,7 @@ import { dispatch, useSelector } from './model/store';
 import { GEOTYPE_PARAM, LAT_LONG_PARAM, LAYER_PARAM } from './router';
 import { GeoType } from './model/states/model/geo_data';
 import PageFooter from './components/PageFooter.vue';
-import { setCurrentDataLayer } from './model/slices/map_data_slice';
+import { clearMapData, setCurrentDataLayer } from './model/slices/map_data_slice';
 import { MapDataState } from './model/states/map_data_state';
 import { MapLayer } from './model/data_layer';
 import { clearLeadData } from './model/slices/lead_data_slice';
@@ -59,6 +59,7 @@ export default defineComponent({
         dispatch(clearGeoIds());
         dispatch(clearLeadData());
         dispatch(clearDemographicData());
+        dispatch(clearMapData());
       }
 
       // Check whether router has a param with the layer to show on the map.

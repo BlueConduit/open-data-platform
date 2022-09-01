@@ -6,7 +6,7 @@
 </template>
 
 <script lang='ts'>
-import mapboxgl, { LngLatBounds, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl, { LngLatLike, LngLatBounds, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
@@ -15,7 +15,8 @@ import { MAP_ROUTE_BASE, router, SCORECARD_BASE } from '../router';
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
-import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom } from '../model/slices/map_data_slice';
+import { ALL_DATA_LAYERS, setCurrentDataLayer, setScorecardZoom, setZoom } from '../model/slices/map_data_slice';
+import { ScorecardZoomLevel } from '../model/states/model/map_data';
 import { GeoType } from '../model/states/model/geo_data';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
@@ -152,7 +153,7 @@ export default defineComponent({
           waterSystemBoundingBox.maxLat,
         );
 
-        this.map?.fitBounds(new LngLatBounds(sw, ne));
+        dispatch(setScorecardZoom(ScorecardZoomLevel.waterSystem, waterSystemBoundingBox));
 
         // When there are no bounding boxes available, go to zipcode.
       } else {
@@ -409,6 +410,17 @@ export default defineComponent({
         }
         this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
       },
+    },
+    'mapState.mapData.scorecardZoom': function() {
+      const bounds = this.mapState?.mapData?.scorecardZoom?.bounds;
+      // const level = this.mapState?.mapData?.scorecardZoom?.level;
+
+      if (bounds) {
+        const sw = new mapboxgl.LngLat(bounds.minLon, bounds.minLat);
+        const ne = new mapboxgl.LngLat(bounds.maxLon, bounds.maxLat);
+
+        this.map?.fitBounds(new LngLatBounds(sw, ne));
+      }
     },
     // Listen for changes to lat/long to update map location.
     'geoState.geoids': function() {
