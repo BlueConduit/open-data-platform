@@ -46,7 +46,7 @@ CREATE OR REPLACE FUNCTION set_approx_area_sqkm_to_area_of_geom()
     RETURNS TRIGGER AS
 $$
 BEGIN
-    NEW.approx_area_sq_km = ST_Area(ST_Transform(new.geom, 3857)) / 1000000;
+    NEW.approx_area_sq_km = ST_Area(ST_Transform(new.geom, 4326)) / 1000000;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
