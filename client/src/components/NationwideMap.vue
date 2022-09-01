@@ -133,6 +133,7 @@ export default defineComponent({
 
       // If there's an address to zoom to, choose that.
       if (addressBoundingBox != null) {
+        // TODO: figure out why this sometimes still animates.
         if (this.scorecard) this.map?.jumpTo({ center, zoom: PARCEL_ZOOM_LEVEL });
         else this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
 
@@ -353,6 +354,7 @@ export default defineComponent({
      */
     async createMap(): Promise<void> {
       // Start zoomed in for a scorecard to avoid unnecessary tile loads.
+      // TODO: pull the zoom level from the geoId in the global state.
       const zoom = this.scorecard ? PARCEL_ZOOM_LEVEL : DEFAULT_ZOOM_LEVEL;
       // The map is created before the state watcher fires, so get the center directly.
       const center = this.getLngLatFromState() ?? this.center;
