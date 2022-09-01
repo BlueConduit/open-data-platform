@@ -6,6 +6,20 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 
 -- Function for object creates without existence safety
 
+-- Note on SRIDs.
+-- We use two SRID: 4326 and 3857
+--
+-- 4326 is a 3D coordinate system. Lat/Longs are implicitly converted to 3D space for the
+-- purposes of any calculations, including distances and areas. There is no way to display
+-- 4326 coordinates in 2D without projecting it into 2D in some way or another.
+--
+-- 3857 is a 2D projected coordinate system. When doing anything with tiles, we need them to
+-- be projected into two dimensions (because tiles are shown as squares), so all tile-related
+-- methods either implicitly cast coordinates to 3857 (e.g. ST_TileEnvelope, ST_AsMVT) or
+-- *should* cast them to 3857 for comparison. E.g., to compare a bounding box or other geometry
+--  with a tile from ST_TileEnvelope or ST_AsMVT, we should use ST_Transform to translate it
+-- from 4326 to 3857.
+
 CREATE OR REPLACE FUNCTION safe_create(command TEXT)
     RETURNS void
 AS
