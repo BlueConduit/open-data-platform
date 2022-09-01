@@ -46,9 +46,9 @@ export default defineComponent({
   methods: {
     async onGeocodeResults(lat: string, long: string, geoType: GeoType) {
       if (lat == '0' && long == '0') {
-        this.$router.push(this.baseUrl);
+        await this.$router.push(this.baseUrl);
       } else {
-        this.$router.push(`${this.baseUrl}/${geoType}/${lat},${long}`);
+        await this.$router.push(`${this.baseUrl}/${geoType}/${lat},${long}`);
       }
     },
   },
