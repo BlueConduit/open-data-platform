@@ -293,6 +293,9 @@ export default defineComponent({
         const long = result?.coords?.longitude;
         const baseUrl = this.scorecard ? SCORECARD_BASE : MAP_ROUTE_BASE;
 
+        // Ignore null lat/long.
+        if (lat == null || long == null) return;
+
         this.$router.push(`${baseUrl}/${GeoType.address}/${lat},${long}`);
       });
 
