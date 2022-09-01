@@ -51,6 +51,7 @@ import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
 import { Status } from '../model/states/status_state';
 import { clearDemographicData } from '../model/slices/demographic_data_slice';
+import { GeoDataUtil } from '../util/geo_data_util';
 
 const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
@@ -109,10 +110,7 @@ export default defineComponent({
     // True if and only if there is no current search criteria. This will be false if there is a
     // search but there is no prediction data for that search.
     emptyGeoData(): boolean {
-      return this.geoState?.geoids?.geoType == null
-        && this.geoState?.geoids?.pwsId == null
-        && this.geoState?.geoids?.address == null
-        && this.geoState?.geoids?.zipCode == null;
+      return GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
     },
     showParcelPrediction(): boolean {
       return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;

@@ -10,7 +10,8 @@
       />
       <NationwideMap height='60vh' :scorecard='true' />
     </div>
-    <div class='container-column center-container actions-to-take'>
+    <div class='container-column center-container actions-to-take'
+         v-if='showResultSections'>
       <div class='h1-header-large'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
       </div>
@@ -28,7 +29,7 @@
         @onButtonClick='copyToClipboard'
       />
     </div>
-    <ScorecardSummaryPanel />
+    <ScorecardSummaryPanel v-if='showResultSections' />
     <ActionSection
       class='nav-to-map section'
       :header='ScorecardMessages.WANT_TO_KNOW_MORE'
@@ -54,6 +55,8 @@ import { useSelector } from '@/model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { City, GeoType } from '../model/states/model/geo_data';
 import MapGeocoderWrapper from '../components/MapGeocoderWrapper.vue';
+import { GeoDataState } from '../model/states/geo_data_state';
+import { GeoDataUtil } from '../util/geo_data_util';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -69,9 +72,11 @@ export default defineComponent({
     ScorecardSummaryPanel,
   },
   setup() {
+    const geoState = useSelector((state) => state.geos) as GeoDataState;
     const leadDataState = useSelector((state) => state.leadData) as LeadDataState;
 
     return {
+      geoState,
       leadDataState,
     };
   },
@@ -82,6 +87,7 @@ export default defineComponent({
       ScorecardMessages,
       SCORECARD_BASE,
       showLslr: false,
+      showResultSections: false,
       Titles,
     };
   },
@@ -105,6 +111,9 @@ export default defineComponent({
     'leadDataState.data.city': function () {
       const city = this.leadDataState?.data?.city ?? City.unknown;
       this.showLslr = city != null && LSLR_CITY_LINKS.get(city) != null;
+    },
+    'geoState.geoids': function() {
+      this.showResultSections = !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
     },
   },
 });
