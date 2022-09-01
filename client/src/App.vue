@@ -6,8 +6,7 @@
   </div>
 </template>
 
-<script lang='ts'>
-
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/css/copper.css';
@@ -23,9 +22,7 @@ import { MapLayer } from './model/data_layer';
 import { clearLeadData } from './model/slices/lead_data_slice';
 import { clearDemographicData } from './model/slices/demographic_data_slice';
 
-
 const DEFAULT_TITLE = 'LeadOut';
-
 
 /**
  * This file contains the component(s) that are visible in every view.
@@ -63,9 +60,7 @@ export default defineComponent({
 
       // Check whether router has a param with the layer to show on the map.
       // Otherwise, default to water systems.
-      const currentDataLayerId = this.mapState?.mapData?.dataLayers?.find(
-        (l) => layerId == l,
-      );
+      const currentDataLayerId = this.mapState?.mapData?.dataLayers?.find((l: any) => layerId == l);
       dispatch(setCurrentDataLayer(currentDataLayerId ?? MapLayer.LeadServiceLineByWaterSystem));
 
       // TODO: consider adding a string that says this is a non-prod environment, so devs can see
@@ -83,6 +78,5 @@ body,
 #app,
 .main {
   height: 100%;
-  min-width: 1105px;
 }
 </style>
