@@ -1,5 +1,5 @@
 <template>
-  <div class='searchbar-container' v-if='options.length > 0'>
+  <div class='searchbar-container'>
     <div class='zoom-options'>
       <search-bar-option
         v-for='option in options'
@@ -95,6 +95,9 @@ export default defineComponent({
     'geoState.geoids': function() {
       const geoIds = this.geoState?.geoids;
       const options = [];
+      if (geoIds?.address) {
+        options.push(ScorecardZoomLevel.address);
+      }
       if (geoIds?.pwsId) {
         options.push(ScorecardZoomLevel.waterSystem);
       }
