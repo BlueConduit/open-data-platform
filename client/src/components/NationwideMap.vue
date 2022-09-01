@@ -5,17 +5,18 @@
   </div>
 </template>
 
-<script lang="ts">
-import mapboxgl, { LngLatLike, LngLatBounds, MapLayerMouseEvent } from 'mapbox-gl';
+<script lang='ts'>
+import mapboxgl, { LngLatBounds, LngLatLike, MapLayerMouseEvent } from 'mapbox-gl';
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
 import { DataLayer, FeatureProperty, GeographicLevel, MapLayer } from '../model/data_layer';
-import { router } from '../router';
+import { MAP_ROUTE_BASE, router, SCORECARD_BASE } from '../router';
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
 import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom } from '../model/slices/map_data_slice';
+import { GeoType } from '../model/states/model/geo_data';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -134,7 +135,10 @@ export default defineComponent({
       // If there's an address to zoom to, choose that.
       if (addressBoundingBox != null) {
         // TODO: figure out why this sometimes still animates.
-        if (this.scorecard) this.map?.jumpTo({ center, zoom: PARCEL_ZOOM_LEVEL });
+        if (this.scorecard) this.map?.jumpTo({
+          center,
+          zoom: PARCEL_ZOOM_LEVEL,
+        });
         else this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
 
         // Otherwise, default to water system if it's available.
@@ -152,7 +156,10 @@ export default defineComponent({
 
         // When there are no bounding boxes available, go to zipcode.
       } else {
-        if (this.scorecard) this.map?.jumpTo({ center, zoom: GeographicLevel.Zipcode });
+        if (this.scorecard) this.map?.jumpTo({
+          center,
+          zoom: GeographicLevel.Zipcode,
+        });
         else this.map?.flyTo({ center, zoom: GeographicLevel.Zipcode });
       }
     },
@@ -271,18 +278,29 @@ export default defineComponent({
     setUpControls(): void {
       if (this.map == null) return;
 
+      const geolocateControl = new mapboxgl.GeolocateControl({
+        positionOptions: {
+          // If enabled, gets the best possible results. Can result in slower response times or
+          // increased power consumption so set to false for now.
+          enableHighAccuracy: false,
+        },
+        // Receive updates to the device's location as it changes.
+        trackUserLocation: true,
+      });
+
+      geolocateControl.on('geolocate', (result: any) => {
+        const lat = result?.coords?.latitude;
+        const long = result?.coords?.longitude;
+        const baseUrl = this.scorecard ? SCORECARD_BASE : MAP_ROUTE_BASE;
+
+        // Ignore null lat/long.
+        if (lat == null || long == null) return;
+
+        this.$router.push(`${baseUrl}/${GeoType.address}/${lat},${long}`);
+      });
+
       // Add geolocate control to the map.
-      this.map.addControl(
-        new mapboxgl.GeolocateControl({
-          positionOptions: {
-            // If enabled, gets the best possible results. Can result in slower response times or
-            // increased power consumption so set to false for now.
-            enableHighAccuracy: false,
-          },
-          // Receive updates to the device's location as it changes.
-          trackUserLocation: true,
-        }),
-      );
+      this.map.addControl(geolocateControl);
 
       // Add zoom in / zoom out buttons to map.
       this.map.addControl(new mapboxgl.NavigationControl());
@@ -385,7 +403,7 @@ export default defineComponent({
   watch: {
     // Listens to map state to toggle different layers.
     'mapState.mapData.currentDataLayerId': {
-      handler: function (newDataLayerId: MapLayer) {
+      handler: function(newDataLayerId: MapLayer) {
         if (newDataLayerId == null) {
           return;
         }
@@ -393,7 +411,7 @@ export default defineComponent({
       },
     },
     // Listen for changes to lat/long to update map location.
-    'geoState.geoids': function () {
+    'geoState.geoids': function() {
       // Remove the old marker.
       if (this.marker != null) {
         this.marker.remove();
