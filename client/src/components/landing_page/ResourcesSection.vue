@@ -50,8 +50,8 @@ export default defineComponent({
 @import 'bulma/sass/layout/section.sass';
 @import 'bulma/sass/elements/container.sass';
 @import 'bulma/sass/grid/columns.sass';
-@import 'bulma/sass/utilities/_all.sass';
 @import 'bulma/sass/helpers/typography.sass';
+@import 'bulma/sass/utilities/_all.sass';
 
 .h2-header-large {
   color: $warm-grey-600;
