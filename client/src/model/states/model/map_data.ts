@@ -3,7 +3,6 @@
  */
 
 import { MapLayer } from '@/model/data_layer';
-import { BoundingBox } from '@/model/states/model/geo_data';
 import { LngLatLike } from 'mapbox-gl';
 
 /**
@@ -14,20 +13,14 @@ interface MapData {
   dataLayers?: MapLayer[];
   zoom?: number;
   center?: LngLatLike;
-  scorecardZoom?: ScorecardZoomInfo;
+  zoomLevel?: ZoomLevel;
 }
 
-// TODO: remove this middle object and put all in mapdata.
-interface ScorecardZoomInfo {
-  level: ScorecardZoomLevel;
-  bounds?: BoundingBox;
-}
-
-enum ScorecardZoomLevel {
+enum ZoomLevel {
   address = 'Address',
   waterSystem = 'Water system',
   zipCode = 'Zip code',
   unknown = 'Unknown',
 }
 
-export { MapData, ScorecardZoomInfo, ScorecardZoomLevel };
+export { MapData, ZoomLevel };

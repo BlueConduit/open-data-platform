@@ -2,14 +2,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppDispatch } from '@/model/store';
 import { Status } from '@/model/states/status_state';
 import { MapDataState } from '@/model/states/map_data_state';
-import { MapData, ScorecardZoomLevel } from '@/model/states/model/map_data';
+import { MapData, ZoomLevel } from '@/model/states/model/map_data';
 import { DataLayer, MapLayer } from '@/model/data_layer';
 import { leadServiceLinesByWaterSystemLayer } from '@/data_layer_configs/lead_service_lines_by_water_systems_config';
 import { leadAndCopperViolationsByCountyDataLayer } from '@/data_layer_configs/lead_and_copper_violations_by_water_system_config';
 import { populationDataByCensusBlockLayer } from '@/data_layer_configs/population_by_census_block_config';
 import { leadServiceLinesByParcelLayer } from '@/data_layer_configs/lead_service_lines_by_parcel_config';
-import { BoundingBox } from '@/model/states/model/geo_data';
-import { leadDataCleared } from '@/model/slices/lead_data_slice';
 
 export const ALL_DATA_LAYERS = new Map<MapLayer, DataLayer>([
   [MapLayer.LeadServiceLineByWaterSystem, leadServiceLinesByWaterSystemLayer],
@@ -77,13 +75,11 @@ export const setZoom = (zoom: number) => {
   };
 };
 
-export const setScorecardZoomLevel = (level: ScorecardZoomLevel) => {
+export const setZoomLevel = (level: ZoomLevel) => {
   return async (dispatch: AppDispatch) => {
     dispatch(
       setMapDataSuccess({
-        scorecardZoom: {
-          level: level,
-        },
+        zoomLevel: level,
       }),
     );
   };
