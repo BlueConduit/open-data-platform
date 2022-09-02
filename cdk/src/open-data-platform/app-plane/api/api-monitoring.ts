@@ -44,6 +44,8 @@ export class ApiMonitoring extends Construct {
         }% SLO for ${slowBurnEvalPeriods} x ${period.toString()}.`,
         evaluationPeriods: slowBurnEvalPeriods,
         threshold: 1 - availabilitySlo,
+        // When there is no data, do not alert. Otherwise, one outlier can trigger the alert.
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       }),
 
       new cloudwatch.MathExpression({
@@ -61,6 +63,7 @@ export class ApiMonitoring extends Construct {
         }% SLO for ${fastBurnEvalPeriods} x ${period.toString()}.`,
         evaluationPeriods: fastBurnEvalPeriods,
         threshold: (1 - availabilitySlo) * 10, // 10x error rate than SLO allows.
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       }),
 
       // TODO: This uses average latency. Additionally alert on 95%ile latency over a longer period.
@@ -68,6 +71,7 @@ export class ApiMonitoring extends Construct {
         alarmDescription: `The API has a higher latency than its ${latencyMsSlo} ms SLO for ${fastBurnEvalPeriods} x ${period.toString()}.`,
         evaluationPeriods: fastBurnEvalPeriods,
         threshold: latencyMsSlo,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       }),
     ];
 
