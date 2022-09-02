@@ -27,8 +27,10 @@ import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
 import { ScorecardZoomLevel } from '../model/states/model/map_data';
 import { setScorecardZoomLevel } from '../model/slices/map_data_slice';
-import { BoundingBox } from '../model/states/model/geo_data';
 
+/**
+ * The zoom and search bar for the scorecard map.
+ */
 export default defineComponent({
   name: 'ScorecardMapZoomBar',
   components: {
@@ -72,25 +74,30 @@ export default defineComponent({
     setSelected(option: ScorecardZoomLevel): void {
       dispatch(setScorecardZoomLevel(option));
     },
+
+    /**
+     * Sets zoom level options based on the present geo IDs.
+     */
+    setOptions() {
+      const geoIds = this.geoState?.geoids;
+      this.options = [];
+      if (geoIds?.address?.id) {
+        this.options.push(ScorecardZoomLevel.address);
+      }
+      if (geoIds?.pwsId?.id) {
+        this.options.push(ScorecardZoomLevel.waterSystem);
+      }
+      if (geoIds?.zipCode?.id) {
+        this.options.push(ScorecardZoomLevel.zipCode);
+      }
+    },
   },
   watch: {
     'mapState.mapData.scorecardZoom': function() {
-      console.log('SETTING SELECTED: ' + this.selectedOption);
       this.selectedOption = this.mapState?.mapData?.scorecardZoom?.level ?? null;
     },
     'geoState.geoids': function() {
-      const geoIds = this.geoState?.geoids;
-      const options = [];
-      if (geoIds?.address?.id) {
-        options.push(ScorecardZoomLevel.address);
-      }
-      if (geoIds?.pwsId?.id) {
-        options.push(ScorecardZoomLevel.waterSystem);
-      }
-      if (geoIds?.zipCode?.id) {
-        options.push(ScorecardZoomLevel.zipCode);
-      }
-      this.options = options;
+      this.setOptions();
     },
   },
 });
