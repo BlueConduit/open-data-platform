@@ -126,7 +126,11 @@ export default defineComponent({
       if (!lat || !long) return null;
       return { lon: parseFloat(long), lat: parseFloat(lat) };
     },
-    zoomToLongLat() {
+
+    /**
+     * Dispatch event to update zoom level for the updated geo IDs.
+     */
+    setZoomForGeoIds() {
       const addressBoundingBox = this.geoState?.geoids?.address?.boundingBox;
       const waterSystemBoundingBox = this.geoState?.geoids?.pwsId?.boundingBox;
       const zipCodeBoundingBox = this.geoState?.geoids?.zipCode?.boundingBox;
@@ -148,7 +152,11 @@ export default defineComponent({
         dispatch(setScorecardZoomLevel(ScorecardZoomLevel.unknown));
       }
     },
-    zoom(center: LngLatLike, zoom: number) {
+
+    /**
+     * Zoom to the specified center with the given zoom level.
+     */
+    zoomToLngLat(center: LngLatLike, zoom: number) {
       // TODO: figure out why this sometimes still animates.
 
       if (this.scorecard) this.map?.jumpTo({
@@ -157,6 +165,10 @@ export default defineComponent({
       });
       else this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
     },
+
+    /**
+     * Zoom to the specified bounding box.
+     */
     zoomToBounds(bounds: BoundingBox | undefined) {
       if (!bounds) return null;
 
@@ -165,6 +177,34 @@ export default defineComponent({
 
       this.map?.fitBounds(new LngLatBounds(sw, ne));
     },
+
+    /**
+     * Update map zoom or bounds depending on the updated zoom level.
+     */
+    updateZoomForScorecard() {
+      const level = this.mapState?.mapData?.scorecardZoom?.level;
+      const center = this.getLngLatFromState();
+      if (!center) return;
+
+      switch (level) {
+        case ScorecardZoomLevel.address: {
+          this.zoomToLngLat(center, PARCEL_ZOOM_LEVEL);
+          break;
+        }
+        case ScorecardZoomLevel.waterSystem: {
+          this.zoomToBounds(this.geoState?.geoids?.pwsId?.boundingBox);
+          break;
+        }
+        case ScorecardZoomLevel.zipCode: {
+          this.zoomToBounds(this.geoState?.geoids?.zipCode?.boundingBox);
+          break;
+        }
+        default: {
+          this.zoomToLngLat(center, GeographicLevel.Zipcode);
+        }
+      }
+    },
+
     /**
      * Sets the visibility of the layer with the given styleLayerId.
      */
@@ -422,7 +462,7 @@ export default defineComponent({
 
       switch (level) {
         case ScorecardZoomLevel.address: {
-          this.zoom(center, PARCEL_ZOOM_LEVEL);
+          this.zoomToLngLat(center, PARCEL_ZOOM_LEVEL);
           break;
         }
         case ScorecardZoomLevel.waterSystem: {
@@ -434,7 +474,7 @@ export default defineComponent({
           break;
         }
         default: {
-          this.zoom(center, GeographicLevel.Zipcode);
+          this.zoomToLngLat(center, GeographicLevel.Zipcode);
         }
       }
     },
@@ -456,7 +496,7 @@ export default defineComponent({
         if (this.map != null) {
           this.marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
         }
-        this.zoomToLongLat();
+        this.setZoomForGeoIds();
       } else {
         // Reset map to full view of U.S. when geo IDs are cleared.
         if (this.map?.isStyleLoaded()) {
