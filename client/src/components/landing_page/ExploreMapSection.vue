@@ -1,17 +1,31 @@
 <template>
-  <div class='section'>
-    <div class='header-section'>
-      <div class='h1-header-large'>
-        {{ messages.EXPLORE_MAP_SECTION_HEADER }}
-      </div>
-      <div class='h2-header-large centered-text'>
-        {{ messages.EXPLORE_MAP_SECTION_SUBHEADER }}
+  <div class='section is-small'>
+    <div class='columns is-centered has-text-centered'>
+      <div class='column is-two-thirds'>
+        <div class='header-section'>
+          <div class='h1-header-large'>
+            {{ messages.EXPLORE_MAP_SECTION_HEADER }}
+          </div>
+          <div class='h2-header-large centered-text'>
+            {{ messages.EXPLORE_MAP_SECTION_SUBHEADER }}
+          </div>
+        </div>
       </div>
     </div>
-    <img class='static-map' alt='' src='../../assets/media/static-map.png' />
-    <button class='gold-button' @click='navigateToMap'>
-      {{ messages.EXPLORE_MAP_BUTTON_TEXT }}
-    </button>
+
+    <div class='columns is-centered has-text-centered'>
+      <div class='column'>
+        <img class='static-map' alt='' src='../../assets/media/static-map.png' />
+      </div>
+    </div>
+
+    <div class='columns is-centered has-text-centered'>
+      <div class='column'>
+        <button class='gold-button' @click='navigateToMap'>
+          {{ messages.EXPLORE_MAP_BUTTON_TEXT }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -43,12 +57,12 @@ export default defineComponent({
 <style scoped lang="scss">
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-
-.h2-header-large {
-  max-width: 70%;
-}
+@import 'bulma/sass/layout/section.sass';
+@import 'bulma/sass/grid/columns.sass';
+@import 'bulma/sass/helpers/typography.sass';
 
 .static-map {
+  width: 100%;
   max-width: 1000px;
   border-radius: $spacing-md;
   box-shadow: $image-shadow;
