@@ -3,7 +3,10 @@
     <PredictionPanel />
     <div class='map-container'>
       <ScorecardMapSearchBar />
-      <NationwideMap height='60vh' :scorecard='true' />
+      <!--      <div class='map'>-->
+      <SidePanel class='side-panel' />
+      <NationwideMap class='nationwide-map' height='60vh' :scorecard='true' />
+      <!--      </div>-->
     </div>
     <div class='container-column center-container actions-to-take'
          v-if='showResultSections'>
@@ -52,6 +55,7 @@ import { City } from '../model/states/model/geo_data';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { GeoDataUtil } from '../util/geo_data_util';
 import ScorecardMapSearchBar from '../components/ScorecardMapSearchBar.vue';
+import SidePanel from '../components/SidePanel.vue';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -65,6 +69,7 @@ export default defineComponent({
     PredictionPanel,
     ScorecardSummaryPanel,
     ScorecardMapSearchBar,
+    SidePanel,
   },
   setup() {
     const geoState = useSelector((state) => state.geos) as GeoDataState;
@@ -124,9 +129,14 @@ export default defineComponent({
   background-color: $light-blue-50;
 }
 
-.map-container {
-  position: relative;
+.map {
+  display: flex;
+  flex-direction: row;
 }
+
+//.map-container {
+//  position: relative;
+//}
 
 .search {
   margin-right: $spacing-md;
@@ -135,4 +145,12 @@ export default defineComponent({
   top: $spacing-sm;
   right: 0;
 }
+
+.side-panel {
+  float: left;
+}
+
+//.nationwide-map {
+//  float: right;
+//}
 </style>
