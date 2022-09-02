@@ -8,19 +8,17 @@
         {{ messages.EXPLORE_MAP_SECTION_SUBHEADER }}
       </div>
     </div>
-    <img class='static-map'
-         alt=''
-         :src='require(`@/assets/media/static-map.png`)'>
+    <img class='static-map' alt='' src='../../assets/media/static-map.png' />
     <button class='gold-button' @click='navigateToMap'>
       {{ messages.EXPLORE_MAP_BUTTON_TEXT }}
     </button>
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
-import { LandingPageMessages as messages } from '@/assets/messages/landing';
-import { router } from '@/router';
+import { LandingPageMessages as messages } from '../../assets/messages/landing';
+import { router } from '../../router';
 
 /**
  * Content for 'Explore map' section of the landing page.
@@ -42,7 +40,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 

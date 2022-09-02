@@ -16,7 +16,7 @@
       </div>
       <div class='columns is-centered has-text-centered'>
         <div class='column header-section'>
-          <router-link class='link' :to='resourcesRoute'>
+          <router-link class='gold-button' :to='resourcesRoute'>
             {{ messages.VIEW_MORE_RESOURCES_BUTTON_TEXT }}
           </router-link>
         </div>
