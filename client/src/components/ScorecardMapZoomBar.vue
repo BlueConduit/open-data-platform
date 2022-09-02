@@ -25,8 +25,8 @@ import mapboxgl from 'mapbox-gl';
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
-import { ScorecardZoomLevel } from '../model/states/model/map_data';
-import { setScorecardZoomLevel } from '../model/slices/map_data_slice';
+import { ZoomLevel } from '../model/states/model/map_data';
+import { setZoomLevel } from '../model/slices/map_data_slice';
 
 /**
  * The zoom and search bar for the scorecard map.
@@ -40,7 +40,6 @@ export default defineComponent({
   setup() {
     mapboxgl.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
 
-    // Listen to geoState updates.
     const geoState = useSelector((state) => state.geos) as GeoDataState;
     const mapState = useSelector((state) => state.mapData) as MapDataState;
 
@@ -51,8 +50,8 @@ export default defineComponent({
   },
   data() {
     return {
-      options: [] as ScorecardZoomLevel[],
-      selectedOption: null as ScorecardZoomLevel | null,
+      options: [] as ZoomLevel[],
+      selectedOption: null as ZoomLevel | null,
       SCORECARD_BASE,
     };
   },
@@ -62,7 +61,7 @@ export default defineComponent({
      *
      * @param option
      */
-    getSelected(option: ScorecardZoomLevel): boolean {
+    getSelected(option: ZoomLevel): boolean {
       return option === this.selectedOption;
     },
 
@@ -71,8 +70,8 @@ export default defineComponent({
      *
      * @param option
      */
-    setSelected(option: ScorecardZoomLevel): void {
-      dispatch(setScorecardZoomLevel(option));
+    setSelected(option: ZoomLevel): void {
+      dispatch(setZoomLevel(option));
     },
 
     /**
@@ -82,19 +81,19 @@ export default defineComponent({
       const geoIds = this.geoState?.geoids;
       this.options = [];
       if (geoIds?.address?.id) {
-        this.options.push(ScorecardZoomLevel.address);
+        this.options.push(ZoomLevel.address);
       }
       if (geoIds?.pwsId?.id) {
-        this.options.push(ScorecardZoomLevel.waterSystem);
+        this.options.push(ZoomLevel.waterSystem);
       }
       if (geoIds?.zipCode?.id) {
-        this.options.push(ScorecardZoomLevel.zipCode);
+        this.options.push(ZoomLevel.zipCode);
       }
     },
   },
   watch: {
-    'mapState.mapData.scorecardZoom': function() {
-      this.selectedOption = this.mapState?.mapData?.scorecardZoom?.level ?? null;
+    'mapState.mapData.zoomLevel': function() {
+      this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
     },
     'geoState.geoids': function() {
       this.setOptions();
