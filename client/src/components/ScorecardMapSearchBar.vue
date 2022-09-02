@@ -20,7 +20,6 @@ import { defineComponent } from 'vue';
 import { SCORECARD_BASE } from '../router';
 import SearchBarOption from './SearchBarOption.vue';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
-import mapboxgl from 'mapbox-gl';
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
@@ -38,8 +37,6 @@ export default defineComponent({
     SearchBarOption,
   },
   setup() {
-    mapboxgl.accessToken = process.env.VUE_APP_MAP_BOX_API_TOKEN ?? '';
-
     const geoState = useSelector((state) => state.geos) as GeoDataState;
     const mapState = useSelector((state) => state.mapData) as MapDataState;
 

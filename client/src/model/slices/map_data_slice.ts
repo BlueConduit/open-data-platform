@@ -63,7 +63,7 @@ export const setCurrentDataLayer = (layerId: string) => {
 };
 
 /**
- * Change the zoom level.
+ * Update the integer zoom level.
  */
 export const setZoom = (zoom: number) => {
   return async (dispatch: AppDispatch) => {
@@ -75,6 +75,9 @@ export const setZoom = (zoom: number) => {
   };
 };
 
+/**
+ * Change the zoom to either an address, water system, or zip code level.
+ */
 export const setZoomLevel = (level: ZoomLevel) => {
   return async (dispatch: AppDispatch) => {
     dispatch(
