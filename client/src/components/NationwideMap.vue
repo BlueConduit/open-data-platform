@@ -342,8 +342,10 @@ export default defineComponent({
       // Add geolocate control to the map.
       this.map.addControl(geolocateControl);
 
-      // Add zoom in / zoom out buttons to map.
-      this.map.addControl(new mapboxgl.NavigationControl());
+      // Add zoom in / zoom out buttons to Nationwide Map view.
+      if (!this.scorecard) {
+        this.map.addControl(new mapboxgl.NavigationControl());
+      }
     },
 
     /**
@@ -447,7 +449,6 @@ export default defineComponent({
         if (newDataLayerId == null) {
           return;
         }
-        // TODO: maybe remove this check after testing?
         if (this.map?.isStyleLoaded()) {
           this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
         }

@@ -2,13 +2,7 @@
   <div>
     <PredictionPanel />
     <div class='map-container'>
-      <!--      <MapGeocoderWrapper-->
-      <!--        class='search'-->
-      <!--        :acceptedTypes='acceptedTypes'-->
-      <!--        :baseUrl='SCORECARD_BASE'-->
-      <!--        v-model:expandSearch='showSearch'-->
-      <!--      />-->
-      <ScorecardMapZoomBar />
+      <ScorecardMapSearchBar />
       <NationwideMap height='60vh' :scorecard='true' />
     </div>
     <div class='container-column center-container actions-to-take'
@@ -54,12 +48,10 @@ import NationwideMap from '../components/NationwideMap.vue';
 import LslrSection, { LSLR_CITY_LINKS } from '@/components/LslrSection.vue';
 import { useSelector } from '@/model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
-import { City, GeoType } from '../model/states/model/geo_data';
-import MapGeocoderWrapper from '../components/MapGeocoderWrapper.vue';
+import { City } from '../model/states/model/geo_data';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { GeoDataUtil } from '../util/geo_data_util';
-import SearchBar from '../components/SearchBar.vue';
-import ScorecardMapZoomBar from '../components/ScorecardMapZoomBar.vue';
+import ScorecardMapSearchBar from '../components/ScorecardMapSearchBar.vue';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -69,12 +61,10 @@ export default defineComponent({
   components: {
     ActionSection,
     LslrSection,
-    // MapGeocoderWrapper,
     NationwideMap,
     PredictionPanel,
     ScorecardSummaryPanel,
-    // SearchBar,
-    ScorecardMapZoomBar,
+    ScorecardMapSearchBar,
   },
   setup() {
     const geoState = useSelector((state) => state.geos) as GeoDataState;
@@ -87,8 +77,6 @@ export default defineComponent({
   },
   data() {
     return {
-      acceptedTypes: [GeoType.address, GeoType.postcode],
-      showSearch: true,
       ScorecardMessages,
       SCORECARD_BASE,
       showLslr: false,

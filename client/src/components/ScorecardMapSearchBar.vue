@@ -8,11 +8,10 @@
         :selected='getSelected(option)'
         @click='setSelected(option)' />
     </div>
-    <div class='search-wrapper'>
-      <map-geocoder-wrapper class='search'
-                            :baseUrl='SCORECARD_BASE'
-                            :expandSearch='true' />
-    </div>
+    <map-geocoder-wrapper
+      :acceptedTypes='acceptedTypes'
+      :baseUrl='SCORECARD_BASE'
+      v-model:expandSearch='showSearch' />
   </div>
 </template>
 
@@ -27,6 +26,7 @@ import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
 import { ZoomLevel } from '../model/states/model/map_data';
 import { setZoomLevel } from '../model/slices/map_data_slice';
+import { GeoType } from '../model/states/model/geo_data';
 
 /**
  * The zoom and search bar for the scorecard map.
@@ -50,8 +50,10 @@ export default defineComponent({
   },
   data() {
     return {
+      acceptedTypes: [GeoType.address, GeoType.postcode],
       options: [] as ZoomLevel[],
       selectedOption: null as ZoomLevel | null,
+      showSearch: true,
       SCORECARD_BASE,
     };
   },
@@ -102,23 +104,17 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.search {
-  display: flex;
-}
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .searchbar-container {
   display: flex;
-  height: 54px;
-  padding: 0 15px;
   align-items: center;
   justify-content: space-between;
-  background-color: #F6F6F6; /* TODO use global css vars for this. */
-}
-
-.search-wrapper {
-  display: flex;
-  padding-left: 15px;
+  height: $spacing-xl;
+  padding: 0 $spacing-md;
+  background-color: $warm-grey-100;
 }
 
 .zoom-options {
