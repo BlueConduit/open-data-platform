@@ -55,6 +55,7 @@ export default defineComponent({
 
 .h2-header-large {
   color: $warm-grey-600;
+  margin-bottom: $spacing-lg;
 }
 
 .resource-blurb {

@@ -1,6 +1,5 @@
 <template>
   <div class='section is-large'>
-    <!-- <div class='hero-body'> -->
     <div class='columns is-centered has-text-centered'>
       <div class='column is-two-thirds'>
         <div class='header-section'>
