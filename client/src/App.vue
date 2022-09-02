@@ -1,6 +1,6 @@
 <template>
   <div class='main'>
-    <NavigationBar />
+    <ResponsiveNav />
     <router-view />
     <PageFooter />
   </div>
@@ -10,7 +10,6 @@
 import { defineComponent } from 'vue';
 import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/css/copper.css';
-import NavigationBar from './components/NavigationBar.vue';
 import { clearGeoIds, queryLatLong } from './model/slices/geo_data_slice';
 import { dispatch, useSelector } from './model/store';
 import { GEOTYPE_PARAM, LAT_LONG_PARAM, LAYER_PARAM } from './router';
@@ -21,6 +20,7 @@ import { MapDataState } from './model/states/map_data_state';
 import { MapLayer } from './model/data_layer';
 import { clearLeadData } from './model/slices/lead_data_slice';
 import { clearDemographicData } from './model/slices/demographic_data_slice';
+import ResponsiveNav from './components/ResponsiveNav.vue';
 
 const DEFAULT_TITLE = 'LeadOut';
 
@@ -30,8 +30,8 @@ const DEFAULT_TITLE = 'LeadOut';
 export default defineComponent({
   name: 'App',
   components: {
-    NavigationBar,
     PageFooter,
+    ResponsiveNav,
   },
   setup() {
     const mapState = useSelector((state) => state.mapData) as MapDataState;
