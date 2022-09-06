@@ -49,8 +49,9 @@ export default defineComponent({
       const geoIds: GeoData | undefined = this.geoState?.geoids;
       if (GeoDataUtil.isNullOrEmpty(geoIds)) return;
 
-      // TODO add address?
       switch (level) {
+        case ZoomLevel.parcel:
+          return geoIds?.address?.id;
         case ZoomLevel.waterSystem:
           return geoIds?.pwsId?.id;
         case ZoomLevel.zipCode:
@@ -62,12 +63,19 @@ export default defineComponent({
 
     getGeoIdInfoForZoomLevel(level: ZoomLevel): string | undefined {
       switch (level) {
+        case ZoomLevel.parcel:
+          return ScorecardMessages.PREDICTION_DESCRIPTION(
+            LeadDataUtil.formatPredictionAsLikelihood(
+              this.leadState?.data?.publicLeadLowPrediction),
+            'parcel',
+          );
         case ZoomLevel.waterSystem:
           return ScorecardMessages.WATER_SYSTEM_DESCRIPTION;
         case ZoomLevel.zipCode:
-          return ScorecardMessages.ZIPCODE_DESCRIPTION(
+          return ScorecardMessages.PREDICTION_DESCRIPTION(
             LeadDataUtil.formatPredictionAsLikelihood(
-              LeadDataUtil.waterSystemsPercentLead(this.leadState?.data)));
+              LeadDataUtil.waterSystemsPercentLead(this.leadState?.data)),
+            'zip code');
         default:
           return '';
       }
@@ -97,6 +105,11 @@ export default defineComponent({
     setOptions() {
       const geoIds = this.geoState?.geoids;
       this.options = [];
+      // If there is parcel data, just show parcel view.
+      if (geoIds?.address?.id) {
+        this.options.push(ZoomLevel.parcel);
+        return;
+      }
       if (geoIds?.pwsId?.id) {
         this.options.push(ZoomLevel.waterSystem);
       }

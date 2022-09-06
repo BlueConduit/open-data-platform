@@ -141,7 +141,7 @@ export default defineComponent({
       // If there's an address to zoom to, choose that. Otherwise, default to water system if it's
       // available. When there are no bounding boxes available, go to zipcode.
       if (addressBoundingBox != null) {
-        dispatch(setZoomLevel(ZoomLevel.address));
+        dispatch(setZoomLevel(ZoomLevel.parcel));
       } else if (waterSystemBoundingBox != null) {
         dispatch(setZoomLevel(ZoomLevel.waterSystem));
       } else if (zipCodeBoundingBox) {
@@ -186,7 +186,7 @@ export default defineComponent({
       if (!center) return;
 
       switch (level) {
-        case ZoomLevel.address: {
+        case ZoomLevel.parcel: {
           this.zoomToLngLat(center, PARCEL_ZOOM_LEVEL);
           break;
         }

@@ -60,8 +60,9 @@ export class ScorecardMessages {
     `While it’s impossible to be certain without digging into the ground, your location is 
     ${prediction} to be affected`;
 
-  static ZIPCODE_DESCRIPTION = (leadLikelihood: string | null) => leadLikelihood == null ?
-    'There isn’t sufficient data available about this zip code to confidently give a status.' :
-    `Homes in this zip code have a ${leadLikelihood.toLowerCase()} of lead service lines. Individual
-     homes may or may not have lead pipes present.`;
+  static PREDICTION_DESCRIPTION = (leadLikelihood: string | null, area: string) =>
+    leadLikelihood == null ?
+      'There isn’t sufficient data available about this zip code to confidently give a status.' :
+      `Homes in this ${area} have a ${leadLikelihood.toLowerCase()} of lead service lines. 
+      Individual homes may or may not have lead pipes present.`;
 }

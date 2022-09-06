@@ -81,8 +81,11 @@ export default defineComponent({
     setOptions() {
       const geoIds = this.geoState?.geoids;
       this.options = [];
+
+      // If there is parcel data, just show parcel view.
       if (geoIds?.address?.id) {
-        this.options.push(ZoomLevel.address);
+        this.options.push(ZoomLevel.parcel);
+        return;
       }
       if (geoIds?.pwsId?.id) {
         this.options.push(ZoomLevel.waterSystem);

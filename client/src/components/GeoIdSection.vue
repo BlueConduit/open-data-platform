@@ -1,10 +1,10 @@
 <template>
   <div class='selected' v-if='selected'>
-    <div class='h1-header'>{{ this.geoId }}</div>
+    <div class='h2-header-large'>{{ this.geoId }}</div>
     <div class='h2-header description'>{{ this.geoIdInfo }}</div>
   </div>
   <div class='unselected' v-else>
-    <div class='h1-header'>{{ this.geoId }}</div>
+    <div class='h2-header-large'>{{ this.geoId }}</div>
     <div class='h2-header description'>{{ this.geoIdInfo }}</div>
   </div>
 </template>

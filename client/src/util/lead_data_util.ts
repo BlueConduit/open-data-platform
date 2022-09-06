@@ -29,11 +29,9 @@ export class LeadDataUtil {
    * as a phrase.
    * @param prediction percent lead prediction
    */
-  static formatPredictionAsLikelihood(prediction: number | null): string | null {
+  static formatPredictionAsLikelihood(prediction: number | null | undefined): string | null {
     if (!prediction) return null;
-
-    console.log('RETURNING PREDICTION');
-
+    
     switch (true) {
       case prediction <= LeadDataUtil.LOW_LEAD_LIKELIHOOD:
         return ScorecardMessages.LOW_LIKELIHOOD;
