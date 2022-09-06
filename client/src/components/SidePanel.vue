@@ -24,6 +24,9 @@ import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { LeadDataUtil } from '../util/lead_data_util';
 import { LeadDataState } from '../model/states/lead_data_state';
 
+/**
+ * Side panel containing extra contexts for Geo IDs in the scorecard view.
+ */
 export default defineComponent({
   name: 'SidePanel',
   components: { GeoIdSection },
@@ -45,6 +48,9 @@ export default defineComponent({
     };
   },
   methods: {
+    /**
+     * Returns the geo ID value corresponding to the given zoom level.
+     */
     getGeoIdForZoomLevel(level: ZoomLevel): string | undefined {
       const geoIds: GeoData | undefined = this.geoState?.geoids;
       if (GeoDataUtil.isNullOrEmpty(geoIds)) return;
@@ -61,6 +67,9 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Returns the geo ID description corresponding to the given zoom level.
+     */
     getGeoIdInfoForZoomLevel(level: ZoomLevel): string | undefined {
       switch (level) {
         case ZoomLevel.parcel:
@@ -112,14 +121,16 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 
 .side-panel {
   @include container-column;
   display: flex;
   flex-direction: column;
-  padding: 40px 48px;
+  padding: $spacing-lg $spacing-xl;
   justify-content: space-between;
-  row-gap: 24px;
+  row-gap: $spacing-lg;
 }
 
 </style>

@@ -12,6 +12,9 @@
 <script lang='ts'>
 import { defineComponent } from 'vue';
 
+/**
+ * A single Geo ID section of the side panel.
+ */
 export default defineComponent({
   name: 'GeoIdSection',
   props: {
@@ -33,6 +36,7 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .description {
   color: $warm-grey-600;
@@ -40,11 +44,11 @@ export default defineComponent({
 }
 
 .selected, .unselected {
-  width: 230px;
-  height: 222px;
+  width: 57 * $spacing-xs;
+  height: fit-content;
   border: 1px solid $gold;
-  border-radius: 4px;
-  padding: 20px;
+  border-radius: $spacing-xs;
+  padding: $spacing-lg;
 }
 
 .selected {

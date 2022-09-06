@@ -53,9 +53,6 @@ import { Status } from '../model/states/status_state';
 import { GeoDataUtil } from '../util/geo_data_util';
 import { LeadDataUtil } from '../util/lead_data_util';
 
-const LOW_LEAD_LIKELIHOOD = 0.33;
-const MEDIUM_LEAD_LIKELIHOOD = 0.66;
-
 /**
  * Container lead prediction.
  */
@@ -149,11 +146,11 @@ export default defineComponent({
         return null;
       }
       switch (true) {
-        case prediction <= LOW_LEAD_LIKELIHOOD:
+        case prediction <= LeadDataUtil.LOW_LEAD_LIKELIHOOD:
           return ScorecardMessages.NOT_LIKELY;
-        case prediction < MEDIUM_LEAD_LIKELIHOOD:
+        case prediction < LeadDataUtil.MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.SOMEWHAT_LIKELY;
-        case prediction >= MEDIUM_LEAD_LIKELIHOOD:
+        case prediction >= LeadDataUtil.MEDIUM_LEAD_LIKELIHOOD:
           return ScorecardMessages.HIGHLY_LIKELY;
         default:
           return null;

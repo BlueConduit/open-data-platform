@@ -132,10 +132,6 @@ export default defineComponent({
   flex-direction: row;
 }
 
-//.map-container {
-//  position: relative;
-//}
-
 .search {
   margin-right: $spacing-md;
   max-width: 350px;
@@ -147,8 +143,4 @@ export default defineComponent({
 .side-panel {
   float: left;
 }
-
-//.nationwide-map {
-//  float: right;
-//}
 </style>

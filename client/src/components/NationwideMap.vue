@@ -496,10 +496,6 @@ export default defineComponent({
   height: var(--height);
 }
 
-/*.container {*/
-/*  position: relative;*/
-/*}*/
-
 /** Override Mapbox Popup styles. */
 
 .mapboxgl-popup-content {
