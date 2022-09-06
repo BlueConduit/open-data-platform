@@ -1,6 +1,6 @@
 <template>
-  <div class='section is-large'>
-    <div class='columns is-centered has-text-centered'>
+  <div class='section is-large is-centered has-text-centered'>
+    <div class='columns'>
       <div class='column is-two-thirds'>
         <div class='header-section'>
           <div class='h1-header-xl'>{{ messages.SEARCH_SECTION_HEADER }}</div>
