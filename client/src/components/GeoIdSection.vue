@@ -1,11 +1,11 @@
 <template>
   <div class='selected' v-if='selected'>
-    <div class='h2-header'>{{ this.geoId }}</div>
-    <div class='body'>{{ this.geoIdInfo }}</div>
+    <div class='h1-header'>{{ this.geoId }}</div>
+    <div class='h2-header description'>{{ this.geoIdInfo }}</div>
   </div>
   <div class='unselected' v-else>
-    <div class='h2-header'>{{ this.geoId }}</div>
-    <div class='body'>{{ this.geoIdInfo }}</div>
+    <div class='h1-header'>{{ this.geoId }}</div>
+    <div class='h2-header description'>{{ this.geoIdInfo }}</div>
   </div>
 </template>
 
@@ -34,11 +34,17 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 
+.description {
+  color: $warm-grey-600;
+  margin-top: 16px;
+}
+
 .selected, .unselected {
   width: 230px;
   height: 222px;
   border: 1px solid $gold;
   border-radius: 4px;
+  padding: 20px;
 }
 
 .selected {

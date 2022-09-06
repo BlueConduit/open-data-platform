@@ -1,23 +1,25 @@
 <template>
-  <span class='side-panel'>
+  <span class='side-panel' v-if='options.length > 0'>
     <geo-id-section
       v-for='option in options'
       :key='option'
       :geoId='getGeoIdForZoomLevel(option)'
       :geoIdInfo='getGeoIdInfoForZoomLevel(option)'
-      :selected='getSelected(option)' />
+      :selected='getSelected(option)'
+      @click='setSelected(option)' />
   </span>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import GeoIdSection from './GeoIdSection.vue';
-import { useSelector } from '../model/store';
+import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
 import { ZoomLevel } from '../model/states/model/map_data';
 import { GeoDataUtil } from '../util/geo_data_util';
 import { GeoData } from '../model/states/model/geo_data';
+import { setZoomLevel } from '../model/slices/map_data_slice';
 
 export default defineComponent({
   name: 'SidePanel',
@@ -54,8 +56,18 @@ export default defineComponent({
       }
     },
 
-    getGeoIdInfoForZoomLevel() {
+    getGeoIdInfoForZoomLevel(level: ZoomLevel): string | undefined {
+      const waterSystemDescription = 'This is the Water system which owns the service lines that provide water to this area.';
+      const zipDescription = 'Homes in this zip code has a high likelihoood of  lead service lines. Individual homes may or may not have lead pipes present.';
       // TODO make constants file with blurbs and index here.
+      switch (level) {
+        case ZoomLevel.waterSystem:
+          return waterSystemDescription;
+        case ZoomLevel.zipCode:
+          return zipDescription;
+        default:
+          return '';
+      }
     },
 
     /**
@@ -66,6 +78,16 @@ export default defineComponent({
     getSelected(option: ZoomLevel): boolean {
       return option === this.selectedOption;
     },
+
+    /**
+     * Updates the selected option to {@code option} from a click on an option button.
+     *
+     * @param option
+     */
+    setSelected(option: ZoomLevel): void {
+      dispatch(setZoomLevel(option));
+    },
+
     /**
      * Sets zoom level options based on the present geo IDs.
      */

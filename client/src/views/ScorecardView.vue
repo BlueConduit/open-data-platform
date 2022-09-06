@@ -3,10 +3,8 @@
     <PredictionPanel />
     <div class='map-container'>
       <ScorecardMapSearchBar />
-      <!--      <div class='map'>-->
       <SidePanel class='side-panel' />
       <NationwideMap class='nationwide-map' height='60vh' :scorecard='true' />
-      <!--      </div>-->
     </div>
     <div class='container-column center-container actions-to-take'
          v-if='showResultSections'>
