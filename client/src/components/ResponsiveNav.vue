@@ -60,25 +60,6 @@ export default defineComponent({
 @import 'bulma/sass/utilities/extends.sass';
 @import 'bulma/sass/components/navbar.sass';
 
-.navbar {
-  // background-color: $white_background;
-  box-shadow: $card-shadow-hovered;
-  // display: flex;
-  // height: $spacing-xl;
-  // padding-left: $spacing-xl;
-  // padding-right: $spacing-xl;
-}
-
-.right-align {
-  flex-grow: 1;
-  justify-content: flex-end;
-}
-
-.container div {
-  display: flex;
-  align-items: center;
-}
-
 .logo {
   height: $spacing-lg;
 }
