@@ -20,6 +20,9 @@ import { ZoomLevel } from '../model/states/model/map_data';
 import { GeoDataUtil } from '../util/geo_data_util';
 import { GeoData } from '../model/states/model/geo_data';
 import { setZoomLevel } from '../model/slices/map_data_slice';
+import { ScorecardMessages } from '../assets/messages/scorecard_messages';
+import { LeadDataUtil } from '../util/lead_data_util';
+import { LeadDataState } from '../model/states/lead_data_state';
 
 export default defineComponent({
   name: 'SidePanel',
@@ -27,9 +30,10 @@ export default defineComponent({
   setup() {
     const geoState = useSelector((state) => state.geos) as GeoDataState;
     const mapState = useSelector((state) => state.mapData) as MapDataState;
-
+    const leadState = useSelector((state) => state.leadData) as LeadDataState;
     return {
       geoState,
+      leadState,
       mapState,
     };
   },
@@ -57,14 +61,13 @@ export default defineComponent({
     },
 
     getGeoIdInfoForZoomLevel(level: ZoomLevel): string | undefined {
-      const waterSystemDescription = 'This is the Water system which owns the service lines that provide water to this area.';
-      const zipDescription = 'Homes in this zip code has a high likelihoood of  lead service lines. Individual homes may or may not have lead pipes present.';
-      // TODO make constants file with blurbs and index here.
       switch (level) {
         case ZoomLevel.waterSystem:
-          return waterSystemDescription;
+          return ScorecardMessages.WATER_SYSTEM_DESCRIPTION;
         case ZoomLevel.zipCode:
-          return zipDescription;
+          return ScorecardMessages.ZIPCODE_DESCRIPTION(
+            LeadDataUtil.formatPredictionAsLikelihood(
+              LeadDataUtil.waterSystemsPercentLead(this.leadState?.data)));
         default:
           return '';
       }

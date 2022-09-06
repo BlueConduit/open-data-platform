@@ -50,8 +50,8 @@ import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
 import { Status } from '../model/states/status_state';
-import { clearDemographicData } from '../model/slices/demographic_data_slice';
 import { GeoDataUtil } from '../util/geo_data_util';
+import { LeadDataUtil } from '../util/lead_data_util';
 
 const LOW_LEAD_LIKELIHOOD = 0.33;
 const MEDIUM_LEAD_LIKELIHOOD = 0.66;
@@ -70,6 +70,7 @@ export default defineComponent({
       geoState: geoState,
       leadState: leadDataState,
       showError: geoState?.status?.status == Status.error,
+      formatPredictionAsLikelihood: LeadDataUtil.formatPredictionAsLikelihood,
     };
   },
   data() {
@@ -81,28 +82,9 @@ export default defineComponent({
     publicLeadPercent(): number | undefined {
       return this.leadState?.data?.publicLeadLowPrediction;
     },
-    // Predicted lead likelihood for parcel's public lines.
-    publicLeadLikelihood(): string | null {
-      // Note that low prediction is the same as high prediction in the DB
-      // right now bc we don't yet have intervals
-      return this.formatPercentage(this.publicLeadPercent);
-    },
-    // Predicted lead likelihood for parcel's private lines.
-    privateLeadLikelihood(): string | null {
-      // Note that low prediction is the same as high prediction in the DB
-      // right now bc we don't yet have intervals
-      return this.formatPercentage(this.leadState?.data?.privateLeadLowPrediction);
-    },
     // Predicted estimate of lead for water systems.
     percentLead(): number | null {
-      const leadServiceLines = this.leadState?.data?.leadServiceLines;
-      const serviceLines = this.leadState?.data?.serviceLines;
-
-      // Protect against dividing by 0.
-      if (leadServiceLines != null && serviceLines != null && serviceLines != 0) {
-        return leadServiceLines / serviceLines;
-      }
-      return null;
+      return LeadDataUtil.waterSystemsPercentLead(this.leadState?.data);
     },
     pwsId(): BoundedGeoDatum | null {
       return this.geoState?.geoids?.pwsId ?? null;
@@ -113,7 +95,7 @@ export default defineComponent({
       return GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
     },
     showParcelPrediction(): boolean {
-      return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadLikelihood != null;
+      return this.geoState?.geoids?.geoType == GeoType.address && this.publicLeadPercent != null;
     },
     showWaterSystemPrediction(): boolean {
       return (
@@ -156,32 +138,6 @@ export default defineComponent({
     },
   },
   methods: {
-    formatPercentage(prediction: number | undefined): string | null {
-      if (prediction == null) {
-        return null;
-      }
-      return Math.round(prediction * 100).toString();
-    },
-    /**
-     * Takes in a prediction and produces a phrase to describe the likelihood
-     * as a phrase.
-     * @param prediction percent lead prediction
-     */
-    formatPredictionAsLikelihood(prediction: number | undefined): string | null {
-      if (prediction == null) {
-        return null;
-      }
-      switch (true) {
-        case prediction <= LOW_LEAD_LIKELIHOOD:
-          return ScorecardMessages.LOW_LIKELIHOOD;
-        case prediction < MEDIUM_LEAD_LIKELIHOOD:
-          return ScorecardMessages.MEDIUM_LIKELIHOOD;
-        case prediction >= MEDIUM_LEAD_LIKELIHOOD:
-          return ScorecardMessages.HIGH_LIKELIHOOD;
-        default:
-          return null;
-      }
-    },
     /**
      * Takes in a prediction and produces a phrase to describe the likelihood
      * as an adverb.
