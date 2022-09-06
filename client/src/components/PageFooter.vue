@@ -1,14 +1,16 @@
 <template>
-  <div class='page-footer'>
-    <div class='left-align'>
-      <div v-for='route in routes' :key='route[0]'>
-        <router-link :to='route[1]'>{{ route[0] }}</router-link>
+  <div class='footer page-footer'>
+    <div class='columns'>
+      <div class='column is-three-quarters px-6'>
+        <div v-for='route in routes' :key='route[0]'>
+          <router-link :to='route[1]'>{{ route[0] }}</router-link>
+        </div>
       </div>
-    </div>
-    <div class='right-align'>
-      <a class='logo' href='https://blueconduit.com/'>
-        <img src='../assets/bc-logo.png' class='logo' />
-      </a>
+      <div class='column bottom-align'>
+        <a class='image is-3by1' href='https://blueconduit.com/'>
+          <img src='../assets/bc-logo.png' />
+        </a>
+      </div>
     </div>
   </div>
 </template>
@@ -38,24 +40,18 @@ export default defineComponent({
 
 <style scoped lang="scss">
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'bulma/sass/layout/footer.sass';
+@import 'bulma/sass/grid/columns.sass';
+@import 'bulma/sass/helpers/spacing.sass';
+@import 'bulma/sass/elements/image.sass';
+@import 'bulma/sass/utilities/_all.sass';
 
 .page-footer {
   background-color: $secondary01;
-  display: flex;
-  width: 100%;
 }
 
-.left-align {
-  padding: $spacing-xl;
-  flex-grow: 1;
-}
-
-.right-align {
-  padding: $spacing-lg;
-  flex-grow: 1;
-  justify-content: flex-end;
-  text-align: right;
-  bottom: 0;
+.bottom-align {
+  margin-top: auto;
 }
 
 .logo {

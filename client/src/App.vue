@@ -1,17 +1,15 @@
 <template>
   <div class='main'>
-    <NavigationBar />
+    <ResponsiveNav />
     <router-view />
     <PageFooter />
   </div>
 </template>
 
-<script lang='ts'>
-
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { RouteLocation } from 'vue-router';
 import '@blueconduit/copper/css/copper.css';
-import NavigationBar from './components/NavigationBar.vue';
 import { clearGeoIds, queryLatLong } from './model/slices/geo_data_slice';
 import { dispatch, useSelector } from './model/store';
 import { GEOTYPE_PARAM, LAT_LONG_PARAM, LAYER_PARAM } from './router';
@@ -22,10 +20,9 @@ import { MapDataState } from './model/states/map_data_state';
 import { MapLayer } from './model/data_layer';
 import { clearLeadData } from './model/slices/lead_data_slice';
 import { clearDemographicData } from './model/slices/demographic_data_slice';
-
+import ResponsiveNav from './components/ResponsiveNav.vue';
 
 const DEFAULT_TITLE = 'LeadOut';
-
 
 /**
  * This file contains the component(s) that are visible in every view.
@@ -33,8 +30,8 @@ const DEFAULT_TITLE = 'LeadOut';
 export default defineComponent({
   name: 'App',
   components: {
-    NavigationBar,
     PageFooter,
+    ResponsiveNav,
   },
   setup() {
     const mapState = useSelector((state) => state.mapData) as MapDataState;
@@ -64,9 +61,7 @@ export default defineComponent({
 
       // Check whether router has a param with the layer to show on the map.
       // Otherwise, default to water systems.
-      const currentDataLayerId = this.mapState?.mapData?.dataLayers?.find(
-        (l) => layerId == l,
-      );
+      const currentDataLayerId = this.mapState?.mapData?.dataLayers?.find((l: any) => layerId == l);
       dispatch(setCurrentDataLayer(currentDataLayerId ?? MapLayer.LeadServiceLineByWaterSystem));
 
       // TODO: consider adding a string that says this is a non-prod environment, so devs can see
@@ -84,6 +79,5 @@ body,
 #app,
 .main {
   height: 100%;
-  min-width: 1105px;
 }
 </style>
