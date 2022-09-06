@@ -28,6 +28,7 @@ import { MapDataState } from '../model/states/map_data_state';
 import { ZoomLevel } from '../model/states/model/map_data';
 import { setZoomLevel } from '../model/slices/map_data_slice';
 import { GeoType } from '../model/states/model/geo_data';
+import { GeoDataUtil } from '../util/geo_data_util';
 
 /**
  * The zoom and search bar for the scorecard map.
@@ -74,33 +75,13 @@ export default defineComponent({
     setSelected(option: ZoomLevel): void {
       dispatch(setZoomLevel(option));
     },
-
-    /**
-     * Sets zoom level options based on the present geo IDs.
-     */
-    setOptions() {
-      const geoIds = this.geoState?.geoids;
-      this.options = [];
-
-      // If there is parcel data, just show parcel view.
-      if (geoIds?.address?.id) {
-        this.options.push(ZoomLevel.parcel);
-        return;
-      }
-      if (geoIds?.pwsId?.id) {
-        this.options.push(ZoomLevel.waterSystem);
-      }
-      if (geoIds?.zipCode?.id) {
-        this.options.push(ZoomLevel.zipCode);
-      }
-    },
   },
   watch: {
     'mapState.mapData.zoomLevel': function() {
       this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
     },
     'geoState.geoids': function() {
-      this.setOptions();
+      this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
     },
   },
 });
