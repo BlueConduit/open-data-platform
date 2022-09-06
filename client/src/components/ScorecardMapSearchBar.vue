@@ -1,5 +1,6 @@
 <template>
   <div class='searchbar-container'>
+    <p v-if='options.length > 0'>View by:</p>
     <div class='zoom-options'>
       <search-bar-option
         v-for='option in options'
@@ -8,6 +9,7 @@
         :selected='getSelected(option)'
         @click='setSelected(option)' />
     </div>
+    <!--    TODO add more descriptive placeholder.-->
     <map-geocoder-wrapper
       :acceptedTypes='acceptedTypes'
       :baseUrl='SCORECARD_BASE'

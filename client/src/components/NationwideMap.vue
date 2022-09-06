@@ -173,7 +173,8 @@ export default defineComponent({
       const sw = new mapboxgl.LngLat(bounds.minLon, bounds.minLat);
       const ne = new mapboxgl.LngLat(bounds.maxLon, bounds.maxLat);
 
-      this.map?.fitBounds(new LngLatBounds(sw, ne));
+      // Do not animate on fitBounds on the scorecard page.
+      this.map?.fitBounds(new LngLatBounds(sw, ne), { animate: !this.scorecard });
     },
 
     /**

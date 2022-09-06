@@ -79,7 +79,7 @@ export const setZoom = (zoom: number) => {
  * Change the zoom to either an address, water system, or zip code level.
  */
 export const setZoomLevel = (level: ZoomLevel) => {
-  return async (dispatch: AppDispatch) => {
+  return (dispatch: AppDispatch) => {
     dispatch(
       setMapDataSuccess({
         zoomLevel: level,
