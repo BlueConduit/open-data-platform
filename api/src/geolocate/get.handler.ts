@@ -12,12 +12,16 @@ const SCHEMA = 'public';
  * @param params: with lat and long coordinates sued to query tables.
  * @param geoid: identifier to retrieve for a table.
  * @param table: db table to query.
+ * @param orderByField: field to sort results by.
+ * @param orderByAsc: whether to sort results in ascending order.
  */
 async function getGeoDataForLatLong(
   rdsService: RDSDataService,
   params: SqlParametersList,
   geoid: string,
   table: string,
+  orderByField?: string,
+  orderByAsc: boolean = true,
 ): Promise<BoundedGeoDatum | undefined> {
   // TODO(breuch): Consider updating this to all geoids when we support
   // county, states, etc.
@@ -45,7 +49,7 @@ async function getGeoDataForLatLong(
             SELECT ${geoid} AS id, geom AS geom
             FROM ${table}
             WHERE ST_Contains(geom, ST_SetSRID(ST_Point(:long, :lat), 4326))
-            ORDER BY id ASC
+            ORDER BY ${orderByField == null ? 'id' : orderByField} ${orderByAsc ? 'ASC' : 'DESC'}
             LIMIT 1
             )
         SELECT STRING_AGG(id, '|') AS id,
@@ -116,7 +120,14 @@ export const handler = async (event: {
       getGeoDataForLatLong(db, params, 'address', 'parcels').then(
         (address) => (body.address = address),
       ),
-      getGeoDataForLatLong(db, params, 'pws_id', 'water_systems').then(
+      getGeoDataForLatLong(
+          db,
+          params,
+          'pws_id',
+          'water_systems',
+          'lead_connections_count',
+          /* orderByAsc= */false)
+        .then(
         (pws_id) => (body.water_system_pws_id = pws_id),
       ),
       getGeoDataForLatLong(db, params, 'zipcode', 'zipcodes').then(
