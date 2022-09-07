@@ -125,7 +125,7 @@ export const handler = async (event: {
           params,
           'pws_id',
           'water_systems',
-          'lead_connections_count',
+          'service_connections_count',
           /* orderByAsc= */false)
         .then(
         (pws_id) => (body.water_system_pws_id = pws_id),

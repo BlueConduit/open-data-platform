@@ -7,6 +7,7 @@ export interface LeadData {
   address?: string;
   city?: City;
   pwsId?: string;
+  pwsName?: string;
   leadServiceLines?: number;
   serviceLines?: number;
   publicLeadLowPrediction?: number;

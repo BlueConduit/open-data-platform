@@ -52,15 +52,18 @@ export default defineComponent({
      * Returns the geo ID value corresponding to the given zoom level.
      */
     getGeoIdForZoomLevel(level: ZoomLevel): string | undefined {
+      const waterSystemName: string | undefined = this.leadState?.data?.pwsName?.toLowerCase();
       const geoIds: GeoData | undefined = this.geoState?.geoids;
       if (GeoDataUtil.isNullOrEmpty(geoIds)) return;
 
       switch (level) {
         case ZoomLevel.parcel:
           return this.formatAddress(geoIds?.address?.id);
-        // TODO: return water system name instead of ID.
+        // Prefer human-readable water system name but fall back on required water system ID.
         case ZoomLevel.waterSystem:
-          return geoIds?.pwsId?.id;
+          return waterSystemName == null || waterSystemName == ''
+            ? geoIds?.pwsId?.id
+            : waterSystemName;
         case ZoomLevel.zipCode:
           return geoIds?.zipCode?.id;
         default:
