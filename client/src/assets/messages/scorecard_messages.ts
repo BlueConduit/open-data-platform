@@ -52,6 +52,8 @@ export class ScorecardMessages {
   static SOMEWHAT_LIKELY = 'somewhat likely';
   static TAKE_ACTION_HEADER = 'Take action';
   static WANT_TO_KNOW_MORE = 'Want to know more?';
+  static WATER_SYSTEM_DESCRIPTION =
+    'This is the water system which owns the service lines that ' + 'provide water to this area.';
 
   static SCORECARD_SUMMARY_PANEL_HEADER = (zipCode?: string) =>
     zipCode != null ? `Understanding your score for ${zipCode}` : 'Understanding your score';
@@ -59,4 +61,10 @@ export class ScorecardMessages {
   static PREDICTION_EXPLANATION = (prediction: string) =>
     `While it’s impossible to be certain without digging into the ground, your location is 
     ${prediction} to be affected`;
+
+  static PREDICTION_DESCRIPTION = (leadLikelihood: string | null, area: string) =>
+    leadLikelihood == null
+      ? 'There isn’t sufficient data available about this zip code to confidently give a status.'
+      : `Homes in this ${area} have a ${leadLikelihood.toLowerCase()} of lead service lines. 
+      Individual homes may or may not have lead pipes present.`;
 }

@@ -3,7 +3,8 @@
     <PredictionPanel />
     <div class='map-container'>
       <ScorecardMapSearchBar />
-      <NationwideMap height='60vh' :scorecard='true' />
+      <SidePanel class='side-panel' />
+      <NationwideMap class='nationwide-map' height='60vh' :scorecard='true' />
     </div>
     <div class='section has-text-centered' v-if='showResultSections'>
       <div class='h1-header-large'>
@@ -54,6 +55,7 @@ import { City } from '../model/states/model/geo_data';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { GeoDataUtil } from '../util/geo_data_util';
 import ScorecardMapSearchBar from '../components/ScorecardMapSearchBar.vue';
+import SidePanel from '../components/SidePanel.vue';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -67,6 +69,7 @@ export default defineComponent({
     PredictionPanel,
     ScorecardSummaryPanel,
     ScorecardMapSearchBar,
+    SidePanel,
   },
   setup() {
     const geoState = useSelector((state) => state.geos) as GeoDataState;
@@ -121,15 +124,11 @@ export default defineComponent({
 @import 'bulma/sass/grid/columns.sass';
 @import 'bulma/sass/helpers/typography.sass';
 
-.actions-to-take {
-  padding: $spacing-lg;
-}
-
 .nav-to-map {
   background-color: $light-blue-50;
 }
 
-.map-container {
-  position: relative;
+.side-panel {
+  float: left;
 }
 </style>

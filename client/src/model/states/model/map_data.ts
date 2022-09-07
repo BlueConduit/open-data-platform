@@ -17,7 +17,7 @@ interface MapData {
 }
 
 enum ZoomLevel {
-  address = 'Address',
+  parcel = 'Parcel',
   waterSystem = 'Water system',
   zipCode = 'Zip code',
   unknown = 'Unknown',
