@@ -7,17 +7,19 @@
         :key='option'
         :text-content='option'
         :selected='getSelected(option)'
-        @click='setSelected(option)' />
+        @click='setSelected(option)'
+      />
     </div>
     <!--    TODO add more descriptive placeholder.-->
     <map-geocoder-wrapper
       :acceptedTypes='acceptedTypes'
       :baseUrl='SCORECARD_BASE'
-      v-model:expandSearch='showSearch' />
+      v-model:expandSearch='showSearch'
+    />
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { SCORECARD_BASE } from '../router';
 import SearchBarOption from './SearchBarOption.vue';
@@ -77,17 +79,17 @@ export default defineComponent({
     },
   },
   watch: {
-    'mapState.mapData.zoomLevel': function() {
+    'mapState.mapData.zoomLevel': function () {
       this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
     },
-    'geoState.geoids': function() {
+    'geoState.geoids': function () {
       this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
     },
   },
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 

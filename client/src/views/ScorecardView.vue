@@ -1,11 +1,20 @@
 <template>
   <div>
     <PredictionPanel />
-    <div class='map-container'>
-      <ScorecardMapSearchBar />
-      <SidePanel class='side-panel' />
-      <NationwideMap class='nationwide-map' height='60vh' :scorecard='true' />
+
+    <!-- Only display the side-panel, full-width on mobile. -->
+    <ScorecardMapSearchBar class='is-hidden-mobile' />
+    <div class='columns is-variable is-centered'>
+      <div class='column'>
+        <div class='section'>
+          <SidePanel />
+        </div>
+      </div>
+      <div class='column is-two-thirds is-hidden-mobile'>
+        <NationwideMap height='60vh' :scorecard='true' />
+      </div>
     </div>
+
     <div class='section has-text-centered' v-if='showResultSections'>
       <div class='h1-header-large'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
@@ -27,7 +36,9 @@
         />
       </div>
     </div>
+
     <ScorecardSummaryPanel v-if='showResultSections' />
+
     <ActionSection
       class='nav-to-map section'
       :header='ScorecardMessages.WANT_TO_KNOW_MORE'
@@ -35,6 +46,7 @@
       :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
       @onButtonClick='navigateToMapPage'
     />
+
     <LslrSection v-if='showLslr' :city='leadDataState?.data?.city' />
   </div>
 </template>
@@ -123,12 +135,9 @@ export default defineComponent({
 @import 'bulma/sass/layout/section.sass';
 @import 'bulma/sass/grid/columns.sass';
 @import 'bulma/sass/helpers/typography.sass';
+@import 'bulma/sass/helpers/visibility.sass';
 
 .nav-to-map {
   background-color: $light-blue-50;
-}
-
-.side-panel {
-  float: left;
 }
 </style>
