@@ -6,6 +6,7 @@
     <div class='container explain-text' v-if='subheader != null'>
       {{ subheader }}
     </div>
+    <!-- TODO: Align the buttons across all columns. -->
     <button class='gold-button' v-if='buttonText != null' v-on:click='onButtonClick'>
       {{ buttonText }}
     </button>

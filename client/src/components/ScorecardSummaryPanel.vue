@@ -1,36 +1,39 @@
 <template>
-  <div class='center-container'>
-    <div class='container-column center-container'>
+  <div class='section is-medium'>
+    <div class='container'>
       <div class='h1-header-large'>
-        <div> {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER(
-          zipCode) }}
-        </div>
+        <div>{{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER(zipCode) }}</div>
       </div>
       <div class='subheader'>
         {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}
       </div>
       <div class='container-column center-container'>
-        <ScorecardSummaryRow :header='ScorecardSummaryMessages.HOME_AGE'
-                             :subheader='ScorecardSummaryMessages.HOME_AGE_EXPLAINED'
-                             :comparisonValue='homeAgeComparison'
-                             image='home_age.png' />
+        <ScorecardSummaryRow
+          :header='ScorecardSummaryMessages.HOME_AGE'
+          :subheader='ScorecardSummaryMessages.HOME_AGE_EXPLAINED'
+          :comparisonValue='homeAgeComparison'
+          image='home_age.png'
+        />
         <ScorecardSummaryRow
           :header='ScorecardSummaryMessages.AREA_DEPRIVATION_INDEX'
           :subheader='ScorecardSummaryMessages.AREA_DEPRIVATION_INDEX_EXPLAINED'
           :imageFloatDirection='ImageFloatDirection.right'
           :comparisonValue='areaDeprivationIndexComparison'
           learnMoreLink='https://www.neighborhoodatlas.medicine.wisc.edu/'
-          image='vulnerability.png' />
-        <ScorecardSummaryRow :header='ScorecardSummaryMessages.INCOME_LEVEL'
-                             :subheader='ScorecardSummaryMessages.INCOME_LEVEL_EXPLAINED'
-                             :comparisonValue='incomeComparison'
-                             image='income.png' />
+          image='vulnerability.png'
+        />
+        <ScorecardSummaryRow
+          :header='ScorecardSummaryMessages.INCOME_LEVEL'
+          :subheader='ScorecardSummaryMessages.INCOME_LEVEL_EXPLAINED'
+          :comparisonValue='incomeComparison'
+          image='income.png'
+        />
       </div>
     </div>
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import ScorecardSummaryRow, { ImageFloatDirection } from './ScorecardSummaryRow.vue';
@@ -38,7 +41,7 @@ import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { DemographicDataState } from '../model/states/demographic_data_state';
 import { GeographicLevel } from '../model/data_layer';
-import { clearDemographicData, getDemographicData } from '../model/slices/demographic_data_slice';
+import { getDemographicData } from '../model/slices/demographic_data_slice';
 
 // Taken from https://www.neighborhoodatlas.medicine.wisc.edu/.
 const LOWEST_DISADVANTAGE = 33;
@@ -46,7 +49,6 @@ const MEDIUM_DISADVANTAGE = 66;
 
 const HIGHEST_INCOME_PERCENTILE = 3;
 const MIDDLE_INCOME_PERCENTILE = 6;
-
 
 /**
  * Prediction explanation.
@@ -96,7 +98,9 @@ export default defineComponent({
       }
     },
     areaDeprivationIndexComparison(): string | null {
-      const adi = this.roundNumber(this.demographicDataState?.data?.averageSocialVulnerabilityIndex);
+      const adi = this.roundNumber(
+        this.demographicDataState?.data?.averageSocialVulnerabilityIndex,
+      );
 
       if (adi == null) {
         return null;
@@ -120,7 +124,7 @@ export default defineComponent({
   watch: {
     // Listen for changes to zip code. Once it changes, new demographic info
     // must be fetched.
-    'geoState.geoids.zipCode': function() {
+    'geoState.geoids.zipCode': function () {
       if (this.geoState?.geoids?.zipCode != null) {
         dispatch(getDemographicData(GeographicLevel.Zipcode, this.geoState.geoids.zipCode.id));
       }
@@ -137,11 +141,13 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'bulma/sass/layout/section.sass';
+@import 'bulma/sass/elements/container.sass';
 
-.center-container {
+.section {
   background-color: $light-blue;
   color: $white;
 }

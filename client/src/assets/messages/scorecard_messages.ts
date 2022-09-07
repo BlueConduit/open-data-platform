@@ -55,7 +55,7 @@ export class ScorecardMessages {
   static WATER_SYSTEM_DESCRIPTION =
     'This is the water system which owns the service lines that ' + 'provide water to this area.';
 
-  static SCORECARD_SUMMARY_PANEL_HEADER = (zipCode?: string) =>
+  static SCORECARD_SUMMARY_PANEL_HEADER = (zipCode: string | null) =>
     zipCode != null ? `Understanding your score for ${zipCode}` : 'Understanding your score';
 
   static PREDICTION_EXPLANATION = (prediction: string) =>
