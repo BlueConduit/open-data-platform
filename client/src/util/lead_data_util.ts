@@ -30,8 +30,8 @@ export class LeadDataUtil {
    * @param prediction percent lead prediction
    */
   static formatPredictionAsLikelihood(prediction: number | null | undefined): string | null {
-    if (!prediction) return null;
-    
+    if (prediction == null) return null;
+
     switch (true) {
       case prediction <= LeadDataUtil.LOW_LEAD_LIKELIHOOD:
         return ScorecardMessages.LOW_LIKELIHOOD;
