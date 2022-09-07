@@ -5,24 +5,26 @@
       <ScorecardMapSearchBar />
       <NationwideMap height='60vh' :scorecard='true' />
     </div>
-    <div class='container-column center-container actions-to-take'
-         v-if='showResultSections'>
+    <div class='section has-text-centered' v-if='showResultSections'>
       <div class='h1-header-large'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
       </div>
-      <ActionSection
-        class='section'
-        :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
-        :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
-        :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-        @onButtonClick='navigateToResourcePage'
-      />
-      <ActionSection
-        class='section'
-        :header='ScorecardMessages.SHARE_LEAD_OUT'
-        :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
-        @onButtonClick='copyToClipboard'
-      />
+      <div class='columns is-centered'>
+        <ActionSection
+          class='column is-one-third'
+          :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
+          :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
+          :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
+          @onButtonClick='navigateToResourcePage'
+        />
+        <ActionSection
+          class='column is-one-third'
+          :header='ScorecardMessages.SHARE_LEAD_OUT'
+          :subheader='ScorecardMessages.SHARE_LEAD_OUT_SUBHEADER'
+          :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
+          @onButtonClick='copyToClipboard'
+        />
+      </div>
     </div>
     <ScorecardSummaryPanel v-if='showResultSections' />
     <ActionSection
@@ -36,7 +38,7 @@
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import PredictionPanel from '../components/PredictionPanel.vue';
 import ActionSection from '../components/ActionSection.vue';
 import { defineComponent } from 'vue';
@@ -45,8 +47,8 @@ import ScorecardSummaryPanel from '../components/ScorecardSummaryPanel.vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
 import NationwideMap from '../components/NationwideMap.vue';
-import LslrSection, { LSLR_CITY_LINKS } from '@/components/LslrSection.vue';
-import { useSelector } from '@/model/store';
+import LslrSection, { LSLR_CITY_LINKS } from '../components/LslrSection.vue';
+import { useSelector } from '../model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { City } from '../model/states/model/geo_data';
 import { GeoDataState } from '../model/states/geo_data_state';
@@ -101,20 +103,23 @@ export default defineComponent({
     },
   },
   watch: {
-    'leadDataState.data.city': function() {
+    'leadDataState.data.city': function () {
       const city = this.leadDataState?.data?.city ?? City.unknown;
       this.showLslr = city != null && LSLR_CITY_LINKS.get(city) != null;
     },
-    'geoState.geoids': function() {
+    'geoState.geoids': function () {
       this.showResultSections = !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
     },
   },
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'bulma/sass/layout/section.sass';
+@import 'bulma/sass/grid/columns.sass';
+@import 'bulma/sass/helpers/typography.sass';
 
 .actions-to-take {
   padding: $spacing-lg;
@@ -126,13 +131,5 @@ export default defineComponent({
 
 .map-container {
   position: relative;
-}
-
-.search {
-  margin-right: $spacing-md;
-  max-width: 350px;
-  position: absolute;
-  top: $spacing-sm;
-  right: 0;
 }
 </style>
