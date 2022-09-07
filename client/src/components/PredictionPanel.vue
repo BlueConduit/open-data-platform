@@ -3,30 +3,10 @@
     <div class='container has-text-centered'>
       <div>
         <div class='h1-header-xl navy'>
-          {{
-            (() => {
-              if (showWaterSystemPrediction) return formatPredictionAsLikelihood(percentLead);
-              if (showParcelPrediction) return formatPredictionAsLikelihood(publicLeadPercent);
-              if (showNoPrediction) return ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE;
-              return ScorecardSummaryMessages.GET_WATER_SCORE;
-            })()
-          }}
+          {{ predictionString }}
         </div>
         <div class='h2-header'>
-          {{
-            (() => {
-              if (showWaterSystemPrediction)
-                return ScorecardSummaryMessages.PREDICTION_EXPLANATION(
-                  formatPredictionAsLikelihoodDescriptor(percentLead),
-                );
-              if (showParcelPrediction)
-                return ScorecardSummaryMessages.PREDICTION_EXPLANATION(
-                  formatPredictionAsLikelihoodDescriptor(publicLeadPercent),
-                );
-              if (showNoPrediction) return ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED;
-              return ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED;
-            })()
-          }}
+          {{ explanationString }}
         </div>
       </div>
       <!--      TODO: show error message when content is finalized and showError is true.-->
@@ -69,8 +49,34 @@ export default defineComponent({
     };
   },
   computed: {
-    publicLeadPercent(): number | undefined {
-      return this.leadState?.data?.publicLeadLowPrediction;
+    predictionString(): string {
+      if (this.showWaterSystemPrediction)
+        return (
+          this.formatPredictionAsLikelihood(this.percentLead) ??
+          this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE
+        );
+      if (this.showParcelPrediction)
+        return (
+          this.formatPredictionAsLikelihood(this.publicLeadPercent) ??
+          this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE
+        );
+      if (this.showNoPrediction) return this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE;
+      return this.ScorecardSummaryMessages.GET_WATER_SCORE;
+    },
+    explanationString(): string {
+      if (this.showWaterSystemPrediction)
+        return this.ScorecardSummaryMessages.PREDICTION_EXPLANATION(
+          this.formatPredictionAsLikelihoodDescriptor(this.percentLead) ?? '',
+        );
+      if (this.showParcelPrediction)
+        return this.ScorecardSummaryMessages.PREDICTION_EXPLANATION(
+          this.formatPredictionAsLikelihoodDescriptor(this.publicLeadPercent) ?? '',
+        );
+      if (this.showNoPrediction) return this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED;
+      return this.ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED;
+    },
+    publicLeadPercent(): number | null {
+      return this.leadState?.data?.publicLeadLowPrediction ?? null;
     },
     // Predicted estimate of lead for water systems.
     percentLead(): number | null {
@@ -132,7 +138,7 @@ export default defineComponent({
      * as an adverb.
      * @param prediction percent lead prediction
      */
-    formatPredictionAsLikelihoodDescriptor(prediction: number | undefined): string | null {
+    formatPredictionAsLikelihoodDescriptor(prediction: number | null): string | null {
       if (prediction == null) {
         return null;
       }
