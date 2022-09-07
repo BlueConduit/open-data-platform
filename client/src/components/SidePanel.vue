@@ -57,7 +57,8 @@ export default defineComponent({
 
       switch (level) {
         case ZoomLevel.parcel:
-          return geoIds?.address?.id;
+          return this.formatAddress(geoIds?.address?.id);
+        // TODO: return water system name instead of ID.
         case ZoomLevel.waterSystem:
           return geoIds?.pwsId?.id;
         case ZoomLevel.zipCode:
@@ -65,6 +66,23 @@ export default defineComponent({
         default:
           return '';
       }
+    },
+
+    /**
+     * Takes address and capitalizes the state USPS code.
+     *
+     * Example:
+     *
+     * 5150 riviera dr, toledo oh 43611 -> 5150 riviera dr, toledo OH 43611.
+     */
+    formatAddress(rawAddress: string | undefined): string | undefined {
+      const city = this.leadState?.data?.city;
+      if (!city || !rawAddress) return rawAddress;
+
+      const address = rawAddress.toLowerCase();
+      const stateUspsIndex = address.lastIndexOf(city) + city.length + 1;
+      const stateAbbreviation = address.substring(stateUspsIndex, stateUspsIndex + 2);
+      return address.replace(stateAbbreviation, stateAbbreviation.toUpperCase());
     },
 
     /**

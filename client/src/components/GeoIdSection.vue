@@ -1,10 +1,6 @@
 <template>
-  <div class='selected' v-if='selected'>
-    <div class='h2-header-large'>{{ this.geoId }}</div>
-    <div class='h2-header description'>{{ this.geoIdInfo }}</div>
-  </div>
-  <div class='unselected' v-else>
-    <div class='h2-header-large'>{{ this.geoId }}</div>
+  <div class='geoid-section' :class='{selected}'>
+    <div class='h2-header-large geoid'>{{ this.geoId }}</div>
     <div class='h2-header description'>{{ this.geoIdInfo }}</div>
   </div>
 </template>
@@ -43,7 +39,11 @@ export default defineComponent({
   margin-top: 16px;
 }
 
-.selected, .unselected {
+.geoid {
+  text-transform: capitalize;
+}
+
+.geoid-section {
   width: 57 * $spacing-xs;
   height: fit-content;
   border: 1px solid $gold;

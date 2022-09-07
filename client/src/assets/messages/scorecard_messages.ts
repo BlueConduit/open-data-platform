@@ -50,7 +50,7 @@ export class ScorecardMessages {
   static SOMEWHAT_LIKELY = 'somewhat likely';
   static TAKE_ACTION_HEADER = 'Take action';
   static WANT_TO_KNOW_MORE = 'Want to know more?';
-  static WATER_SYSTEM_DESCRIPTION = 'This is the Water system which owns the service lines that ' +
+  static WATER_SYSTEM_DESCRIPTION = 'This is the water system which owns the service lines that ' +
     'provide water to this area.';
 
   static SCORECARD_SUMMARY_PANEL_HEADER = (zipCode?: string) =>
