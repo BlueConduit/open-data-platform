@@ -6,5 +6,6 @@ import { StatusState } from '@/model/states/status_state';
  */
 export interface LeadDataState {
   data?: LeadData;
-  status?: StatusState;
+  waterSystemStatus?: StatusState;
+  parcelStatus?: StatusState;
 }

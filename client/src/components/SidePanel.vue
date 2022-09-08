@@ -47,6 +47,10 @@ export default defineComponent({
       ZoomLevel,
     };
   },
+  beforeMount() {
+    this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
+    this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
+  },
   methods: {
     /**
      * Returns the geo ID value corresponding to the given zoom level.

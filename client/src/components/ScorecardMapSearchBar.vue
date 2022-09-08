@@ -57,6 +57,10 @@ export default defineComponent({
       SCORECARD_BASE,
     };
   },
+  beforeMount() {
+    this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
+    this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
+  },
   methods: {
     /**
      * Returns whether {@code option} is the selected option.

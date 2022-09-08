@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <div v-if='!showView'>
+
+  </div>
+  <div v-if='showView'>
     <PredictionPanel />
     <div class='map-container'>
       <ScorecardMapSearchBar />
@@ -46,14 +49,16 @@ import ScorecardSummaryPanel from '../components/ScorecardSummaryPanel.vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
 import NationwideMap from '../components/NationwideMap.vue';
-import LslrSection from '@/components/LslrSection.vue';
-import { useSelector } from '@/model/store';
+import LslrSection, { LSLR_CITY_LINKS } from '@/components/LslrSection.vue';
+import { dispatch, useSelector } from '@/model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { GeoDataState } from '../model/states/geo_data_state';
-import { GeoDataUtil } from '../util/geo_data_util';
 import ScorecardMapSearchBar from '../components/ScorecardMapSearchBar.vue';
 import SidePanel from '../components/SidePanel.vue';
 import { City } from '../model/states/model/geo_data';
+import { Status } from '../model/states/status_state';
+import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
+import { GeoDataUtil } from '../util/geo_data_util';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -84,6 +89,7 @@ export default defineComponent({
       SCORECARD_BASE,
       showResultSections: false,
       Titles,
+      showView: false,
     };
 
   },
@@ -96,6 +102,14 @@ export default defineComponent({
         ?? GeoDataUtil.getCityForLatLong(this.geoState?.geoids?.lat, this.geoState?.geoids?.long);
       return intersectedCity ?? City.unknown;
     },
+  },
+  beforeMount() {
+    if (GeoDataUtil.isNullOrEmpty(this.geoState?.geoids)) {
+      console.log('HERE!!!!: in beforeMount');
+      this.showView = true;
+      this.showResultSections = false;
+      return;
+    }
   },
   methods: {
     async copyToClipboard() {
@@ -112,10 +126,53 @@ export default defineComponent({
         path: '/map',
       });
     },
+    checkLeadDataStatus() {
+      const resultsDoneLoading
+        = this.leadDataState?.waterSystemStatus?.status == Status.success
+        && this.leadDataState?.parcelStatus?.status == Status.success;
+      this.showView = resultsDoneLoading;
+      this.showResultSections
+        = resultsDoneLoading && !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
+    },
+    updateViewWithGeoIds() {
+      this.showView = false;
+
+      // Check if an address was queried and another prediction should be
+      // fetched.
+      if (
+        this.geoState?.geoids?.address != null
+        && this.geoState?.geoids?.lat != null
+        && this.geoState?.geoids?.long != null
+      ) {
+        dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
+      }
+      // Request water system data if PWSID is not null, even for address search.
+      if (this.geoState?.geoids?.pwsId != null) {
+        dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
+      }
+    },
   },
   watch: {
+    // Listen for changes to pws id or lat, long. Once it changes, a new
+    // prediction must be fetched.
     'geoState.geoids': function() {
-      this.showResultSections = !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
+      this.updateViewWithGeoIds();
+    },
+    'leadDataState.data.city': function() {
+      const city = this.leadDataState?.data?.city ?? City.unknown;
+      this.showLslr = city != null && LSLR_CITY_LINKS.get(city) != null;
+    },
+    'leadDataState.waterSystemStatus': function() {
+      this.checkLeadDataStatus();
+    },
+    'leadDataState.parcelStatus': function() {
+      this.checkLeadDataStatus();
+    },
+    'geoState.status': function() {
+      console.log('HERE!!!!: geo state status updating! ' + this.geoState?.status?.status);
+      if (this.geoState?.status?.status == Status.pending) {
+        this.showView = false;
+      }
     },
   },
 });
