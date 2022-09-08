@@ -1,8 +1,12 @@
 <template>
-  <div v-if='!showView'>
-
+  <div class='loading' v-if='!showView'>
+    <loading :active='true'
+             :is-full-page='false' />
   </div>
   <div v-if='showView'>
+    <!--  <div>-->
+    <!--    <loading :active='!showView'-->
+    <!--             :is-full-page='false' />-->
     <PredictionPanel />
     <div class='map-container'>
       <ScorecardMapSearchBar />
@@ -59,6 +63,8 @@ import { City } from '../model/states/model/geo_data';
 import { Status } from '../model/states/status_state';
 import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataUtil } from '../util/geo_data_util';
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -67,6 +73,7 @@ export default defineComponent({
   name: 'ScorecardView',
   components: {
     ActionSection,
+    Loading,
     LslrSection,
     NationwideMap,
     PredictionPanel,
@@ -105,7 +112,6 @@ export default defineComponent({
   },
   beforeMount() {
     if (GeoDataUtil.isNullOrEmpty(this.geoState?.geoids)) {
-      console.log('HERE!!!!: in beforeMount');
       this.showView = true;
       this.showResultSections = false;
       return;
@@ -169,7 +175,6 @@ export default defineComponent({
       this.checkLeadDataStatus();
     },
     'geoState.status': function() {
-      console.log('HERE!!!!: geo state status updating! ' + this.geoState?.status?.status);
       if (this.geoState?.status?.status == Status.pending) {
         this.showView = false;
       }
@@ -183,7 +188,13 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .actions-to-take {
+  width: 100%;
   padding: $spacing-lg;
+}
+
+.loading {
+  position: relative;
+  height: 100%;
 }
 
 .nav-to-map {
