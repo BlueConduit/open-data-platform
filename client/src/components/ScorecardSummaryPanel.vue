@@ -38,7 +38,7 @@ import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { DemographicDataState } from '../model/states/demographic_data_state';
 import { GeographicLevel } from '../model/data_layer';
-import { clearDemographicData, getDemographicData } from '../model/slices/demographic_data_slice';
+import { getDemographicData } from '../model/slices/demographic_data_slice';
 
 // Taken from https://www.neighborhoodatlas.medicine.wisc.edu/.
 const LOWEST_DISADVANTAGE = 33;
@@ -71,6 +71,9 @@ export default defineComponent({
       ScorecardSummaryMessages: ScorecardMessages,
       ImageFloatDirection,
     };
+  },
+  beforeMount() {
+    this.getDemographicDataForZip();
   },
   computed: {
     homeAgeComparison(): string | null {
@@ -121,12 +124,15 @@ export default defineComponent({
     // Listen for changes to zip code. Once it changes, new demographic info
     // must be fetched.
     'geoState.geoids.zipCode': function() {
+      this.getDemographicDataForZip();
+    },
+  },
+  methods: {
+    getDemographicDataForZip() {
       if (this.geoState?.geoids?.zipCode != null) {
         dispatch(getDemographicData(GeographicLevel.Zipcode, this.geoState.geoids.zipCode.id));
       }
     },
-  },
-  methods: {
     roundNumber(number: number | undefined): number | null {
       if (number == null) {
         return null;
