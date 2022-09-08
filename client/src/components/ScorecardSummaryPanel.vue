@@ -74,6 +74,9 @@ export default defineComponent({
       ImageFloatDirection,
     };
   },
+  beforeMount() {
+    this.getDemographicDataForZip();
+  },
   computed: {
     homeAgeComparison(): string | null {
       const homeAge = this.roundNumber(this.demographicDataState?.data?.averageHomeAge);
@@ -125,12 +128,15 @@ export default defineComponent({
     // Listen for changes to zip code. Once it changes, new demographic info
     // must be fetched.
     'geoState.geoids.zipCode': function () {
+      this.getDemographicDataForZip();
+    },
+  },
+  methods: {
+    getDemographicDataForZip() {
       if (this.geoState?.geoids?.zipCode != null) {
         dispatch(getDemographicData(GeographicLevel.Zipcode, this.geoState.geoids.zipCode.id));
       }
     },
-  },
-  methods: {
     roundNumber(number: number | undefined): number | null {
       if (number == null) {
         return null;
