@@ -1,12 +1,9 @@
 <template>
-  <div class='loading' v-if='!showView'>
+  <div class='loading' v-if='!showScorecard'>
     <loading :active='true'
              :is-full-page='false' />
   </div>
-  <div v-if='showView'>
-    <!--  <div>-->
-    <!--    <loading :active='!showView'-->
-    <!--             :is-full-page='false' />-->
+  <div v-if='showScorecard'>
     <PredictionPanel />
     <div class='map-container'>
       <ScorecardMapSearchBar />
@@ -14,7 +11,7 @@
       <NationwideMap class='nationwide-map' height='60vh' :scorecard='true' />
     </div>
     <div class='container-column center-container actions-to-take'
-         v-if='showResultSections'>
+         v-if='showResults'>
       <div class='h1-header-large'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
       </div>
@@ -32,7 +29,7 @@
         @onButtonClick='copyToClipboard'
       />
     </div>
-    <ScorecardSummaryPanel v-if='showResultSections' />
+    <ScorecardSummaryPanel v-if='showResults' />
     <ActionSection
       class='nav-to-map section'
       :header='ScorecardMessages.WANT_TO_KNOW_MORE'
@@ -95,8 +92,8 @@ export default defineComponent({
       ScorecardMessages,
       SCORECARD_BASE,
       showResultSections: false,
+      showLslr: false,
       Titles,
-      showView: false,
     };
 
   },
@@ -110,12 +107,18 @@ export default defineComponent({
       return intersectedCity ?? City.unknown;
     },
   },
-  beforeMount() {
-    if (GeoDataUtil.isNullOrEmpty(this.geoState?.geoids)) {
-      this.showView = true;
-      this.showResultSections = false;
-      return;
-    }
+  computed: {
+    leadDataLoaded(): boolean {
+      return this.leadDataState?.waterSystemStatus?.status == Status.success
+        && this.leadDataState?.parcelStatus?.status == Status.success;
+    },
+    showScorecard(): boolean {
+      return GeoDataUtil.isNullOrEmpty(this.geoState?.geoids) ||
+        (this.geoState?.status?.status != Status.pending && this.leadDataLoaded);
+    },
+    showResults(): boolean {
+      return !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
+    },
   },
   methods: {
     async copyToClipboard() {
@@ -132,17 +135,7 @@ export default defineComponent({
         path: '/map',
       });
     },
-    checkLeadDataStatus() {
-      const resultsDoneLoading
-        = this.leadDataState?.waterSystemStatus?.status == Status.success
-        && this.leadDataState?.parcelStatus?.status == Status.success;
-      this.showView = resultsDoneLoading;
-      this.showResultSections
-        = resultsDoneLoading && !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
-    },
     updateViewWithGeoIds() {
-      this.showView = false;
-
       // Check if an address was queried and another prediction should be
       // fetched.
       if (
@@ -167,17 +160,6 @@ export default defineComponent({
     'leadDataState.data.city': function() {
       const city = this.leadDataState?.data?.city ?? City.unknown;
       this.showLslr = city != null && LSLR_CITY_LINKS.get(city) != null;
-    },
-    'leadDataState.waterSystemStatus': function() {
-      this.checkLeadDataStatus();
-    },
-    'leadDataState.parcelStatus': function() {
-      this.checkLeadDataStatus();
-    },
-    'geoState.status': function() {
-      if (this.geoState?.status?.status == Status.pending) {
-        this.showView = false;
-      }
     },
   },
 });

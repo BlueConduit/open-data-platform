@@ -432,6 +432,9 @@ export default defineComponent({
       this.toggleDataOnZoom();
     },
 
+    /**
+     * Sets bounds, center, and marker on map using the geo state geo IDs.
+     */
     updateMapWithGeoIds(): void {
       // Remove the old marker.
       if (this.marker != null) {
@@ -463,6 +466,7 @@ export default defineComponent({
   },
   mounted() {
     if (this.map == null) this.createMap();
+    // Set initial map values with initial geo IDs.
     this.updateMapWithGeoIds();
   },
   watch: {

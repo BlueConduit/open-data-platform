@@ -5,6 +5,7 @@ import { ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsd
 import { CORS_HEADERS } from '../util';
 
 const SCHEMA = 'public';
+const ID_FIELD = 'id';
 
 /**
  * Returns all geo identifiers that intersect with a lat, long.
@@ -20,7 +21,7 @@ async function getGeoDataForLatLong(
   params: SqlParametersList,
   geoid: string,
   table: string,
-  orderByField?: string,
+  orderByField: string = ID_FIELD,
   orderByAsc: boolean = true,
 ): Promise<BoundedGeoDatum | undefined> {
   // TODO(breuch): Consider updating this to all geoids when we support
@@ -49,7 +50,7 @@ async function getGeoDataForLatLong(
             SELECT ${geoid} AS id, geom AS geom
             FROM ${table}
             WHERE ST_Contains(geom, ST_SetSRID(ST_Point(:long, :lat), 4326))
-            ORDER BY ${orderByField == null ? 'id' : orderByField} ${orderByAsc ? 'ASC' : 'DESC'}
+            ORDER BY ${orderByField} ${orderByAsc ? 'ASC' : 'DESC'}
             LIMIT 1
             )
         SELECT STRING_AGG(id, '|') AS id,
@@ -126,7 +127,7 @@ export const handler = async (event: {
           'pws_id',
           'water_systems',
           'service_connections_count',
-          /* orderByAsc= */false)
+          /* orderByAsc= */ false)
         .then(
         (pws_id) => (body.water_system_pws_id = pws_id),
       ),
