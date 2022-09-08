@@ -1,7 +1,9 @@
 <template>
   <div class='loading' v-if='!showScorecard'>
     <loading :active='true'
-             :is-full-page='false' />
+             :is-full-page='false'
+             color='#2553A0'
+             loader='bars' />
   </div>
   <div v-if='showScorecard'>
     <PredictionPanel />

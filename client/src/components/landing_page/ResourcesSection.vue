@@ -1,6 +1,5 @@
 <template>
   <div class='section is-medium has-text-centered'>
-    <!-- <div class='hero-body'> -->
     <div class='container'>
       <div class='columns is-centered'>
         <div class='column header-section'>
