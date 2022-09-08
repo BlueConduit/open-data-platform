@@ -53,7 +53,7 @@ export default defineComponent({
       acceptedTypes: [GeoType.address, GeoType.postcode],
       options: [] as ZoomLevel[],
       selectedOption: null as ZoomLevel | null,
-      showSearch: true,
+      showSearch: false,
       SCORECARD_BASE,
     };
   },
