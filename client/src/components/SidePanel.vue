@@ -1,13 +1,16 @@
 <template>
-  <div class='columns is-centered' v-if='options.length > 0'>
-    <geo-id-section
-      v-for='option in options'
-      :key='option'
-      :geoId='getGeoIdForZoomLevel(option)'
-      :geoIdInfo='getGeoIdInfoForZoomLevel(option)'
-      :selected='getSelected(option)'
-      @click='setSelected(option)'
-    />
+  <!-- Vue wants only one root element and v-for can have many, so wrap in a parent div. -->
+  <div>
+    <div class='columns is-centered' v-for='option in options' :key='option'>
+      <div class='column'>
+        <geo-id-section
+          :geoId='getGeoIdForZoomLevel(option)'
+          :geoIdInfo='getGeoIdInfoForZoomLevel(option)'
+          :selected='getSelected(option)'
+          @click='setSelected(option)'
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -144,4 +147,6 @@ export default defineComponent({
 <style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'bulma/sass/grid/columns.sass';
+@import 'bulma/sass/helpers/spacing.sass';
 </style>
