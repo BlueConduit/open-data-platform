@@ -2,9 +2,8 @@ import { City, GeoData } from '@/model/states/model/geo_data';
 import { ZoomLevel } from '@/model/states/model/map_data';
 import { LngLatBounds, LngLatLike } from 'mapbox-gl';
 
-// Define Toledo geometry bounding box to restrict parcel data layer to Toledo.
-// This is needed because we only have parcel-level predictions for Toledo, so this data layer will
-// be empty outside of these boundaries.
+// Define bounding box geometries for supporting cities. This is used to display lead service line
+// replacement information for cities for which we have information for.
 const NEW_ORLEANS_BOUNDS =
   new LngLatBounds([[-90.60946799999999, 29.699838], [-89.796438, 30.106005999999997]]);
 const RICHMOND_BOUNDS =
