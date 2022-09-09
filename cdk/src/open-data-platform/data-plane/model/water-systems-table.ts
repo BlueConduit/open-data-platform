@@ -11,9 +11,9 @@ class WaterSystemsTableRow {
   // Water system name.
   pws_name: string;
   // Reported estimate of number of lead pipes in the boundary.
-  lead_connections_count: number;
+  lead_connections_count?: number;
   // Reported or estimated total number of connections in the boundary.
-  service_connections_count: number;
+  service_connections_count?: number;
   // Number of people served by the water system.
   population_served: number;
   // GeoJSON representation of the boundaries.
@@ -61,12 +61,12 @@ export class WaterSystemsTableRowBuilder {
     return this;
   }
 
-  leadConnectionsCount(leadConnectionsCount: number): WaterSystemsTableRowBuilder {
+  leadConnectionsCount(leadConnectionsCount?: number): WaterSystemsTableRowBuilder {
     this._row.lead_connections_count = leadConnectionsCount;
     return this;
   }
 
-  serviceConnectionsCount(serviceConnectionsCount: number): WaterSystemsTableRowBuilder {
+  serviceConnectionsCount(serviceConnectionsCount?: number): WaterSystemsTableRowBuilder {
     this._row.service_connections_count = serviceConnectionsCount;
     return this;
   }

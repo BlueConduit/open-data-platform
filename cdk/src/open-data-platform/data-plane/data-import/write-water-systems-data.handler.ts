@@ -1,5 +1,9 @@
 import { RDSDataService } from 'aws-sdk';
-import { BatchExecuteStatementRequest, ExecuteStatementRequest, SqlParametersList } from 'aws-sdk/clients/rdsdataservice';
+import {
+  BatchExecuteStatementRequest,
+  ExecuteStatementRequest,
+  SqlParametersList,
+} from 'aws-sdk/clients/rdsdataservice';
 import { geoJsonHandlerFactory } from './handler-factory';
 import { WaterSystemsTableRowBuilder } from '../model/water-systems-table';
 
@@ -55,13 +59,15 @@ async function insertBatch(
  * See: https://www.postgresql.org/docs/current/sql-cluster.html for detailed info.
  * @param rdsService : RDS service to connect to the db.
  */
-async function clusterRows(rdsService: RDSDataService): Promise<RDSDataService.ExecuteStatementResponse> {
+async function clusterRows(
+  rdsService: RDSDataService,
+): Promise<RDSDataService.ExecuteStatementResponse> {
   const executeClusterCommand: ExecuteStatementRequest = {
     database: process.env.DATABASE_NAME ?? 'postgres',
     resourceArn: process.env.RESOURCE_ARN ?? '',
     schema: SCHEMA,
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
-    sql: `CLUSTER water_systems_geom_idx ON water_systems; `
+    sql: `CLUSTER water_systems_geom_idx ON water_systems; `,
   };
   return rdsService.executeStatement(executeClusterCommand).promise();
 }
@@ -69,8 +75,11 @@ async function clusterRows(rdsService: RDSDataService): Promise<RDSDataService.E
 /**
  * Sometimes these fields are negative because they are based on a regression.
  */
-function getValueOrDefault(field: string): number {
-  return Math.max(parseFloat(field == 'NaN' || field == null ? '0' : field), 0);
+function getValueOrDefault(field: string): number | undefined {
+  if (field == 'NaN' || field == null) {
+    return undefined;
+  }
+  return Math.max(parseFloat(field), 0);
 }
 
 /**
@@ -85,17 +94,15 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
     return null;
   }
 
-  const reportedLeadConnections = getValueOrDefault(properties.lead_connections_count);
-  let leadConnectionsCount;
+  let leadConnectionsCount = getValueOrDefault(properties.lead_connections_count);
 
   // If there is a reported lead count, use that
-  if (reportedLeadConnections > 0) {
-    leadConnectionsCount = reportedLeadConnections;
-    // Otherwise, get estimate from prediction interval.
-  } else {
+  const leadCountIsNotReported = leadConnectionsCount == null || leadConnectionsCount < 0;
+  const lowEstimate = getValueOrDefault(properties.low);
+  const highEstimate = getValueOrDefault(properties.high);
+  if (leadCountIsNotReported && lowEstimate != null && highEstimate != null) {
     // TODO: Switch to storing low, high in db.
-    leadConnectionsCount =
-      (getValueOrDefault(properties.low) + getValueOrDefault(properties.high)) / 2;
+    leadConnectionsCount = (lowEstimate + highEstimate) / 2;
   }
   return (
     new WaterSystemsTableRowBuilder()
@@ -103,7 +110,7 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
       .pwsName(properties.pws_name ?? '')
       .leadConnectionsCount(leadConnectionsCount)
       .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
-      .populationServed(getValueOrDefault(properties.population_served))
+      .populationServed(getValueOrDefault(properties.population_served) ?? 0)
       // Keep JSON formatting. Post-GIS helpers depend on this.
       .geom(JSON.stringify(value.geometry))
       .build()

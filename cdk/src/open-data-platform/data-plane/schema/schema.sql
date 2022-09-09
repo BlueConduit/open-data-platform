@@ -370,13 +370,12 @@ BEGIN
         FROM (
                  SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(z, x, y)) AS geom,
                         census_geo_id,
-                        name,
                         black_population,
                         white_population,
                         total_population,
                         under_five_population,
                         poverty_population
-                 FROM state_demographics
+                 FROM demographics
                  WHERE geom && ST_TileEnvelope(z, x, y)
              ) AS tile
         WHERE geom IS NOT NULL;
