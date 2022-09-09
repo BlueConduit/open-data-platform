@@ -33,7 +33,7 @@
       :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
       @onButtonClick='navigateToMapPage'
     />
-    <LslrSection v-if='showLslr' :city='leadDataState?.data?.city' />
+    <LslrSection v-if='showLslrSection' :city='city' />
   </div>
 </template>
 
@@ -46,14 +46,14 @@ import ScorecardSummaryPanel from '../components/ScorecardSummaryPanel.vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
 import NationwideMap from '../components/NationwideMap.vue';
-import LslrSection, { LSLR_CITY_LINKS } from '@/components/LslrSection.vue';
+import LslrSection from '@/components/LslrSection.vue';
 import { useSelector } from '@/model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
-import { City } from '../model/states/model/geo_data';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { GeoDataUtil } from '../util/geo_data_util';
 import ScorecardMapSearchBar from '../components/ScorecardMapSearchBar.vue';
 import SidePanel from '../components/SidePanel.vue';
+import { City } from '../model/states/model/geo_data';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -82,10 +82,20 @@ export default defineComponent({
     return {
       ScorecardMessages,
       SCORECARD_BASE,
-      showLslr: false,
       showResultSections: false,
       Titles,
     };
+
+  },
+  computed: {
+    showLslrSection(): boolean {
+      return this.city != City.unknown;
+    },
+    city(): City {
+      const intersectedCity = this.leadDataState?.data?.city
+        ?? GeoDataUtil.getCityForLatLong(this.geoState?.geoids?.lat, this.geoState?.geoids?.long);
+      return intersectedCity ?? City.unknown;
+    },
   },
   methods: {
     async copyToClipboard() {
@@ -101,15 +111,6 @@ export default defineComponent({
       router.push({
         path: '/map',
       });
-    },
-  },
-  watch: {
-    'leadDataState.data.city': function() {
-      const city = this.leadDataState?.data?.city ?? City.unknown;
-      this.showLslr = city != null && LSLR_CITY_LINKS.get(city) != null;
-    },
-    'geoState.geoids': function() {
-      this.showResultSections = !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
     },
   },
 });

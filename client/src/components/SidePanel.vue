@@ -76,7 +76,7 @@ export default defineComponent({
      * 5150 riviera dr, toledo oh 43611 -> 5150 riviera dr, toledo OH 43611.
      */
     formatAddress(rawAddress: string | undefined): string | undefined {
-      const city = this.leadState?.data?.city;
+      const city = this.leadState?.data?.city?.toLowerCase();
       if (!city || !rawAddress) return rawAddress;
 
       const address = rawAddress.toLowerCase();
