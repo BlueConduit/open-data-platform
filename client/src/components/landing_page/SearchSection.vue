@@ -1,15 +1,21 @@
 <template>
-  <div class='section'>
-    <div class='header-section'>
-      <div class='h1-header-xl'>{{ messages.SEARCH_SECTION_HEADER }}</div>
-      <div class='h2-header-large'>{{ messages.SEARCH_SECTION_SUBHEADER }}</div>
+  <div class='section is-large is-centered has-text-centered'>
+    <div class='columns'>
+      <div class='column is-two-thirds'>
+        <div class='header-section'>
+          <div class='h1-header-xl'>{{ messages.SEARCH_SECTION_HEADER }}</div>
+          <div class='h2-header-large'>{{ messages.SEARCH_SECTION_SUBHEADER }}</div>
+        </div>
+        <ScorecardSearch
+          :placeholder='messages.GEOLOCATE_PLACEHOLDER_TEXT'
+          :ctaButtonText='messages.CHECK_LEAD_STATUS_BUTTON_TEXT'
+        />
+      </div>
     </div>
-    <ScorecardSearch :placeholder='messages.GEOLOCATE_PLACEHOLDER_TEXT'
-                     :ctaButtonText='messages.CHECK_LEAD_STATUS_BUTTON_TEXT' />
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { LandingPageMessages as messages } from '../../assets/messages/landing';
 import ScorecardSearch from './ScorecardSearch.vue';
@@ -30,17 +36,24 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'bulma/sass/layout/section.sass';
+@import 'bulma/sass/grid/columns.sass';
+@import 'bulma/sass/helpers/typography.sass';
 
 .section {
   color: $white;
-  height: 700px;
 
-  background-image: url('~@/assets/media/landing-image-2.png'), url('~@/assets/media/landing-image-1.png');
+  background-image: url('~@/assets/media/landing-image-2.png'),
+    url('~@/assets/media/landing-image-1.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center, center;
+}
+
+.h2-header-large {
+  margin-bottom: $spacing-lg;
 }
 </style>

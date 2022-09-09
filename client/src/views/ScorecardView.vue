@@ -2,13 +2,12 @@
   <div>
     <PredictionPanel />
     <div class='map-container'>
-      <MapGeocoderWrapper class='search'
-                          :acceptedTypes='acceptedTypes'
-                          :baseUrl='SCORECARD_BASE'
-                          v-model:expandSearch='showSearch' />
-      <NationwideMap height='60vh' :restrictBoundsOnResult='true' />
+      <ScorecardMapSearchBar />
+      <SidePanel class='side-panel' />
+      <NationwideMap class='nationwide-map' height='60vh' :scorecard='true' />
     </div>
-    <div class='container-column center-container actions-to-take'>
+    <div class='container-column center-container actions-to-take'
+         v-if='showResultSections'>
       <div class='h1-header-large'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
       </div>
@@ -26,7 +25,7 @@
         @onButtonClick='copyToClipboard'
       />
     </div>
-    <ScorecardSummaryPanel />
+    <ScorecardSummaryPanel v-if='showResultSections' />
     <ActionSection
       class='nav-to-map section'
       :header='ScorecardMessages.WANT_TO_KNOW_MORE'
@@ -50,8 +49,11 @@ import NationwideMap from '../components/NationwideMap.vue';
 import LslrSection, { LSLR_CITY_LINKS } from '@/components/LslrSection.vue';
 import { useSelector } from '@/model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
-import { City, GeoType } from '../model/states/model/geo_data';
-import MapGeocoderWrapper from '../components/MapGeocoderWrapper.vue';
+import { City } from '../model/states/model/geo_data';
+import { GeoDataState } from '../model/states/geo_data_state';
+import { GeoDataUtil } from '../util/geo_data_util';
+import ScorecardMapSearchBar from '../components/ScorecardMapSearchBar.vue';
+import SidePanel from '../components/SidePanel.vue';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -61,25 +63,27 @@ export default defineComponent({
   components: {
     ActionSection,
     LslrSection,
-    MapGeocoderWrapper,
     NationwideMap,
     PredictionPanel,
     ScorecardSummaryPanel,
+    ScorecardMapSearchBar,
+    SidePanel,
   },
   setup() {
+    const geoState = useSelector((state) => state.geos) as GeoDataState;
     const leadDataState = useSelector((state) => state.leadData) as LeadDataState;
 
     return {
+      geoState,
       leadDataState,
     };
   },
   data() {
     return {
-      acceptedTypes: [GeoType.address, GeoType.postcode],
-      showSearch: true,
       ScorecardMessages,
       SCORECARD_BASE,
       showLslr: false,
+      showResultSections: false,
       Titles,
     };
   },
@@ -104,6 +108,9 @@ export default defineComponent({
       const city = this.leadDataState?.data?.city ?? City.unknown;
       this.showLslr = city != null && LSLR_CITY_LINKS.get(city) != null;
     },
+    'geoState.geoids': function() {
+      this.showResultSections = !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
+    },
   },
 });
 </script>
@@ -120,8 +127,9 @@ export default defineComponent({
   background-color: $light-blue-50;
 }
 
-.map-container {
-  position: relative;
+.map {
+  display: flex;
+  flex-direction: row;
 }
 
 .search {
@@ -132,4 +140,7 @@ export default defineComponent({
   right: 0;
 }
 
+.side-panel {
+  float: left;
+}
 </style>

@@ -1,14 +1,19 @@
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import { ITopic } from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import prefixes from '../../frontend/url-prefixes';
 import { AppPlaneStackProps } from '../app-plane-stack';
 import { ApiMonitoring } from './api-monitoring';
 import { apiLambdaFactory } from './lambda-function-factory';
 
+interface ApiStackProps extends AppPlaneStackProps {
+  ticketSNSTopic?: ITopic;
+}
+
 export class ApiStack extends Construct {
   readonly gateway: apigateway.RestApi;
 
-  constructor(scope: Construct, id: string, props: AppPlaneStackProps) {
+  constructor(scope: Construct, id: string, props: ApiStackProps) {
     super(scope, id);
 
     const { dataPlaneStack, networkStack, ticketSNSTopic } = props;
