@@ -107,7 +107,7 @@ export default defineComponent({
     /**
      * Whether to disable some controls and animations.
      */
-    scorecard: {
+    enableBasicMap: {
       type: Boolean,
       default: false,
     },
@@ -150,7 +150,7 @@ export default defineComponent({
     zoomToLngLat(center: LngLatLike, zoom: number) {
       // TODO: figure out why this sometimes still animates.
 
-      if (this.scorecard) this.map?.jumpTo({
+      if (this.enableBasicMap) this.map?.jumpTo({
         center,
         zoom: PARCEL_ZOOM_LEVEL,
       });
@@ -167,7 +167,7 @@ export default defineComponent({
       const ne = new mapboxgl.LngLat(bounds.maxLon, bounds.maxLat);
 
       // Do not animate on fitBounds on the scorecard page.
-      this.map?.fitBounds(new LngLatBounds(sw, ne), { animate: !this.scorecard });
+      this.map?.fitBounds(new LngLatBounds(sw, ne), { animate: !this.enableBasicMap });
     },
 
     /**
@@ -279,7 +279,7 @@ export default defineComponent({
      * Sets up interaction handlers for map.
      */
     setUpInteractionHandlers(): void {
-      if (this.map == null) return;
+      if (this.map == null || this.enableBasicMap) return;
       for (const layer of this.possibleLayers) {
         // Use MapBox's custom click handler, which takes the style layer that we
         // want to set up a handler for as a parameter.
@@ -325,7 +325,7 @@ export default defineComponent({
       geolocateControl.on('geolocate', (result: any) => {
         const lat = result?.coords?.latitude;
         const long = result?.coords?.longitude;
-        const baseUrl = this.scorecard ? SCORECARD_BASE : MAP_ROUTE_BASE;
+        const baseUrl = this.enableBasicMap ? SCORECARD_BASE : MAP_ROUTE_BASE;
 
         // Ignore null lat/long.
         if (lat == null || long == null) return;
@@ -337,7 +337,7 @@ export default defineComponent({
       this.map.addControl(geolocateControl);
 
       // Add zoom in / zoom out buttons to Nationwide Map view.
-      if (!this.scorecard) {
+      if (!this.enableBasicMap) {
         this.map.addControl(new mapboxgl.NavigationControl());
       }
     },
@@ -408,7 +408,7 @@ export default defineComponent({
     async createMap(): Promise<void> {
       // Start zoomed in for a scorecard to avoid unnecessary tile loads.
       // TODO: pull the zoom level from the geoId in the global state.
-      const zoom = this.scorecard ? PARCEL_ZOOM_LEVEL : DEFAULT_ZOOM_LEVEL;
+      const zoom = this.enableBasicMap ? PARCEL_ZOOM_LEVEL : DEFAULT_ZOOM_LEVEL;
       // The map is created before the state watcher fires, so get the center directly.
       const center = this.getLngLatFromState() ?? this.center;
       this.map = new mapboxgl.Map({
@@ -418,7 +418,7 @@ export default defineComponent({
         container: 'map-container',
         style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
         zoom,
-        dragPan: !this.scorecard,
+        dragPan: !this.enableBasicMap,
       });
 
       this.map?.on('load', this.configureMap);
