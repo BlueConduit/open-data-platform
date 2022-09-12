@@ -88,11 +88,17 @@ export class WaterSystemsTableRowBuilder {
       },
       {
         name: 'lead_connections_count',
-        value: { doubleValue: this._row.lead_connections_count },
+        value: {
+          doubleValue: this._row.lead_connections_count,
+          isNull: this._row.lead_connections_count == null,
+        },
       },
       {
         name: 'service_connections_count',
-        value: { doubleValue: this._row.service_connections_count },
+        value: {
+          doubleValue: this._row.service_connections_count,
+          isNull: this._row.service_connections_count == null,
+        },
       },
       {
         name: 'population_served',

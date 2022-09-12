@@ -99,19 +99,31 @@ export class ParcelsTableRowBuilder {
       },
       {
         name: 'public_lead_low_prediction',
-        value: { doubleValue: this._row.public_lead_low_prediction },
+        value: {
+          doubleValue: this._row.public_lead_low_prediction,
+          isNull: this._row.public_lead_low_prediction == null,
+        },
       },
       {
         name: 'public_lead_high_prediction',
-        value: { doubleValue: this._row.public_lead_high_prediction },
+        value: {
+          doubleValue: this._row.public_lead_high_prediction,
+          isNull: this._row.public_lead_high_prediction == null,
+        },
       },
       {
         name: 'private_lead_low_prediction',
-        value: { doubleValue: this._row.private_lead_low_prediction },
+        value: {
+          doubleValue: this._row.private_lead_low_prediction,
+          isNull: this._row.private_lead_low_prediction == null,
+        },
       },
       {
         name: 'private_lead_high_prediction',
-        value: { doubleValue: this._row.private_lead_high_prediction },
+        value: {
+          doubleValue: this._row.private_lead_high_prediction,
+          isNull: this._row.private_lead_high_prediction == null,
+        },
       },
       {
         name: 'geom',
