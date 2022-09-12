@@ -18,12 +18,14 @@ enum GeoType {
 }
 
 /**
- * Represents cities which we have parcel data for.
+ * Represents supported cities.
  *
  * Used to display city-specific information.
  */
 enum City {
-  toledo = 'toledo',
+  toledo = 'Toledo',
+  richmond = 'Richmond',
+  newOrleans = 'New Orleans',
   unknown = 'unknown',
 }
 

@@ -1,6 +1,6 @@
 <template>
-  <div class='section is-small is-centered has-text-centered'>
-    <div class='columns'>
+  <div class='section is-small has-text-centered'>
+    <div class='columns is-centered'>
       <div class='column is-two-thirds'>
         <div class='header-section'>
           <div class='h1-header-large'>
