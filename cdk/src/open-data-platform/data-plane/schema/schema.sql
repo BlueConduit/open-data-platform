@@ -191,6 +191,7 @@ CREATE TABLE IF NOT EXISTS water_systems
 (
     pws_id                    varchar(255) NOT NULL,
     pws_name                  varchar(255),
+    is_estimated              boolean,
     lead_connections_count    real,
     service_connections_count real,
     population_served         real,
@@ -457,19 +458,19 @@ BEGIN
                         SUM(w.service_connections_count)       AS service_connections_count,
                         SUM(w.population_served)               AS population_served
                  FROM water_systems w
-                 WHERE
-                    ST_Transform(w.bbox, 3857) && ST_TileEnvelope(z, x, y) AND
-                    -- Require nearer zoom levels to see smaller polygons. Cutoffs are arbitrary.
-                    -- Necessary because some tiles failed to load because they return too much data.
-                    -- Alternative is to simplify polygons, but that takes more work/tuning.
-                    w.approx_area_sq_km >= (
-                        CASE
-                        WHEN z <= 5 THEN 100
-                        WHEN z <= 7 THEN 10
-                        WHEN z <= 8 THEN 5
-                        ELSE 0
-                        END
-                    )
+                 WHERE ST_Transform(w.bbox, 3857) && ST_TileEnvelope(z, x, y)
+                   AND
+                   -- Require nearer zoom levels to see smaller polygons. Cutoffs are arbitrary.
+                   -- Necessary because some tiles failed to load because they return too much data.
+                   -- Alternative is to simplify polygons, but that takes more work/tuning.
+                         w.approx_area_sq_km >= (
+                         CASE
+                             WHEN z <= 5 THEN 100
+                             WHEN z <= 7 THEN 10
+                             WHEN z <= 8 THEN 5
+                             ELSE 0
+                             END
+                         )
                  GROUP BY w.geom,
                           w.pws_id,
                           w.pws_name

@@ -32,6 +32,7 @@ async function insertBatch(
     secretArn: process.env.CREDENTIALS_SECRET ?? '',
     sql: `INSERT INTO water_systems (pws_id,
                                      pws_name,
+                                     is_estimated,
                                      lead_connections_count,
                                      service_connections_count,
                                      population_served,
@@ -39,6 +40,7 @@ async function insertBatch(
                                      geom)
           SELECT :pws_id,
                  :pws_name,
+                 :is_estimated,
                  :lead_connections_count,
                  :service_connections_count,
                  :population_served,
@@ -108,6 +110,7 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
     new WaterSystemsTableRowBuilder()
       .pwsId(properties.pwsid)
       .pwsName(properties.pws_name ?? '')
+      .isEstimated(leadCountIsNotReported)
       .leadConnectionsCount(leadConnectionsCount)
       .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
       .populationServed(getValueOrDefault(properties.population_served) ?? 0)
