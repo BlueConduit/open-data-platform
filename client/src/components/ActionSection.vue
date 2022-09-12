@@ -3,12 +3,11 @@
     <div class='h2-header-large'>
       {{ header }}
     </div>
-    <div class='explain-text' v-if='subheader != null'>
+    <div class='container explain-text' v-if='subheader != null'>
       {{ subheader }}
     </div>
-    <button class='gold-button'
-            v-if='buttonText != null'
-            v-on:click='onButtonClick'>
+    <!-- TODO: Align the buttons across all columns. -->
+    <button class='gold-button' v-if='buttonText != null' v-on:click='onButtonClick'>
       {{ buttonText }}
     </button>
   </div>
@@ -34,7 +33,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
@@ -44,7 +43,6 @@ export default defineComponent({
 }
 
 .explain-text {
-  text-align: center;
+  padding: $spacing-md;
 }
-
 </style>
