@@ -431,27 +431,11 @@ export default defineComponent({
       dispatch(setZoom(zoom));
       this.toggleDataOnZoom();
     },
-  },
-  mounted() {
-    if (this.map == null) this.createMap();
-  },
-  watch: {
-    // Listens to map state to toggle different layers.
-    'mapState.mapData.currentDataLayerId': {
-      handler: function(newDataLayerId: MapLayer) {
-        if (newDataLayerId == null) {
-          return;
-        }
-        if (this.map?.isStyleLoaded()) {
-          this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
-        }
-      },
-    },
-    'mapState.mapData.zoomLevel': function() {
-      this.updateZoomLevel();
-    },
-    // Listen for changes to lat/long to update map location.
-    'geoState.geoids': function() {
+
+    /**
+     * Sets bounds, center, and marker on map using the geo state geo IDs.
+     */
+    updateMapWithGeoIds(): void {
       // Remove the old marker.
       if (this.marker != null) {
         this.marker.remove();
@@ -478,6 +462,31 @@ export default defineComponent({
           });
         }
       }
+    },
+  },
+  mounted() {
+    if (this.map == null) this.createMap();
+    // Set initial map values with initial geo IDs.
+    this.updateMapWithGeoIds();
+  },
+  watch: {
+    // Listens to map state to toggle different layers.
+    'mapState.mapData.currentDataLayerId': {
+      handler: function(newDataLayerId: MapLayer) {
+        if (newDataLayerId == null) {
+          return;
+        }
+        if (this.map?.isStyleLoaded()) {
+          this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
+        }
+      },
+    },
+    'mapState.mapData.zoomLevel': function() {
+      this.updateZoomLevel();
+    },
+    // Listen for changes to lat/long to update map location.
+    'geoState.geoids': function() {
+      this.updateMapWithGeoIds();
     },
   },
 });

@@ -1,15 +1,20 @@
 <template>
-  <div class='section is-medium is-centered has-text-centered'>
-    <!-- <div class='hero-body'> -->
+  <div class='section is-medium has-text-centered'>
     <div class='container'>
-      <div class='columns'>
+      <div class='columns is-centered'>
         <div class='column header-section'>
-          <div class='h2-header-large'>{{ messages.RESOURCES_SECTION_SUPER_HEADER }}</div>
-          <div class='h1-header-large'>{{ messages.RESOURCES_SECTION_HEADER }}</div>
+          <div class='h2-header-large'>
+            {{ messages.RESOURCES_SECTION_SUPER_HEADER }}
+          </div>
+          <div class='h1-header-large'>
+            {{ messages.RESOURCES_SECTION_HEADER }}
+          </div>
         </div>
       </div>
       <div class='columns'>
-        <div class='column' v-for='resource in messages.RESOURCE_MESSAGES' :key='resource.header'>
+        <div class='column'
+             v-for='resource in messages.RESOURCE_MESSAGES'
+             :key='resource.header'>
           <div class='h1-header'>{{ resource.header }}</div>
           <div class='resource-blurb body'>{{ resource.body }}</div>
         </div>

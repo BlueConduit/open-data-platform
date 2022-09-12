@@ -1,5 +1,11 @@
 <template>
-  <div>
+  <div class='loading' v-if='!showScorecard'>
+    <loading :active='true'
+             :is-full-page='false'
+             color='#2553A0'
+             loader='bars' />
+  </div>
+  <div v-if='showScorecard'>
     <PredictionPanel />
     <div class='map-container'>
       <ScorecardMapSearchBar />
@@ -7,7 +13,7 @@
       <NationwideMap class='nationwide-map' height='60vh' :scorecard='true' />
     </div>
     <div class='container-column center-container actions-to-take'
-         v-if='showResultSections'>
+         v-if='showResults'>
       <div class='h1-header-large'>
         {{ ScorecardMessages.TAKE_ACTION_HEADER }}
       </div>
@@ -25,7 +31,7 @@
         @onButtonClick='copyToClipboard'
       />
     </div>
-    <ScorecardSummaryPanel v-if='showResultSections' />
+    <ScorecardSummaryPanel v-if='showResults' />
     <ActionSection
       class='nav-to-map section'
       :header='ScorecardMessages.WANT_TO_KNOW_MORE'
@@ -47,13 +53,17 @@ import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
 import NationwideMap from '../components/NationwideMap.vue';
 import LslrSection from '@/components/LslrSection.vue';
-import { useSelector } from '@/model/store';
+import { dispatch, useSelector } from '@/model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { GeoDataState } from '../model/states/geo_data_state';
-import { GeoDataUtil } from '../util/geo_data_util';
 import ScorecardMapSearchBar from '../components/ScorecardMapSearchBar.vue';
 import SidePanel from '../components/SidePanel.vue';
 import { City } from '../model/states/model/geo_data';
+import { Status } from '../model/states/status_state';
+import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
+import { GeoDataUtil } from '../util/geo_data_util';
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -62,6 +72,7 @@ export default defineComponent({
   name: 'ScorecardView',
   components: {
     ActionSection,
+    Loading,
     LslrSection,
     NationwideMap,
     PredictionPanel,
@@ -96,6 +107,17 @@ export default defineComponent({
         ?? GeoDataUtil.getCityForLatLong(this.geoState?.geoids?.lat, this.geoState?.geoids?.long);
       return intersectedCity ?? City.unknown;
     },
+    leadDataLoaded(): boolean {
+      return this.leadDataState?.waterSystemStatus?.status == Status.success
+        && this.leadDataState?.parcelStatus?.status == Status.success;
+    },
+    showScorecard(): boolean {
+      return GeoDataUtil.isNullOrEmpty(this.geoState?.geoids) ||
+        (this.geoState?.status?.status != Status.pending && this.leadDataLoaded);
+    },
+    showResults(): boolean {
+      return !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
+    },
   },
   methods: {
     async copyToClipboard() {
@@ -112,10 +134,27 @@ export default defineComponent({
         path: '/map',
       });
     },
+    updateViewWithGeoIds() {
+      // Check if an address was queried and another prediction should be
+      // fetched.
+      if (
+        this.geoState?.geoids?.address != null
+        && this.geoState?.geoids?.lat != null
+        && this.geoState?.geoids?.long != null
+      ) {
+        dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
+      }
+      // Request water system data if PWSID is not null, even for address search.
+      if (this.geoState?.geoids?.pwsId != null) {
+        dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
+      }
+    },
   },
   watch: {
+    // Listen for changes to pws id or lat, long. Once it changes, a new
+    // prediction must be fetched.
     'geoState.geoids': function() {
-      this.showResultSections = !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
+      this.updateViewWithGeoIds();
     },
   },
 });
@@ -126,7 +165,13 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .actions-to-take {
+  width: 100%;
   padding: $spacing-lg;
+}
+
+.loading {
+  position: relative;
+  height: 100%;
 }
 
 .nav-to-map {
