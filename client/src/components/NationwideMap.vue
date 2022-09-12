@@ -286,7 +286,7 @@ export default defineComponent({
      * Sets up interaction handlers for map.
      */
     setUpInteractionHandlers(): void {
-      if (this.map == null) return;
+      if (this.map == null || this.scorecard) return;
       for (const layer of this.possibleLayers) {
         // Use MapBox's custom click handler, which takes the style layer that we
         // want to set up a handler for as a parameter.
