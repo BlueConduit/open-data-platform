@@ -8,6 +8,7 @@
     </div>
     <button class='gold-button'
             v-if='buttonText != null'
+            v-tooltip='buttonTooltip'
             v-on:click='onButtonClick'>
       {{ buttonText }}
     </button>
@@ -25,6 +26,7 @@ export default defineComponent({
     header: String,
     subheader: String,
     buttonText: String,
+    buttonTooltip: String,
   },
   methods: {
     onButtonClick() {
@@ -37,6 +39,7 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'floating-vue/dist/style.css';
 
 .center-container {
   gap: $spacing-sm;
