@@ -52,7 +52,7 @@ import ScorecardSummaryPanel from '../components/ScorecardSummaryPanel.vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
 import NationwideMap from '../components/NationwideMap.vue';
-import LslrSection, { LSLR_CITY_LINKS } from '@/components/LslrSection.vue';
+import LslrSection from '@/components/LslrSection.vue';
 import { dispatch, useSelector } from '@/model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { GeoDataState } from '../model/states/geo_data_state';
@@ -94,7 +94,6 @@ export default defineComponent({
       ScorecardMessages,
       SCORECARD_BASE,
       showResultSections: false,
-      showLslr: false,
       Titles,
     };
 
@@ -108,8 +107,6 @@ export default defineComponent({
         ?? GeoDataUtil.getCityForLatLong(this.geoState?.geoids?.lat, this.geoState?.geoids?.long);
       return intersectedCity ?? City.unknown;
     },
-  },
-  computed: {
     leadDataLoaded(): boolean {
       return this.leadDataState?.waterSystemStatus?.status == Status.success
         && this.leadDataState?.parcelStatus?.status == Status.success;
@@ -158,10 +155,6 @@ export default defineComponent({
     // prediction must be fetched.
     'geoState.geoids': function() {
       this.updateViewWithGeoIds();
-    },
-    'leadDataState.data.city': function() {
-      const city = this.leadDataState?.data?.city ?? City.unknown;
-      this.showLslr = city != null && LSLR_CITY_LINKS.get(city) != null;
     },
   },
 });
