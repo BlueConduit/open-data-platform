@@ -1,19 +1,17 @@
 <template>
   <div>
-    <!--    TODO put messages in constants-->
     <div class='header-section'>
-      <div class='h1-header'>Contact your city</div>
-      <div class='h2-header'>
-        Get more information or remediate any lead issues is to contact your
-        city.
+      <div class='h2-header-large'>
+        {{ MESSAGES.CONTACT_YOUR_CITY_HEADER }}
+      </div>
+      <div>
+        {{ MESSAGES.CONTACT_YOUR_CITY_SUBHEADER }}
       </div>
     </div>
     <div class='city-information'>
-      <div class='h2-header-large'> {{ this.city }}</div>
-      <a class='h2-header-large' :href='website' target='_blank'>
-        {{ website }}
-      </a>
-      <div class='h2-header-large'> Tel: {{ phoneNumber }}</div>
+      <div class='h2-header'> {{ this.city }}</div>
+      <a class='h2-header' :href='website' target='_blank'>{{ website }}</a>
+      <div class='h2-header'> Tel: {{ phoneNumber }}</div>
     </div>
   </div>
 </template>
@@ -22,6 +20,7 @@
 
 import { City } from '../model/states/model/geo_data';
 import { defineComponent, PropType } from 'vue';
+import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 
 interface CityInformation {
   name: City;
@@ -47,6 +46,11 @@ const CITY_INFO: CityInformation[] = [
   },
 ];
 
+/**
+ * Component for the contact city section of scorecard.
+ *
+ * Only shows up when result is in a supported city.
+ */
 export default defineComponent({
   name: 'ContactCitySection',
   props: {
@@ -54,14 +58,19 @@ export default defineComponent({
       type: String as PropType<City>,
     },
   },
+  data() {
+    return {
+      MESSAGES: ScorecardMessages,
+    };
+  },
   computed: {
     website(): string {
       const currentCity = CITY_INFO.filter((currentCity) => currentCity.name == this.city)[0];
-      return currentCity.website;
+      return currentCity?.website ?? '';
     },
     phoneNumber(): string {
       const currentCity = CITY_INFO.filter((currentCity) => currentCity.name == this.city)[0];
-      return currentCity.phoneNumber;
+      return currentCity?.phoneNumber ?? '';
     },
   },
 });

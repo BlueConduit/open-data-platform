@@ -43,6 +43,11 @@
         </div>
       </div>
 
+      <ContactCitySection
+        class='section'
+        v-if='showLslrSection'
+        :city='city' />
+
       <ScorecardSummaryPanel v-if='showResults' />
 
       <ActionSection
@@ -53,12 +58,8 @@
         @onButtonClick='navigateToMapPage'
       />
 
-      <LslrSection v-if='showLslrSection' :city='leadDataState?.data?.city' />
+      <LslrSection v-if='showLslrSection' :city='city' />
 
-      <ContactCitySection
-        class='section'
-        v-if='showLslrSection'
-        :city='city' />
     </div>
   </div>
 </template>
