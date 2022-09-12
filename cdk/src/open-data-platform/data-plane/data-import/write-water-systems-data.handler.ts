@@ -113,7 +113,7 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
       .isEstimated(leadCountIsNotReported)
       .leadConnectionsCount(leadConnectionsCount)
       .serviceConnectionsCount(getValueOrDefault(properties.service_connections_count))
-      .populationServed(getValueOrDefault(properties.population_served) ?? 0)
+      .populationServed(getValueOrDefault(properties.population_served))
       // Keep JSON formatting. Post-GIS helpers depend on this.
       .geom(JSON.stringify(value.geometry))
       .build()
