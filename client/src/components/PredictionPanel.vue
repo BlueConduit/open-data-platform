@@ -1,39 +1,12 @@
 <template>
-  <div class='container'>
-    <div class='prediction'>
-      <div v-if='showWaterSystemPrediction'>
+  <div class='section is-medium'>
+    <div class='container has-text-centered'>
+      <div>
         <div class='h1-header-xl navy'>
-          {{ formatPredictionAsLikelihood(percentLead) }}
+          {{ predictionString }}
         </div>
         <div class='h2-header'>
-          {{ ScorecardSummaryMessages.PREDICTION_EXPLANATION(
-          formatPredictionAsLikelihoodDescriptor(percentLead)) }}
-        </div>
-      </div>
-      <div class='h1-header'
-           v-if='showParcelPrediction'>
-        <div class='h1-header-xl navy'>
-          {{ formatPredictionAsLikelihood(publicLeadPercent) }}
-        </div>
-        <div class='h2-header'>
-          {{ ScorecardSummaryMessages.PREDICTION_EXPLANATION(
-          formatPredictionAsLikelihoodDescriptor(publicLeadPercent)) }}
-        </div>
-      </div>
-      <div class='no-prediction' v-if='showNoPrediction'>
-        <div class='h1-header-xl navy'>
-          {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE }}
-        </div>
-        <div class='explain-text'>
-          {{ ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED }}
-        </div>
-      </div>
-      <div v-if='emptyGeoData'>
-        <div class='h1-header-large navy'>
-          {{ ScorecardSummaryMessages.GET_WATER_SCORE }}
-        </div>
-        <div class='explain-text'>
-          {{ ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED }}
+          {{ explanationString }}
         </div>
       </div>
       <!--      TODO: show error message when content is finalized and showError is true.-->
@@ -41,7 +14,7 @@
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { useSelector } from '../model/store';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
@@ -75,8 +48,34 @@ export default defineComponent({
     };
   },
   computed: {
-    publicLeadPercent(): number | undefined {
-      return this.leadState?.data?.publicLeadLowPrediction;
+    predictionString(): string {
+      if (this.showWaterSystemPrediction)
+        return (
+          this.formatPredictionAsLikelihood(this.percentLead) ??
+          this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE
+        );
+      if (this.showParcelPrediction)
+        return (
+          this.formatPredictionAsLikelihood(this.publicLeadPercent) ??
+          this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE
+        );
+      if (this.showNoPrediction) return this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE;
+      return this.ScorecardSummaryMessages.GET_WATER_SCORE;
+    },
+    explanationString(): string {
+      if (this.showWaterSystemPrediction)
+        return this.ScorecardSummaryMessages.PREDICTION_EXPLANATION(
+          this.formatPredictionAsLikelihoodDescriptor(this.percentLead) ?? '',
+        );
+      if (this.showParcelPrediction)
+        return this.ScorecardSummaryMessages.PREDICTION_EXPLANATION(
+          this.formatPredictionAsLikelihoodDescriptor(this.publicLeadPercent) ?? '',
+        );
+      if (this.showNoPrediction) return this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED;
+      return this.ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED;
+    },
+    publicLeadPercent(): number | null {
+      return this.leadState?.data?.publicLeadLowPrediction ?? null;
     },
     // Predicted estimate of lead for water systems.
     percentLead(): number | null {
@@ -96,9 +95,7 @@ export default defineComponent({
     showWaterSystemPrediction(): boolean {
       return (
         // Show water system prediction if it has a value and there is no parcel prediction.
-        !this.showParcelPrediction &&
-        this.pwsId != null &&
-        this.percentLead != null
+        !this.showParcelPrediction && this.pwsId != null && this.percentLead != null
       );
     },
     showPrediction(): boolean {
@@ -111,7 +108,7 @@ export default defineComponent({
     },
   },
   watch: {
-    'geoState.status': function() {
+    'geoState.status': function () {
       this.showError = this.geoState?.status?.status == Status.error;
     },
   },
@@ -121,7 +118,7 @@ export default defineComponent({
      * as an adverb.
      * @param prediction percent lead prediction
      */
-    formatPredictionAsLikelihoodDescriptor(prediction: number | undefined): string | null {
+    formatPredictionAsLikelihoodDescriptor(prediction: number | null): string | null {
       if (prediction == null) {
         return null;
       }
@@ -140,25 +137,10 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-
-.prediction div {
-  @include container-column;
-  @include center-container;
-}
-
-.container {
-  padding: $spacing-lg;
-}
-
-.center-container {
-  gap: $spacing-lg;
-  padding: 0 3*$spacing-lg 0 3*$spacing-lg;
-}
-
-.justify-right {
-  justify-content: right;
-}
+@import 'bulma/sass/layout/section.sass';
+@import 'bulma/sass/elements/container.sass';
+@import 'bulma/sass/helpers/typography.sass';
 </style>

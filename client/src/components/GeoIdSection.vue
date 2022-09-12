@@ -1,11 +1,11 @@
 <template>
-  <div class='geoid-section' :class='{selected}'>
-    <div class='h2-header-large geoid'>{{ this.geoId }}</div>
-    <div class='h2-header description'>{{ this.geoIdInfo }}</div>
+  <div class='geoid-section' :class='{ selected }'>
+    <div class='h2-header-large geoid'>{{ geoId }}</div>
+    <div class='h2-header description'>{{ geoIdInfo }}</div>
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 
 /**
@@ -30,7 +30,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
