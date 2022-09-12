@@ -113,6 +113,11 @@ export default defineComponent({
       });
     },
   },
+  watch: {
+    'geoState.geoids': function() {
+      this.showResultSections = !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
+    },
+  },
 });
 </script>
 
