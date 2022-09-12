@@ -10,7 +10,8 @@
     <div class='map-container'>
       <ScorecardMapSearchBar />
       <SidePanel class='side-panel' />
-      <NationwideMap class='nationwide-map' height='60vh' :scorecard='true' />
+      <NationwideMap class='nationwide-map' height='60vh'
+                     :enableBasicMap='true' />
     </div>
     <div class='container-column center-container actions-to-take'
          v-if='showResults'>
