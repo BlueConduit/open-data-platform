@@ -53,7 +53,7 @@ export class ScorecardMessages {
   static TAKE_ACTION_HEADER = 'Take action';
   static WANT_TO_KNOW_MORE = 'Want to know more?';
   static WATER_SYSTEM_DESCRIPTION =
-    'This is the water system which owns the service lines that ' + 'provide water to this area.';
+    'This is the water system which owns the service lines that provide water to this area.';
 
   static SCORECARD_SUMMARY_PANEL_HEADER = (zipCode: string | null) =>
     zipCode != null ? `Understanding your score for ${zipCode}` : 'Understanding your score';
