@@ -15,7 +15,7 @@ class WaterSystemsTableRow {
   // Reported or estimated total number of connections in the boundary.
   service_connections_count?: number;
   // Number of people served by the water system.
-  population_served: number;
+  population_served?: number;
   // GeoJSON representation of the boundaries.
   geom: string;
 
@@ -71,7 +71,7 @@ export class WaterSystemsTableRowBuilder {
     return this;
   }
 
-  populationServed(populationServed: number): WaterSystemsTableRowBuilder {
+  populationServed(populationServed?: number): WaterSystemsTableRowBuilder {
     this._row.population_served = populationServed;
     return this;
   }
@@ -102,7 +102,10 @@ export class WaterSystemsTableRowBuilder {
       },
       {
         name: 'population_served',
-        value: { doubleValue: this._row.population_served },
+        value: {
+          doubleValue: this._row.population_served,
+          isNull: this._row.population_served == null,
+        },
       },
       {
         name: 'geom',
