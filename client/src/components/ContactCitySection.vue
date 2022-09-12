@@ -1,14 +1,19 @@
 <template>
   <div>
     <!--    TODO put messages in constants-->
-    <div>Contact your city</div>
-    <div>
-      Get more information or remediate any lead issues is to contact your city.
+    <div class='header-section'>
+      <div class='h1-header'>Contact your city</div>
+      <div class='h2-header'>
+        Get more information or remediate any lead issues is to contact your
+        city.
+      </div>
     </div>
     <div class='city-information'>
-      <p> {{ this.city }}</p>
-      <p> {{ website }}</p>
-      <p> {{ phoneNumber }}</p>
+      <div class='h2-header-large'> {{ this.city }}</div>
+      <a class='h2-header-large' :href='website' target='_blank'>
+        {{ website }}
+      </a>
+      <div class='h2-header-large'> Tel: {{ phoneNumber }}</div>
     </div>
   </div>
 </template>
@@ -32,7 +37,7 @@ const CITY_INFO: CityInformation[] = [
   },
   {
     name: City.richmond,
-    website: 'https://www.vdh.virginia.gov/richmond-city/healthy-homes/#:~:text=The%20Lead%20Safe%20Program%20provides,)%20205%2D3726%20for%20information.',
+    website: 'https://www.vdh.virginia.gov/richmond-city/healthy-homes',
     phoneNumber: '(804) 205-3726',
   },
   {
@@ -62,6 +67,14 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
+.city-information {
+  background-color: $light-gold;
+  padding: $spacing-lg;
+  margin-top: $spacing-lg;
+  border-radius: $spacing-xs;
+}
 </style>
