@@ -99,7 +99,7 @@ export default defineComponent({
     center: {
       // There is no constructor function for a Tuple, so use object here and
       // cast to PropType of a tuple.
-      // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
+      // See https://vuejsForg/guide/typescript/options-api.html#typing-component-props.
       type: Object as PropType<[number, number]>,
       default: DEFAULT_LNG_LAT,
     },
