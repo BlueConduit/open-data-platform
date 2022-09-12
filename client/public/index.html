@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="">
   <head>
-    <!-- Conditionally include Google Analytics snippet, if targetting production -->
+    <!-- Conditionally include analytics snippets, if targetting production -->
+    <!-- BC-general Google Analytics -->
     <% if (process.env.NODE_ENV === 'production') { %>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-146085874-1"></script>
     <script>
@@ -12,6 +13,37 @@
       gtag('js', new Date());
 
       gtag('config', 'UA-146085874-1');
+    </script>
+    <!-- LeadOut-specific Pendo. Update this snippet by copying from https://app.pendo.io/setup -->
+    <script>
+      (function (apiKey) {
+        (function (p, e, n, d, o) {
+          var v, w, x, y, z;
+          o = p[d] = p[d] || {};
+          o._q = o._q || [];
+          v = ['initialize', 'identify', 'updateOptions', 'pageLoad', 'track'];
+          for (w = 0, x = v.length; w < x; ++w)
+            (function (m) {
+              o[m] =
+                o[m] ||
+                function () {
+                  o._q[m === v[0] ? 'unshift' : 'push']([m].concat([].slice.call(arguments, 0)));
+                };
+            })(v[w]);
+          y = e.createElement(n);
+          y.async = !0;
+          y.src = 'https://cdn.pendo.io/agent/static/' + apiKey + '/pendo.js';
+          z = e.getElementsByTagName(n)[0];
+          z.parentNode.insertBefore(y, z);
+        })(window, document, 'script', 'pendo');
+
+        // This function creates anonymous visitor IDs in Pendo with placeholder values, since
+        // LeadOut does not have account or user IDs.
+        pendo.initialize({
+          visitor: { id: 'VISITOR-UNIQUE-ID' },
+          account: { id: 'ACCOUNT-UNIQUE-ID' },
+        });
+      })('e7ae8c80-998b-4b63-6582-3189375da42f');
     </script>
     <% } %>
 
