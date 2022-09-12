@@ -18,6 +18,7 @@ import { MapDataState } from '../model/states/map_data_state';
 import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom, setZoomLevel } from '../model/slices/map_data_slice';
 import { ZoomLevel } from '../model/states/model/map_data';
 import { BoundingBox, GeoType } from '../model/states/model/geo_data';
+import { TOLEDO_BOUNDS } from '../util/geo_data_util';
 
 const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
 
@@ -28,14 +29,6 @@ const VISIBLE = 'visible';
 
 const PARCEL_ZOOM_LEVEL = 16;
 const DEFAULT_ZOOM_LEVEL = 4;
-
-// Define Toledo geometry bounding box to restrict parcel data layer to Toledo.
-// This is needed because we only have parcel-level predictions for Toledo, so this data layer will
-// be empty outside of these boundaries.
-const TOLEDO_BOUNDS: [LngLatLike, LngLatLike] = [
-  [-84.3995471043526, 41.165751],
-  [-82.711584, 41.742764],
-];
 
 /**
  * A browsable map of nationwide lead data.
@@ -381,10 +374,9 @@ export default defineComponent({
      */
     toledoContainsMap(): boolean {
       if (this.map == null) return false;
-      const toledoBounds = new LngLatBounds(TOLEDO_BOUNDS);
       return (
-        toledoBounds.contains(this.map.getBounds().getNorthEast()) &&
-        toledoBounds.contains(this.map.getBounds().getSouthWest())
+        TOLEDO_BOUNDS.contains(this.map.getBounds().getNorthEast()) &&
+        TOLEDO_BOUNDS.contains(this.map.getBounds().getSouthWest())
       );
     },
 

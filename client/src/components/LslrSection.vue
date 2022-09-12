@@ -18,6 +18,8 @@ import { ScorecardMessages as messages } from '@/assets/messages/scorecard_messa
 import { City } from '@/model/states/model/geo_data';
 
 export const LSLR_CITY_LINKS: Map<City, string> = new Map<City, string>([
+  [City.newOrleans, 'https://www.swbno.org/DrinkingWater/LeadAwareness'],
+  [City.richmond, 'https://www.rva.gov/public-utilities/water-utility#collapse-accordion-10788-3'],
   [City.toledo, 'https://toledo.oh.gov/residents/water/lead-service-lines/customer-side'],
 ]);
 
