@@ -44,7 +44,6 @@ export default defineComponent({
 }
 
 .geoid-section {
-  width: 57 * $spacing-xs;
   height: fit-content;
   border: 1px solid $gold;
   border-radius: $spacing-xs;

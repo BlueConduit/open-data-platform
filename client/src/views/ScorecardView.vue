@@ -2,21 +2,20 @@
   <div>
     <!-- Cover the entire page with loading element until data is ready. -->
     <div class='loading' v-if='!showScorecard'>
-      <loading :active='true' :is-full-page='false' color='#2553A0'
-               loader='bars' opacity='1' />
+      <loading :active='true' :is-full-page='false' color='#2553A0' loader='bars' opacity='1' />
     </div>
     <div v-if='showScorecard'>
       <PredictionPanel />
 
       <!-- Only display the side-panel, full-width on mobile. -->
       <ScorecardMapSearchBar class='is-hidden-mobile' />
-      <div class='columns is-variable is-centered'>
-        <div class='column'>
+      <div class='columns is-variable is-centered is-gapless'>
+        <div class='column side-panel'>
           <div class='section'>
             <SidePanel />
           </div>
         </div>
-        <div class='column is-two-thirds is-hidden-mobile'>
+        <div class='column is-hidden-mobile'>
           <NationwideMap height='60vh' :enableBasicMap='true' />
         </div>
       </div>
@@ -58,7 +57,7 @@
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import PredictionPanel from '../components/PredictionPanel.vue';
 import ActionSection from '../components/ActionSection.vue';
 import { defineComponent } from 'vue';
@@ -172,14 +171,14 @@ export default defineComponent({
   watch: {
     // Listen for changes to pws id or lat, long. Once it changes, a new
     // prediction must be fetched.
-    'geoState.geoids': function() {
+    'geoState.geoids': function () {
       this.updateViewWithGeoIds();
     },
   },
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 @import 'bulma/sass/layout/section.sass';
@@ -189,5 +188,9 @@ export default defineComponent({
 
 .nav-to-map {
   background-color: $light-blue-50;
+}
+
+.side-panel {
+  max-width: 6 * $spacing-xl;
 }
 </style>
