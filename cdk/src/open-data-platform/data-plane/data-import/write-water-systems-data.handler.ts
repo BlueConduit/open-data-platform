@@ -131,7 +131,7 @@ export const handler = geoJsonHandlerFactory(
       rdsDataService,
       rows.map(getTableRowFromRow).filter((row) => row != null) as SqlParametersList[],
     );
-
-    await clusterRows(rdsDataService);
   },
+  async (rdsDataService: RDSDataService) => clusterRows(rdsDataService),
+  1000
 );
