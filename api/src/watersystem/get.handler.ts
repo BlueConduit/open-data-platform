@@ -6,6 +6,7 @@ import { CORS_HEADERS } from '../util';
 
 const SCHEMA = 'public';
 const SQL_QUERY = `SELECT pws_id,
+                          pws_name,
                           lead_connections_count,
                           service_connections_count
                    FROM water_systems
@@ -29,8 +30,9 @@ async function getWaterSystemData(
   for (let record of results.records ?? []) {
     body = {
       pws_id: record[0].stringValue,
-      lead_service_lines: record[1].doubleValue,
-      service_lines: record[2].doubleValue,
+      pws_name: record[1].stringValue,
+      lead_service_lines: record[2].doubleValue,
+      service_lines: record[3].doubleValue,
     };
   }
   return body;
@@ -72,8 +74,10 @@ export const handler = async (event: {
  * Information for a requested water system.
  */
 interface WaterSystemApiResponse {
-  // Water system id
+  // Water system id.
   pws_id?: string;
+  // Water system name.
+  pws_name?: string;
   lead_service_lines?: number;
   service_lines?: number;
 }

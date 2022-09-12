@@ -43,9 +43,8 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import { dispatch, useSelector } from '../model/store';
+import { useSelector } from '../model/store';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
-import { clearLeadData, getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
@@ -112,25 +111,6 @@ export default defineComponent({
     },
   },
   watch: {
-    // Listen for changes to pws id or lat, long. Once it changes, a new
-    // prediction must be fetched.
-    'geoState.geoids': function() {
-      dispatch(clearLeadData());
-
-      // Check if an address was queried and another prediction should be
-      // fetched.
-      if (
-        this.geoState?.geoids?.address != null
-        && this.geoState?.geoids?.lat != null
-        && this.geoState?.geoids?.long != null
-      ) {
-        dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
-      }
-      // Request water system data if PWSID is not null, even for address search.
-      if (this.geoState?.geoids?.pwsId != null) {
-        dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
-      }
-    },
     'geoState.status': function() {
       this.showError = this.geoState?.status?.status == Status.error;
     },
