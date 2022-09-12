@@ -55,9 +55,13 @@ export default defineComponent({
       acceptedTypes: [GeoType.address, GeoType.postcode],
       options: [] as ZoomLevel[],
       selectedOption: null as ZoomLevel | null,
-      showSearch: true,
+      showSearch: false,
       SCORECARD_BASE,
     };
+  },
+  beforeMount() {
+    this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
+    this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
   },
   methods: {
     /**

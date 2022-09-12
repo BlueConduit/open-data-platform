@@ -4,7 +4,7 @@ import { ParcelsTableRowBuilder } from '../model/parcels-table';
 import { geoJsonHandlerFactory } from './handler-factory';
 
 const SCHEMA = 'schema';
-const CITY = 'toledo';
+const CITY = 'Toledo';
 
 // This file contains < 145k rows
 const s3Params = {
