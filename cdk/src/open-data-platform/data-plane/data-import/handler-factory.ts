@@ -47,32 +47,32 @@ const S3 = new AWS.S3();
  */
 export const geoJsonHandlerFactory =
   (s3Params: AWS.S3.GetObjectRequest, callback: ProcessCallback): ProcessHandler =>
-  async (event: ProcessRequest): Promise<APIGatewayProxyResult> => {
-    // Use arguments or defaults.
-    let rowOffset = event.rowOffset ?? 0;
-    const rowLimit = event.rowLimit ?? Infinity;
-    const batchSize = event.batchSize ?? 10;
+    async (event: ProcessRequest): Promise<APIGatewayProxyResult> => {
+      // Use arguments or defaults.
+      let rowOffset = event.rowOffset ?? 0;
+      const rowLimit = event.rowLimit ?? Infinity;
+      const batchSize = event.batchSize ?? 10;
 
-    const db = new AWS.RDSDataService();
-    let results: ProcessResult = {
-      processedBatchCount: 0,
-      successfulBatchCount: 0,
-      erroredBatchCount: 0,
+      const db = new AWS.RDSDataService();
+      let results: ProcessResult = {
+        processedBatchCount: 0,
+        successfulBatchCount: 0,
+        erroredBatchCount: 0,
+      };
+
+      try {
+        results = await readGeoJsonFile(db, s3Params, callback, rowOffset, rowLimit, batchSize);
+        console.log(`Importing rows starting from: ${rowOffset}`);
+      } catch (error) {
+        console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
+        throw error;
+      }
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify(results),
+      };
     };
-
-    try {
-      results = await readGeoJsonFile(db, s3Params, callback, rowOffset, rowLimit, batchSize);
-      console.log(`Importing rows starting from: ${rowOffset}`);
-    } catch (error) {
-      console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
-      throw error;
-    }
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(results),
-    };
-  };
 
 /**
  * Reads an GeoJSON file and performs the callback on each element. This does not handle any
@@ -125,7 +125,8 @@ const readGeoJsonFile = (
         if (skippedRowCount + batchSize <= rowOffset) {
           skippedRowCount += batchSize;
           console.log(
-            `${id}: Skipping batch of ${rows.length} rows. ${skippedRowCount}/${rowOffset} offset rows have been skipped so far.`,
+            `${id}: Skipping batch of ${rows.length} rows.` +
+            `${skippedRowCount}/${rowOffset} offset rows have been skipped so far.`,
           );
           return;
         }
@@ -135,8 +136,8 @@ const readGeoJsonFile = (
         if (processedRowCount + inProcessRowCount >= rowLimit) {
           console.log(
             `${id}: Stopping processing after` +
-              ` ${processedRowCount} rows processed + ${inProcessRowCount} rows in progress` +
-              ` >= ${rowLimit} limit`,
+            ` ${processedRowCount} rows processed + ${inProcessRowCount} rows in progress` +
+            ` >= ${rowLimit} limit`,
           );
           pipeline.destroy();
           return;
@@ -149,9 +150,12 @@ const readGeoJsonFile = (
 
         // Reprocess errored rows individually. This may catch transient errors, or at least let
         // other rows in the batch succeed.
-        promise.catch((_) =>
+        promise.catch((e) =>
           rows.forEach((row) => {
-            console.log(`${id}: Reprocessing errored row individually.`, row.value?.properties);
+            console.log(
+              `${id}: Reprocessing errored row individually ${e}.`,
+              row.value?.properties,
+            );
             const rePromise = callback([row], db);
             rePromise.catch((reason) => console.log(`${id}: Reprocessing failed`, reason));
             promises.push(rePromise);
