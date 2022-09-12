@@ -1,10 +1,11 @@
 <template>
-  <div class='section is-large is-centered has-text-centered'>
-    <div class='columns'>
+  <div class='section is-large has-text-centered'>
+    <div class='columns is-centered'>
       <div class='column is-two-thirds'>
         <div class='header-section'>
           <div class='h1-header-xl'>{{ messages.SEARCH_SECTION_HEADER }}</div>
-          <div class='h2-header-large'>{{ messages.SEARCH_SECTION_SUBHEADER }}</div>
+          <div class='h2-header-large'>{{ messages.SEARCH_SECTION_SUBHEADER }}
+          </div>
         </div>
         <ScorecardSearch
           :placeholder='messages.GEOLOCATE_PLACEHOLDER_TEXT'
