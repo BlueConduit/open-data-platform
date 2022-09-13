@@ -96,6 +96,9 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Formats string for a percentage value.
+     */
     formatPercentage(percentageValue: number): string {
       if (percentageValue < 5) {
         return LESS_THAN_FIVE_PERCENT;
