@@ -10,11 +10,18 @@
       <!-- Only display the side-panel, full-width on mobile. -->
       <ScorecardMapSearchBar class='is-hidden-mobile' />
       <div class='columns is-variable is-centered is-gapless'>
-        <div class='column side-panel' v-if='showResults'>
+        <!-- Conditionally use the "side-panel" class to limit column width on desktop only -->
+        <div class='column is-hidden-desktop' v-if='showResults'>
           <div class='section'>
             <SidePanel />
           </div>
         </div>
+        <div class='column is-hidden-touch side-panel' v-if='showResults'>
+          <div class='section'>
+            <SidePanel />
+          </div>
+        </div>
+
         <div class='column is-hidden-mobile'>
           <NationwideMap height='60vh' :enableBasicMap='true' />
         </div>
