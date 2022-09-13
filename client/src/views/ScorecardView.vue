@@ -10,7 +10,7 @@
       <!-- Only display the side-panel, full-width on mobile. -->
       <ScorecardMapSearchBar class='is-hidden-mobile' />
       <div class='columns is-variable is-centered is-gapless'>
-        <div class='column side-panel'>
+        <div class='column side-panel' v-if='showResults'>
           <div class='section'>
             <SidePanel />
           </div>
@@ -42,10 +42,7 @@
         </div>
       </div>
 
-      <ContactCitySection
-        class='section'
-        v-if='showLslrSection'
-        :city='city' />
+      <ContactCitySection class='section' v-if='showLslrSection' :city='city' />
 
       <ScorecardSummaryPanel v-if='showResults' />
 
@@ -58,7 +55,6 @@
       />
 
       <LslrSection v-if='showLslrSection' :city='city' />
-
     </div>
   </div>
 </template>
