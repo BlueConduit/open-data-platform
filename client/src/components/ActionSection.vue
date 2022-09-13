@@ -8,8 +8,8 @@
     </div>
     <button class='gold-button'
             v-if='buttonText != null'
-            v-tooltip='buttonTooltip'
-            v-on:click='onButtonClick'>
+            v-clipboard:copy='copyText'
+            v-clipboard:success='onButtonClick'>
       {{ buttonText }}
     </button>
   </div>
@@ -26,10 +26,14 @@ export default defineComponent({
     header: String,
     subheader: String,
     buttonText: String,
-    buttonTooltip: String,
+    copyText: {
+      default: window.location.href,
+      type: String,
+    },
   },
   methods: {
     onButtonClick() {
+      console.log(`here`);
       this.$emit('onButtonClick', true);
     },
   },
@@ -39,7 +43,6 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'floating-vue/dist/style.css';
 
 .center-container {
   gap: $spacing-sm;
