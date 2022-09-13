@@ -22,29 +22,39 @@ import { City } from '../model/states/model/geo_data';
 import { defineComponent, PropType } from 'vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 
-interface CityInformation {
+interface CityContactInfo {
   name: City;
   website: string;
   phoneNumber: string;
 }
 
-const CITY_INFO: CityInformation[] = [
-  {
-    name: City.newOrleans,
-    website: 'https://www.swbno.org/DrinkingWater/LeadAwareness',
-    phoneNumber: '(504) 529-2837',
-  },
-  {
-    name: City.richmond,
-    website: 'https://www.vdh.virginia.gov/richmond-city/healthy-homes',
-    phoneNumber: '(804) 205-3726',
-  },
-  {
-    name: City.toledo,
-    website: 'https://toledo.oh.gov/residents/water/lead-service-lines',
-    phoneNumber: '(419)-936-2020',
-  },
-];
+// TODO: Move to table in DB if we get more entries.
+const CITY_INFO: Map<City, CityContactInfo> = new Map([
+  [
+    City.newOrleans,
+    {
+      name: City.newOrleans,
+      website: 'https://www.swbno.org/DrinkingWater/LeadAwareness',
+      phoneNumber: '(504) 529-2837',
+    },
+  ],
+  [
+    City.richmond,
+    {
+      name: City.richmond,
+      website: 'https://www.vdh.virginia.gov/richmond-city/healthy-homes',
+      phoneNumber: '(804) 205-3726',
+    },
+  ],
+  [
+    City.toledo,
+    {
+      name: City.toledo,
+      website: 'https://toledo.oh.gov/residents/water/lead-service-lines',
+      phoneNumber: '(419)-936-2020',
+    },
+  ],
+]);
 
 /**
  * Component for the contact city section of scorecard.
@@ -56,6 +66,7 @@ export default defineComponent({
   props: {
     city: {
       type: String as PropType<City>,
+      default: City.unknown,
     },
   },
   data() {
@@ -65,12 +76,11 @@ export default defineComponent({
   },
   computed: {
     website(): string {
-      const currentCity = CITY_INFO.filter((currentCity) => currentCity.name == this.city)[0];
-      return currentCity?.website ?? '';
+      return CITY_INFO.get(this.city)?.website ?? '';
     },
     phoneNumber(): string {
-      const currentCity = CITY_INFO.filter((currentCity) => currentCity.name == this.city)[0];
-      return currentCity?.phoneNumber ?? '';
+      return CITY_INFO.get(this.city)?.phoneNumber ?? '';
+
     },
   },
 });
