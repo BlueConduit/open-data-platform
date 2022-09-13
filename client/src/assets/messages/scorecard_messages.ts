@@ -12,6 +12,9 @@ export class ScorecardMessages {
     'The Area Deprivation Index (ADI) is based on a measure created by the Health Resources & ' +
     'Services Administration. It includes factors like income, education, employment, and housing quality.';
   static AVERAGE_INCOME = 'Average income';
+  static CONTACT_YOUR_CITY_HEADER = 'Contact your city';
+  static CONTACT_YOUR_CITY_SUBHEADER = 'Get more information or remediate any lead issues is to ' +
+    'contact your city.';
   static COPY_TO_CLIPBOARD = 'Copy scorecard link';
   static EXPLORE_MAP_PAGE_EXPLAINER =
     'You can learn more about what’s happening in your community, state, ' +

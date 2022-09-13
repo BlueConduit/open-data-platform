@@ -33,7 +33,8 @@ export default defineComponent({
       [Titles.LEAD_STATUS_TITLE, router.SCORECARD_BASE],
       [Titles.MAP_TITLE, router.MAP_ROUTE_BASE],
       [Titles.ABOUT_TITLE, router.ABOUT_ROUTE],
-      [Titles.RESOURCES_TITLE, router.RESOURCES_ROUTE],
+      // TODO: Re-add the resources link once we have a resources page in Wordpress.
+      // [Titles.RESOURCES_TITLE, router.RESOURCES_ROUTE],
     ];
     return {
       routes,
