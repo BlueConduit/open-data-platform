@@ -43,6 +43,11 @@
         </div>
       </div>
 
+      <ContactCitySection
+        class='section'
+        v-if='showLslrSection'
+        :city='city' />
+
       <ScorecardSummaryPanel v-if='showResults' />
 
       <ActionSection
@@ -53,7 +58,8 @@
         @onButtonClick='navigateToMapPage'
       />
 
-      <LslrSection v-if='showLslrSection' :city='leadDataState?.data?.city' />
+      <LslrSection v-if='showLslrSection' :city='city' />
+
     </div>
   </div>
 </template>
@@ -79,6 +85,7 @@ import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
 import { GeoDataUtil } from '../util/geo_data_util';
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/vue-loading.css';
+import ContactCitySection from '../components/ContactCitySection.vue';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -86,6 +93,7 @@ import 'vue-loading-overlay/dist/vue-loading.css';
 export default defineComponent({
   name: 'ScorecardView',
   components: {
+    ContactCitySection,
     ActionSection,
     Loading,
     LslrSection,
