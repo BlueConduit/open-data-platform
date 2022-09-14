@@ -42,7 +42,7 @@ const mapSlice = createSlice({
     },
     mapDataCleared: () => {
       return {
-        data: {},
+        mapData: { dataLayers: Array.from(ALL_DATA_LAYERS.keys()) },
         status: { status: Status.success },
       };
     },

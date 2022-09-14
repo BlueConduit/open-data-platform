@@ -20,6 +20,7 @@
 import { defineComponent, PropType } from 'vue';
 import GeocoderInput from './GeocoderInput.vue';
 import { GeoType } from '../model/states/model/geo_data';
+import { LAYER_PARAM } from '../router';
 
 /**
  * Expandable address search that performs a geocode.
@@ -45,11 +46,11 @@ export default defineComponent({
   },
   methods: {
     async onGeocodeResults(lat: string, long: string, geoType: GeoType) {
-      if (lat == '0' && long == '0') {
-        await this.$router.push(this.baseUrl);
-      } else {
-        await this.$router.push(`${this.baseUrl}/${geoType}/${lat},${long}`);
-      }
+      const url = (lat == '0' && long == '0') ? this.baseUrl : `${this.baseUrl}/${geoType}/${lat},${long}`;
+      const currentLayer = this.$router.currentRoute?.value?.query[LAYER_PARAM];
+      const urlWithLayer = currentLayer ? `${url}?layer=${currentLayer}` : url;
+
+      await this.$router.push(urlWithLayer);
     },
   },
 });
