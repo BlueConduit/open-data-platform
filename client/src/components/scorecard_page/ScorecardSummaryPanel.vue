@@ -1,5 +1,5 @@
 <template>
-  <div class='section is-medium'>
+  <div class='section'>
     <div class='container'>
       <div class='h1-header-large'>
         <div>{{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER(zipCode)
