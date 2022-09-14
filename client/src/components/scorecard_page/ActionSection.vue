@@ -61,8 +61,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang='scss'>
-@import '../assets/styles/global.scss';
-@import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'src/assets/styles/global';
+@import 'node_modules/@blueconduit/copper/scss/01_settings/design-tokens';
 
 .center-container {
   gap: $spacing-sm;

@@ -18,9 +18,9 @@
 
 <script lang='ts'>
 
-import { City } from '../model/states/model/geo_data';
 import { defineComponent, PropType } from 'vue';
-import { ScorecardMessages } from '../assets/messages/scorecard_messages';
+import { City } from '../../model/states/model/geo_data';
+import { ScorecardMessages } from '../../assets/messages/scorecard_messages';
 
 interface CityContactInfo {
   name: City;
@@ -87,8 +87,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang='scss'>
-@import '../assets/styles/global.scss';
-@import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'src/assets/styles/global';
+@import 'node_modules/@blueconduit/copper/scss/01_settings/design-tokens';
 
 .city-information {
   background-color: $light-gold;
