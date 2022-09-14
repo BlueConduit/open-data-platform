@@ -8,7 +8,8 @@ import * as util from '../util';
 import { MonitoringStage, OpenDataPlatformStage } from './stage';
 import { BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 
-const BAKE_DURATION_SECS = 24 * 60 * 60; // 1 day.
+const PROD_BAKE_DURATION_SECS = 24 * 60 * 60; // 1 day.
+const PROD_RELEASE_TIME = '09:00'; // 9 am local (Eastern) time.
 const CODE_REPO = 'BlueConduit/open-data-platform';
 const CODE_CONNECTION_ARN =
   'arn:aws:codestar-connections:us-east-2:223904267317:connection/cf8a731a-3a36-4e74-ac7f-d93604fd258e';
@@ -128,7 +129,12 @@ export class PipelineStack extends Stack {
         // Bake the release in dev before deploying to prod, to catch any problems early.
         pre: [
           new pipelines.ShellStep('BakeStep', {
-            commands: [`sleep ${BAKE_DURATION_SECS}`],
+            commands: [
+              // Bake a minimum of this duration.
+              `sleep ${PROD_BAKE_DURATION_SECS}`,
+              // Then wait until a specific (local) time on a weekday, to limit release to once/day.
+              `while [ $(date +%H:%M) != "${PROD_RELEASE_TIME}" -o $(date +%u) -gt 5 ]; do sleep 1; done`,
+            ],
           }),
         ],
       },
