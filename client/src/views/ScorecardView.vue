@@ -2,8 +2,11 @@
   <div>
     <!-- Cover the entire page with loading element until data is ready. -->
     <div class='loading' v-if='!showScorecard'>
-      <loading :active='true' :is-full-page='false' color='#2553A0'
-               loader='bars' opacity='1' />
+      <loading :active='true'
+               :is-full-page='false'
+               color='#2553A0'
+               loader='bars'
+               opacity='1' />
     </div>
     <div v-if='showScorecard'>
       <PredictionPanel />
