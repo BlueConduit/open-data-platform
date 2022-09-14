@@ -27,8 +27,9 @@
       <ActionSection
         class='section'
         :header='ScorecardMessages.SHARE_LEAD_OUT'
+        buttonIcon='copy.png'
         :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
-        :buttonTooltip='ScorecardMessages.COPY_TO_CLIPBOARD'
+        :buttonTooltip='ScorecardMessages.COPIED_TO_CLIPBOARD'
         @onButtonClick='copyToClipboard'
       />
     </div>
