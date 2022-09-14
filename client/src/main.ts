@@ -8,7 +8,5 @@ import { logBuildInfo } from './util/build_id';
 /**
  * Starts up the application.
  */
-const app = createApp(App);
-app.use(router).use(createRedux(store));
-app.mount('#app');
+createApp(App).use(router).use(createRedux(store)).mount('#app');
 logBuildInfo();

@@ -12,7 +12,7 @@ export class ScorecardMessages {
     'The Area Deprivation Index (ADI) is based on a measure created by the Health Resources & ' +
     'Services Administration. It includes factors like income, education, employment, and housing quality.';
   static AVERAGE_INCOME = 'Average income';
-  static COPIED_TO_CLIPBOARD = 'Copied';
+  static COPIED_TO_CLIPBOARD = 'Copied!';
   static COPY_TO_CLIPBOARD = 'Copy scorecard to clipboard';
   static EXPLORE_MAP_PAGE_EXPLAINER =
     'You can learn more about what’s happening in your community, state, ' +
@@ -53,7 +53,7 @@ export class ScorecardMessages {
   static TAKE_ACTION_HEADER = 'Take action';
   static WANT_TO_KNOW_MORE = 'Want to know more?';
   static WATER_SYSTEM_DESCRIPTION =
-    'This is the water system which owns the service lines that ' + 'provide water to this area.';
+    'This is the water system which owns the service lines that provide water to this area.';
 
   static SCORECARD_SUMMARY_PANEL_HEADER = (zipCode?: string) =>
     zipCode != null ? `Understanding your score for ${zipCode}` : 'Understanding your score';
