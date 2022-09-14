@@ -8,6 +8,7 @@ import * as util from '../util';
 import { MonitoringStage, OpenDataPlatformStage } from './stage';
 import { BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 
+const BAKE_DURATION_SECS = 24 * 60 * 60; // 1 day.
 const CODE_REPO = 'BlueConduit/open-data-platform';
 const CODE_CONNECTION_ARN =
   'arn:aws:codestar-connections:us-east-2:223904267317:connection/cf8a731a-3a36-4e74-ac7f-d93604fd258e';
@@ -91,6 +92,46 @@ export class PipelineStack extends Stack {
         tags: { Project: util.projectName, Environment: util.EnvType.Development },
         envType: util.EnvType.Development,
       }),
+    );
+
+    pipeline.addStage(
+      new MonitoringStage(this, 'Prod-Monitoring', {
+        // TODO: Use prod account.
+        env: { account: '036999211278', region: 'us-east-2' },
+        tags: { Project: util.projectName, Environment: util.EnvType.Production },
+        envType: util.EnvType.Production,
+        slackConfig: {
+          slackChannelConfigurationName: `${util.EnvType.Production}-${util.projectName}-channel-config`,
+          slackWorkspaceId: 'TJTFN34NM',
+          // #leadout-prod-notifications
+          slackChannelId: 'C0426AYGBV3',
+        },
+      }),
+    );
+
+    /* TODO: Consider splitting prod out into its own pipeline.
+     *
+     * The prod deployment runs on a different schedule than dev [1]. We chose to use one pipeline
+     * for both environments for implementation/ops simplicity. However, this doesn't actually
+     * implement a "nightly" release since multiple prod releases could happen within a given day.
+     *
+     * [1] https://docs.google.com/document/d/1zZxCoXx5JzLXTOGVdvC4s8H-r82DFjfmNU-dmFPAQVI/edit#heading=h.bsmnc9iehgn
+     */
+    pipeline.addStage(
+      new OpenDataPlatformStage(this, 'Prod', {
+        // TODO: Use prod account.
+        env: { account: '036999211278', region: 'us-east-2' },
+        tags: { Project: util.projectName, Environment: util.EnvType.Production },
+        envType: util.EnvType.Production,
+      }),
+      {
+        // Bake the release in dev before deploying to prod, to catch any problems early.
+        pre: [
+          new pipelines.ShellStep('BakeStep', {
+            commands: [`sleep ${BAKE_DURATION_SECS}`],
+          }),
+        ],
+      },
     );
   }
 }
