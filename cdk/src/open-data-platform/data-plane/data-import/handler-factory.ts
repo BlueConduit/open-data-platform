@@ -20,8 +20,9 @@ interface ProcessResult {
 }
 
 // These are defined here because the geoJsonHandlerFactory function signature was unreadable.
-type ProcessCallback = (rows: any[], db: AWS.RDSDataService) => Promise<void>;
-type ProcessHandler = (event: ProcessRequest) => Promise<APIGatewayProxyResult>;
+type ProcessCallback = (rows: any[], db: AWS.RDSDataService) => Promise<any>;
+type FinalCallback = (db: AWS.RDSDataService) => Promise<any>;
+type ProcessHandler = (event: ProcessRequest, context: any) => Promise<APIGatewayProxyResult>;
 
 const S3 = new AWS.S3();
 
@@ -42,16 +43,21 @@ const S3 = new AWS.S3();
  * }
  *
  * @param s3Params - Details for how to get the GeoJSON file.
- * @param callback - Function that operates on a batch of rows from the file.
+ * @param processCallback - Function that operates on a batch of rows from the file.
+ * @param finalCallback - Optional function that is invoked after all rows have been processed.
+ * @param batchSizeOverride - Optional number of rows to process in each batch. Defaults to 10.
  * @returns
  */
-export const geoJsonHandlerFactory =
-  (s3Params: AWS.S3.GetObjectRequest, callback: ProcessCallback): ProcessHandler =>
-  async (event: ProcessRequest): Promise<APIGatewayProxyResult> => {
+export const geoJsonHandlerFactory = (
+  s3Params: AWS.S3.GetObjectRequest,
+  processCallback: ProcessCallback,
+  finalCallback?: FinalCallback,
+  batchSizeOverride?: number,
+): ProcessHandler => async (event: ProcessRequest): Promise<APIGatewayProxyResult> => {
     // Use arguments or defaults.
     let rowOffset = event.rowOffset ?? 0;
     const rowLimit = event.rowLimit ?? Infinity;
-    const batchSize = event.batchSize ?? 10;
+    const batchSize = batchSizeOverride ?? event.batchSize ?? 10;
 
     const db = new AWS.RDSDataService();
     let results: ProcessResult = {
@@ -61,8 +67,14 @@ export const geoJsonHandlerFactory =
     };
 
     try {
-      results = await readGeoJsonFile(db, s3Params, callback, rowOffset, rowLimit, batchSize);
       console.log(`Importing rows starting from: ${rowOffset}`);
+      results = await readGeoJsonFile(db, s3Params, processCallback, rowOffset, rowLimit, batchSize);
+      console.log(`Row import complete`);
+      if(finalCallback){
+        console.log(`Invoking final callback...`);
+        await finalCallback(db);
+        console.log('Final callback complete');
+      }
     } catch (error) {
       console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
       throw error;
@@ -125,7 +137,8 @@ const readGeoJsonFile = (
         if (skippedRowCount + batchSize <= rowOffset) {
           skippedRowCount += batchSize;
           console.log(
-            `${id}: Skipping batch of ${rows.length} rows. ${skippedRowCount}/${rowOffset} offset rows have been skipped so far.`,
+            `${id}: Skipping batch of ${rows.length} rows.` +
+            `${skippedRowCount}/${rowOffset} offset rows have been skipped so far.`,
           );
           return;
         }
@@ -135,8 +148,8 @@ const readGeoJsonFile = (
         if (processedRowCount + inProcessRowCount >= rowLimit) {
           console.log(
             `${id}: Stopping processing after` +
-              ` ${processedRowCount} rows processed + ${inProcessRowCount} rows in progress` +
-              ` >= ${rowLimit} limit`,
+            ` ${processedRowCount} rows processed + ${inProcessRowCount} rows in progress` +
+            ` >= ${rowLimit} limit`,
           );
           pipeline.destroy();
           return;
@@ -149,9 +162,12 @@ const readGeoJsonFile = (
 
         // Reprocess errored rows individually. This may catch transient errors, or at least let
         // other rows in the batch succeed.
-        promise.catch((_) =>
+        promise.catch((e) =>
           rows.forEach((row) => {
-            console.log(`${id}: Reprocessing errored row individually.`, row.value?.properties);
+            console.log(
+              `${id}: Reprocessing errored row individually ${e}.`,
+              row.value?.properties,
+            );
             const rePromise = callback([row], db);
             rePromise.catch((reason) => console.log(`${id}: Reprocessing failed`, reason));
             promises.push(rePromise);
@@ -161,9 +177,10 @@ const readGeoJsonFile = (
         try {
           // Await this batches so we know whether to increment the row count.
           // This does not block other batches from being processed in parallel.
+          const start = Date.now();
           await promise;
           processedRowCount += rows.length;
-          console.log(`${id}: ${processedRowCount} rows have been processed so far.`);
+          console.log(`${id}: ${processedRowCount} rows have been processed so far, latest batch in ${Date.now() - start}ms.`);
         } catch (error) {
           // Handle in the promise.
         } finally {

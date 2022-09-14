@@ -3,7 +3,7 @@
     <div class='h2-header-large'>
       {{ header }}
     </div>
-    <div class='explain-text' v-if='subheader != null'>
+    <div class='container explain-text' v-if='subheader != null'>
       {{ subheader }}
     </div>
     <Popper v-if='buttonText != null'
@@ -70,7 +70,7 @@ export default defineComponent({
 }
 
 .explain-text {
-  text-align: center;
+  padding: $spacing-md;
 }
 
 .icon {

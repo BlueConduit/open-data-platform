@@ -12,8 +12,11 @@ export class ScorecardMessages {
     'The Area Deprivation Index (ADI) is based on a measure created by the Health Resources & ' +
     'Services Administration. It includes factors like income, education, employment, and housing quality.';
   static AVERAGE_INCOME = 'Average income';
+  static CONTACT_YOUR_CITY_HEADER = 'Contact your city';
+  static CONTACT_YOUR_CITY_SUBHEADER =
+    'Get more information or remediate any lead issues is to contact your city.';
   static COPIED_TO_CLIPBOARD = 'Copied!';
-  static COPY_TO_CLIPBOARD = 'Copy scorecard to clipboard';
+  static COPY_TO_CLIPBOARD = 'Copy scorecard link';
   static EXPLORE_MAP_PAGE_EXPLAINER =
     'You can learn more about what’s happening in your community, state, ' +
     'or the United States by exploring the Nationwide Map. ';
@@ -47,7 +50,8 @@ export class ScorecardMessages {
   static SCORECARD_SUMMARY_PANEL_SUBHEADER =
     'In addition to information from your water system, your score is also based on ' +
     'these statistics for your zip code:';
-  static SHARE_LEAD_OUT = 'Share LeadOut and help others know their status';
+  static SHARE_LEAD_OUT = 'Share your lead score';
+  static SHARE_LEAD_OUT_SUBHEADER = 'Help others know their lead status through LeadOut.';
   static SOMEWHAT_DISADVANTAGED = 'Somewhat disadvantaged';
   static SOMEWHAT_LIKELY = 'somewhat likely';
   static TAKE_ACTION_HEADER = 'Take action';
@@ -55,7 +59,7 @@ export class ScorecardMessages {
   static WATER_SYSTEM_DESCRIPTION =
     'This is the water system which owns the service lines that provide water to this area.';
 
-  static SCORECARD_SUMMARY_PANEL_HEADER = (zipCode?: string) =>
+  static SCORECARD_SUMMARY_PANEL_HEADER = (zipCode: string | null) =>
     zipCode != null ? `Understanding your score for ${zipCode}` : 'Understanding your score';
 
   static PREDICTION_EXPLANATION = (prediction: string) =>

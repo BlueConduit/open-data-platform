@@ -1,13 +1,15 @@
 <template>
-  <div
-    :class='containerRowClass'>
-    <div class='asset'><img :src='require(`@/assets/media/${image}`)' alt=''>
+  <div class='columns is-centered' :class='{ reverse }'>
+    <div class='column asset has-text-centered'>
+      <img :src='require(`@/assets/media/${image}`)' alt='' />
     </div>
-    <div class='factor-text'>
-      <div class='h2-header-large'> {{ header }}</div>
-      <div class='explain-text'> {{ subheader }} <br>
+    <div class='column'>
+      <div class='h2-header-large'>{{ header }}</div>
+      <div class='explain-text'>
+        {{ subheader }} <br />
         <a v-if='learnMoreLink != null' :href='learnMoreLink'>
-          {{ ScorecardMessages.LEARN_MORE }}</a>
+          {{ ScorecardMessages.LEARN_MORE }}</a
+        >
       </div>
       <!--      TODO: Handle error state where there is no demographic data -->
       <!--      after the API has returned.-->
@@ -18,7 +20,7 @@
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 
@@ -27,7 +29,7 @@ import { ScorecardMessages } from '../assets/messages/scorecard_messages';
  */
 export enum ImageFloatDirection {
   left,
-  right
+  right,
 }
 
 /**
@@ -48,27 +50,19 @@ export default defineComponent({
   },
   data() {
     return {
-      containerRowClass: this.imageFloatDirection == ImageFloatDirection.left
-        ? 'center-container' : 'container-reverse',
+      reverse: this.imageFloatDirection == ImageFloatDirection.right,
       ScorecardMessages,
     };
   },
 });
-
-
 </script>
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'bulma/sass/grid/columns.sass';
+@import 'bulma/sass/helpers/typography.sass';
 
-.center-container {
-  height: var(--height);
-  gap: $spacing-lg;
-}
-
-.container-reverse {
-  @include center-container;
-
+.reverse {
   flex-direction: row-reverse;
 }
 
@@ -78,16 +72,11 @@ export default defineComponent({
 }
 
 .explain-text {
-  color: white;
-}
-
-.factor-text {
-  @include container-column;
-  gap: $spacing-md;
+  color: $text_white;
+  width: 100%;
 }
 
 .asset img {
   width: 20 * $spacing-md;
 }
-
 </style>

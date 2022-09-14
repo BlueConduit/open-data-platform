@@ -1,16 +1,20 @@
 <template>
-  <span class='side-panel' v-if='options.length > 0'>
-    <geo-id-section
-      v-for='option in options'
-      :key='option'
-      :geoId='getGeoIdForZoomLevel(option)'
-      :geoIdInfo='getGeoIdInfoForZoomLevel(option)'
-      :selected='getSelected(option)'
-      @click='setSelected(option)' />
-  </span>
+  <!-- Vue wants only one root element and v-for can have many, so wrap in a parent div. -->
+  <div>
+    <div class='columns is-centered' v-for='option in options' :key='option'>
+      <div class='column'>
+        <geo-id-section
+          :geoId='getGeoIdForZoomLevel(option)'
+          :geoIdInfo='getGeoIdInfoForZoomLevel(option)'
+          :selected='getSelected(option)'
+          @click='setSelected(option)'
+        />
+      </div>
+    </div>
+  </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import GeoIdSection from './GeoIdSection.vue';
 import { dispatch, useSelector } from '../model/store';
@@ -100,7 +104,8 @@ export default defineComponent({
         case ZoomLevel.parcel:
           return ScorecardMessages.PREDICTION_DESCRIPTION(
             LeadDataUtil.formatPredictionAsLikelihood(
-              this.leadState?.data?.publicLeadLowPrediction),
+              this.leadState?.data?.publicLeadLowPrediction,
+            ),
             'parcel',
           );
         case ZoomLevel.waterSystem:
@@ -108,8 +113,10 @@ export default defineComponent({
         case ZoomLevel.zipCode:
           return ScorecardMessages.PREDICTION_DESCRIPTION(
             LeadDataUtil.formatPredictionAsLikelihood(
-              LeadDataUtil.waterSystemsPercentLead(this.leadState?.data)),
-            'zip code');
+              LeadDataUtil.waterSystemsPercentLead(this.leadState?.data),
+            ),
+            'zip code',
+          );
         default:
           return '';
       }
@@ -134,28 +141,19 @@ export default defineComponent({
     },
   },
   watch: {
-    'mapState.mapData.zoomLevel': function() {
+    'mapState.mapData.zoomLevel': function () {
       this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
     },
-    'geoState.geoids': function() {
+    'geoState.geoids': function () {
       this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
     },
   },
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-
-
-.side-panel {
-  @include container-column;
-  display: flex;
-  flex-direction: column;
-  padding: $spacing-lg $spacing-xl;
-  justify-content: space-between;
-  row-gap: $spacing-lg;
-}
-
+@import 'bulma/sass/grid/columns.sass';
+@import 'bulma/sass/helpers/spacing.sass';
 </style>
