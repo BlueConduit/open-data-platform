@@ -1,44 +1,72 @@
 <template>
   <div>
-    <PredictionPanel />
-    <div class='map-container'>
-      <MapGeocoderWrapper class='search'
-                          :acceptedTypes='acceptedTypes'
-                          :baseUrl='SCORECARD_BASE'
-                          v-model:expandSearch='showSearch' />
-      <NationwideMap height='60vh' />
+    <!-- Cover the entire page with loading element until data is ready. -->
+    <div class='loading' v-if='!showScorecard'>
+      <loading :active='true' :is-full-page='false' color='#2553A0' loader='bars' opacity='1' />
     </div>
-    <div class='container-column center-container actions-to-take'>
-      <div class='h1-header-large'>
-        {{ ScorecardMessages.TAKE_ACTION_HEADER }}
+    <div v-if='showScorecard'>
+      <PredictionPanel />
+
+      <!-- Only display the side-panel, full-width on mobile. -->
+      <ScorecardMapSearchBar class='is-hidden-mobile' />
+      <div class='columns is-variable is-centered is-gapless'>
+        <!-- Conditionally use the "side-panel" class to limit column width on desktop only -->
+        <div class='column is-hidden-desktop' v-if='showResults'>
+          <div class='section'>
+            <SidePanel />
+          </div>
+        </div>
+        <div class='column is-hidden-touch side-panel' v-if='showResults'>
+          <div class='section'>
+            <SidePanel />
+          </div>
+        </div>
+
+        <div class='column is-hidden-mobile'>
+          <NationwideMap height='60vh' :enableBasicMap='true' />
+        </div>
       </div>
+
+      <div class='section has-text-centered' v-if='showResults'>
+        <div class='h1-header-large'>
+          {{ ScorecardMessages.TAKE_ACTION_HEADER }}
+        </div>
+        <div class='columns is-centered'>
+          <ActionSection
+            class='column is-one-third'
+            :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
+            :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
+            :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
+            @onButtonClick='navigateToResourcePage'
+          />
+          <ActionSection
+            class='column is-one-third'
+            :header='ScorecardMessages.SHARE_LEAD_OUT'
+            :subheader='ScorecardMessages.SHARE_LEAD_OUT_SUBHEADER'
+            :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
+            @onButtonClick='copyToClipboard'
+          />
+        </div>
+      </div>
+
+      <ContactCitySection class='section' v-if='showLslrSection' :city='city' />
+
+      <ScorecardSummaryPanel v-if='showResults' />
+
       <ActionSection
-        class='section'
-        :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
-        :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
-        :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-        @onButtonClick='navigateToResourcePage'
+        class='nav-to-map section'
+        :header='ScorecardMessages.WANT_TO_KNOW_MORE'
+        :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
+        :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
+        @onButtonClick='navigateToMapPage'
       />
-      <ActionSection
-        class='section'
-        :header='ScorecardMessages.SHARE_LEAD_OUT'
-        :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
-        @onButtonClick='copyToClipboard'
-      />
+
+      <LslrSection v-if='showLslrSection' :city='city' />
     </div>
-    <ScorecardSummaryPanel />
-    <ActionSection
-      class='nav-to-map section'
-      :header='ScorecardMessages.WANT_TO_KNOW_MORE'
-      :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
-      :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
-      @onButtonClick='navigateToMapPage'
-    />
-    <LslrSection v-if='showLslr' :city='leadDataState?.data?.city' />
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import PredictionPanel from '../components/PredictionPanel.vue';
 import ActionSection from '../components/ActionSection.vue';
 import { defineComponent } from 'vue';
@@ -47,12 +75,19 @@ import ScorecardSummaryPanel from '../components/ScorecardSummaryPanel.vue';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
 import { Titles } from '../assets/messages/common';
 import NationwideMap from '../components/NationwideMap.vue';
-import LslrSection from '@/components/LslrSection.vue';
-import { LSLR_CITY_LINKS } from '@/components/LslrSection.vue';
-import { useSelector } from '@/model/store';
+import LslrSection from '../components/LslrSection.vue';
+import { dispatch, useSelector } from '../model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
-import { City, GeoType } from '../model/states/model/geo_data';
-import MapGeocoderWrapper from '../components/MapGeocoderWrapper.vue';
+import { GeoDataState } from '../model/states/geo_data_state';
+import ScorecardMapSearchBar from '../components/ScorecardMapSearchBar.vue';
+import SidePanel from '../components/SidePanel.vue';
+import { City } from '../model/states/model/geo_data';
+import { Status } from '../model/states/status_state';
+import { getParcel, getWaterSystem } from '../model/slices/lead_data_slice';
+import { GeoDataUtil } from '../util/geo_data_util';
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/vue-loading.css';
+import ContactCitySection from '../components/ContactCitySection.vue';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -60,29 +95,58 @@ import MapGeocoderWrapper from '../components/MapGeocoderWrapper.vue';
 export default defineComponent({
   name: 'ScorecardView',
   components: {
+    ContactCitySection,
     ActionSection,
+    Loading,
     LslrSection,
-    MapGeocoderWrapper,
     NationwideMap,
     PredictionPanel,
     ScorecardSummaryPanel,
+    ScorecardMapSearchBar,
+    SidePanel,
   },
   setup() {
+    const geoState = useSelector((state) => state.geos) as GeoDataState;
     const leadDataState = useSelector((state) => state.leadData) as LeadDataState;
 
     return {
+      geoState,
       leadDataState,
     };
   },
   data() {
     return {
-      acceptedTypes: [GeoType.address, GeoType.postcode],
-      showSearch: true,
       ScorecardMessages,
       SCORECARD_BASE,
-      showLslr: false,
+      showResultSections: false,
       Titles,
     };
+  },
+  computed: {
+    showLslrSection(): boolean {
+      return this.city != City.unknown;
+    },
+    city(): City {
+      const intersectedCity =
+        this.leadDataState?.data?.city ??
+        GeoDataUtil.getCityForLatLong(this.geoState?.geoids?.lat, this.geoState?.geoids?.long);
+      return intersectedCity ?? City.unknown;
+    },
+    leadDataLoaded(): boolean {
+      return (
+        this.leadDataState?.waterSystemStatus?.status == Status.success &&
+        this.leadDataState?.parcelStatus?.status == Status.success
+      );
+    },
+    showScorecard(): boolean {
+      return (
+        GeoDataUtil.isNullOrEmpty(this.geoState?.geoids) ||
+        (this.geoState?.status?.status != Status.pending && this.leadDataLoaded)
+      );
+    },
+    showResults(): boolean {
+      return !GeoDataUtil.isNullOrEmpty(this.geoState?.geoids);
+    },
   },
   methods: {
     async copyToClipboard() {
@@ -99,38 +163,45 @@ export default defineComponent({
         path: '/map',
       });
     },
+    updateViewWithGeoIds() {
+      // Check if an address was queried and another prediction should be
+      // fetched.
+      if (
+        this.geoState?.geoids?.address != null &&
+        this.geoState?.geoids?.lat != null &&
+        this.geoState?.geoids?.long != null
+      ) {
+        dispatch(getParcel(this.geoState.geoids.lat, this.geoState.geoids.long));
+      }
+      // Request water system data if PWSID is not null, even for address search.
+      if (this.geoState?.geoids?.pwsId != null) {
+        dispatch(getWaterSystem(this.geoState.geoids.pwsId.id));
+      }
+    },
   },
   watch: {
-    'leadDataState.data.city': function() {
-      const city = this.leadDataState?.data?.city ?? City.unknown;
-      this.showLslr = city != null && LSLR_CITY_LINKS.get(city) != null;
+    // Listen for changes to pws id or lat, long. Once it changes, a new
+    // prediction must be fetched.
+    'geoState.geoids': function () {
+      this.updateViewWithGeoIds();
     },
   },
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-
-.actions-to-take {
-  padding: $spacing-lg;
-}
+@import 'bulma/sass/layout/section.sass';
+@import 'bulma/sass/grid/columns.sass';
+@import 'bulma/sass/helpers/typography.sass';
+@import 'bulma/sass/helpers/visibility.sass';
 
 .nav-to-map {
   background-color: $light-blue-50;
 }
 
-.map-container {
-  position: relative;
+.side-panel {
+  max-width: 6 * $spacing-xl;
 }
-
-.search {
-  margin-right: $spacing-md;
-  max-width: 350px;
-  position: absolute;
-  top: $spacing-sm;
-  right: 0;
-}
-
 </style>

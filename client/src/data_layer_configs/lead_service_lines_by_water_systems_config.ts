@@ -116,16 +116,6 @@ const popupInfo: PopupInfo = {
       optional: true,
     },
     {
-      label: 'Number of lead connections',
-      name: 'lead_connections_count',
-      dataType: FeaturePropertyDataType.Number,
-    },
-    {
-      label: 'Number of service lines',
-      name: 'service_connections_count',
-      dataType: FeaturePropertyDataType.Number,
-    },
-    {
       label: 'Population served',
       name: 'population_served',
       dataType: FeaturePropertyDataType.Number,
@@ -135,7 +125,7 @@ const popupInfo: PopupInfo = {
     {
       label: 'Percent lead lines',
       name: 'percent_lead',
-      dataType: FeaturePropertyDataType.Number,
+      dataType: FeaturePropertyDataType.Percentage,
       calculate: (features: GeoJsonProperties) =>
         features == null
           ? null

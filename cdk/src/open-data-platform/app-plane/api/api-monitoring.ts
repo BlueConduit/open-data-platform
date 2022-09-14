@@ -22,15 +22,17 @@ export class ApiMonitoring extends Construct {
     // TODO: Track the error budget, rather than looking at the error rate at any given time.
 
     const availabilitySlo = 0.95;
-    const latencyMsSlo = 2000; // Miliseconds
-    const slowBurnPeriod = Duration.days(1);
-    const fastBurnPeriod = Duration.hours(1);
+    const latencyMsSlo = 2000; // Milliseconds
+    const period = Duration.minutes(15);
+    // Alarms will fire if they are above the threshold for the number of periods below.
+    const fastBurnEvalPeriods = 4; // 60 minutes
+    const slowBurnEvalPeriods = 4 * 24; // 24 hours
 
     const alarms = [
       new cloudwatch.MathExpression({
         expression: '(clientError + serverError) / count',
         label: 'Error Fraction',
-        period: slowBurnPeriod,
+        period,
         usingMetrics: {
           clientError: gateway.metricClientError(),
           serverError: gateway.metricServerError(),
@@ -39,16 +41,15 @@ export class ApiMonitoring extends Construct {
       }).createAlarm(scope, 'AvailabilitySLOSlowBurn', {
         alarmDescription: `The API has been running below its ${
           availabilitySlo * 100
-        }% SLO for ${slowBurnPeriod.toString()}.`,
-        evaluationPeriods: 1,
+        }% SLO for ${slowBurnEvalPeriods} x ${period.toString()}.`,
+        evaluationPeriods: slowBurnEvalPeriods,
         threshold: 1 - availabilitySlo,
-        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       }),
 
       new cloudwatch.MathExpression({
         expression: '(clientError + serverError) / count',
         label: 'Error Fraction',
-        period: fastBurnPeriod,
+        period,
         usingMetrics: {
           clientError: gateway.metricClientError(),
           serverError: gateway.metricServerError(),
@@ -57,18 +58,16 @@ export class ApiMonitoring extends Construct {
       }).createAlarm(scope, 'AvailabilitySLOFastBurn', {
         alarmDescription: `The API has been running significantly below its ${
           availabilitySlo * 100
-        }% SLO for ${fastBurnPeriod.toString()}.`,
-        evaluationPeriods: 1,
+        }% SLO for ${fastBurnEvalPeriods} x ${period.toString()}.`,
+        evaluationPeriods: fastBurnEvalPeriods,
         threshold: (1 - availabilitySlo) * 10, // 10x error rate than SLO allows.
-        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       }),
 
       // TODO: This uses average latency. Additionally alert on 95%ile latency over a longer period.
-      gateway.metricLatency({ period: fastBurnPeriod }).createAlarm(scope, 'LatencySLOFastBurn', {
-        alarmDescription: `The API has a higher latency than its ${latencyMsSlo} ms SLO for ${fastBurnPeriod.toString()}.`,
-        evaluationPeriods: 1,
+      gateway.metricLatency({ period }).createAlarm(scope, 'LatencySLOFastBurn', {
+        alarmDescription: `The API has a higher latency than its ${latencyMsSlo} ms SLO for ${fastBurnEvalPeriods} x ${period.toString()}.`,
+        evaluationPeriods: fastBurnEvalPeriods,
         threshold: latencyMsSlo,
-        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       }),
     ];
 

@@ -1,16 +1,18 @@
 <template>
   <div class='scorecard-search'>
-    <GeocoderInput class='geocoder'
-                   :placeholder='this.placeholder'
-                   :acceptedTypes='acceptedTypes'
-                   @result='onGeocodeResults' />
+    <GeocoderInput
+      class='geocoder'
+      :placeholder='placeholder'
+      :acceptedTypes='acceptedTypes'
+      @result='onGeocodeResults'
+    />
     <button class='gold-button' @click='onSearch' :disabled='!searchHasResult'>
       {{ ctaButtonText }}
     </button>
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { SCORECARD_BASE } from '../../router';
 import GeocoderInput from '../GeocoderInput.vue';
@@ -58,13 +60,13 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .geocoder {
   height: $spacing-xl;
-  width: 512px;
+  width: 100%;
 }
 
 .scorecard-search {

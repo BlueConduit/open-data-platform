@@ -14,11 +14,18 @@ const leadDataSlice = createSlice({
   name: 'leadDataSlice',
   initialState,
   reducers: {
+    parcelQueried(state: LeadDataState, action: PayloadAction<LeadData>) {
+      return {
+        ...state,
+        data: { ...state.data, ...action.payload },
+        parcelStatus: { status: Status.pending },
+      };
+    },
     getParcelSuccess(state: LeadDataState, action: PayloadAction<LeadData>) {
       return {
         ...state,
         data: { ...state.data, ...action.payload },
-        status: { status: Status.success },
+        parcelStatus: { status: Status.success },
       };
     },
     getParcelError: (state: LeadDataState, action) => {
@@ -26,7 +33,7 @@ const leadDataSlice = createSlice({
         `Error fetching lead data for parcel: ${JSON.stringify(state)} ${JSON.stringify(action)}`,
       );
       return {
-        status: {
+        parcelStatus: {
           status: Status.error,
           message: action.payload.error,
           code: action.payload.status,
@@ -37,7 +44,7 @@ const leadDataSlice = createSlice({
       return {
         ...state,
         data: { ...state.data, ...action.payload },
-        status: { status: Status.success },
+        waterSystemStatus: { status: Status.success },
       };
     },
     getWaterSystemError: (state: LeadDataState, action) => {
@@ -47,7 +54,7 @@ const leadDataSlice = createSlice({
         )}`,
       );
       return {
-        status: {
+        waterSystemStatus: {
           status: Status.error,
           message: action.payload.error,
           code: action.payload.status,
@@ -58,13 +65,14 @@ const leadDataSlice = createSlice({
       return {
         ...state,
         data: { ...state.data, ...action.payload },
-        status: { status: Status.pending },
+        waterSystemStatus: { status: Status.pending },
       };
     },
     leadDataCleared(_: LeadDataState, __: PayloadAction<LeadData>) {
       return {
         data: {},
-        status: { status: Status.success },
+        parcelStatus: { status: Status.success },
+        waterSystemStatus: { status: Status.success },
       };
     },
   },
@@ -78,6 +86,8 @@ const leadDataSlice = createSlice({
  */
 export const getParcel = (lat: string, long: string) => {
   return async (dispatch: AppDispatch) => {
+    dispatch(parcelQueried({ lat: lat, long: long }));
+
     const apiResponse = await client.getParcel(lat, long);
     if (apiResponse.data != null) {
       dispatch(getParcelSuccess(apiResponse.data));
@@ -123,5 +133,6 @@ export const {
   getWaterSystemSuccess,
   getWaterSystemError,
   leadDataCleared,
+  parcelQueried,
 } = leadDataSlice.actions;
 export default leadDataSlice.reducer;

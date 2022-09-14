@@ -1,7 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
 import { GeographicLevel } from '@/model/data_layer';
-import prefixes from '../../../cdk/src/open-data-platform/frontend/url-prefixes';
 
 /**
  * Client to interface with API.
@@ -52,8 +51,8 @@ class ApiClient {
     return this.request(`${ApiClient.API_URL}/geolocate/${lat},${long}`, (data) => {
       return {
         address: {
-          id: data?.data?.address.id,
-          boundingBox: data?.data?.address.bounding_box,
+          id: data?.data?.address?.id,
+          boundingBox: data?.data?.address?.bounding_box,
         },
         pwsId: {
           id: data?.data?.water_system_pws_id?.id,
@@ -91,6 +90,7 @@ class ApiClient {
     return this.request(`${ApiClient.API_URL}/watersystem/${pwsId}`, (data) => {
       return {
         pwsId: data?.data?.pws_id,
+        pwsName: data?.data?.pws_name,
         leadServiceLines: data?.data?.lead_service_lines,
         serviceLines: data?.data?.service_lines,
       };

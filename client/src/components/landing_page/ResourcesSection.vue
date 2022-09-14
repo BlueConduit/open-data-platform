@@ -1,27 +1,36 @@
 <template>
-  <div class='section'>
-    <div class='header-section'>
-      <div class='h2-header-large'>{{ messages.RESOURCES_SECTION_SUPER_HEADER }}
+  <div class='section is-medium has-text-centered'>
+    <div class='container'>
+      <div class='columns is-centered'>
+        <div class='column header-section'>
+          <div class='h2-header-large'>
+            {{ messages.RESOURCES_SECTION_SUPER_HEADER }}
+          </div>
+          <div class='h1-header-large'>
+            {{ messages.RESOURCES_SECTION_HEADER }}
+          </div>
+        </div>
       </div>
-      <div class='h1-header-large'>{{ messages.RESOURCES_SECTION_HEADER }}</div>
-    </div>
-    <div class='resources'>
-      <div class='resource'
-           v-for='resource in messages.RESOURCE_MESSAGES'
-           :key='resource.header'>
-        <div class='h1-header'>{{ resource.header }}</div>
-        <div class='resource-blurb body'>{{ resource.body }}</div>
+      <div class='columns'>
+        <div class='column' v-for='resource in messages.RESOURCE_MESSAGES' :key='resource.header'>
+          <div class='h1-header'>{{ resource.header }}</div>
+          <div class='resource-blurb body'>{{ resource.body }}</div>
+        </div>
+      </div>
+      <div class='columns'>
+        <div class='column header-section'>
+          <router-link class='gold-button' :to='resourcesRoute'>
+            {{ messages.VIEW_MORE_RESOURCES_BUTTON_TEXT }}
+          </router-link>
+        </div>
       </div>
     </div>
-    <router-link class='link' :to='resourcesRoute'>
-      {{ messages.VIEW_MORE_RESOURCES_BUTTON_TEXT }}
-    </router-link>
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
-import { LandingPageMessages as messages } from '@/assets/messages/landing';
+import { LandingPageMessages as messages } from '../../assets/messages/landing';
 import { RESOURCES_ROUTE } from '../../router';
 
 /**
@@ -38,22 +47,18 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'bulma/sass/layout/section.sass';
+@import 'bulma/sass/elements/container.sass';
+@import 'bulma/sass/grid/columns.sass';
+@import 'bulma/sass/helpers/typography.sass';
+@import 'bulma/sass/utilities/_all.sass';
 
 .h2-header-large {
   color: $warm-grey-600;
-}
-
-.resource {
-  @include container-column;
-
-  gap: $spacing-md;
-  padding: $spacing-sm;
-  max-width: 300px;
-  max-height: 300px;
-
+  margin-bottom: $spacing-lg;
 }
 
 .resource-blurb {
@@ -63,17 +68,9 @@ export default defineComponent({
 
 .h1-header {
   @include centered-text;
-  
+
   color: $warm-grey-900;
   text-transform: capitalize;
-}
-
-.resources {
-  @include container-row;
-  @include center-container;
-
-  align-items: flex-start;
-  gap: $spacing-md;
 }
 
 .section {
