@@ -80,7 +80,6 @@ export default defineComponent({
 // These variables cannot reference css vars
 .tooltip-content {
   --popper-theme-background-color: #333333;
-  --popper-theme-background-color-hover: #333333;
   --popper-theme-text-color: white;
   --popper-theme-border-width: 0px;
   --popper-theme-border-style: solid;
