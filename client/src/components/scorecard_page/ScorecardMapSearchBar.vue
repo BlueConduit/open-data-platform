@@ -95,7 +95,7 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import 'src/assets/styles/global';
-@import 'node_modules/@blueconduit/copper/scss/01_settings/design-tokens';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .searchbar-container {
   display: flex;

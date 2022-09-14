@@ -58,9 +58,9 @@ export default defineComponent({
 </script>
 <style scoped lang='scss'>
 @import 'src/assets/styles/global';
-@import 'node_modules/@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'node_modules/bulma/sass/grid/columns';
-@import 'node_modules/bulma/sass/helpers/typography';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'bulma/sass/grid/columns';
+@import 'bulma/sass/helpers/typography';
 
 .reverse {
   flex-direction: row-reverse;
