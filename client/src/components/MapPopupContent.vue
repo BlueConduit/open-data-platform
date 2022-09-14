@@ -19,7 +19,7 @@ import { defineComponent, PropType } from 'vue';
 import { FeatureProperty, FeaturePropertyDataType } from '../model/data_layer';
 
 const LESS_THAN_FIVE_PERCENT = '< 5%';
-const MORE_THAN_NINETY_FIVE_PERCENT = '> 95%';
+const GREATER_THAN_NINETY_FIVE_PERCENT = '> 95%';
 /**
  * Map popup component.
  */
@@ -103,7 +103,7 @@ export default defineComponent({
       if (percentageValue < 5) {
         return LESS_THAN_FIVE_PERCENT;
       } else if (percentageValue > 95) {
-        return MORE_THAN_NINETY_FIVE_PERCENT;
+        return GREATER_THAN_NINETY_FIVE_PERCENT;
       } else {
         return `${percentageValue.toLocaleString()}%`;
       }

@@ -70,8 +70,6 @@ export default defineComponent({
      * @param option
      */
     updateSelectedLayer(option: DataLayer): void {
-      // Update the router params when toggling layers to visible. Do not update
-      // for leadServiceLinesByParcelLayer, which is not a visible layer.
       router.push({
         query: Object.assign({}, router.currentRoute.value.query, {
           layer: option.id,
