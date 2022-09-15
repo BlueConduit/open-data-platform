@@ -123,11 +123,14 @@ const popupInfo: PopupInfo = {
   ],
   computedProperties: [
     {
-      label: 'Percent lead lines',
+      label: 'Estimated percent lead lines',
       name: 'percent_lead',
       dataType: FeaturePropertyDataType.Percentage,
       calculate: (features: GeoJsonProperties) =>
-        features == null
+        // Avoid dividing by 0.
+        features == null ||
+        features.service_connections_count == null ||
+        features.service_connections_count == 0
           ? null
           : features.lead_connections_count / features.service_connections_count,
     },
