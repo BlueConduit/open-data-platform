@@ -81,7 +81,7 @@ export default defineComponent({
             break;
           }
           case FeaturePropertyDataType.Percentage: {
-            const percentageValue = parseFloat(propertyValue ?? '0') * 100;
+            const percentageValue = Math.round(parseFloat(propertyValue ?? '0') * 100);
             propertyValue = `${percentageValue.toLocaleString()}%`;
             break;
           }

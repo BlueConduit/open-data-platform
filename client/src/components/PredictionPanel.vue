@@ -14,7 +14,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 import { useSelector } from '../model/store';
 import { ScorecardMessages } from '../assets/messages/scorecard_messages';
@@ -108,7 +108,7 @@ export default defineComponent({
     },
   },
   watch: {
-    'geoState.status': function () {
+    'geoState.status': function() {
       this.showError = this.geoState?.status?.status == Status.error;
     },
   },
@@ -137,7 +137,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
+<style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 @import 'bulma/sass/layout/section.sass';

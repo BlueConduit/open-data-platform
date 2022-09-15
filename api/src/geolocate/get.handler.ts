@@ -122,15 +122,13 @@ export const handler = async (event: {
         (address) => (body.address = address),
       ),
       getGeoDataForLatLong(
-          db,
-          params,
-          'pws_id',
-          'water_systems',
-          'service_connections_count',
-          /* orderByAsc= */ false)
-        .then(
-        (pws_id) => (body.water_system_pws_id = pws_id),
-      ),
+        db,
+        params,
+        'pws_id',
+        'water_systems',
+        'service_connections_count',
+        /* orderByAsc= */ false,
+      ).then((pws_id) => (body.water_system_pws_id = pws_id)),
       getGeoDataForLatLong(db, params, 'zipcode', 'zipcodes').then(
         (zip_code) => (body.zip_code = zip_code),
       ),
