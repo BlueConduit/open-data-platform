@@ -1,36 +1,32 @@
 <template>
-  <div class='section'>
-    <div class='container'>
-      <div class='h1-header-large'>
-        <div>
-          {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER(zipCode) }}
-        </div>
+  <div class='section is-centered'>
+
+    <div class='h1-header-large'>
+      <div>
+        {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER(zipCode) }}
       </div>
-      <div class='subheader'>
-        {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}
-      </div>
-      <div class='container-column center-container'>
-        <ScorecardSummaryRow
-          :header='ScorecardSummaryMessages.HOME_AGE'
-          :subheader='ScorecardSummaryMessages.HOME_AGE_EXPLAINED'
-          :comparisonValue='homeAgeComparison'
-          image='home_age.png'
-        />
-        <ScorecardSummaryRow
-          :header='ScorecardSummaryMessages.AREA_DEPRIVATION_INDEX'
-          :subheader='ScorecardSummaryMessages.AREA_DEPRIVATION_INDEX_EXPLAINED'
-          :imageFloatDirection='ImageFloatDirection.right'
-          :comparisonValue='areaDeprivationIndexComparison'
-          learnMoreLink='https://www.neighborhoodatlas.medicine.wisc.edu/'
-          image='vulnerability.png'
-        />
-        <ScorecardSummaryRow
-          :header='ScorecardSummaryMessages.INCOME_LEVEL'
-          :subheader='ScorecardSummaryMessages.INCOME_LEVEL_EXPLAINED'
-          :comparisonValue='incomeComparison'
-          image='income.png'
-        />
-      </div>
+    </div>
+    <div class='subheader'>
+      {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}
+    </div>
+    <div class='container-column center-container'>
+      <ScorecardSummaryRow
+        :header='ScorecardSummaryMessages.HOME_AGE'
+        :subheader='ScorecardSummaryMessages.HOME_AGE_EXPLAINED'
+        :comparisonValue='homeAgeComparison'
+        image='home_age.png' />
+      <ScorecardSummaryRow
+        :header='ScorecardSummaryMessages.AREA_DEPRIVATION_INDEX'
+        :subheader='ScorecardSummaryMessages.AREA_DEPRIVATION_INDEX_EXPLAINED'
+        :imageFloatDirection='ImageFloatDirection.right'
+        :comparisonValue='areaDeprivationIndexComparison'
+        learnMoreLink='https://www.neighborhoodatlas.medicine.wisc.edu/'
+        image='vulnerability.png' />
+      <ScorecardSummaryRow
+        :header='ScorecardSummaryMessages.INCOME_LEVEL'
+        :subheader='ScorecardSummaryMessages.INCOME_LEVEL_EXPLAINED'
+        :comparisonValue='incomeComparison'
+        image='income.png' />
     </div>
   </div>
 </template>
