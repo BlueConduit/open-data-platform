@@ -41,6 +41,6 @@ export class MonitoringStack extends Stack {
       }),
     );
 
-    new SyntheticsStack(this, 'synthetics');
+    new SyntheticsStack(this, 'synthetics', props);
   }
 }

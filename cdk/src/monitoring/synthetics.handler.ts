@@ -7,7 +7,7 @@ exports.handler = async function () {
   const addresses = ['5607 HOME LN, TOLEDO OH 43623'];
   const address = addresses[0];
 
-  const url = 'https://leadout-dev.blueconduit.com/';
+  const url = `https://${process.env.DOMAIN}/`;
 
   syntheticsConfiguration.setConfig({
     includeRequestHeaders: true, // Enable if headers should be displayed in HAR
@@ -15,7 +15,9 @@ exports.handler = async function () {
     restrictedHeaders: [], // Value of these headers will be redacted from logs and reports
     restrictedUrlParameters: [], // Values of these url parameters will be redacted from logs and reports
   });
-  let page = await synthetics.getPage();
+  const page = await synthetics.getPage();
+
+  // TODO: map these steps to CUJs.
 
   // Navigate to the initial url
   await synthetics.executeStep('navigateToUrl', async function (timeoutInMillis = 30000) {
@@ -33,7 +35,7 @@ exports.handler = async function () {
     await suggestion.click();
     // This selects the first button with this class.
     // TODO: add and use element IDs.
-    const searchButton = await page.waitForSelector('.gold-button');
+    const searchButton = await page.waitForSelector('#scorecard-search-button');
     await searchButton.click();
   });
 
