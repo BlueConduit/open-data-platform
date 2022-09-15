@@ -291,12 +291,25 @@ export default defineComponent({
               (l) => l.id == this.currentDataLayerId,
             )?.popupInfo;
 
+            const allProperties = new Map(Object.entries(clickedFeatureProperties));
+
+            // Compute calculated properties.
+            const calculatedProperties = popupInfo?.computedProperties;
+            for (let properties of calculatedProperties ?? []) {
+              if (properties.calculate) {
+                allProperties.set(properties.name, properties.calculate(clickedFeatureProperties ?? {}));
+              }
+            }
+
             this.createMapPopup(e.lngLat /* popupData= */, {
               title: popupInfo?.title ?? '',
               subtitle: popupInfo?.subtitle ?? '',
               detailsTitle: popupInfo?.detailsTitle ?? '',
-              featureProperties: popupInfo?.featureProperties ?? ([] as FeatureProperty[]),
-              properties: new Map(Object.entries(clickedFeatureProperties)),
+              featureProperties: [
+                ...(popupInfo?.featureProperties ?? []),
+                ...(popupInfo?.computedProperties ?? []),
+              ],
+              properties: allProperties,
             });
           }
         });
