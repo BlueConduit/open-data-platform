@@ -1,4 +1,3 @@
-import { Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as synthetics from '@aws-cdk/aws-synthetics-alpha';
 import { join } from 'path';
