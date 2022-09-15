@@ -2,7 +2,11 @@
   <div>
     <!-- Cover the entire page with loading element until data is ready. -->
     <div class='loading' v-if='!showScorecard'>
-      <loading :active='true' :is-full-page='false' color='#2553A0' loader='bars' opacity='1' />
+      <loading :active='true'
+               :is-full-page='false'
+               color='#2553A0'
+               loader='bars'
+               opacity='1' />
     </div>
     <div v-if='showScorecard'>
       <PredictionPanel />
@@ -37,36 +41,39 @@
             :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
             :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
             :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-            @onButtonClick='navigateToResourcePage'
-          />
+            @onButtonClick='navigateToResourcePage' />
           <ActionSection
             class='column is-one-third'
             :header='ScorecardMessages.SHARE_LEAD_OUT'
             :subheader='ScorecardMessages.SHARE_LEAD_OUT_SUBHEADER'
+            buttonIcon='copy.png'
             :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
-            @onButtonClick='copyToClipboard'
-          />
+            :buttonTooltip='ScorecardMessages.COPIED_TO_CLIPBOARD'
+            @onButtonClick='copyToClipboard' />
         </div>
       </div>
 
       <ContactCitySection class='section' v-if='showLslrSection' :city='city' />
 
       <ScorecardSummaryPanel v-if='showResults' />
-
       <ActionSection
-        class='nav-to-map section'
+        class='section'
+        :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
+        :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
+        :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
+        @onButtonClick='navigateToResourcePage' />
+      <ActionSection
+        class='section nav-to-map'
         :header='ScorecardMessages.WANT_TO_KNOW_MORE'
         :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
         :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
-        @onButtonClick='navigateToMapPage'
-      />
-
+        @onButtonClick='navigateToMapPage' />
       <LslrSection v-if='showLslrSection' :city='city' />
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import PredictionPanel from '../components/PredictionPanel.vue';
 import ActionSection from '../components/ActionSection.vue';
 import { defineComponent } from 'vue';
@@ -182,14 +189,14 @@ export default defineComponent({
   watch: {
     // Listen for changes to pws id or lat, long. Once it changes, a new
     // prediction must be fetched.
-    'geoState.geoids': function () {
+    'geoState.geoids': function() {
       this.updateViewWithGeoIds();
     },
   },
 });
 </script>
 
-<style scoped lang="scss">
+<style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 @import 'bulma/sass/layout/section.sass';
