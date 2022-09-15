@@ -3,6 +3,7 @@ import * as chatbot from 'aws-cdk-lib/aws-chatbot';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import { CommonProps, EnvType } from '../util';
+import { SyntheticsStack } from './synthetics';
 
 export interface MonitoringProps extends CommonProps {
   slackConfig: chatbot.SlackChannelConfigurationProps;
@@ -39,5 +40,7 @@ export class MonitoringStack extends Stack {
         topicName: ticketTopicName(props.envType),
       }),
     );
+
+    new SyntheticsStack(this, 'synthetics');
   }
 }
