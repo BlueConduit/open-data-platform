@@ -14,19 +14,19 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 import GeoIdSection from './GeoIdSection.vue';
-import { dispatch, useSelector } from '../model/store';
-import { GeoDataState } from '../model/states/geo_data_state';
-import { MapDataState } from '../model/states/map_data_state';
-import { ZoomLevel } from '../model/states/model/map_data';
-import { GeoDataUtil } from '../util/geo_data_util';
-import { GeoData } from '../model/states/model/geo_data';
-import { setZoomLevel } from '../model/slices/map_data_slice';
-import { ScorecardMessages } from '../assets/messages/scorecard_messages';
-import { LeadDataUtil } from '../util/lead_data_util';
-import { LeadDataState } from '../model/states/lead_data_state';
+import { dispatch, useSelector } from '../../model/store';
+import { GeoDataState } from '../../model/states/geo_data_state';
+import { MapDataState } from '../../model/states/map_data_state';
+import { ZoomLevel } from '../../model/states/model/map_data';
+import { GeoDataUtil } from '../../util/geo_data_util';
+import { GeoData } from '../../model/states/model/geo_data';
+import { setZoomLevel } from '../../model/slices/map_data_slice';
+import { ScorecardMessages } from '../../assets/messages/scorecard_messages';
+import { LeadDataUtil } from '../../util/lead_data_util';
+import { LeadDataState } from '../../model/states/lead_data_state';
 
 /**
  * Side panel containing extra contexts for Geo IDs in the scorecard view.
@@ -141,19 +141,19 @@ export default defineComponent({
     },
   },
   watch: {
-    'mapState.mapData.zoomLevel': function () {
+    'mapState.mapData.zoomLevel': function() {
       this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
     },
-    'geoState.geoids': function () {
+    'geoState.geoids': function() {
       this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
     },
   },
 });
 </script>
 
-<style scoped lang="scss">
-@import '../assets/styles/global.scss';
+<style scoped lang='scss'>
+@import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/grid/columns.sass';
-@import 'bulma/sass/helpers/spacing.sass';
+@import 'bulma/sass/grid/columns';
+@import 'bulma/sass/helpers/spacing';
 </style>

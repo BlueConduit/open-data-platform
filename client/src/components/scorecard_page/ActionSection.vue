@@ -61,7 +61,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang='scss'>
-@import '../assets/styles/global.scss';
+@import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .center-container {

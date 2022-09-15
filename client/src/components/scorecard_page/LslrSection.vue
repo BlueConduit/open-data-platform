@@ -14,8 +14,8 @@
 
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
-import { ScorecardMessages as messages } from '@/assets/messages/scorecard_messages';
-import { City } from '@/model/states/model/geo_data';
+import { ScorecardMessages as messages } from '../../assets/messages/scorecard_messages';
+import { City } from '../../model/states/model/geo_data';
 
 export const LSLR_CITY_LINKS: Map<City, string> = new Map<City, string>([
   [City.newOrleans, 'https://www.swbno.org/DrinkingWater/LeadAwareness'],
@@ -50,7 +50,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang='scss'>
-@import '../assets/styles/global.scss';
+@import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 a {

@@ -19,18 +19,18 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
-import { SCORECARD_BASE } from '../router';
-import SearchBarOption from './SearchBarOption.vue';
-import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
-import { dispatch, useSelector } from '../model/store';
-import { GeoDataState } from '../model/states/geo_data_state';
-import { MapDataState } from '../model/states/map_data_state';
-import { ZoomLevel } from '../model/states/model/map_data';
-import { setZoomLevel } from '../model/slices/map_data_slice';
-import { GeoType } from '../model/states/model/geo_data';
-import { GeoDataUtil } from '../util/geo_data_util';
+import { SCORECARD_BASE } from '../../router';
+import SearchBarOption from '../SearchBarOption.vue';
+import MapGeocoderWrapper from '../MapGeocoderWrapper.vue';
+import { dispatch, useSelector } from '../../model/store';
+import { GeoDataState } from '../../model/states/geo_data_state';
+import { MapDataState } from '../../model/states/map_data_state';
+import { ZoomLevel } from '../../model/states/model/map_data';
+import { setZoomLevel } from '../../model/slices/map_data_slice';
+import { GeoType } from '../../model/states/model/geo_data';
+import { GeoDataUtil } from '../../util/geo_data_util';
 
 /**
  * The zoom and search bar for the scorecard map.
@@ -83,18 +83,18 @@ export default defineComponent({
     },
   },
   watch: {
-    'mapState.mapData.zoomLevel': function () {
+    'mapState.mapData.zoomLevel': function() {
       this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
     },
-    'geoState.geoids': function () {
+    'geoState.geoids': function() {
       this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
     },
   },
 });
 </script>
 
-<style scoped lang="scss">
-@import '../assets/styles/global.scss';
+<style scoped lang='scss'>
+@import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .searchbar-container {

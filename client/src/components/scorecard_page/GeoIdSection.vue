@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 
 /**
@@ -30,8 +30,8 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
-@import '../assets/styles/global.scss';
+<style scoped lang='scss'>
+@import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .description {

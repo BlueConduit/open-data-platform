@@ -20,9 +20,9 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent, PropType } from 'vue';
-import { ScorecardMessages } from '../assets/messages/scorecard_messages';
+import { ScorecardMessages } from '../../assets/messages/scorecard_messages';
 
 /**
  * Which side of the summary row to place the image.
@@ -56,11 +56,11 @@ export default defineComponent({
   },
 });
 </script>
-<style scoped lang="scss">
-@import '../assets/styles/global.scss';
+<style scoped lang='scss'>
+@import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/grid/columns.sass';
-@import 'bulma/sass/helpers/typography.sass';
+@import 'bulma/sass/grid/columns';
+@import 'bulma/sass/helpers/typography';
 
 .reverse {
   flex-direction: row-reverse;
