@@ -6,12 +6,7 @@
       :acceptedTypes='acceptedTypes'
       @result='onGeocodeResults'
     />
-    <button
-      class='gold-button'
-      id='scorecard-search-button'
-      @click='onSearch'
-      :disabled='!searchHasResult'
-    >
+    <button class='gold-button' @click='onSearch' :disabled='!searchHasResult'>
       {{ ctaButtonText }}
     </button>
   </div>
