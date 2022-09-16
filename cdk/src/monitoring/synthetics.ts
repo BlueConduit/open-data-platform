@@ -11,7 +11,11 @@ export class SyntheticsStack extends Construct {
     const { envType } = props;
 
     // By default, run every 15 minutes, every hour, Monday through Friday.
-    let schedule = synthetics.Schedule.expression('0/15 * ? * MON-FRI');
+    // The original cron string: '0/15 * ? * MON-FRI'
+    let schedule = synthetics.Schedule.cron({
+      minute: '0/15',
+      weekDay: 'MON-FRI',
+    });
     // But run it on demand in sandbox environments.
     if (envType == EnvType.Sandbox) schedule = synthetics.Schedule.once();
 
