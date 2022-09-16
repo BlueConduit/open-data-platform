@@ -23,7 +23,6 @@ export enum EnvType {
 export const defaultEnv = EnvType.Sandbox;
 export const projectName = 'OpenDataPlatform';
 export const baseSubdomain = 'leadout'; // Winner of team vote.
-export const parentDomain = 'blueconduit.com';
 
 // Leaving this here to add stuff like environmental variables, similar to
 // https://github.com/BlueConduit/tributary/blob/main/cdk/lib/types.ts
@@ -36,14 +35,6 @@ export const stackName = (id: StackId, e: EnvType): string => {
   const base = `${projectName}${StackId[id]}`;
   if (e == EnvType.Sandbox && process.env.USER) return `${process.env.USER}-${base}`;
   return base;
-};
-
-export const domain = (envType: EnvType) => {
-  let subdomain = `${process.env.USER ?? 'default'}.${baseSubdomain}-sandbox`; // Used by UNITTEST too.
-  if (envType === EnvType.Production) subdomain = baseSubdomain;
-  else if (envType === EnvType.Development) subdomain = `${baseSubdomain}-dev`;
-
-  return `${subdomain}.${parentDomain}`;
 };
 
 export const lambdaErrorAlarm = (scope: Construct, lambda: NodejsFunction, lambdaName: string) =>
