@@ -6,13 +6,13 @@ import { MapData, ZoomLevel } from '@/model/states/model/map_data';
 import { DataLayer, MapLayer } from '@/model/data_layer';
 import { leadServiceLinesByWaterSystemLayer } from '@/data_layer_configs/lead_service_lines_by_water_systems_config';
 import { leadAndCopperViolationsByCountyDataLayer } from '@/data_layer_configs/lead_and_copper_violations_by_water_system_config';
-import { populationDataByCensusBlockLayer } from '@/data_layer_configs/population_by_census_block_config';
 import { leadServiceLinesByParcelLayer } from '@/data_layer_configs/lead_service_lines_by_parcel_config';
 
 export const ALL_DATA_LAYERS = new Map<MapLayer, DataLayer>([
   [MapLayer.LeadServiceLineByWaterSystem, leadServiceLinesByWaterSystemLayer],
   [MapLayer.LeadAndCopperRuleViolationsByWaterSystem, leadAndCopperViolationsByCountyDataLayer],
-  [MapLayer.PopulationByCensusBlock, populationDataByCensusBlockLayer],
+  // TODO: Add back population layer once data is fixed.
+  // [MapLayer.PopulationByCensusBlock, populationDataByCensusBlockLayer],
   [MapLayer.LeadServiceLineByParcel, leadServiceLinesByParcelLayer],
 ]);
 
@@ -42,7 +42,7 @@ const mapSlice = createSlice({
     },
     mapDataCleared: () => {
       return {
-        data: {},
+        mapData: { dataLayers: Array.from(ALL_DATA_LAYERS.keys()) },
         status: { status: Status.success },
       };
     },

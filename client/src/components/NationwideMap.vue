@@ -223,19 +223,6 @@ export default defineComponent({
           this.map.setLayoutProperty(alternateLayer.styleLayer.id, VISIBILITY, 'none');
         }
       }
-
-      // Update the router params when toggling layers to visible. Do not update
-      // for leadServiceLinesByParcelLayer, which is not a visible layer.
-      const shouldUpdateRouterParam =
-        router.currentRoute.value.query.layer != layerId &&
-        layerId != MapLayer.LeadServiceLineByParcel;
-      if (shouldUpdateRouterParam) {
-        router.push({
-          query: Object.assign({}, router.currentRoute.value.query, {
-            layer: layerId,
-          }),
-        });
-      }
     },
 
     /**
