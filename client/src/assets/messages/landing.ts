@@ -6,12 +6,17 @@ interface ResourceMessage {
 }
 
 export class LandingPageMessages {
-  static SEARCH_SECTION_HEADER = 'How Safe is My Water?';
+  static SEARCH_SECTION_HEADER = 'Find My Water Status';
   static SEARCH_SECTION_SUBHEADER =
-    'Enter your info to find out the likelihood you have lead in your water supply ' +
-    '- and what to do about it.';
-  static GEOLOCATE_PLACEHOLDER_TEXT = 'Enter your address or zip code';
-  static CHECK_LEAD_STATUS_BUTTON_TEXT = 'Check Lead Status';
+    'If the water pipes connected to your home contain lead, you may be at risk for lead-based ' +
+    'health concerns. Enter your location info to understand the risk level for lead water pipes ' +
+    'in your home or community – and what to do about it.';
+  static GEOLOCATE_PLACEHOLDER_TEXT = 'Enter your address or zip code*';
+  static CHECK_LEAD_STATUS_BUTTON_TEXT = 'Check Risk Status';
+  static SEARCH_SECTION_FOOTER =
+    '*We are still working to gather detailed data for all areas in ' +
+    'the US. We do not have address or zip code level data everywhere yet, but we’ll give you the ' +
+    'most detailed information possible based on what you provide.';
   static EXPLORE_MAP_SECTION_HEADER = 'Is my community at risk for lead poisoning?';
   static EXPLORE_MAP_SECTION_SUBHEADER =
     'Lead water pipes can pose a serious health risk, particularly for children. ' +
