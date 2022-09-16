@@ -70,6 +70,8 @@ interface PopupInfo {
   detailsTitle: string;
   // Array of feature property objects. This info will be displayed in the map popup.
   featureProperties: FeatureProperty[];
+  // Values that need to be computed.
+  computedProperties?: FeatureProperty[];
 }
 
 interface FeatureProperty {
@@ -81,6 +83,7 @@ interface FeatureProperty {
   dataType: FeaturePropertyDataType;
   // Whether this property is optional. Optional values may be null or not exist in the list.
   optional?: boolean;
+  calculate?: (...arg: any) => any;
 }
 
 /**

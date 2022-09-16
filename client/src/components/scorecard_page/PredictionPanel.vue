@@ -1,5 +1,5 @@
 <template>
-  <div class='section is-medium'>
+  <div class='section'>
     <div class='container has-text-centered'>
       <div>
         <div class='h1-header-xl navy'>
@@ -14,16 +14,16 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
-import { useSelector } from '../model/store';
-import { ScorecardMessages } from '../assets/messages/scorecard_messages';
-import { GeoDataState } from '../model/states/geo_data_state';
-import { LeadDataState } from '../model/states/lead_data_state';
-import { BoundedGeoDatum, GeoType } from '../model/states/model/geo_data';
-import { Status } from '../model/states/status_state';
-import { GeoDataUtil } from '../util/geo_data_util';
-import { LeadDataUtil } from '../util/lead_data_util';
+import { useSelector } from '../../model/store';
+import { ScorecardMessages } from '../../assets/messages/scorecard_messages';
+import { GeoDataState } from '../../model/states/geo_data_state';
+import { LeadDataState } from '../../model/states/lead_data_state';
+import { BoundedGeoDatum, GeoType } from '../../model/states/model/geo_data';
+import { Status } from '../../model/states/status_state';
+import { GeoDataUtil } from '../../util/geo_data_util';
+import { LeadDataUtil } from '../../util/lead_data_util';
 
 /**
  * Container lead prediction.
@@ -108,7 +108,7 @@ export default defineComponent({
     },
   },
   watch: {
-    'geoState.status': function () {
+    'geoState.status': function() {
       this.showError = this.geoState?.status?.status == Status.error;
     },
   },
@@ -137,10 +137,10 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
-@import '../assets/styles/global.scss';
+<style scoped lang='scss'>
+@import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/layout/section.sass';
-@import 'bulma/sass/elements/container.sass';
-@import 'bulma/sass/helpers/typography.sass';
+@import 'bulma/sass/layout/section';
+@import 'bulma/sass/elements/container';
+@import 'bulma/sass/helpers/typography';
 </style>

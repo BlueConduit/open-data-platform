@@ -1,8 +1,10 @@
 <template>
-  <div class='section is-medium'>
+  <div class='section'>
     <div class='container'>
       <div class='h1-header-large'>
-        <div>{{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER(zipCode) }}</div>
+        <div>
+          {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER(zipCode) }}
+        </div>
       </div>
       <div class='subheader'>
         {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}
@@ -33,15 +35,15 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
-import { ScorecardMessages } from '../assets/messages/scorecard_messages';
+import { ScorecardMessages } from '../../assets/messages/scorecard_messages';
 import ScorecardSummaryRow, { ImageFloatDirection } from './ScorecardSummaryRow.vue';
-import { dispatch, useSelector } from '../model/store';
-import { GeoDataState } from '../model/states/geo_data_state';
-import { DemographicDataState } from '../model/states/demographic_data_state';
-import { GeographicLevel } from '../model/data_layer';
-import { getDemographicData } from '../model/slices/demographic_data_slice';
+import { dispatch, useSelector } from '../../model/store';
+import { GeoDataState } from '../../model/states/geo_data_state';
+import { DemographicDataState } from '../../model/states/demographic_data_state';
+import { GeographicLevel } from '../../model/data_layer';
+import { getDemographicData } from '../../model/slices/demographic_data_slice';
 
 // Taken from https://www.neighborhoodatlas.medicine.wisc.edu/.
 const LOWEST_DISADVANTAGE = 33;
@@ -127,7 +129,7 @@ export default defineComponent({
   watch: {
     // Listen for changes to zip code. Once it changes, new demographic info
     // must be fetched.
-    'geoState.geoids.zipCode': function () {
+    'geoState.geoids.zipCode': function() {
       this.getDemographicDataForZip();
     },
   },
@@ -147,11 +149,11 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
-@import '../assets/styles/global.scss';
+<style scoped lang='scss'>
+@import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/layout/section.sass';
-@import 'bulma/sass/elements/container.sass';
+@import 'bulma/sass/layout/section';
+@import 'bulma/sass/elements/container';
 
 .section {
   background-color: $light-blue;
