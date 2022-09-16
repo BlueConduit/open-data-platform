@@ -33,8 +33,6 @@ exports.handler = async function () {
     const suggestion = await page.waitForSelector('.mapboxgl-ctrl-geocoder--suggestion-title');
     await page.screenshot();
     await suggestion.click();
-    // This selects the first button with this class.
-    // TODO: add and use element IDs.
     const searchButton = await page.waitForSelector('#scorecard-search-button');
     await searchButton.click();
   });
@@ -46,5 +44,6 @@ exports.handler = async function () {
     );
     // Check for side panel presence.
     await page.waitForSelector('.geoid-section');
+    await page.screenshot();
   });
 };
