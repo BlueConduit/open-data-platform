@@ -17,11 +17,11 @@ export class LandingPageMessages {
     '*We are still working to gather detailed data for all areas in ' +
     'the US. We do not have address or zip code level data everywhere yet, but we’ll give you the ' +
     'most detailed information possible based on what you provide.';
-  static EXPLORE_MAP_SECTION_HEADER = 'Is my community at risk for lead poisoning?';
+  static EXPLORE_MAP_SECTION_HEADER =
+    'Finding Lead: Understanding Which Communities May Have ' + 'Lead Water Pipes';
   static EXPLORE_MAP_SECTION_SUBHEADER =
-    'Lead water pipes can pose a serious health risk, particularly for children. ' +
-    'We use machine learning to identify at-risk areas. See how your neighborhood compares.';
-  static EXPLORE_MAP_BUTTON_TEXT = 'Explore Nationwide Map';
+    'Explore the LeadOut map to see how and where lead impacts communities around the country';
+  static EXPLORE_MAP_BUTTON_TEXT = 'Explore the Map';
   static CHOOSING_FILTER_SECTION_SUPER_HEADER = 'Tips';
   static CHOOSING_FILTER_SECTION_HEADER = 'Choosing a Water Filter';
   static CHOOSING_FILTER_SECTION_SUBHEADER =
