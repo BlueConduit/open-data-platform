@@ -3,7 +3,7 @@
   <head>
     <!-- Conditionally include analytics snippets, if targetting production -->
     <% if (process.env.NODE_ENV === 'production') { %>
-    <!-- BC-general Google Analytics -->
+    <!-- LeadOut container in Tag Manager -->
     <script>
       (function (w, d, s, l, i) {
         w[l] = w[l] || [];
@@ -14,9 +14,9 @@
         j.async = true;
         j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
         f.parentNode.insertBefore(j, f);
-      })(window, document, 'script', 'dataLayer', 'GTM-NHK36KP');
+      })(window, document, 'script', 'dataLayer', 'GTM-P5JP4BK');
     </script>
-    <!-- And another BC Google Analytics account -->
+    <!-- BC-general Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-146085874-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
