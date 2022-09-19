@@ -97,8 +97,7 @@ export class PipelineStack extends Stack {
 
     pipeline.addStage(
       new MonitoringStage(this, 'Prod-Monitoring', {
-        // TODO: Use prod account.
-        env: { account: '036999211278', region: 'us-east-2' },
+        env: { account: '530942487205', region: 'us-east-2' },
         tags: { Project: util.projectName, Environment: util.EnvType.Production },
         envType: util.EnvType.Production,
         slackConfig: {
@@ -120,8 +119,7 @@ export class PipelineStack extends Stack {
      */
     pipeline.addStage(
       new OpenDataPlatformStage(this, 'Prod', {
-        // TODO: Use prod account.
-        env: { account: '036999211278', region: 'us-east-2' },
+        env: { account: '530942487205', region: 'us-east-2' },
         tags: { Project: util.projectName, Environment: util.EnvType.Production },
         envType: util.EnvType.Production,
       }),
