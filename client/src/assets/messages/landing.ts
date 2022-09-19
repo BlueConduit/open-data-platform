@@ -23,7 +23,7 @@ export class LandingPageMessages {
     'Explore the LeadOut map to see how and where lead impacts communities around the country';
   static EXPLORE_MAP_BUTTON_TEXT = 'Explore the Map';
   static CHOOSING_FILTER_SECTION_SUPER_HEADER = 'Tips';
-  static CHOOSING_FILTER_SECTION_HEADER = 'Chose a Water Filter';
+  static CHOOSING_FILTER_SECTION_HEADER = 'Choose a Water Filter';
   static CHOOSING_FILTER_SECTION_SUBHEADER =
     'Find the water filter that best fits your budget and lifestyle';
   static LEARN_MORE_BUTTON_TEXT = 'Learn More';
