@@ -114,7 +114,6 @@ const readGeoJsonFile = (
     let batchId = 0; // Not-necessarily-sequential ID used to group logs.
     let savedRowCount = 0;
     let failedRowCount = 0;
-    let inProcessRowCount = 0;
     const failedBatches: Batch[] = [];
 
     interface Batch {
@@ -134,11 +133,9 @@ const readGeoJsonFile = (
       console.log(`processing ${descriptor}`);
       const start = Date.now();
       try {
-        inProcessRowCount += batch.rows.length;
         await callback(batch.rows, db);
         savedRowCount += batch.rows.length;
       } catch(e) {
-        inProcessRowCount -= batch.rows.length;
         throw e; // handle in handleBadBatch
       }
       console.log(`${descriptor} saved in ${Date.now() - start} ms`);
