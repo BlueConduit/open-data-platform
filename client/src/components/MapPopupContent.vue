@@ -18,6 +18,8 @@
 import { defineComponent, PropType } from 'vue';
 import { FeatureProperty, FeaturePropertyDataType } from '../model/data_layer';
 
+const LESS_THAN_FIVE_PERCENT = '< 5%';
+const GREATER_THAN_NINETY_FIVE_PERCENT = '> 95%';
 /**
  * Map popup component.
  */
@@ -81,8 +83,7 @@ export default defineComponent({
             break;
           }
           case FeaturePropertyDataType.Percentage: {
-            const percentageValue = Math.round(parseFloat(propertyValue ?? '0') * 100);
-            propertyValue = `${percentageValue.toLocaleString()}%`;
+            propertyValue = this.formatPercentage(parseFloat(propertyValue ?? '0') * 100);
             break;
           }
           default: {
@@ -92,6 +93,19 @@ export default defineComponent({
         }
 
         this.displayedProperties.set(label, propertyValue);
+      }
+    },
+
+    /**
+     * Formats string for a percentage value.
+     */
+    formatPercentage(percentageValue: number): string {
+      if (percentageValue < 5) {
+        return LESS_THAN_FIVE_PERCENT;
+      } else if (percentageValue > 95) {
+        return GREATER_THAN_NINETY_FIVE_PERCENT;
+      } else {
+        return `${percentageValue.toLocaleString()}%`;
       }
     },
   },
