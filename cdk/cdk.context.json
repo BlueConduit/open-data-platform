@@ -41,5 +41,10 @@
         ]
       }
     ]
-  }
+  },
+  "availability-zones:account=530942487205:region=us-east-2": [
+    "us-east-2a",
+    "us-east-2b",
+    "us-east-2c"
+  ]
 }
