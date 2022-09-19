@@ -10,7 +10,7 @@
     </div>
     <div class='filter-static-content'>
     <span class='asset'><img
-      :src='require(`@/assets/media/resource-image-1.png`)'
+      :src='require(`../../assets/media/resource-image-1.png`)'
       alt=''></span>
       <span class='h1-header'>
       {{ messages.WATER_FILTER_DESCRIPTION }}

@@ -5,7 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve --mode=development",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest --watch --config vitest.config.ts"
   },
   "dependencies": {
     "@blueconduit/copper": "^2.0.1",
@@ -27,20 +29,25 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@testing-library/vue": "^6.6.1",
     "@types/mapbox__mapbox-gl-geocoder": "^4.7.2",
     "@types/mapbox-gl": "^2.7.4",
     "@types/vue-select": "^3.16.0",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
+    "@vitejs/plugin-vue": "^3.1.0",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-typescript": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "@vue/eslint-config-typescript": "^9.1.0",
+    "@vue/test-utils": "^2.0.2",
+    "happy-dom": "^6.0.4",
     "eslint": "^7.32.0",
     "sass": "^1.54.4",
     "sass-loader": "^13.0.2",
-    "typescript": "~4.5.5"
+    "typescript": "~4.5.5",
+    "vitest": "^0.23.2"
   },
   "eslintConfig": {
     "root": true,
@@ -74,6 +81,6 @@
   ],
   "engines": {
     "npm": ">=8.0.0",
-    "node": ">=14.0.0"
+    "node": ">=17.0.0"
   }
 }
