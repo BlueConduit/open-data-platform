@@ -23,10 +23,10 @@ describe('AboutUsView.vue', () => {
 
   it('Renders descriptions', () => {
     expect(wrapper.exists()).toBe(true);
-    const paragraphs = wrapper.findAll('.h1-header div');
-    expect(paragraphs).toHaveLength(2);
+    const descriptions = wrapper.findAll('.h1-header div');
+    expect(descriptions).toHaveLength(2);
 
-    expect(paragraphs[0].text()).toBe(AboutUsMessages.BLUE_CONDUIT_INTRO_TEXT);
-    expect(paragraphs[1].text()).toBe(AboutUsMessages.BLUE_CONDUIT_IMPACT_TEXT);
+    expect(descriptions[0].text()).toBe(AboutUsMessages.BLUE_CONDUIT_INTRO_TEXT);
+    expect(descriptions[1].text()).toBe(AboutUsMessages.BLUE_CONDUIT_IMPACT_TEXT);
   });
 });
