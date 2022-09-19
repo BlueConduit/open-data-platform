@@ -10,6 +10,7 @@ export default defineConfig({
       customElement: true,
       template: {
         transformAssetUrls: {
+          // TODO: Investigate why this does not work yet.
           tags: { img: ['src'] },
         },
       },
