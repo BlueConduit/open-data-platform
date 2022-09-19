@@ -8,6 +8,7 @@ const { finished } = require('node:stream');
  * parallel.
  * @param maxConcurrency The number of promises we can allow to be executed in parallel
  * @param dataHandler What to do with each item in the stream
+ * @param errorHandler What to do with errors. Will be called once before giving up.
  * @returns a transformer of type stream.Transform.
  */
 export const ParallelSink = <T>(
