@@ -28,7 +28,7 @@ export const ParallelSink = <T>(
   // invariant so we use an array just in case there are more.
   const queue: [T, internal.TransformCallback][] = [];
 
-  // 1. safely pull an item from the queue and start working on it
+  // 1. Safely pull an item from the queue and start working on it
   // 2. Invoke a next() to invite another item in from the source
   // 3. If we're all done, invoke the finishHandler and ack the flush next().
   const safelyDequeue = () => {
