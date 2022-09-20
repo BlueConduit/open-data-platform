@@ -1,5 +1,5 @@
 <template>
-  <div class='container-column center-container' :style='style'>
+  <div class='section is-centered'>
     <div class='h2-header-large'>
       {{ header }}
     </div>
@@ -33,8 +33,6 @@ export default defineComponent({
   name: 'ActionSection',
   components: { Popper },
   props: {
-    // Allows parent to determine styling for this component.
-    style: [String, Object],
     header: String,
     subheader: String,
     buttonIcon: String,

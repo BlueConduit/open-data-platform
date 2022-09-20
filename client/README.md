@@ -18,6 +18,14 @@ npm run serve
 npm run build
 ```
 
+### Runs unit tests for components
+
+Uses [Vitest](https://vitest.dev/) testing framework.
+
+```
+npm test [-watch]
+```
+
 ### Lints and fixes files
 
 ```
@@ -28,8 +36,8 @@ npm run lint
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-Note: You may have to add a .env file under the client directory with an API key for Mapbox if you
-haven't already configured that:
+Note: You may have to add a .env file under the client directory with an API key
+for Mapbox if you haven't already configured that:
 
 ```
 VUE_APP_MAP_BOX_API_TOKEN=xxx
