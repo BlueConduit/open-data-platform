@@ -171,7 +171,7 @@ const readGeoJsonFile = (
     }
 
     const fileStream = S3.getObject(s3Params).createReadStream();
-    let pipeline = chain([
+    const pipeline = chain([
       fileStream,
       Pick.withParser({ filter: 'features' }),
       streamArray(),
