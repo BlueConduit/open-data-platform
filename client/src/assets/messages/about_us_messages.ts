@@ -1,4 +1,4 @@
-export class AboutUs {
+export class AboutUsMessages {
   static ABOUT_US_HEADER = 'About us';
   static BLUE_CONDUIT_INTRO_TEXT =
     'Leadout is a tool created by BlueConduit. BlueConduit is a water analytics company that has ' +

@@ -6,7 +6,7 @@
                :is-full-page='false'
                color='#2553A0'
                loader='bars'
-               opacity='1' />
+               :opacity='1' />
     </div>
     <div v-if='showScorecard'>
       <PredictionPanel />
