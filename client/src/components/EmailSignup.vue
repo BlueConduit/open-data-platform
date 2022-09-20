@@ -2,10 +2,10 @@
   <div class='section form-wrapper columns'>
     <div class='header-section column is-half is-centered'>
       <div class='h1-header-large centered-text'>
-        {{ MESSAGES.SUBSCRIBE_HEADER }}
+        {{ messages.SUBSCRIBE_HEADER }}
       </div>
       <div class='h2-header-large centered-text mt-4'>
-        {{ MESSAGES.SUBSCRIBE_SUBHEADER }}
+        {{ messages.SUBSCRIBE_SUBHEADER }}
       </div>
     </div>
     <div id='hubspotForm' v-once></div>
@@ -25,7 +25,7 @@ export default defineComponent({
   name: 'EmailSignup',
   data() {
     return {
-      MESSAGES: LandingPageMessages,
+      messages: LandingPageMessages,
     };
   },
   mounted() {
