@@ -9,6 +9,9 @@ const { streamArray } = require('stream-json/streamers/StreamArray');
 const Batch = require('stream-json/utils/Batch');
 const Pick = require('stream-json/filters/Pick');
 
+// Chosen arbitrarily. Total load on Aurora ~= concurrency x batchSize.
+// If using small batches, feel free to increase. This works well for water-systems
+// which override the batch size to ~1k rows per batch.
 const SINK_CONCURRENCY = 5;
 
 export interface ProcessRequest {
