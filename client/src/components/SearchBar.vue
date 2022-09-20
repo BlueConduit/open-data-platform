@@ -6,7 +6,7 @@
         :key='option'
         :text-content='option.name'
         :selected='getSelected(option)'
-        @click='setSelected(option)' />
+        @click='updateSelectedLayer(option)' />
     </div>
     <div class='select-wrapper'>
       <vue-select
@@ -29,12 +29,11 @@ import VueSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { DataLayer, MapLayer } from '../model/data_layer';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
-import { dispatch, useSelector } from '../model/store';
-import { ALL_DATA_LAYERS, setCurrentDataLayer } from '../model/slices/map_data_slice';
+import { useSelector } from '../model/store';
+import { ALL_DATA_LAYERS } from '../model/slices/map_data_slice';
 import { MapDataState } from '../model/states/map_data_state';
 import { leadServiceLinesByWaterSystemLayer } from '../data_layer_configs/lead_service_lines_by_water_systems_config';
-import { MapData } from '../model/states/model/map_data';
-import { MAP_ROUTE_BASE } from '../router';
+import { MAP_ROUTE_BASE, router } from '../router';
 
 export default defineComponent({
   name: 'SearchBar',
@@ -66,27 +65,25 @@ export default defineComponent({
     },
 
     /**
-     * Updates the selected option to {@code option} from a click on an option button.
+     * Updates the url with the selected {@code option} as the layer query parameter.
      *
      * @param option
      */
-    setSelected(option: DataLayer): void {
-      this.selectedOption = option;
+    updateSelectedLayer(option: DataLayer): void {
+      router.push({
+        query: Object.assign({}, router.currentRoute.value.query, {
+          layer: option.id,
+        }),
+      });
     },
   },
   watch: {
-    // If selectedOption changes update state data layer.
-    selectedOption: function(newOption: DataLayer): void {
-      if (newOption == null) {
-        return;
-      }
-      dispatch(setCurrentDataLayer(newOption.id));
-    },
-    'mapState.mapData': {
-      handler(mapData: MapData): void {
+
+    'mapState.mapData.currentDataLayerId': {
+      handler(currentDataLayerId: MapLayer): void {
         const allLayers: Array<DataLayer> = Array.from(ALL_DATA_LAYERS.values());
         this.options = allLayers.filter(layer => layer.visibleInSearchBar);
-        const newDataLayer = mapData?.currentDataLayerId;
+        const newDataLayer = currentDataLayerId;
 
         if (newDataLayer != null && newDataLayer != MapLayer.LeadServiceLineByParcel) {
           const selected: DataLayer = this.options.find(option => option.id == newDataLayer) ?? leadServiceLinesByWaterSystemLayer;
