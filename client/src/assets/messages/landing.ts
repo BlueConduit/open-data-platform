@@ -29,6 +29,7 @@ export class LandingPageMessages {
   static LEARN_MORE_BUTTON_TEXT = 'Learn More';
   static RESOURCES_SECTION_SUPER_HEADER = 'Resources';
   static RESOURCES_SECTION_HEADER = 'What To Do If You Have Lead Pipes';
+  static THANK_YOU_MESSAGE = 'Thank you for submitting your contact information!';
   static VIEW_MORE_RESOURCES_BUTTON_TEXT = 'View More in Resources';
 
   static RESOURCE_MESSAGES: ResourceMessage[] = [
