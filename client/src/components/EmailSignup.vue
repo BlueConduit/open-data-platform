@@ -1,10 +1,11 @@
 <template>
   <div class='section form-wrapper columns'>
     <div class='header-section column is-half is-centered'>
-      <div class='h1-header-large centered-text'>Stay up to Date</div>
+      <div class='h1-header-large centered-text'>
+        {{ MESSAGES.SUBSCRIBE_HEADER }}
+      </div>
       <div class='h2-header-large centered-text mt-4'>
-        We’re constantly adding data to our map. We can send you an email when
-        your region is available.
+        {{ MESSAGES.SUBSCRIBE_SUBHEADER }}
       </div>
     </div>
     <div id='hubspotForm' v-once></div>
@@ -13,10 +14,23 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
+import { LandingPageMessages } from '../assets/messages/landing';
 
+/**
+ * Section containing form to sign up for LeadOut data updates.
+ *
+ * This wraps a hubspot form which is configured and styled in the hubspot editor.
+ */
 export default defineComponent({
   name: 'EmailSignup',
+  data() {
+    return {
+      MESSAGES: LandingPageMessages,
+    };
+  },
   mounted() {
+    // Create script tag which contains logic to attach embedded hubspot form to a div rendered in
+    // the template. This is necessary since vue does not allow script tags in the template.
     const script = document.createElement('script');
     script.src = '//js.hsforms.net/forms/v2.js';
     script.type = 'text/javascript';
@@ -26,6 +40,7 @@ export default defineComponent({
 
     script.addEventListener('load', () => {
       if (window.hbspt) {
+        // LeadOut Website Subscribe Form.
         window.hbspt.forms.create({
           region: 'na1',
           portalId: '7810253',
