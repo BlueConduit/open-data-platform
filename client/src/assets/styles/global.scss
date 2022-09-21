@@ -35,20 +35,20 @@ a {
 
 .h1-header {
   font-size: 6 * $spacing-xs;
-  line-height: 9 * $spacing-xs;
+  line-height: 8 * $spacing-xs;
 }
 
 .h1-header-large {
   @include centered-text;
 
   font-size: 8 * $spacing-xs;
-  line-height: 15 * $spacing-xs;
+  line-height: 11 * $spacing-xs;
   font-weight: 500;
 }
 
 .h1-header-xl {
   font-size: 10 * $spacing-xs;
-  line-height: 15 * $spacing-xs;
+  line-height: 13 * $spacing-xs;
   font-weight: 500;
 }
 
