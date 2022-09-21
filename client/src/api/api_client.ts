@@ -36,6 +36,8 @@ class ApiClient {
         // By default, the baseURL is the current view's URL including path. Remove that path.
         baseURL: '/',
       });
+      console.log(`*******`);
+      console.log(data);
       apiResponse.data = callback(data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -45,6 +47,8 @@ class ApiClient {
         };
       }
     }
+    console.log(`Returned api response:`);
+    console.log(apiResponse);
     return apiResponse;
   };
 
@@ -79,7 +83,7 @@ class ApiClient {
       `${ApiClient.API_URL}/${GeographicLevel[geoLevel].toLowerCase()}/scorecard/${geoId}`,
       (data) => {
         return {
-          geoId: data?.data?.pws_id,
+          geoId: data?.data?.geoid,
           averageHomeAge: data?.data?.average_home_age,
           averageSocialVulnerabilityIndex: data?.data?.average_social_vulnerability,
           averageIncome: data?.data?.income_index,

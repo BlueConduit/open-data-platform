@@ -1,4 +1,4 @@
-// vitest.config.js
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import * as path from 'path';
@@ -24,6 +24,7 @@ export default defineConfig({
   },
   test: {
     globals: true,
+    includeSource: ['src/**/*.d.ts', 'src/**/*.ts'],
     // simulate DOM with happy-dom
     // (requires installing happy-dom as a peer dependency)
     environment: 'happy-dom',

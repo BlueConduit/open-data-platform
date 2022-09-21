@@ -1,11 +1,18 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
+import { ParallelSink } from './utils/parallel-sink';
+import { offset, limit } from './utils/stream-utils';
 
 // These libraries don't have types, so they are imported in a different way.
 const { chain } = require('stream-chain');
 const { streamArray } = require('stream-json/streamers/StreamArray');
 const Batch = require('stream-json/utils/Batch');
 const Pick = require('stream-json/filters/Pick');
+
+// Chosen arbitrarily. Total load on Aurora ~= concurrency x batchSize.
+// If using small batches, feel free to increase. This works well for water-systems
+// which override the batch size to ~1k rows per batch.
+const SINK_CONCURRENCY = 5;
 
 export interface ProcessRequest {
   rowOffset?: number;
@@ -14,9 +21,8 @@ export interface ProcessRequest {
 }
 
 interface ProcessResult {
-  processedBatchCount: number;
-  successfulBatchCount: number;
-  erroredBatchCount: number;
+  savedRowCount: number;
+  failedRowCount: number;
 }
 
 // These are defined here because the geoJsonHandlerFactory function signature was unreadable.
@@ -61,9 +67,8 @@ export const geoJsonHandlerFactory = (
 
     const db = new AWS.RDSDataService();
     let results: ProcessResult = {
-      processedBatchCount: 0,
-      successfulBatchCount: 0,
-      erroredBatchCount: 0,
+      savedRowCount: 0,
+      failedRowCount: 0,
     };
 
     try {
@@ -76,7 +81,7 @@ export const geoJsonHandlerFactory = (
         console.log('Final callback complete');
       }
     } catch (error) {
-      console.log(`Error after processing ${results.processedBatchCount} batches:`, error);
+      console.log(`Error after processing ${results.failedRowCount} rows:`, error);
       throw error;
     }
 
@@ -110,106 +115,77 @@ const readGeoJsonFile = (
 ): Promise<ProcessResult> =>
   new Promise((resolve, reject) => {
     let batchId = 0; // Not-necessarily-sequential ID used to group logs.
-    let processedRowCount = 0; // Number of rows processed, either successfully or with errors.
-    let skippedRowCount = 0; // Number of rows skipped due to offset.
-    let inProcessRowCount = 0; // Number of rows currently being proccessed.
+    let savedRowCount = 0;
+    let failedRowCount = 0;
+    const failedBatches: Batch[] = [];
+
+    interface Batch {
+      id: string;
+      rows: any[];
+    }
 
     console.log('Starting to process file in S3:', s3Params);
 
-    // Store all of the promises returned by the callback so the Lambda waits for their resolution
-    // before exiting. They will start to execute before they are awaited and run asynchonously
-    // in-parallel with no guarantee of order.
-    const promises: Promise<any>[] = [];
+    const handleBadBatch = (e: Error, batch: Batch) => {
+      console.log(`${batch.id} failed. Scheduling retry...`, e);
+      failedBatches.push(batch);
+    };
+
+    const saveBatch = async (batch: Batch) => {
+      const descriptor = `${batch.id} of ${batch.rows.length} rows`;
+      console.log(`processing ${descriptor}`);
+      const start = Date.now();
+      try {
+        await callback(batch.rows, db);
+        savedRowCount += batch.rows.length;
+      } catch(e) {
+        throw e; // handle in handleBadBatch
+      }
+      console.log(`${descriptor} saved in ${Date.now() - start} ms`);
+    };
+
+    // Called once the pipeline finishes and asks the sink to flush the last few rows.
+    // Not called if the source dries up and the sink has nothing to flush. 
+    const handleEndOfFilestream = async () => {
+      const failedRows : [any, Error][] = [];
+
+      for(let i=0; i<failedBatches.length; i++){
+        const batch = failedBatches[i];
+
+        for(let j=0; j<batch.rows.length; j++){
+          const row = batch.rows[j];
+
+          try {
+            console.log(`Retrying ${batch.id} row ${j}`);
+            await callback([row], db);
+            savedRowCount++;
+            console.log(`Batch ${batch.id} row ${j} saved.`);
+          } catch (e) {
+            console.log(`${batch.id} row ${j} failed.`);
+            failedRows.push([row, e as Error]);
+            failedRowCount++;
+          }
+        }
+      }
+
+      console.log(`Number errors during processing: ${failedRowCount}`);
+      failedRows.forEach(([row, error]) => console.log(row, error));
+      return resolve({ savedRowCount, failedRowCount });
+    }
 
     const fileStream = S3.getObject(s3Params).createReadStream();
-    let pipeline = chain([
+    const pipeline = chain([
       fileStream,
       Pick.withParser({ filter: 'features' }),
       streamArray(),
+      offset(rowOffset),
+      limit(rowLimit),
       new Batch({ batchSize }),
+      (rows: any[]) => ({ rows, id: `batch-${batchId++}` }),
+      ParallelSink(SINK_CONCURRENCY, saveBatch, handleBadBatch, handleEndOfFilestream)
     ]);
 
-    pipeline
-      .on('data', async (rows: any[]) => {
-        const id = `batch-${batchId++}`;
-
-        // Skip rows up to offset.
-        if (skippedRowCount + batchSize <= rowOffset) {
-          skippedRowCount += batchSize;
-          console.log(
-            `${id}: Skipping batch of ${rows.length} rows.` +
-            `${skippedRowCount}/${rowOffset} offset rows have been skipped so far.`,
-          );
-          return;
-        }
-
-        // Stop reading stream if proccessing this batch would exceed number of rows to write.
-        inProcessRowCount += rows.length;
-        if (processedRowCount + inProcessRowCount >= rowLimit) {
-          console.log(
-            `${id}: Stopping processing after` +
-            ` ${processedRowCount} rows processed + ${inProcessRowCount} rows in progress` +
-            ` >= ${rowLimit} limit`,
-          );
-          pipeline.destroy();
-          return;
-        }
-
-        // Start processing the row.
-        console.log(`${id}: Processing batch of ${rows.length} rows.`);
-        const promise = callback(rows, db);
-        promises.push(promise);
-
-        // Reprocess errored rows individually. This may catch transient errors, or at least let
-        // other rows in the batch succeed.
-        promise.catch((e) =>
-          rows.forEach((row) => {
-            console.log(
-              `${id}: Reprocessing errored row individually ${e}.`,
-              row.value?.properties,
-            );
-            const rePromise = callback([row], db);
-            rePromise.catch((reason) => console.log(`${id}: Reprocessing failed`, reason));
-            promises.push(rePromise);
-          }),
-        );
-
-        try {
-          // Await this batches so we know whether to increment the row count.
-          // This does not block other batches from being processed in parallel.
-          const start = Date.now();
-          await promise;
-          processedRowCount += rows.length;
-          console.log(`${id}: ${processedRowCount} rows have been processed so far, latest batch in ${Date.now() - start}ms.`);
-        } catch (error) {
-          // Handle in the promise.
-        } finally {
-          inProcessRowCount -= rows.length;
-        }
-      })
-      .on('error', (error: Error) => reject(error))
-      // Gets called by pipeline.destroy()
-      .on('close', async (_: Error) => resolve(await handleEndOfFilestream(promises)))
-      .on('end', async () => resolve(await handleEndOfFilestream(promises)));
+    pipeline.on('error', (error: Error) => reject(error));
+     // called when the source dries up. May happen if the last rows are ignored by the limiter. 
+    pipeline.on('finish', handleEndOfFilestream);
   });
-
-/**
- * Logs number and details of errors that occurred for all rows.
- * @param promises of SQL executions.
- */
-const handleEndOfFilestream = async (promises: Promise<any>[]): Promise<ProcessResult> => {
-  // Unlike Promise.all(), which rejects when a single promise rejects, Promise.allSettled
-  // allows all promises to finish regardless of status and aggregated the results.
-  const result = await Promise.allSettled(promises);
-  const errors = result.filter((p) => p.status == 'rejected') as PromiseRejectedResult[];
-  console.log(`Number errors during processing: ${errors.length}`);
-
-  // Log all the rejected promises to diagnose issues.
-  errors.forEach((error) => console.log('Failed to process row:', error.reason));
-
-  return {
-    processedBatchCount: promises.length,
-    erroredBatchCount: errors.length,
-    successfulBatchCount: promises.length - errors.length,
-  };
-};
