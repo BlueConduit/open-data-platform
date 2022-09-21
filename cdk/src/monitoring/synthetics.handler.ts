@@ -1,9 +1,24 @@
 const synthetics = require('Synthetics');
 const log = require('SyntheticsLogger');
 const syntheticsConfiguration = synthetics.getConfiguration();
+import { ScorecardMessages } from '../../../client/src/assets/messages/scorecard_messages';
+
+/**
+ * Helper function for searching the entire page for a string. Returns if the string was found
+ * within the default 30s timeout, else times out.
+ * @param page - The page object returned by Synthetics.
+ * @param s - String to search
+ * @returns
+ */
+const waitForString = async (page: any, s: string) =>
+  await page.waitForFunction(`document.querySelector("body").innerText.includes("${s}")`);
 
 exports.handler = async function () {
-  // TODO: cycle through several addresses
+  // TODO: cycle through several addresses, including:
+  //   * Other addresses with parcel-level data.
+  //   * Address w/ water system data + no parcel.
+  //   * Address w/ no data.
+  //   * Random, brief string (e.g. 'eq') and let autofill pick an address.
   const addresses = ['5607 HOME LN, TOLEDO OH 43623'];
   const address = addresses[0];
 
@@ -39,9 +54,7 @@ exports.handler = async function () {
 
   await synthetics.executeStep('viewScorecard', async function () {
     // Check for prediction presence.
-    await page.waitForFunction(
-      'document.querySelector("body").innerText.includes("Low likelihood")',
-    );
+    await waitForString(page, ScorecardMessages.LOW_LIKELIHOOD);
     // Check for side panel presence.
     await page.waitForSelector('.geoid-section');
     await page.screenshot();
