@@ -13,6 +13,8 @@ class ApiClient {
     console.log('Using API:', ApiClient.API_URL);
   }
 
+  getClient = () => axios;
+
   request = async (endpoint: string, callback: (data: any) => any): Promise<ApiResponse> => {
     axiosRetry(axios, {
       retries: 3,
@@ -37,7 +39,10 @@ class ApiClient {
       apiResponse.data = callback(data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        apiResponse.error = { status: status, error: error.message };
+        apiResponse.error = {
+          status: status ?? error.status?.toString(),
+          error: error.message,
+        };
       }
     }
     return apiResponse;
@@ -130,4 +135,4 @@ interface ApiError {
   error: string;
 }
 
-export { ApiClient, ApiError };
+export { ApiClient, ApiResponse, ApiError };
