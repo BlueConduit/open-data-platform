@@ -49,7 +49,7 @@ import { getDemographicData } from '../../model/slices/demographic_data_slice';
 const LOWEST_DISADVANTAGE = 33;
 const MEDIUM_DISADVANTAGE = 66;
 
-const HIGHEST_INCOME_PERCENTILE = 3;
+const LOWEST_INCOME_PERCENTILE = 3;
 const MIDDLE_INCOME_PERCENTILE = 6;
 
 /**
@@ -92,7 +92,7 @@ export default defineComponent({
       }
 
       switch (true) {
-        case income <= HIGHEST_INCOME_PERCENTILE:
+        case income <= LOWEST_INCOME_PERCENTILE:
           return ScorecardMessages.HIGHER_INCOME;
         case income < MIDDLE_INCOME_PERCENTILE:
           return ScorecardMessages.AVERAGE_INCOME;
@@ -113,11 +113,11 @@ export default defineComponent({
 
       switch (true) {
         case adi <= LOWEST_DISADVANTAGE:
-          return ScorecardMessages.LESS_DISADVANTAGED;
+          return ScorecardMessages.HIGHLY_DISADVANTAGED;
         case adi < MEDIUM_DISADVANTAGE:
           return ScorecardMessages.SOMEWHAT_DISADVANTAGED;
         case adi >= MEDIUM_DISADVANTAGE:
-          return ScorecardMessages.HIGHLY_DISADVANTAGED;
+          return ScorecardMessages.LESS_DISADVANTAGED;
         default:
           return null;
       }
