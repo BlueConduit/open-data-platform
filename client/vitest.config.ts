@@ -24,7 +24,6 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    includeSource: ['src/**/*.d.ts', 'src/**/*.ts'],
     // simulate DOM with happy-dom
     // (requires installing happy-dom as a peer dependency)
     environment: 'happy-dom',

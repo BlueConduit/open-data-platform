@@ -23,7 +23,7 @@ npm run build
 Uses [Vitest](https://vitest.dev/) testing framework.
 
 ```
-npm test [-watch]
+npm test [-watch] or npm test --ui 
 ```
 
 ### Lints and fixes files
