@@ -23,7 +23,7 @@ export class SyntheticsStack extends Construct {
       schedule,
       test: synthetics.Test.custom({
         code: synthetics.Code.fromInline(
-          fs.readFileSync(join(__dirname, 'synthetics.handler.ts'), 'utf8'),
+          fs.readFileSync(join(__dirname, 'synthetics.handler.js'), 'utf8'),
         ),
         handler: 'index.handler',
       }),

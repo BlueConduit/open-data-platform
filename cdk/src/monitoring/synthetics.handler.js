@@ -1,16 +1,16 @@
 const synthetics = require('Synthetics');
-const log = require('SyntheticsLogger');
 const syntheticsConfiguration = synthetics.getConfiguration();
-import { ScorecardMessages } from '../../../client/src/assets/messages/scorecard_messages';
 
 /**
  * Helper function for searching the entire page for a string. Returns if the string was found
  * within the default 30s timeout, else times out.
+ * TODO: Figure out a way to reference strings from the messages files. This runs in a lambda, which
+ * doesn't have access to any other files in the project.
  * @param page - The page object returned by Synthetics.
  * @param s - String to search
  * @returns
  */
-const waitForString = async (page: any, s: string) =>
+const waitForString = async (page, s) =>
   await page.waitForFunction(`document.querySelector("body").innerText.includes("${s}")`);
 
 exports.handler = async function () {
@@ -54,9 +54,14 @@ exports.handler = async function () {
 
   await synthetics.executeStep('viewScorecard', async function () {
     // Check for prediction presence.
-    await waitForString(page, ScorecardMessages.LOW_LIKELIHOOD);
+    await waitForString(page, 'Low likelihood');
     // Check for side panel presence.
     await page.waitForSelector('.geoid-section');
+    // Check for CTA presence.
+    await waitForString(page, 'Research water filters');
+    await waitForString(page, 'Copy scorecard link');
+    // Check for score details presence.
+    await waitForString(page, 'Understanding your score');
     await page.screenshot();
   });
 };
