@@ -36,19 +36,16 @@ class ApiClient {
         // By default, the baseURL is the current view's URL including path. Remove that path.
         baseURL: '/',
       });
-      console.log(`*******`);
-      console.log(data);
+      
       apiResponse.data = callback(data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         apiResponse.error = {
-          status: status ?? error.status?.toString(),
+          status: error.response?.status?.toString(),
           error: error.message,
         };
       }
     }
-    console.log(`Returned api response:`);
-    console.log(apiResponse);
     return apiResponse;
   };
 
@@ -135,7 +132,7 @@ interface ApiResponse {
  * Error message and error status.
  */
 interface ApiError {
-  status: string;
+  status?: string;
   error: string;
 }
 
