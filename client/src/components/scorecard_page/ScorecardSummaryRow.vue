@@ -67,7 +67,7 @@ export default defineComponent({
 }
 
 .comparison-value {
-  color: $warm-grey-800;
+  color: $text_white;
   font-weight: 600;
 }
 

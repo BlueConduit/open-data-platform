@@ -156,7 +156,7 @@ export default defineComponent({
 @import 'bulma/sass/elements/container';
 
 .section {
-  background-color: $light-blue;
+  background-color: $navy-blue;
   color: $white;
 }
 

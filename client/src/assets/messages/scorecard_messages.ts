@@ -2,21 +2,21 @@
  * Text to use on the scorecard summary page.
  */
 export class ScorecardMessages {
-  static ADDITIONAL_STEPS_HEADER = 'Additional steps you can take';
+  static ADDITIONAL_STEPS_HEADER = 'Protect your home';
   static ADDITIONAL_STEPS_SUBHEADER =
-    'The fastest way to protect your home ' +
-    'is to use a water filter. If you don’t already own one, learn more about ' +
-    'things to consider when choosing a filter that fits your needs.';
-  static AREA_DEPRIVATION_INDEX = 'Area Deprivation Index';
+    'Worried about your lead risk status? One of the best ways to remedy your ' +
+    'water supply is to order a filter.';
+  static AREA_DEPRIVATION_INDEX = 'Area Deprivation';
   static AREA_DEPRIVATION_INDEX_EXPLAINED =
-    'The Area Deprivation Index (ADI) is based on a measure created by the Health Resources & ' +
-    'Services Administration. It includes factors like income, education, employment, and housing quality.';
-  static AVERAGE_INCOME = 'Average income';
+    'The ADI is based on 17 variables that describe socioeconomic disadvantage ' +
+    'based on income, education, household characteristics, and housing created ' +
+    'by the Health Resources and Services Administration (HRSA).';
+  static AVERAGE_INCOME = 'Income level';
   static CONTACT_YOUR_CITY_HEADER = 'Contact your city';
   static CONTACT_YOUR_CITY_SUBHEADER =
     'Get more information or remediate any lead issues is to contact your city.';
   static COPIED_TO_CLIPBOARD = 'Copied!';
-  static COPY_TO_CLIPBOARD = 'Copy scorecard link';
+  static COPY_TO_CLIPBOARD = 'Copy link to share';
   static EXPLORE_MAP_PAGE_EXPLAINER =
     'You can learn more about what’s happening in your community, state, ' +
     'or the United States by exploring the Nationwide Map. ';
@@ -32,11 +32,16 @@ export class ScorecardMessages {
   static HIGHLY_DISADVANTAGED = 'Highly disadvantaged';
   static NOT_LIKELY = 'not likely';
   static HIGHER_INCOME = 'Higher income';
-  static HOME_AGE = 'Average home age';
+  static HOME_AGE = 'Age of Your Home';
   static HOME_AGE_EXPLAINED =
-    'The year homes were built influences the likelihood they are constructed with lead pipes';
+    'Older homes are more likely to be connected to lead water pipes than newer ' +
+    'homes. We use the average home age in your zip code to help determine your status. ';
   static INCOME_LEVEL = 'Average income level';
-  static INCOME_LEVEL_EXPLAINED = 'Income levels correlate to the likelihood of lead.';
+  static INCOME_LEVEL_EXPLAINED =
+    'Income levels are also a determining factor that ' +
+    'could indicate the possibility of lead in a neighborhood or zip code.\n \n' +
+    'This information was taken from U.S. Census data and is measured by zip code ' +
+    'and not this specific address.';
   static LEAD_LIKELIHOOD_EXPLAINED =
     'Based on age of homes, historical service line data, and information ' +
     'collected from your utility and other sources';
@@ -54,7 +59,7 @@ export class ScorecardMessages {
   static SHARE_LEAD_OUT_SUBHEADER = 'Help others know their lead status through LeadOut.';
   static SOMEWHAT_DISADVANTAGED = 'Somewhat disadvantaged';
   static SOMEWHAT_LIKELY = 'somewhat likely';
-  static TAKE_ACTION_HEADER = 'Take action';
+  static TAKE_ACTION_HEADER = "Here's what you can do today";
   static WANT_TO_KNOW_MORE = 'Want to know more?';
   static WATER_SYSTEM_DESCRIPTION =
     'This is the water system which owns the service lines that provide water to this area.';
