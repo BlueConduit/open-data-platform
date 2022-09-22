@@ -29,6 +29,7 @@
           <NationwideMap height='70vh' :enableBasicMap='true' />
         </div>
       </div>
+      <ScorecardSummaryPanel v-if='showResults' />
       <div class='section has-text-centered' v-if='showResults'>
         <div class='h1-header-large'>
           {{ ScorecardMessages.TAKE_ACTION_HEADER }}
@@ -51,13 +52,6 @@
         </div>
       </div>
       <ContactCitySection class='section' v-if='showLslrSection' :city='city' />
-      <ScorecardSummaryPanel v-if='showResults' />
-      <ActionSection
-        class='section'
-        :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
-        :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
-        :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
-        @onButtonClick='navigateToResourcePage' />
       <ActionSection
         class='section nav-to-map'
         :header='ScorecardMessages.WANT_TO_KNOW_MORE'
