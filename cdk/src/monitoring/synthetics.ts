@@ -2,7 +2,24 @@ import { Construct } from 'constructs';
 import * as synthetics from '@aws-cdk/aws-synthetics-alpha';
 import { join } from 'path';
 import * as fs from 'fs';
+import * as ts from 'typescript';
 import { CommonProps, domain, EnvType } from '../util';
+
+/**
+ * Transpiles a set of files into a single JS string.
+ * @param dependencyPaths A set of paths relative to this file.
+ * @returns A string of JS.
+ */
+const compileHandlerString = (dependencyPaths: string[]): string => {
+  // Combine all dependencies into one string of Typescript.
+  const rawTs = dependencyPaths.reduce(
+    (acc: string, cur: string) => acc + fs.readFileSync(join(__dirname, cur), 'utf8'),
+    '',
+  );
+  // Canaries must use Javascript and fromInline does not accept typescript. So transpile TS
+  // to JS inline. This allows the handler to import other TS files from
+  return ts.transpileModule(rawTs, {}).outputText;
+};
 
 export class SyntheticsStack extends Construct {
   constructor(scope: Construct, id: string, props: CommonProps) {
@@ -19,11 +36,16 @@ export class SyntheticsStack extends Construct {
     // But run it on demand in sandbox environments.
     if (envType == EnvType.Sandbox) schedule = synthetics.Schedule.once();
 
+    // Define the handler code as a string.
+
     const canary = new synthetics.Canary(this, id, {
       schedule,
       test: synthetics.Test.custom({
         code: synthetics.Code.fromInline(
-          fs.readFileSync(join(__dirname, 'synthetics.handler.js'), 'utf8'),
+          compileHandlerString([
+            '../../../client/src/assets/messages/scorecard_messages.ts',
+            'synthetics.handler.ts',
+          ]),
         ),
         handler: 'index.handler',
       }),

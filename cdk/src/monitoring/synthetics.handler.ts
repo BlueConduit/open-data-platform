@@ -1,5 +1,11 @@
 const synthetics = require('Synthetics');
 const syntheticsConfiguration = synthetics.getConfiguration();
+const log = require('SyntheticsLogger');
+
+// This is implicitly imported in synthetics.ts. TS doesn't like that, so ignore the error that this
+// doesn't exist.
+// @ts-ignore
+const scorecardMessages = ScorecardMessages;
 
 /**
  * Helper function for searching the entire page for a string. Returns if the string was found
@@ -10,7 +16,7 @@ const syntheticsConfiguration = synthetics.getConfiguration();
  * @param s - String to search
  * @returns
  */
-const waitForString = async (page, s) =>
+const waitForString = async (page: { waitForFunction: (arg0: string) => any }, s: string) =>
   await page.waitForFunction(`document.querySelector("body").innerText.includes("${s}")`);
 
 exports.handler = async function () {
@@ -54,14 +60,14 @@ exports.handler = async function () {
 
   await synthetics.executeStep('viewScorecard', async function () {
     // Check for prediction presence.
-    await waitForString(page, 'Low likelihood');
+    await waitForString(page, scorecardMessages.LOW_LIKELIHOOD);
     // Check for side panel presence.
     await page.waitForSelector('.geoid-section');
     // Check for CTA presence.
-    await waitForString(page, 'Research water filters');
-    await waitForString(page, 'Copy link to share');
+    await waitForString(page, scorecardMessages.RESEARCH_WATER_FILTERS);
+    await waitForString(page, scorecardMessages.COPY_TO_CLIPBOARD);
     // Check for score details presence.
-    await waitForString(page, 'Understanding your score');
+    await waitForString(page, scorecardMessages.SCORECARD_SUMMARY_PANEL_HEADER(null));
     await page.screenshot();
   });
 };
