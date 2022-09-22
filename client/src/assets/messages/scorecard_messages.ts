@@ -6,11 +6,12 @@ export class ScorecardMessages {
   static ADDITIONAL_STEPS_SUBHEADER =
     'Worried about your lead risk status? One of the best ways to remedy your ' +
     'water supply is to order a filter.';
-  static AREA_DEPRIVATION_INDEX = 'Area Deprivation Index';
+  static AREA_DEPRIVATION_INDEX = 'Area Deprivation';
   static AREA_DEPRIVATION_INDEX_EXPLAINED =
-    'The Area Deprivation Index (ADI) is based on a measure created by the Health Resources & ' +
-    'Services Administration. It includes factors like income, education, employment, and housing quality.';
-  static AVERAGE_INCOME = 'Average income';
+    'The ADI is based on 17 variables that describe socioeconomic disadvantage ' +
+    'based on income, education, household characteristics, and housing created ' +
+    'by the Health Resources and Services Administration (HRSA).';
+  static AVERAGE_INCOME = 'Income level';
   static CONTACT_YOUR_CITY_HEADER = 'Contact your city';
   static CONTACT_YOUR_CITY_SUBHEADER =
     'Get more information or remediate any lead issues is to contact your city.';
@@ -31,11 +32,16 @@ export class ScorecardMessages {
   static HIGHLY_DISADVANTAGED = 'Highly disadvantaged';
   static NOT_LIKELY = 'not likely';
   static HIGHER_INCOME = 'Higher income';
-  static HOME_AGE = 'Average home age';
+  static HOME_AGE = 'Age of Your Home';
   static HOME_AGE_EXPLAINED =
-    'The year homes were built influences the likelihood they are constructed with lead pipes';
+    'Older homes are more likely to be connected to lead water pipes than newer ' +
+    'homes. We use the average home age in your zip code to help determine your status. ';
   static INCOME_LEVEL = 'Average income level';
-  static INCOME_LEVEL_EXPLAINED = 'Income levels correlate to the likelihood of lead.';
+  static INCOME_LEVEL_EXPLAINED =
+    'Income levels are also a determining factor that ' +
+    'could indicate the possibility of lead in a neighborhood or zip code.\n \n' +
+    'This information was taken from U.S. Census data and is measured by zip code ' +
+    'and not this specific address.';
   static LEAD_LIKELIHOOD_EXPLAINED =
     'Based on age of homes, historical service line data, and information ' +
     'collected from your utility and other sources';
