@@ -3,7 +3,7 @@
 
 import { Construct } from 'constructs';
 import { Stack } from 'aws-cdk-lib';
-import { EnvType, baseSubdomain, CommonProps } from '../../util';
+import { CommonProps, domain, parentDomain } from '../../util';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as certificatemanager from 'aws-cdk-lib/aws-certificatemanager';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -17,14 +17,8 @@ export class Dns extends Construct {
 
     const { envType } = props;
 
-    const parentDomain = 'blueconduit.com';
-
-    let subdomain = `${process.env.USER ?? 'default'}.${baseSubdomain}-sandbox`; // Used by UNITTEST too.
-    if (envType === EnvType.Production) subdomain = baseSubdomain;
-    else if (envType === EnvType.Development) subdomain = `${baseSubdomain}-dev`;
-
     this.hostedZone = new route53.PublicHostedZone(this, 'Subdomain', {
-      zoneName: `${subdomain}.${parentDomain}`,
+      zoneName: domain(envType),
     });
 
     const delegationRole = iam.Role.fromRoleArn(
