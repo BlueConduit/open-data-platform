@@ -51,8 +51,8 @@ export default defineComponent({
       legendStyle: {
         display: 'block',
         position: 'absolute',
-        bottom: '75px',
-        left: '0px',
+        bottom: '0px',
+        right: '0px',
       },
     };
   },

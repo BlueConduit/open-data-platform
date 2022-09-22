@@ -86,8 +86,6 @@ export const styleLayer: FillLayer = {
       'case',
       ['==', ['get', 'lead_connections_count'], null],
       DEFAULT_NULL_COLOR,
-      ['==', ['get', 'lead_connections_count'], 0],
-      '#9fcd7c',
       leadConnectionLegendInterpolation,
     ],
     'fill-opacity': 0.75,
