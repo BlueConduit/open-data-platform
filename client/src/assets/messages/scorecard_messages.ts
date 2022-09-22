@@ -2,11 +2,10 @@
  * Text to use on the scorecard summary page.
  */
 export class ScorecardMessages {
-  static ADDITIONAL_STEPS_HEADER = 'Additional steps you can take';
+  static ADDITIONAL_STEPS_HEADER = 'Protect your home';
   static ADDITIONAL_STEPS_SUBHEADER =
-    'The fastest way to protect your home ' +
-    'is to use a water filter. If you don’t already own one, learn more about ' +
-    'things to consider when choosing a filter that fits your needs.';
+    'Worried about your lead risk status? One of the best ways to remedy your ' +
+    'water supply is to order a filter.';
   static AREA_DEPRIVATION_INDEX = 'Area Deprivation Index';
   static AREA_DEPRIVATION_INDEX_EXPLAINED =
     'The Area Deprivation Index (ADI) is based on a measure created by the Health Resources & ' +
@@ -16,7 +15,7 @@ export class ScorecardMessages {
   static CONTACT_YOUR_CITY_SUBHEADER =
     'Get more information or remediate any lead issues is to contact your city.';
   static COPIED_TO_CLIPBOARD = 'Copied!';
-  static COPY_TO_CLIPBOARD = 'Copy scorecard link';
+  static COPY_TO_CLIPBOARD = 'Copy link to share';
   static EXPLORE_MAP_PAGE_EXPLAINER =
     'You can learn more about what’s happening in your community, state, ' +
     'or the United States by exploring the Nationwide Map. ';
@@ -54,7 +53,7 @@ export class ScorecardMessages {
   static SHARE_LEAD_OUT_SUBHEADER = 'Help others know their lead status through LeadOut.';
   static SOMEWHAT_DISADVANTAGED = 'Somewhat disadvantaged';
   static SOMEWHAT_LIKELY = 'somewhat likely';
-  static TAKE_ACTION_HEADER = 'Take action';
+  static TAKE_ACTION_HEADER = "Here's what you can do today";
   static WANT_TO_KNOW_MORE = 'Want to know more?';
   static WATER_SYSTEM_DESCRIPTION =
     'This is the water system which owns the service lines that provide water to this area.';
