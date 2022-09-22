@@ -62,11 +62,6 @@ export default defineComponent({
 @import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
-.center-container {
-  gap: $spacing-sm;
-  padding: $spacing-lg;
-}
-
 .explain-text {
   padding: $spacing-md;
 }
