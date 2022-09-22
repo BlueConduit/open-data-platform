@@ -59,7 +59,7 @@ exports.handler = async function () {
     await page.waitForSelector('.geoid-section');
     // Check for CTA presence.
     await waitForString(page, 'Research water filters');
-    await waitForString(page, 'Copy scorecard link');
+    await waitForString(page, 'Copy link to share');
     // Check for score details presence.
     await waitForString(page, 'Understanding your score');
     await page.screenshot();
