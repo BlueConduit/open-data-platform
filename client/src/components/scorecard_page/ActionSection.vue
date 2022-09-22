@@ -1,5 +1,5 @@
 <template>
-  <div class='section is-centered'>
+  <div class='is-flex'>
     <div class='h2-header-large'>
       {{ header }}
     </div>
@@ -62,8 +62,9 @@ export default defineComponent({
 @import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
-.explain-text {
-  padding: $spacing-md;
+.is-flex {
+  flex-direction: column;
+  gap: $spacing-md;
 }
 
 .icon {

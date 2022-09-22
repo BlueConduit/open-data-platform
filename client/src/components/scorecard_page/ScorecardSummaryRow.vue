@@ -1,5 +1,5 @@
 <template>
-  <div class=''>
+  <div class='container-column column'>
     <div class='h2-header-large'>{{ header }}</div>
     <div class='explain-text'>
       {{ subheader }} <br />
@@ -37,11 +37,13 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/grid/columns';
-@import 'bulma/sass/helpers/typography';
 
 a {
   color: $text_white;
+}
+
+.container-column {
+  gap: $spacing-md;
 }
 
 .comparison-value {

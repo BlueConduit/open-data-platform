@@ -8,7 +8,7 @@
     <div class='subheader'>
       {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_SUBHEADER }}
     </div>
-    <div class='columns is-centered'>
+    <div class='columns is-desktop'>
       <ScorecardSummaryRow
         class='column'
         :header='ScorecardSummaryMessages.HOME_AGE'
@@ -145,16 +145,18 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/layout/section';
-@import 'bulma/sass/elements/container';
 
-.section {
-  background-color: $navy-blue;
+.section.has-text-centered {
+  // Use a semi-opaque gradient to tint the background image for better text readability.
+  background-image: linear-gradient(rgba(4, 86, 155, 0.75), rgba(4, 86, 155, 0.75)),
+  url('~@/assets/media/understand-score@2x.png'), url('~@/assets/media/understand-score.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center, center;
   color: $white;
-}
 
-.columns.is-centered {
-  display: flex;
+  // Using .is-medium makes this section far too large.
+  min-height: 50vh;
 }
 
 </style>
