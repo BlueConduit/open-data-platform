@@ -154,6 +154,5 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/grid/columns';
 @import 'bulma/sass/helpers/spacing';
 </style>
