@@ -51,6 +51,8 @@ interface LegendBucketData {
 interface LegendInfo {
   // Legend title.
   title: string;
+  // Explainer for the legend.
+  subheader?: string;
   // Key / value map of visual representation -> values to be displayed in the legend.
   buckets: LegendBucketData[];
   // Data type for value.
