@@ -13,6 +13,8 @@ class ApiClient {
     console.log('Using API:', ApiClient.API_URL);
   }
 
+  getClient = () => axios;
+
   request = async (endpoint: string, callback: (data: any) => any): Promise<ApiResponse> => {
     axiosRetry(axios, {
       retries: 3,
@@ -34,10 +36,14 @@ class ApiClient {
         // By default, the baseURL is the current view's URL including path. Remove that path.
         baseURL: '/',
       });
+      
       apiResponse.data = callback(data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        apiResponse.error = { status: status, error: error.message };
+        apiResponse.error = {
+          status: error.response?.status?.toString(),
+          error: error.message,
+        };
       }
     }
     return apiResponse;
@@ -74,7 +80,7 @@ class ApiClient {
       `${ApiClient.API_URL}/${GeographicLevel[geoLevel].toLowerCase()}/scorecard/${geoId}`,
       (data) => {
         return {
-          geoId: data?.data?.pws_id,
+          geoId: data?.data?.geoid,
           averageHomeAge: data?.data?.average_home_age,
           averageSocialVulnerabilityIndex: data?.data?.average_social_vulnerability,
           averageIncome: data?.data?.income_index,
@@ -126,8 +132,8 @@ interface ApiResponse {
  * Error message and error status.
  */
 interface ApiError {
-  status: string;
+  status?: string;
   error: string;
 }
 
-export { ApiClient, ApiError };
+export { ApiClient, ApiResponse, ApiError };
