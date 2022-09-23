@@ -1,13 +1,14 @@
 <template>
   <div class='searchbar-container'>
-    <p v-if='enableZoomViews && options.length > 0'>View by:</p>
+    <p v-if='options.length > 0'>View by:</p>
     <div class='zoom-options'>
       <search-bar-option
         v-for='option in options'
         :key='option'
         :text-content='option'
         :selected='getSelected(option)'
-        @click='setSelected(option)' />
+        @click='setSelected(option)'
+      />
     </div>
     <!--    TODO add more descriptive placeholder.-->
     <map-geocoder-wrapper
@@ -38,7 +39,7 @@ export default defineComponent({
   name: 'ScorecardMapZoomBar',
   components: {
     MapGeocoderWrapper,
-    // SearchBarOption,
+    SearchBarOption,
   },
   setup() {
     const geoState = useSelector((state) => state.geos) as GeoDataState;
@@ -48,9 +49,6 @@ export default defineComponent({
       geoState,
       mapState,
     };
-  },
-  props: {
-    enableZoomViews: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -102,9 +100,16 @@ export default defineComponent({
 .searchbar-container {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   height: $spacing-xl;
   padding: 0 $spacing-md;
   background-color: $warm-grey-100;
+}
+
+.zoom-options {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  min-width: fit-content;
 }
 </style>
