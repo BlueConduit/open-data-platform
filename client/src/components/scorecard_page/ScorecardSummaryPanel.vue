@@ -149,7 +149,7 @@ export default defineComponent({
 .section.has-text-centered {
   // Use a semi-opaque gradient to tint the background image for better text readability.
   background-image: linear-gradient(rgba(4, 86, 155, 0.75), rgba(4, 86, 155, 0.75)),
-  url('~@/assets/media/understand-score@2x.png'), url('~@/assets/media/understand-score.png');
+  url('~@/assets/media/understand-score.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center, center;
