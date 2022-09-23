@@ -19,6 +19,7 @@ jobs:
       # Client.
       - run: npm --prefix client ci
       - run: npm --prefix client run build
+      - run: npm --prefix client test
       # CDK.
       - run: npm --prefix cdk ci
       - run: npm --prefix cdk run test
