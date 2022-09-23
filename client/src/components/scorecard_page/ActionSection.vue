@@ -8,7 +8,8 @@
     </div>
     <img v-if='image != null'
          :src='require(`@/assets/media/${image}`)'
-         alt='' />
+         alt=''
+         class='is-hidden-mobile' />
     <Popper v-if='buttonText != null'
             arrow
             class='tooltip-content'
