@@ -52,12 +52,16 @@
         </div>
       </div>
       <ContactCitySection class='section' v-if='showLslrSection' :city='city' />
-      <ActionSection
-        class='section nav-to-map'
-        :header='ScorecardMessages.WANT_TO_KNOW_MORE'
-        :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
-        :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
-        @onButtonClick='navigateToMapPage' />
+      <div class='section has-text-centered nav-to-map'>
+        <div class='h1-header-large'>
+          {{ ScorecardMessages.WANT_TO_KNOW_MORE }}
+        </div>
+        <ActionSection
+          :header='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
+          :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
+          image='map-preview.png'
+          @onButtonClick='navigateToMapPage' />
+      </div>
       <LslrSection v-if='showLslrSection' :city='city' />
     </div>
   </div>
