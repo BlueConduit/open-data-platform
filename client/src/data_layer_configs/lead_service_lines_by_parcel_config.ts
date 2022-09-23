@@ -18,23 +18,23 @@ const TABLE_NAME = 'public.parcels';
 const LEGEND_VALUES = [
   {
     bucketValue: 0,
-    bucketColor: '#9fcd7c',
+    bucketColor: '#FFEDB3',
   },
   {
-    bucketValue: 5,
-    bucketColor: '#f7e5af',
+    bucketValue: 10,
+    bucketColor: '#FFD74F',
   },
   {
-    bucketValue: 38,
-    bucketColor: '#f4a163',
+    bucketValue: 20,
+    bucketColor: '#FF9100',
   },
   {
-    bucketValue: 99.7,
-    bucketColor: '#ff5934',
+    bucketValue: 30,
+    bucketColor: '#FF6E4A',
   },
   {
-    bucketValue: 99.9,
-    bucketColor: '#d73819',
+    bucketValue: 50,
+    bucketColor: '#BF3417',
   },
 ];
 
