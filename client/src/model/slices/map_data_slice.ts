@@ -70,7 +70,7 @@ export const setZoom = (zoom: number) => {
     if (zoom == null) {
       dispatch(setMapDataError({ error: 'Invalid zoom' }));
     } else {
-      dispatch(setMapDataSuccess({ zoom: zoom }));
+      dispatch(setMapDataSuccess({ zoomLevel: undefined, zoom: zoom }));
     }
   };
 };
@@ -83,6 +83,7 @@ export const setZoomLevel = (level: ZoomLevel) => {
     dispatch(
       setMapDataSuccess({
         zoomLevel: level,
+        zoom: undefined,
       }),
     );
   };

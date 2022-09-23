@@ -20,7 +20,7 @@ import { ZoomLevel } from '../model/states/model/map_data';
 import { BoundingBox, GeoType } from '../model/states/model/geo_data';
 import { TOLEDO_BOUNDS } from '../util/geo_data_util';
 
-const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
+const CENTER_US = [-98.5556199, 39.8097343];
 
 const POPUP_CONTENT_BASE_ID = 'popup-content';
 const POPUP_CONTENT_BASE_HTML = `<div id='${POPUP_CONTENT_BASE_ID}'></div>`;
@@ -101,7 +101,7 @@ export default defineComponent({
       // cast to PropType of a tuple.
       // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
       type: Object as PropType<[number, number]>,
-      default: DEFAULT_LNG_LAT,
+      default: CENTER_US,
     },
     height: { type: String, default: '80vh' },
     /**
@@ -140,7 +140,7 @@ export default defineComponent({
       } else if (zipCodeBoundingBox) {
         dispatch(setZoomLevel(ZoomLevel.zipCode));
       } else {
-        dispatch(setZoomLevel(ZoomLevel.unknown));
+        dispatch(setZoomLevel(ZoomLevel.country));
       }
     },
 
@@ -174,6 +174,7 @@ export default defineComponent({
      * Update map zoom or bounds depending on the updated zoom level.
      */
     updateZoomLevel() {
+      console.log(`ZOOM OUT IN NATION WIDE`);
       const level = this.mapState?.mapData?.zoomLevel;
       const center = this.getLngLatFromState();
       if (!center) return;
@@ -189,6 +190,10 @@ export default defineComponent({
         }
         case ZoomLevel.zipCode: {
           this.zoomToBounds(this.geoState?.geoids?.zipCode?.boundingBox);
+          break;
+        }
+        case ZoomLevel.country: {
+          this.zoomToLngLat(center, DEFAULT_ZOOM_LEVEL);
           break;
         }
         default: {
@@ -408,9 +413,10 @@ export default defineComponent({
     async createMap(): Promise<void> {
       // Start zoomed in for a scorecard to avoid unnecessary tile loads.
       // TODO: pull the zoom level from the geoId in the global state.
-      const zoom = this.enableBasicMap ? PARCEL_ZOOM_LEVEL : DEFAULT_ZOOM_LEVEL;
+      const zoom = this.mapState?.mapData?.zoom ?? DEFAULT_ZOOM_LEVEL;
       // The map is created before the state watcher fires, so get the center directly.
       const center = this.getLngLatFromState() ?? this.center;
+      
       this.map = new mapboxgl.Map({
         // Removes watermark by Mapbox.
         attributionControl: false,
@@ -482,7 +488,12 @@ export default defineComponent({
       },
     },
     'mapState.mapData.zoomLevel': function() {
+      console.log(`mapState.mapData.zoomLevel`);
       this.updateZoomLevel();
+    },
+    'mapState.mapData.zoom': function() {
+      console.log(`mapState.mapData.zoom`);
+      //this.updateZoomLevel();
     },
     // Listen for changes to lat/long to update map location.
     'geoState.geoids': function() {

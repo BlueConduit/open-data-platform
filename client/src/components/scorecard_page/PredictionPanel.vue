@@ -16,7 +16,7 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import { useSelector } from '../../model/store';
+import { dispatch, useSelector } from '../../model/store';
 import { ScorecardMessages } from '../../assets/messages/scorecard_messages';
 import { GeoDataState } from '../../model/states/geo_data_state';
 import { LeadDataState } from '../../model/states/lead_data_state';
@@ -24,6 +24,11 @@ import { BoundedGeoDatum, GeoType } from '../../model/states/model/geo_data';
 import { Status } from '../../model/states/status_state';
 import { GeoDataUtil } from '../../util/geo_data_util';
 import { LeadDataUtil } from '../../util/lead_data_util';
+import { setZoomLevel } from '../../model/slices/map_data_slice';
+import { ZoomLevel } from '../../model/states/model/map_data';
+import { queryLatLong } from '../../model/slices/geo_data_slice';
+
+const CENTER_US = [-98.5556199, 39.8097343];
 
 /**
  * Container lead prediction.
@@ -49,17 +54,21 @@ export default defineComponent({
   },
   computed: {
     predictionString(): string {
-      if (this.showWaterSystemPrediction)
+      if (this.showWaterSystemPrediction) {
         return (
           this.formatPredictionAsLikelihood(this.percentLead) ??
           this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE
         );
-      if (this.showParcelPrediction)
+      }
+      if (this.showParcelPrediction) {
         return (
           this.formatPredictionAsLikelihood(this.publicLeadPercent) ??
           this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE
         );
-      if (this.showNoPrediction) return this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE;
+      }
+      if (this.showNoPrediction) {
+        return this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE;
+      }
       return this.ScorecardSummaryMessages.GET_WATER_SCORE;
     },
     explanationString(): string {

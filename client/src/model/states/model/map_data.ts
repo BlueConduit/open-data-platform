@@ -20,6 +20,7 @@ enum ZoomLevel {
   parcel = 'Parcel',
   waterSystem = 'Water system',
   zipCode = 'Zip code',
+  country = 'Country',
   unknown = 'Unknown',
 }
 
