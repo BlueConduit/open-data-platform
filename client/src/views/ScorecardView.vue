@@ -36,13 +36,13 @@
         </div>
         <div class='columns is-centered'>
           <ActionSection
-            class='column is-one-third'
+            class='column is-quarter'
             :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
             :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
             :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
             @onButtonClick='navigateToResourcePage' />
           <ActionSection
-            class='column is-one-third'
+            class='column is-quarter'
             :header='ScorecardMessages.SHARE_LEAD_OUT'
             :subheader='ScorecardMessages.SHARE_LEAD_OUT_SUBHEADER'
             buttonIcon='copy.png'
@@ -189,10 +189,6 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/layout/section.sass';
-@import 'bulma/sass/grid/columns.sass';
-@import 'bulma/sass/helpers/typography.sass';
-@import 'bulma/sass/helpers/visibility.sass';
 
 .nav-to-map {
   background-color: $light-blue-50;

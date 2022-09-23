@@ -12,7 +12,8 @@
         </div>
       </div>
       <div class='columns'>
-        <div class='column' v-for='resource in messages.RESOURCE_MESSAGES' :key='resource.header'>
+        <div class='column' v-for='resource in messages.RESOURCE_MESSAGES'
+             :key='resource.header'>
           <div class='h1-header'>{{ resource.header }}</div>
           <div class='resource-blurb body'>{{ resource.body }}</div>
         </div>
@@ -28,7 +29,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 import { LandingPageMessages as messages } from '../../assets/messages/landing';
 import { RESOURCES_ROUTE } from '../../router';
@@ -47,13 +48,10 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
+<style scoped lang='scss'>
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/layout/section.sass';
 @import 'bulma/sass/elements/container.sass';
-@import 'bulma/sass/grid/columns.sass';
-@import 'bulma/sass/helpers/typography.sass';
 @import 'bulma/sass/utilities/_all.sass';
 
 .h2-header-large {

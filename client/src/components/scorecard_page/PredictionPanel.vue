@@ -140,7 +140,5 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/layout/section';
 @import 'bulma/sass/elements/container';
-@import 'bulma/sass/helpers/typography';
 </style>

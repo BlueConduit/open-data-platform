@@ -15,7 +15,8 @@
 
     <div class='columns'>
       <div class='column'>
-        <img class='static-map' alt='' src='../../assets/media/static-map.png' />
+        <img class='static-map' alt=''
+             src='../../assets/media/static-map.png' />
       </div>
     </div>
 
@@ -29,7 +30,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 import { LandingPageMessages as messages } from '../../assets/messages/landing';
 import { router } from '../../router';
@@ -54,12 +55,11 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
+<style scoped lang='scss'>
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/layout/section.sass';
-@import 'bulma/sass/grid/columns.sass';
-@import 'bulma/sass/helpers/typography.sass';
+
+;
 
 .static-map {
   width: 100%;
