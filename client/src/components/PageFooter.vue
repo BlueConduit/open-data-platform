@@ -15,7 +15,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 import { Titles } from '../assets/messages/common';
 import * as router from '../router';
@@ -38,11 +38,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
+<style scoped lang='scss'>
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 @import 'bulma/sass/layout/footer.sass';
-@import 'bulma/sass/grid/columns.sass';
-@import 'bulma/sass/helpers/spacing.sass';
 @import 'bulma/sass/elements/image.sass';
 @import 'bulma/sass/utilities/_all.sass';
 

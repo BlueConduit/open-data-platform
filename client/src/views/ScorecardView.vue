@@ -36,13 +36,13 @@
         </div>
         <div class='columns is-centered'>
           <ActionSection
-            class='column is-one-third'
+            class='column is-quarter'
             :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
             :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
             :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
             @onButtonClick='navigateToResourcePage' />
           <ActionSection
-            class='column is-one-third'
+            class='column is-quarter'
             :header='ScorecardMessages.SHARE_LEAD_OUT'
             :subheader='ScorecardMessages.SHARE_LEAD_OUT_SUBHEADER'
             buttonIcon='copy.png'
@@ -52,12 +52,16 @@
         </div>
       </div>
       <ContactCitySection class='section' v-if='showLslrSection' :city='city' />
-      <ActionSection
-        class='section nav-to-map'
-        :header='ScorecardMessages.WANT_TO_KNOW_MORE'
-        :subheader='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
-        :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
-        @onButtonClick='navigateToMapPage' />
+      <div class='section has-text-centered nav-to-map'>
+        <div class='h1-header-large'>
+          {{ ScorecardMessages.WANT_TO_KNOW_MORE }}
+        </div>
+        <ActionSection
+          :header='ScorecardMessages.EXPLORE_MAP_PAGE_EXPLAINER'
+          :buttonText='Titles.EXPLORE_NATION_WIDE_MAP'
+          image='map-preview.png'
+          @onButtonClick='navigateToMapPage' />
+      </div>
       <LslrSection v-if='showLslrSection' :city='city' />
     </div>
   </div>
@@ -189,10 +193,6 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/layout/section.sass';
-@import 'bulma/sass/grid/columns.sass';
-@import 'bulma/sass/helpers/typography.sass';
-@import 'bulma/sass/helpers/visibility.sass';
 
 .nav-to-map {
   background-color: $light-blue-50;

@@ -1,11 +1,15 @@
 <template>
-  <div class='section is-centered'>
+  <div class='is-flex'>
     <div class='h2-header-large'>
       {{ header }}
     </div>
     <div class='container explain-text' v-if='subheader != null'>
       {{ subheader }}
     </div>
+    <img v-if='image != null'
+         :src='require(`@/assets/media/${image}`)'
+         alt=''
+         class='is-hidden-mobile' />
     <Popper v-if='buttonText != null'
             arrow
             class='tooltip-content'
@@ -42,6 +46,7 @@ export default defineComponent({
       default: window.location.href,
       type: String,
     },
+    image: String,
   },
   methods: {
     onButtonClick() {
@@ -62,17 +67,19 @@ export default defineComponent({
 @import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
-.center-container {
-  gap: $spacing-sm;
-  padding: $spacing-lg;
-}
-
-.explain-text {
-  padding: $spacing-md;
+.is-flex {
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
 }
 
 .icon {
   max-width: $spacing-md;
+}
+
+img {
+  border-radius: $spacing-sm;
+  max-width: $spacing-lg * 20;
 }
 
 // These variables cannot reference css vars
