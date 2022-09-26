@@ -11,7 +11,10 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 --
 -- 4326 is a 3D coordinate system. Lat/Longs are implicitly converted to 3D space for the
 -- purposes of any calculations, including distances and areas. There is no way to display
--- 4326 coordinates in 2D without projecting it into 2D in some way or another.
+-- 4326 coordinates in 2D without projecting it into 2D in some way or another. The projection
+-- should either be to another spatial system (e.g., 3857 for tiles) or to another type that
+-- uses 'real' units for calculations, like ::geography.
+-- See http://postgis.net/workshops/postgis-intro/geography.html for details.
 --
 -- 3857 is a 2D projected coordinate system. When doing anything with tiles, we need them to
 -- be projected into two dimensions (because tiles are shown as squares), so all tile-related
@@ -56,11 +59,13 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+-- Cast to geography to make sure area calculations are accurate.
+-- See http://postgis.net/workshops/postgis-intro/geography.html for why.
 CREATE OR REPLACE FUNCTION set_approx_area_sqkm_to_area_of_geom()
     RETURNS TRIGGER AS
 $$
 BEGIN
-    NEW.approx_area_sq_km = ST_Area(ST_Transform(new.geom, 4326)) / 1000000;
+    NEW.approx_area_sq_km = ST_Area(ST_Transform(new.geom, 4326)::geography) / 1000000;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
