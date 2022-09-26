@@ -6,6 +6,7 @@ import * as ts from 'typescript';
 import { CommonProps, domain, EnvType } from '../util';
 import { ITopic } from 'aws-cdk-lib/aws-sns';
 import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions';
+import { ComparisonOperator, TreatMissingData } from 'aws-cdk-lib/aws-cloudwatch';
 
 interface SyntheticsProps extends CommonProps {
   ticketSNSTopic?: ITopic;
@@ -64,10 +65,11 @@ export class SyntheticsStack extends Construct {
     });
 
     // Add a basic alarm that fires when any canary fails.
-    const singleAlarm = canary.metricFailed().createAlarm(scope, 'SingleCanaryFailure', {
+    const singleAlarm = canary.metricSuccessPercent().createAlarm(scope, 'SingleCanaryFailure', {
       alarmDescription: `Canary execution failed: https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#synthetics:canary/detail/${canary.canaryName}`,
       evaluationPeriods: 1,
-      threshold: 1,
+      threshold: 100,
+      comparisonOperator: ComparisonOperator.LESS_THAN_THRESHOLD,
     });
 
     if (ticketSNSTopic) singleAlarm.addAlarmAction(new SnsAction(ticketSNSTopic));
