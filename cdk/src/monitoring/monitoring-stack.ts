@@ -23,6 +23,8 @@ export const topicArn = (envType: EnvType, env: Environment): string =>
   `arn:aws:sns:${env.region}:${env.account}:${ticketTopicName(envType)}`;
 
 export class MonitoringStack extends Stack {
+  readonly ticketSNSTopic: sns.Topic;
+
   constructor(scope: Construct, id: string, props: MonitoringProps) {
     super(scope, id, props);
 
@@ -32,15 +34,12 @@ export class MonitoringStack extends Stack {
       loggingLevel: chatbot.LoggingLevel.INFO,
     });
 
-    // Subscribe to each topic from the other stacks.
-    // TODO: handle these differently, such as by tagging users or using a different channel.
-    slackbot.addNotificationTopic(
-      new sns.Topic(this, 'ticketSNSTopic', {
-        displayName: 'Ticket-level alarms',
-        topicName: ticketTopicName(props.envType),
-      }),
-    );
+    this.ticketSNSTopic = new sns.Topic(this, 'ticketSNSTopic', {
+      displayName: 'Ticket-level alarms',
+      topicName: ticketTopicName(props.envType),
+    });
+    slackbot.addNotificationTopic(this.ticketSNSTopic);
 
-    new SyntheticsStack(this, 'synthetics', props);
+    new SyntheticsStack(this, 'synthetics', { ...props, ticketSNSTopic: this.ticketSNSTopic });
   }
 }
