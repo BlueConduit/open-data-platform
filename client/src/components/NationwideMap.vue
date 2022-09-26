@@ -26,9 +26,6 @@ const POPUP_CONTENT_BASE_HTML = `<div id='${POPUP_CONTENT_BASE_ID}'></div>`;
 const VISIBILITY = 'visibility';
 const VISIBLE = 'visible';
 
-const PARCEL_ZOOM_LEVEL = 16;
-const DEFAULT_ZOOM_LEVEL = 4;
-
 /**
  * A browsable map of nationwide lead data.
  */
@@ -133,13 +130,10 @@ export default defineComponent({
       // If there's an address to zoom to, choose that. Otherwise, default to water system if it's
       // available. When there are no bounding boxes available, go to zipcode.
       if (addressBoundingBox != null) {
-        console.log(`dispatch parcel`);
         dispatch(setGeographicView(GeographicLevel.Parcel));
       } else if (waterSystemBoundingBox != null) {
-        console.log(`dispatch water system`);
         dispatch(setGeographicView(GeographicLevel.WaterSystem));
       } else if (zipCodeBoundingBox) {
-        console.log(`dispatch zipcode`);
         dispatch(setGeographicView(GeographicLevel.ZipCode));
       } else {
         dispatch(setGeographicView(GeographicLevel.Unknown));
@@ -180,11 +174,9 @@ export default defineComponent({
       const center = this.getLngLatFromState();
       if (!center) return;
 
-      console.log(`updateViewFromGeographicView ${level}`);
-
       switch (level) {
         case GeographicLevel.Parcel: {
-          this.zoomToLngLat(center, PARCEL_ZOOM_LEVEL);
+          this.zoomToLngLat(center, GeographicLevel.Parcel);
           break;
         }
         case GeographicLevel.WaterSystem: {
@@ -196,7 +188,7 @@ export default defineComponent({
           break;
         }
         case GeographicLevel.State: {
-          this.zoomToLngLat(center, DEFAULT_ZOOM_LEVEL);
+          this.zoomToLngLat(center, GeographicLevel.State);
           break;
         }
         default: {
@@ -219,7 +211,7 @@ export default defineComponent({
       if (layer == null) {
         return;
       }
-
+      console.log(`set visibility`);
       const styleLayerId = layer.styleLayer.id;
       this.map.setLayoutProperty(styleLayerId, VISIBILITY, VISIBLE);
 
@@ -356,20 +348,26 @@ export default defineComponent({
      */
     toggleDataOnZoom(): void {
       if (this.map == null) return;
+      console.log(`toggle data on zoom ${this.map.getZoom()}`);
       dispatch(setZoom(this.map.getZoom()));
+      console.log(`zoom is larger than parcel ${this.map.getZoom() >= GeographicLevel.Parcel}`);
+      console.log(`${this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem}`);
+      console.log(`has Toledo ${this.toledoContainsMap()}`);
 
       // If zoomed past parcel zoom level, switch to parcel-level data source.
       // Otherwise, switch to water system level.
       if (
-        this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
+        this.map.getZoom() >= GeographicLevel.Parcel &&
         this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem &&
         this.toledoContainsMap()
       ) {
+        console.log(`Show parcel`);
         dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByParcel));
       } else if (
-        this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
+        this.map.getZoom() < GeographicLevel.Parcel &&
         this.currentDataLayerId == MapLayer.LeadServiceLineByParcel
       ) {
+        console.log(`Show ws`);
         dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByWaterSystem));
       }
     },
@@ -382,6 +380,8 @@ export default defineComponent({
      */
     toledoContainsMap(): boolean {
       if (this.map == null) return false;
+      console.log(`toledo bounds ne: ${this.map.getBounds().getNorthEast()}`);
+      console.log(`toledo bounds ne: ${this.map.getBounds().getSouthWest()}`);
       return (
         TOLEDO_BOUNDS.contains(this.map.getBounds().getNorthEast()) &&
         TOLEDO_BOUNDS.contains(this.map.getBounds().getSouthWest())
@@ -401,7 +401,7 @@ export default defineComponent({
 
       this.setUpInteractionHandlers();
       this.setUpControls();
-      
+
       // This handles zoom, bounding box changes.
       this.map?.on('render', this.toggleDataOnZoom);
 
@@ -416,7 +416,7 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      const zoom = this.mapState?.mapData?.zoom ?? DEFAULT_ZOOM_LEVEL;
+      const zoom = this.mapState?.mapData?.zoom ?? GeographicLevel.State;
       // The map is created before the state watcher fires, so get the center directly.
       const center = this.getLngLatFromState() ?? this.center;
 
@@ -467,7 +467,7 @@ export default defineComponent({
         if (this.map?.isStyleLoaded()) {
           this.map?.jumpTo({
             center: this.center,
-            zoom: DEFAULT_ZOOM_LEVEL,
+            zoom: GeographicLevel.State,
           });
         }
       }
@@ -485,9 +485,7 @@ export default defineComponent({
         if (newDataLayerId == null) {
           return;
         }
-        if (this.map?.isStyleLoaded()) {
-          this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
-        }
+        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
       },
     },
     'mapState.mapData.geographicView': function() {

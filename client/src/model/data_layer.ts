@@ -131,7 +131,7 @@ enum GeographicLevel {
   State = 4,
   WaterSystem = 5,
   ZipCode = 6,
-  Parcel = 9,
+  Parcel = 12,
 }
 
 export {
