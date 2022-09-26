@@ -56,5 +56,11 @@ export class SyntheticsStack extends Construct {
         DOMAIN: domain(envType),
       },
     });
+
+    const singleAlarm = canary.metricFailed().createAlarm(scope, 'SingleCanaryFailure', {
+      alarmDescription: `Canary execution failed: https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#synthetics:canary/detail/${canary.canaryName}`,
+      evaluationPeriods: 1,
+      threshold: 1,
+    });
   }
 }
