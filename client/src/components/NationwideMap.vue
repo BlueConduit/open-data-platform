@@ -356,7 +356,6 @@ export default defineComponent({
      */
     toggleDataOnZoom(): void {
       if (this.map == null) return;
-      console.log(`toggleDataOnZoom ${this.map.getZoom()}`);
       dispatch(setZoom(this.map.getZoom()));
 
       // If zoomed past parcel zoom level, switch to parcel-level data source.
@@ -402,8 +401,9 @@ export default defineComponent({
 
       this.setUpInteractionHandlers();
       this.setUpControls();
-      this.map?.on('zoomend', this.toggleDataOnZoom);
-      this.map?.on('boxzoomend', this.toggleDataOnZoom);
+      
+      // This handles zoom, bounding box changes.
+      this.map?.on('render', this.toggleDataOnZoom);
 
       // If the map has nothing on it, check the current data layer.
       if (this.visibleLayer == null && this.currentDataLayerId != null) {
