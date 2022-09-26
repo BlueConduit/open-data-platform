@@ -9,7 +9,7 @@ creating awareness and easy access to simple, reliable, relevant information on 
 actions.
 
 **LeadOut is a software tool where residents can see predictive likelihood to have lead water
-service lines in their home.**
+service lines in their home, neighborhood, or water system.**
 
 ## Documentation
 
@@ -19,8 +19,8 @@ Technical guides:
 
 Designs documents:
 
-- [Production Designs](https://docs.google.com/document/d/1zZxCoXx5JzLXTOGVdvC4s8H-r82DFjfmNU-dmFPAQVI/edit)
-- [Scorecard Design](https://docs.google.com/document/u/3/d/1T-hBIzci81r0Xez70zEVfYxWHh6oHKsXJlxDsVJ7lDM/edit#heading=h.cj0jtq6gzcgp)
+- [Production Designs](https://docs.google.com/document/d/1zZxCoXx5JzLXTOGVdvC4s8H-r82DFjfmNU-dmFPAQVI/preview)
+- [Scorecard Design](https://docs.google.com/document/d/1T-hBIzci81r0Xez70zEVfYxWHh6oHKsXJlxDsVJ7lDM/preview)
 
 ## About
 
