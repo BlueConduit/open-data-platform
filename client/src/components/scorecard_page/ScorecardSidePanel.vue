@@ -7,8 +7,7 @@
           :geoId='getGeoIdForZoomLevel(option)'
           :geoIdInfo='getGeoIdInfoForZoomLevel(option)'
           :selected='getSelected(option)'
-          @click='setSelected(option)'
-        />
+          @select='setSelected(option)' />
       </div>
     </div>
   </div>

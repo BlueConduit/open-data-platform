@@ -211,7 +211,6 @@ export default defineComponent({
       if (layer == null) {
         return;
       }
-      console.log(`set visibility`);
       const styleLayerId = layer.styleLayer.id;
       this.map.setLayoutProperty(styleLayerId, VISIBILITY, VISIBLE);
 
@@ -348,11 +347,7 @@ export default defineComponent({
      */
     toggleDataOnZoom(): void {
       if (this.map == null) return;
-      console.log(`toggle data on zoom ${this.map.getZoom()}`);
       dispatch(setZoom(this.map.getZoom()));
-      console.log(`zoom is larger than parcel ${this.map.getZoom() >= GeographicLevel.Parcel}`);
-      console.log(`${this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem}`);
-      console.log(`has Toledo ${this.toledoContainsMap()}`);
 
       // If zoomed past parcel zoom level, switch to parcel-level data source.
       // Otherwise, switch to water system level.
@@ -361,13 +356,11 @@ export default defineComponent({
         this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem &&
         this.toledoContainsMap()
       ) {
-        console.log(`Show parcel`);
         dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByParcel));
       } else if (
         this.map.getZoom() < GeographicLevel.Parcel &&
         this.currentDataLayerId == MapLayer.LeadServiceLineByParcel
       ) {
-        console.log(`Show ws`);
         dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByWaterSystem));
       }
     },
@@ -380,8 +373,6 @@ export default defineComponent({
      */
     toledoContainsMap(): boolean {
       if (this.map == null) return false;
-      console.log(`toledo bounds ne: ${this.map.getBounds().getNorthEast()}`);
-      console.log(`toledo bounds ne: ${this.map.getBounds().getSouthWest()}`);
       return (
         TOLEDO_BOUNDS.contains(this.map.getBounds().getNorthEast()) &&
         TOLEDO_BOUNDS.contains(this.map.getBounds().getSouthWest())

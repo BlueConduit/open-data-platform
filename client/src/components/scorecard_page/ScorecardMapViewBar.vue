@@ -1,14 +1,16 @@
 <template>
-  <div class='searchbar-container'>
-    <p v-if='options.length > 0'>View by:</p>
-    <div class='zoom-options'>
-      <search-bar-option
-        v-for='option in options'
-        :key='GeoDataUtil.getLabelForGeographicView(option)'
-        :text-content='GeoDataUtil.getLabelForGeographicView(option)'
-        :selected='getSelected(option)'
-        @click='setSelected(option)'
-      />
+  <div class='container'>
+    <div class='container' v-if='enableViewToggling'>
+      <p v-if='options.length > 0'>View by:</p>
+      <div class='zoom-options'>
+        <search-bar-option
+          v-for='option in options'
+          :key='GeoDataUtil.getLabelForGeographicView(option)'
+          :text-content='GeoDataUtil.getLabelForGeographicView(option)'
+          :selected='getSelected(option)'
+          @click='setSelected(option)'
+        />
+      </div>
     </div>
     <!--    TODO add more descriptive placeholder.-->
     <map-geocoder-wrapper
@@ -36,7 +38,7 @@ import { GeographicLevel } from '../../model/data_layer';
  * The zoom and search bar for the scorecard map.
  */
 export default defineComponent({
-  name: 'ScorecardMapZoomBar',
+  name: 'ScorecardMapViewBar',
   components: {
     MapGeocoderWrapper,
     SearchBarOption,
@@ -49,6 +51,12 @@ export default defineComponent({
       geoState,
       mapState,
     };
+  },
+  props: {
+    enableViewToggling: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -98,10 +106,10 @@ export default defineComponent({
 @import 'src/assets/styles/global';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
-.searchbar-container {
+.container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   height: $spacing-xl;
   padding: 0 $spacing-md;
   background-color: $warm-grey-100;
