@@ -129,7 +129,7 @@ export default defineComponent({
   methods: {
     getDemographicDataForZip() {
       if (this.geoState?.geoids?.zipCode != null) {
-        dispatch(getDemographicData(GeographicLevel.Zipcode, this.geoState.geoids.zipCode.id));
+        dispatch(getDemographicData(GeographicLevel.ZipCode, this.geoState.geoids.zipCode.id));
       }
     },
     roundNumber(number: number | undefined): number | null {

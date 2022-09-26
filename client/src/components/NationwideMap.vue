@@ -10,13 +10,12 @@ import mapboxgl, { LngLatBounds, LngLatLike, MapLayerMouseEvent } from 'mapbox-g
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
-import { DataLayer, FeatureProperty, GeographicLevel, MapLayer } from '../model/data_layer';
+import { DataLayer, GeographicLevel, MapLayer } from '../model/data_layer';
 import { MAP_ROUTE_BASE, router, SCORECARD_BASE } from '../router';
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
-import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom, setZoomLevel } from '../model/slices/map_data_slice';
-import { ZoomLevel } from '../model/states/model/map_data';
+import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom, setGeographicView } from '../model/slices/map_data_slice';
 import { BoundingBox, GeoType } from '../model/states/model/geo_data';
 import { TOLEDO_BOUNDS } from '../util/geo_data_util';
 
@@ -123,7 +122,7 @@ export default defineComponent({
     /**
      * Dispatch event to update zoom level for the updated geo IDs.
      */
-    setZoomForGeoIds() {
+    setGeographicView() {
       const addressBoundingBox = this.geoState?.geoids?.address?.boundingBox;
       const waterSystemBoundingBox = this.geoState?.geoids?.pwsId?.boundingBox;
       const zipCodeBoundingBox = this.geoState?.geoids?.zipCode?.boundingBox;
@@ -134,13 +133,16 @@ export default defineComponent({
       // If there's an address to zoom to, choose that. Otherwise, default to water system if it's
       // available. When there are no bounding boxes available, go to zipcode.
       if (addressBoundingBox != null) {
-        dispatch(setZoomLevel(ZoomLevel.parcel));
+        console.log(`dispatch parcel`);
+        dispatch(setGeographicView(GeographicLevel.Parcel));
       } else if (waterSystemBoundingBox != null) {
-        dispatch(setZoomLevel(ZoomLevel.waterSystem));
+        console.log(`dispatch water system`);
+        dispatch(setGeographicView(GeographicLevel.WaterSystem));
       } else if (zipCodeBoundingBox) {
-        dispatch(setZoomLevel(ZoomLevel.zipCode));
+        console.log(`dispatch zipcode`);
+        dispatch(setGeographicView(GeographicLevel.ZipCode));
       } else {
-        dispatch(setZoomLevel(ZoomLevel.country));
+        dispatch(setGeographicView(GeographicLevel.Unknown));
       }
     },
 
@@ -152,9 +154,9 @@ export default defineComponent({
 
       if (this.enableBasicMap) this.map?.jumpTo({
         center,
-        zoom: PARCEL_ZOOM_LEVEL,
+        zoom: zoom,
       });
-      else this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
+      else this.map?.flyTo({ center, zoom: zoom });
     },
 
     /**
@@ -173,31 +175,32 @@ export default defineComponent({
     /**
      * Update map zoom or bounds depending on the updated zoom level.
      */
-    updateZoomLevel() {
-      console.log(`ZOOM OUT IN NATION WIDE`);
-      const level = this.mapState?.mapData?.zoomLevel;
+    updateViewFromGeographicView() {
+      const level = this.mapState?.mapData?.geographicView;
       const center = this.getLngLatFromState();
       if (!center) return;
 
+      console.log(`updateViewFromGeographicView ${level}`);
+
       switch (level) {
-        case ZoomLevel.parcel: {
+        case GeographicLevel.Parcel: {
           this.zoomToLngLat(center, PARCEL_ZOOM_LEVEL);
           break;
         }
-        case ZoomLevel.waterSystem: {
+        case GeographicLevel.WaterSystem: {
           this.zoomToBounds(this.geoState?.geoids?.pwsId?.boundingBox);
           break;
         }
-        case ZoomLevel.zipCode: {
+        case GeographicLevel.ZipCode: {
           this.zoomToBounds(this.geoState?.geoids?.zipCode?.boundingBox);
           break;
         }
-        case ZoomLevel.country: {
+        case GeographicLevel.State: {
           this.zoomToLngLat(center, DEFAULT_ZOOM_LEVEL);
           break;
         }
         default: {
-          this.zoomToLngLat(center, GeographicLevel.Zipcode);
+          this.zoomToLngLat(center, GeographicLevel.ZipCode);
         }
       }
     },
@@ -353,6 +356,7 @@ export default defineComponent({
      */
     toggleDataOnZoom(): void {
       if (this.map == null) return;
+      console.log(`toggleDataOnZoom ${this.map.getZoom()}`);
       dispatch(setZoom(this.map.getZoom()));
 
       // If zoomed past parcel zoom level, switch to parcel-level data source.
@@ -398,7 +402,8 @@ export default defineComponent({
 
       this.setUpInteractionHandlers();
       this.setUpControls();
-      this.map?.on('zoom', this.toggleDataOnZoom);
+      this.map?.on('zoomend', this.toggleDataOnZoom);
+      this.map?.on('boxzoomend', this.toggleDataOnZoom);
 
       // If the map has nothing on it, check the current data layer.
       if (this.visibleLayer == null && this.currentDataLayerId != null) {
@@ -411,12 +416,10 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      // Start zoomed in for a scorecard to avoid unnecessary tile loads.
-      // TODO: pull the zoom level from the geoId in the global state.
       const zoom = this.mapState?.mapData?.zoom ?? DEFAULT_ZOOM_LEVEL;
       // The map is created before the state watcher fires, so get the center directly.
       const center = this.getLngLatFromState() ?? this.center;
-      
+
       this.map = new mapboxgl.Map({
         // Removes watermark by Mapbox.
         attributionControl: false,
@@ -434,8 +437,8 @@ export default defineComponent({
       });
 
       this.map?.scrollZoom.disable();
+      // The legend relies on this.
       dispatch(setZoom(zoom));
-      this.toggleDataOnZoom();
     },
 
     /**
@@ -458,7 +461,7 @@ export default defineComponent({
         if (this.map != null) {
           this.marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
         }
-        this.setZoomForGeoIds();
+        this.setGeographicView();
       } else {
         // Reset map to full view of U.S. when geo IDs are cleared.
         if (this.map?.isStyleLoaded()) {
@@ -487,13 +490,8 @@ export default defineComponent({
         }
       },
     },
-    'mapState.mapData.zoomLevel': function() {
-      console.log(`mapState.mapData.zoomLevel`);
-      this.updateZoomLevel();
-    },
-    'mapState.mapData.zoom': function() {
-      console.log(`mapState.mapData.zoom`);
-      //this.updateZoomLevel();
+    'mapState.mapData.geographicView': function() {
+      this.updateViewFromGeographicView();
     },
     // Listen for changes to lat/long to update map location.
     'geoState.geoids': function() {

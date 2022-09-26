@@ -4,8 +4,8 @@
     <div class='zoom-options'>
       <search-bar-option
         v-for='option in options'
-        :key='option'
-        :text-content='option'
+        :key='GeoDataUtil.getLabelForGeographicView(option)'
+        :text-content='GeoDataUtil.getLabelForGeographicView(option)'
         :selected='getSelected(option)'
         @click='setSelected(option)'
       />
@@ -27,10 +27,10 @@ import MapGeocoderWrapper from '../MapGeocoderWrapper.vue';
 import { dispatch, useSelector } from '../../model/store';
 import { GeoDataState } from '../../model/states/geo_data_state';
 import { MapDataState } from '../../model/states/map_data_state';
-import { ZoomLevel } from '../../model/states/model/map_data';
-import { setZoomLevel } from '../../model/slices/map_data_slice';
+import { setGeographicView } from '../../model/slices/map_data_slice';
 import { GeoType } from '../../model/states/model/geo_data';
 import { GeoDataUtil } from '../../util/geo_data_util';
+import { GeographicLevel } from '../../model/data_layer';
 
 /**
  * The zoom and search bar for the scorecard map.
@@ -53,15 +53,16 @@ export default defineComponent({
   data() {
     return {
       acceptedTypes: [GeoType.address, GeoType.postcode],
-      options: [] as ZoomLevel[],
-      selectedOption: null as ZoomLevel | null,
+      options: [] as GeographicLevel[],
+      selectedOption: null as GeographicLevel | null,
       showSearch: false,
       SCORECARD_BASE,
+      GeoDataUtil,
     };
   },
   beforeMount() {
-    this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
-    this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
+    this.options = GeoDataUtil.getGeographicViewOptionsForGeoIds(this.geoState?.geoids);
+    this.selectedOption = this.mapState?.mapData?.geographicView ?? null;
   },
   methods: {
     /**
@@ -69,7 +70,7 @@ export default defineComponent({
      *
      * @param option
      */
-    getSelected(option: ZoomLevel): boolean {
+    getSelected(option: GeographicLevel): boolean {
       return option === this.selectedOption;
     },
 
@@ -78,16 +79,16 @@ export default defineComponent({
      *
      * @param option
      */
-    setSelected(option: ZoomLevel): void {
-      dispatch(setZoomLevel(option));
+    setSelected(option: GeographicLevel): void {
+      dispatch(setGeographicView(option));
     },
   },
   watch: {
-    'mapState.mapData.zoomLevel': function() {
-      this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
+    'mapState.mapData.geographicView': function() {
+      this.selectedOption = this.mapState?.mapData?.geographicView ?? null;
     },
     'geoState.geoids': function() {
-      this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
+      this.options = GeoDataUtil.getGeographicViewOptionsForGeoIds(this.geoState?.geoids);
     },
   },
 });

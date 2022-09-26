@@ -121,14 +121,16 @@ enum MapLayer {
 }
 
 /**
- * Zoom levels for each demographic layer.
+ * Zoom thresholds for each geographic level.
  * This needs to be kept in order.
+ *
+ * This only applies to how data layers change on the map as you zoom in.
  */
 enum GeographicLevel {
   Unknown = 0,
   State = 4,
-  County = 5,
-  Zipcode = 6,
+  WaterSystem = 5,
+  ZipCode = 6,
   Parcel = 9,
 }
 
