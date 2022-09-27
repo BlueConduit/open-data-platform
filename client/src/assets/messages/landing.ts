@@ -32,6 +32,7 @@ export class LandingPageMessages {
   static SUBSCRIBE_HEADER = 'Stay up to Date';
   static SUBSCRIBE_SUBHEADER = 'We\'re constantly adding data to our map. We can send you an email when\n' +
     '        your region is available.';
+  static THANK_YOU_MESSAGE = 'Thank you for submitting your contact information!';
   static VIEW_MORE_RESOURCES_BUTTON_TEXT = 'View More in Resources';
 
   static RESOURCE_MESSAGES: ResourceMessage[] = [
