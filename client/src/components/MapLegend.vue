@@ -1,12 +1,13 @@
 <template>
   <div class='map-overlay' :style='style'>
-    <div>{{ this.title }}</div>
+    <div class='h2-header-large'>{{ this.title }}</div>
+    <div class='explain-text'>{{ this.subheader }}</div>
     <p></p>
     <div class='bucket'
          v-for='(bucket) in this.displayedBuckets' :key='bucket'>
       <span class='color'
             :style='{&apos;background-color&apos;: bucket.bucketColor}'></span>
-      <span> {{ bucket.bucketLabel }}</span>
+      <span class='explain-text'> {{ bucket.bucketLabel }}</span>
     </div>
   </div>
 </template>
@@ -36,6 +37,7 @@ export default defineComponent({
   data() {
     return {
       title: '',
+      subheader: '',
       displayedBuckets: new Array<LegendBucketData>(),
     };
   },
@@ -54,6 +56,7 @@ export default defineComponent({
       const layerToUse = Array.from(ALL_DATA_LAYERS.values()).find(l => l.id == this.mapState?.mapData?.currentDataLayerId);
       const legendInfo = getLegendForZoomLevel(Math.floor(this.mapState.mapData.zoom), layerToUse?.legendInfo);
       this.title = legendInfo?.title ?? '';
+      this.subheader = legendInfo?.subheader ?? '';
       this.displayedBuckets = formatLegendBucket(legendInfo);
     },
   },
@@ -85,12 +88,13 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
+
 .color {
-  border-radius: 20%;
-  width: 10px;
+  width: 50px;
   height: 10px;
-  margin-right: 5px;
+  margin-right: $spacing-md;
 }
 
 .bucket {
@@ -100,13 +104,13 @@ export default defineComponent({
 }
 
 .map-overlay {
-  height: 225px;
+  height: 250px;
   background: #fff;
   overflow: auto;
   border-radius: 3px;
   padding: 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   line-height: 20px;
-  width: 100px;
+  width: 300px;
 }
 </style>

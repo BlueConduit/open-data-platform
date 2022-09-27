@@ -17,27 +17,23 @@ const TABLE_NAME = 'public.lead_connections_function_source';
 const LEGEND_VALUES = [
   {
     bucketValue: 0,
-    bucketColor: '#9fcd7c',
+    bucketColor: '#FFEDB3',
   },
   {
-    bucketValue: 25,
-    bucketColor: '#f7e5af',
+    bucketValue: 10,
+    bucketColor: '#FFD74F',
   },
   {
-    bucketValue: 33,
-    bucketColor: '#f9bd64',
+    bucketValue: 20,
+    bucketColor: '#FF9100',
+  },
+  {
+    bucketValue: 30,
+    bucketColor: '#FF6E4A',
   },
   {
     bucketValue: 50,
-    bucketColor: '#f4a163',
-  },
-  {
-    bucketValue: 60,
-    bucketColor: '#ff5934',
-  },
-  {
-    bucketValue: 75,
-    bucketColor: '#d73819',
+    bucketColor: '#BF3417',
   },
 ];
 
@@ -48,7 +44,11 @@ const legend = new Map([
   [
     GeographicLevel.State,
     {
-      title: 'Percentage of service lines estimated to be lead',
+      title: 'Lead service lines data',
+      subheader:
+        'This is measuring the percentage of services lines ' +
+        'currently estimated to be lead. This information is based on either ' +
+        'information reported by the water system or predictions by BlueConduit ',
       buckets: LEGEND_VALUES,
       bucketLabelType: FeaturePropertyDataType.Percentage,
     },
@@ -86,8 +86,6 @@ export const styleLayer: FillLayer = {
       'case',
       ['==', ['get', 'lead_connections_count'], null],
       DEFAULT_NULL_COLOR,
-      ['==', ['get', 'lead_connections_count'], 0],
-      '#9fcd7c',
       leadConnectionLegendInterpolation,
     ],
     'fill-opacity': 0.75,
