@@ -12,7 +12,7 @@
       <PredictionPanel />
 
       <!-- Only display the side-panel, full-width on mobile. -->
-      <ScorecardMapViewBar class='is-hidden-mobile' />
+      <ScorecardMapViewBar />
       <div class='columns is-variable is-centered is-gapless'>
         <div class='column is-hidden-touch side-panel' v-if='showResults'>
           <div class='section'>
