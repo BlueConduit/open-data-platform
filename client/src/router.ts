@@ -5,6 +5,7 @@ import { Titles } from './assets/messages/common';
 import ResourceView from '@/views/ResourceView.vue';
 import NationwideMapView from '@/views/NationwideMapView.vue';
 import AboutUsView from '@/views/AboutUsView.vue';
+import ThankYouView from '@/views/ThankYouView.vue';
 
 export const LAT_LONG_PARAM = 'latlong';
 export const LAYER_PARAM = 'layer';
@@ -17,6 +18,7 @@ const MAP_ROUTE_BASE = `/map`;
 const MAP_ROUTE = `${MAP_ROUTE_BASE}/:${GEOTYPE_PARAM}/:${LAT_LONG_PARAM}?`;
 const ABOUT_ROUTE = '/about';
 const RESOURCES_ROUTE = '/resources';
+const SUBSCRIBED_ROUTE = '/subscribed';
 
 const routes = [
   {
@@ -64,6 +66,13 @@ const routes = [
   {
     path: ABOUT_ROUTE,
     component: AboutUsView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.ABOUT_TITLE}`,
+    },
+  },
+  {
+    path: SUBSCRIBED_ROUTE,
+    component: ThankYouView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.ABOUT_TITLE}`,
     },
