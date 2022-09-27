@@ -12,14 +12,8 @@
       <PredictionPanel />
 
       <!-- Only display the side-panel, full-width on mobile. -->
-      <ScorecardMapSearchBar class='is-hidden-mobile' />
+      <ScorecardMapViewBar class='is-hidden-mobile' />
       <div class='columns is-variable is-centered is-gapless'>
-        <!-- Conditionally use the "side-panel" class to limit column width on desktop only -->
-        <div class='column is-hidden-desktop' v-if='showResults'>
-          <div class='section'>
-            <SidePanel />
-          </div>
-        </div>
         <div class='column is-hidden-touch side-panel' v-if='showResults'>
           <div class='section'>
             <SidePanel />
@@ -81,7 +75,7 @@ import LslrSection from '../components/scorecard_page/LslrSection.vue';
 import { dispatch, useSelector } from '../model/store';
 import { LeadDataState } from '../model/states/lead_data_state';
 import { GeoDataState } from '../model/states/geo_data_state';
-import ScorecardMapSearchBar from '../components/scorecard_page/ScorecardMapSearchBar.vue';
+import ScorecardMapViewBar from '../components/scorecard_page/ScorecardMapViewBar.vue';
 import SidePanel from '../components/scorecard_page/ScorecardSidePanel.vue';
 import { City } from '../model/states/model/geo_data';
 import { Status } from '../model/states/status_state';
@@ -106,7 +100,7 @@ export default defineComponent({
     NationwideMap,
     PredictionPanel,
     ScorecardSummaryPanel,
-    ScorecardMapSearchBar,
+    ScorecardMapViewBar,
     SidePanel,
   },
   setup() {

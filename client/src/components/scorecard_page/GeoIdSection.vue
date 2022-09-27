@@ -1,5 +1,7 @@
 <template>
-  <div class='geoid-section' :class='{ selected }'>
+  <div class='geoid-section'
+       :class='enableSelection ? { selected } : ""'
+       @click='selectOption'>
     <div class='h2-header-large geoid'>{{ geoId }}</div>
     <div class='h2-header description'>{{ geoIdInfo }}</div>
   </div>
@@ -14,6 +16,10 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'GeoIdSection',
   props: {
+    enableSelection: {
+      type: Boolean,
+      default: false,
+    },
     geoId: {
       type: String,
       required: true,
@@ -25,6 +31,13 @@ export default defineComponent({
     selected: {
       type: Boolean,
       default: false,
+    },
+  },
+  methods: {
+    selectOption() {
+      if (this.enableSelection) {
+        this.$emit('select', true);
+      }
     },
   },
 });

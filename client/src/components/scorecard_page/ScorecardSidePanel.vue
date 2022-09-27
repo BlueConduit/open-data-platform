@@ -7,8 +7,7 @@
           :geoId='getGeoIdForZoomLevel(option)'
           :geoIdInfo='getGeoIdInfoForZoomLevel(option)'
           :selected='getSelected(option)'
-          @click='setSelected(option)'
-        />
+          @select='setSelected(option)' />
       </div>
     </div>
   </div>
@@ -20,13 +19,13 @@ import GeoIdSection from './GeoIdSection.vue';
 import { dispatch, useSelector } from '../../model/store';
 import { GeoDataState } from '../../model/states/geo_data_state';
 import { MapDataState } from '../../model/states/map_data_state';
-import { ZoomLevel } from '../../model/states/model/map_data';
 import { GeoDataUtil } from '../../util/geo_data_util';
 import { GeoData } from '../../model/states/model/geo_data';
-import { setZoomLevel } from '../../model/slices/map_data_slice';
+import { setGeographicView } from '../../model/slices/map_data_slice';
 import { ScorecardMessages } from '../../assets/messages/scorecard_messages';
 import { LeadDataUtil } from '../../util/lead_data_util';
 import { LeadDataState } from '../../model/states/lead_data_state';
+import { GeographicLevel } from '../../model/data_layer';
 
 /**
  * Side panel containing extra contexts for Geo IDs in the scorecard view.
@@ -46,33 +45,33 @@ export default defineComponent({
   },
   data() {
     return {
-      options: [] as ZoomLevel[],
-      selectedOption: null as ZoomLevel | null,
-      ZoomLevel,
+      options: [] as GeographicLevel[],
+      selectedOption: null as GeographicLevel | null,
+      geographicView: GeographicLevel,
     };
   },
   beforeMount() {
-    this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
-    this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
+    this.options = GeoDataUtil.getGeographicViewOptionsForGeoIds(this.geoState?.geoids);
+    this.selectedOption = this.mapState?.mapData?.geographicView ?? null;
   },
   methods: {
     /**
      * Returns the geo ID value corresponding to the given zoom level.
      */
-    getGeoIdForZoomLevel(level: ZoomLevel): string | undefined {
+    getGeoIdForZoomLevel(level: GeographicLevel): string | undefined {
       const waterSystemName: string | undefined = this.leadState?.data?.pwsName?.toLowerCase();
       const geoIds: GeoData | undefined = this.geoState?.geoids;
       if (GeoDataUtil.isNullOrEmpty(geoIds)) return;
 
       switch (level) {
-        case ZoomLevel.parcel:
+        case GeographicLevel.Parcel:
           return this.formatAddress(geoIds?.address?.id);
         // Prefer human-readable water system name but fall back on required water system ID.
-        case ZoomLevel.waterSystem:
+        case GeographicLevel.WaterSystem:
           return waterSystemName == null || waterSystemName == ''
             ? geoIds?.pwsId?.id
             : waterSystemName;
-        case ZoomLevel.zipCode:
+        case GeographicLevel.ZipCode:
           return geoIds?.zipCode?.id;
         default:
           return '';
@@ -99,18 +98,18 @@ export default defineComponent({
     /**
      * Returns the geo ID description corresponding to the given zoom level.
      */
-    getGeoIdInfoForZoomLevel(level: ZoomLevel): string | undefined {
+    getGeoIdInfoForZoomLevel(level: GeographicLevel): string | undefined {
       switch (level) {
-        case ZoomLevel.parcel:
+        case GeographicLevel.Parcel:
           return ScorecardMessages.PREDICTION_DESCRIPTION(
             LeadDataUtil.formatPredictionAsLikelihood(
               this.leadState?.data?.publicLeadLowPrediction,
             ),
             'parcel',
           );
-        case ZoomLevel.waterSystem:
+        case GeographicLevel.WaterSystem:
           return ScorecardMessages.WATER_SYSTEM_DESCRIPTION;
-        case ZoomLevel.zipCode:
+        case GeographicLevel.ZipCode:
           return ScorecardMessages.PREDICTION_DESCRIPTION(
             LeadDataUtil.formatPredictionAsLikelihood(
               LeadDataUtil.waterSystemsPercentLead(this.leadState?.data),
@@ -127,7 +126,7 @@ export default defineComponent({
      *
      * @param option
      */
-    getSelected(option: ZoomLevel): boolean {
+    getSelected(option: GeographicLevel): boolean {
       return option === this.selectedOption;
     },
 
@@ -136,16 +135,16 @@ export default defineComponent({
      *
      * @param option
      */
-    setSelected(option: ZoomLevel): void {
-      dispatch(setZoomLevel(option));
+    setSelected(option: GeographicLevel): void {
+      dispatch(setGeographicView(option));
     },
   },
   watch: {
-    'mapState.mapData.zoomLevel': function() {
-      this.selectedOption = this.mapState?.mapData?.zoomLevel ?? null;
+    'mapState.mapData.geographicView': function() {
+      this.selectedOption = this.mapState?.mapData?.geographicView ?? null;
     },
     'geoState.geoids': function() {
-      this.options = GeoDataUtil.getZoomOptionsForGeoIds(this.geoState?.geoids);
+      this.options = GeoDataUtil.getGeographicViewOptionsForGeoIds(this.geoState?.geoids);
     },
   },
 });
