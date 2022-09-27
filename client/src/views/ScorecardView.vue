@@ -57,6 +57,7 @@
           @onButtonClick='navigateToMapPage' />
       </div>
       <LslrSection v-if='showLslrSection' :city='city' />
+      <EmailSignup v-if='missingParcelData' />
     </div>
   </div>
 </template>
@@ -83,6 +84,7 @@ import { GeoDataUtil } from '../util/geo_data_util';
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/vue-loading.css';
 import ContactCitySection from '../components/scorecard_page/ContactCitySection.vue';
+import EmailSignup from '../components/EmailSignup.vue';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -90,8 +92,9 @@ import ContactCitySection from '../components/scorecard_page/ContactCitySection.
 export default defineComponent({
   name: 'ScorecardView',
   components: {
-    ContactCitySection,
     ActionSection,
+    ContactCitySection,
+    EmailSignup,
     Loading,
     LslrSection,
     NationwideMap,
@@ -147,6 +150,10 @@ export default defineComponent({
     async copyToClipboard() {
       // Requires lat,long to be in the URL.
       await navigator.clipboard.writeText(window.location.href);
+    },
+    missingParcelData(): boolean {
+      return this.leadDataState?.data?.publicLeadLowPrediction == null &&
+        this.leadDataState?.data?.publicLeadHighPrediction == null;
     },
     navigateToResourcePage() {
       router.push({
