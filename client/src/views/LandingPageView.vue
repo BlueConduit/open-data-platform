@@ -4,6 +4,7 @@
     <ExploreMapSection />
     <FilterInfoSection />
     <ResourcesSection />
+    <EmailSignup />
   </div>
 </template>
 
@@ -13,6 +14,7 @@ import SearchSection from '../components/landing_page/SearchSection.vue';
 import ExploreMapSection from '../components/landing_page/ExploreMapSection.vue';
 import FilterInfoSection from '../components/landing_page/FilterInfoSection.vue';
 import ResourcesSection from '../components/landing_page/ResourcesSection.vue';
+import EmailSignup from '../components/EmailSignup.vue';
 
 /**
  * This view displays a landing page with search.
@@ -20,6 +22,7 @@ import ResourcesSection from '../components/landing_page/ResourcesSection.vue';
 export default defineComponent({
   name: 'LandingPageView',
   components: {
+    EmailSignup,
     ExploreMapSection,
     FilterInfoSection,
     ResourcesSection,
