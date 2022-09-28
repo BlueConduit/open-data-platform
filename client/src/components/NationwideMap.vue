@@ -418,6 +418,7 @@ export default defineComponent({
         container: 'map-container',
         style: 'mapbox://styles/blueconduit/cku6hkwe72uzz19s75j1lxw3x?optimize=true',
         zoom,
+        minZoom: 4,
         dragPan: !this.enableBasicMap,
       });
 
