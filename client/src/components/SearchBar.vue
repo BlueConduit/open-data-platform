@@ -1,18 +1,14 @@
 <template>
   <div class='searchbar-container'>
-    <div class='data-layer-options'>
-      <search-bar-option
-        v-for='option in options'
-        :key='option'
-        :text-content='option.name'
-        :selected='getSelected(option)'
-        @click='updateSelectedLayer(option)' />
-    </div>
-    <div class='select-wrapper'>
-      <vue-select
-        label='name'
-        v-model='this.selectedOption'
-        :options='this.options' />
+    <div>
+      <span>View by:</span>
+      <div class='select-wrapper'>
+        <v-select
+          label='name'
+          :modelValue='this.selectedOption'
+          :options='this.options'
+          @update:modelValue='updateSelectedLayer' />
+      </div>
     </div>
     <div class='search-wrapper'>
       <map-geocoder-wrapper class='search'
@@ -24,8 +20,7 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import SearchBarOption from './SearchBarOption.vue';
-import VueSelect from 'vue-select';
+import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { DataLayer, MapLayer } from '../model/data_layer';
 import MapGeocoderWrapper from './MapGeocoderWrapper.vue';
@@ -37,7 +32,7 @@ import { MAP_ROUTE_BASE, router } from '../router';
 
 export default defineComponent({
   name: 'SearchBar',
-  components: { MapGeocoderWrapper, SearchBarOption, VueSelect },
+  components: { MapGeocoderWrapper, vSelect },
   setup() {
     const mapState = useSelector((state) => state.mapData) as MapDataState;
 
@@ -70,6 +65,7 @@ export default defineComponent({
      * @param option
      */
     updateSelectedLayer(option: DataLayer): void {
+      console.log(`UPDATING WITH : ${option}`);
       router.push({
         query: Object.assign({}, router.currentRoute.value.query, {
           layer: option.id,
