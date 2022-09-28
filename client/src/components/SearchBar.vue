@@ -65,7 +65,6 @@ export default defineComponent({
      * @param option
      */
     updateSelectedLayer(option: DataLayer): void {
-      console.log(`UPDATING WITH : ${option}`);
       router.push({
         query: Object.assign({}, router.currentRoute.value.query, {
           layer: option.id,
