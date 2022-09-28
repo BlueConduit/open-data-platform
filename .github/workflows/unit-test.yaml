@@ -23,3 +23,4 @@ jobs:
       # CDK.
       - run: npm --prefix cdk ci
       - run: npm --prefix cdk run test
+      - run: npm --prefix cdk run pipeline-synth
