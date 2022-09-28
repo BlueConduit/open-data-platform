@@ -81,7 +81,7 @@ describe('axios mocking test', () => {
       const zipCode = '90066';
       mockGetScorecardResponse(zipCode);
 
-      expect(await apiClient.getDemographicData(GeographicLevel.Zipcode, zipCode)).toStrictEqual(
+      expect(await apiClient.getDemographicData(GeographicLevel.ZipCode, zipCode)).toStrictEqual(
         getDemographicDataApiResponse,
       );
     });
@@ -115,7 +115,7 @@ describe('axios mocking test', () => {
       const zipCode = '90066';
 
       mockError(`${ApiClient.API_URL}/zipcode/scorecard/${zipCode}`);
-      expect(await apiClient.getDemographicData(GeographicLevel.Zipcode, zipCode)).toStrictEqual(
+      expect(await apiClient.getDemographicData(GeographicLevel.ZipCode, zipCode)).toStrictEqual(
         internalError,
       );
     });

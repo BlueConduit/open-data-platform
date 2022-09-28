@@ -15,7 +15,6 @@ const createRedux = (store: EnhancedStore) => {
 
       store.subscribe(() => {
         rootStore.state = store.getState();
-        console.log(`The state has been updated ${JSON.stringify(rootStore.state)}`);
       });
     },
   };

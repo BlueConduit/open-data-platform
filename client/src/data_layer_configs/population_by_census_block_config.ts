@@ -44,8 +44,8 @@ const LEGEND_VALUES_STATES = [
 ];
 
 // TODO (breuch): automate this. Right now the mathematical relationship
-// between LEGEND_VALUES_STATES and LEGEND_VALUES_COUNTY is not yet clear.
-const LEGEND_VALUES_COUNTY = [
+// between LEGEND_VALUES_STATES and LEGEND_VALUES_ZIPCODE is not yet clear.
+const LEGEND_VALUES_ZIPCODE = [
   {
     bucketValue: 0,
     bucketColor: '#D1E4F2',
@@ -79,12 +79,12 @@ const createLegends = (): Map<GeographicLevel, LegendInfo> => {
     bucketLabelType: FeaturePropertyDataType.Number,
   };
 
-  const countyLegendInfo = { ...stateLegendInfo };
-  countyLegendInfo.buckets = LEGEND_VALUES_COUNTY;
+  const zipcodeLegendInfo = { ...stateLegendInfo };
+  zipcodeLegendInfo.buckets = LEGEND_VALUES_ZIPCODE;
 
   return new Map([
     [GeographicLevel.State, stateLegendInfo],
-    [GeographicLevel.County, countyLegendInfo],
+    [GeographicLevel.ZipCode, zipcodeLegendInfo],
   ]);
 };
 
@@ -102,9 +102,9 @@ const legendInterpolation = [
   [...totalPopulationInterpolation, ...getLegendBucketsAsList(LEGEND_VALUES_STATES)],
 ];
 
-const legendInterpolationCounty = [
+const legendInterpolationZipcode = [
   ...nullInterpolation,
-  [...totalPopulationInterpolation, ...getLegendBucketsAsList(LEGEND_VALUES_COUNTY)],
+  [...totalPopulationInterpolation, ...getLegendBucketsAsList(LEGEND_VALUES_ZIPCODE)],
 ];
 
 const styleLayer: FillLayer = {
@@ -123,7 +123,7 @@ const styleLayer: FillLayer = {
       legendInterpolation,
       // For county-level zoom, interpolate based on county buckets.
       5,
-      legendInterpolationCounty,
+      legendInterpolationZipcode,
     ],
     'fill-opacity': 0.75,
     'fill-outline-color': '#0B2553',

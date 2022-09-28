@@ -10,25 +10,21 @@ import mapboxgl, { LngLatBounds, LngLatLike, MapLayerMouseEvent } from 'mapbox-g
 import MapLegend from './MapLegend.vue';
 import MapPopupContent from './MapPopupContent.vue';
 import { createApp, defineComponent, nextTick, PropType } from 'vue';
-import { DataLayer, FeatureProperty, GeographicLevel, MapLayer } from '../model/data_layer';
+import { DataLayer, GeographicLevel, MapLayer } from '../model/data_layer';
 import { MAP_ROUTE_BASE, router, SCORECARD_BASE } from '../router';
 import { dispatch, useSelector } from '../model/store';
 import { GeoDataState } from '../model/states/geo_data_state';
 import { MapDataState } from '../model/states/map_data_state';
-import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom, setZoomLevel } from '../model/slices/map_data_slice';
-import { ZoomLevel } from '../model/states/model/map_data';
+import { ALL_DATA_LAYERS, setCurrentDataLayer, setZoom, setGeographicView } from '../model/slices/map_data_slice';
 import { BoundingBox, GeoType } from '../model/states/model/geo_data';
 import { TOLEDO_BOUNDS } from '../util/geo_data_util';
 
-const DEFAULT_LNG_LAT = [-98.5556199, 39.8097343];
+const CENTER_US = [-98.5556199, 39.8097343];
 
 const POPUP_CONTENT_BASE_ID = 'popup-content';
 const POPUP_CONTENT_BASE_HTML = `<div id='${POPUP_CONTENT_BASE_ID}'></div>`;
 const VISIBILITY = 'visibility';
 const VISIBLE = 'visible';
-
-const PARCEL_ZOOM_LEVEL = 16;
-const DEFAULT_ZOOM_LEVEL = 4;
 
 /**
  * A browsable map of nationwide lead data.
@@ -101,7 +97,7 @@ export default defineComponent({
       // cast to PropType of a tuple.
       // See https://vuejs.org/guide/typescript/options-api.html#typing-component-props.
       type: Object as PropType<[number, number]>,
-      default: DEFAULT_LNG_LAT,
+      default: CENTER_US,
     },
     height: { type: String, default: '80vh' },
     /**
@@ -123,7 +119,7 @@ export default defineComponent({
     /**
      * Dispatch event to update zoom level for the updated geo IDs.
      */
-    setZoomForGeoIds() {
+    setGeographicView() {
       const addressBoundingBox = this.geoState?.geoids?.address?.boundingBox;
       const waterSystemBoundingBox = this.geoState?.geoids?.pwsId?.boundingBox;
       const zipCodeBoundingBox = this.geoState?.geoids?.zipCode?.boundingBox;
@@ -134,13 +130,13 @@ export default defineComponent({
       // If there's an address to zoom to, choose that. Otherwise, default to water system if it's
       // available. When there are no bounding boxes available, go to zipcode.
       if (addressBoundingBox != null) {
-        dispatch(setZoomLevel(ZoomLevel.parcel));
+        dispatch(setGeographicView(GeographicLevel.Parcel));
       } else if (waterSystemBoundingBox != null) {
-        dispatch(setZoomLevel(ZoomLevel.waterSystem));
+        dispatch(setGeographicView(GeographicLevel.WaterSystem));
       } else if (zipCodeBoundingBox) {
-        dispatch(setZoomLevel(ZoomLevel.zipCode));
+        dispatch(setGeographicView(GeographicLevel.ZipCode));
       } else {
-        dispatch(setZoomLevel(ZoomLevel.unknown));
+        dispatch(setGeographicView(GeographicLevel.Unknown));
       }
     },
 
@@ -152,9 +148,9 @@ export default defineComponent({
 
       if (this.enableBasicMap) this.map?.jumpTo({
         center,
-        zoom: PARCEL_ZOOM_LEVEL,
+        zoom: zoom,
       });
-      else this.map?.flyTo({ center, zoom: PARCEL_ZOOM_LEVEL });
+      else this.map?.flyTo({ center, zoom: zoom });
     },
 
     /**
@@ -173,26 +169,30 @@ export default defineComponent({
     /**
      * Update map zoom or bounds depending on the updated zoom level.
      */
-    updateZoomLevel() {
-      const level = this.mapState?.mapData?.zoomLevel;
+    updateViewFromGeographicView() {
+      const level = this.mapState?.mapData?.geographicView;
       const center = this.getLngLatFromState();
       if (!center) return;
 
       switch (level) {
-        case ZoomLevel.parcel: {
-          this.zoomToLngLat(center, PARCEL_ZOOM_LEVEL);
+        case GeographicLevel.Parcel: {
+          this.zoomToLngLat(center, GeographicLevel.Parcel);
           break;
         }
-        case ZoomLevel.waterSystem: {
+        case GeographicLevel.WaterSystem: {
           this.zoomToBounds(this.geoState?.geoids?.pwsId?.boundingBox);
           break;
         }
-        case ZoomLevel.zipCode: {
+        case GeographicLevel.ZipCode: {
           this.zoomToBounds(this.geoState?.geoids?.zipCode?.boundingBox);
           break;
         }
+        case GeographicLevel.State: {
+          this.zoomToLngLat(center, GeographicLevel.State);
+          break;
+        }
         default: {
-          this.zoomToLngLat(center, GeographicLevel.Zipcode);
+          this.zoomToLngLat(center, GeographicLevel.ZipCode);
         }
       }
     },
@@ -211,7 +211,6 @@ export default defineComponent({
       if (layer == null) {
         return;
       }
-
       const styleLayerId = layer.styleLayer.id;
       this.map.setLayoutProperty(styleLayerId, VISIBILITY, VISIBLE);
 
@@ -353,13 +352,13 @@ export default defineComponent({
       // If zoomed past parcel zoom level, switch to parcel-level data source.
       // Otherwise, switch to water system level.
       if (
-        this.map.getZoom() >= PARCEL_ZOOM_LEVEL &&
+        this.map.getZoom() >= GeographicLevel.Parcel &&
         this.currentDataLayerId == MapLayer.LeadServiceLineByWaterSystem &&
         this.toledoContainsMap()
       ) {
         dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByParcel));
       } else if (
-        this.map.getZoom() < PARCEL_ZOOM_LEVEL &&
+        this.map.getZoom() < GeographicLevel.Parcel &&
         this.currentDataLayerId == MapLayer.LeadServiceLineByParcel
       ) {
         dispatch(setCurrentDataLayer(MapLayer.LeadServiceLineByWaterSystem));
@@ -393,7 +392,9 @@ export default defineComponent({
 
       this.setUpInteractionHandlers();
       this.setUpControls();
-      this.map?.on('zoom', this.toggleDataOnZoom);
+
+      // This handles zoom, bounding box changes.
+      this.map?.on('render', this.toggleDataOnZoom);
 
       // If the map has nothing on it, check the current data layer.
       if (this.visibleLayer == null && this.currentDataLayerId != null) {
@@ -406,11 +407,10 @@ export default defineComponent({
      * layers.
      */
     async createMap(): Promise<void> {
-      // Start zoomed in for a scorecard to avoid unnecessary tile loads.
-      // TODO: pull the zoom level from the geoId in the global state.
-      const zoom = this.enableBasicMap ? PARCEL_ZOOM_LEVEL : DEFAULT_ZOOM_LEVEL;
+      const zoom = this.mapState?.mapData?.zoom ?? GeographicLevel.State;
       // The map is created before the state watcher fires, so get the center directly.
       const center = this.getLngLatFromState() ?? this.center;
+
       this.map = new mapboxgl.Map({
         // Removes watermark by Mapbox.
         attributionControl: false,
@@ -428,8 +428,8 @@ export default defineComponent({
       });
 
       this.map?.scrollZoom.disable();
+      // The legend relies on this.
       dispatch(setZoom(zoom));
-      this.toggleDataOnZoom();
     },
 
     /**
@@ -452,13 +452,13 @@ export default defineComponent({
         if (this.map != null) {
           this.marker.setLngLat([parseFloat(long), parseFloat(lat)]).addTo(this.map);
         }
-        this.setZoomForGeoIds();
+        this.setGeographicView();
       } else {
         // Reset map to full view of U.S. when geo IDs are cleared.
         if (this.map?.isStyleLoaded()) {
           this.map?.jumpTo({
             center: this.center,
-            zoom: DEFAULT_ZOOM_LEVEL,
+            zoom: GeographicLevel.State,
           });
         }
       }
@@ -476,13 +476,11 @@ export default defineComponent({
         if (newDataLayerId == null) {
           return;
         }
-        if (this.map?.isStyleLoaded()) {
-          this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
-        }
+        this.updateMapOnDataLayerChange(ALL_DATA_LAYERS.get(newDataLayerId));
       },
     },
-    'mapState.mapData.zoomLevel': function() {
-      this.updateZoomLevel();
+    'mapState.mapData.geographicView': function() {
+      this.updateViewFromGeographicView();
     },
     // Listen for changes to lat/long to update map location.
     'geoState.geoids': function() {

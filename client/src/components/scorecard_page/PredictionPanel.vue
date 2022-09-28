@@ -25,6 +25,8 @@ import { Status } from '../../model/states/status_state';
 import { GeoDataUtil } from '../../util/geo_data_util';
 import { LeadDataUtil } from '../../util/lead_data_util';
 
+const CENTER_US = [-98.5556199, 39.8097343];
+
 /**
  * Container lead prediction.
  */
@@ -49,17 +51,21 @@ export default defineComponent({
   },
   computed: {
     predictionString(): string {
-      if (this.showWaterSystemPrediction)
+      if (this.showWaterSystemPrediction) {
         return (
           this.formatPredictionAsLikelihood(this.percentLead) ??
           this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE
         );
-      if (this.showParcelPrediction)
+      }
+      if (this.showParcelPrediction) {
         return (
           this.formatPredictionAsLikelihood(this.publicLeadPercent) ??
           this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE
         );
-      if (this.showNoPrediction) return this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE;
+      }
+      if (this.hasNoPrediction) {
+        return this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_AVAILABLE;
+      }
       return this.ScorecardSummaryMessages.GET_WATER_SCORE;
     },
     explanationString(): string {
@@ -71,7 +77,7 @@ export default defineComponent({
         return this.ScorecardSummaryMessages.PREDICTION_EXPLANATION(
           this.formatPredictionAsLikelihoodDescriptor(this.publicLeadPercent) ?? '',
         );
-      if (this.showNoPrediction) return this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED;
+      if (this.hasNoPrediction) return this.ScorecardSummaryMessages.NOT_ENOUGH_DATA_EXPLAINED;
       return this.ScorecardSummaryMessages.LEAD_LIKELIHOOD_EXPLAINED;
     },
     publicLeadPercent(): number | null {
@@ -103,7 +109,7 @@ export default defineComponent({
     },
     // This will be true when there is no prediction but there are geo IDs, meaning that there is
     // just no prediction data for the search criteria.
-    showNoPrediction(): boolean {
+    hasNoPrediction(): boolean {
       return !this.showPrediction && !this.emptyGeoData;
     },
   },

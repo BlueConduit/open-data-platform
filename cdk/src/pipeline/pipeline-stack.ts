@@ -8,7 +8,8 @@ import * as util from '../util';
 import { MonitoringStage, OpenDataPlatformStage } from './stage';
 import { BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 
-const PROD_BAKE_DURATION_SECS = 24 * 60 * 60; // 1 day.
+const DEV_BAKE_DURATION_SECS = 20 * 60; // 20 minutes, so ensure the canary runs at least once.
+const PROD_BAKE_DURATION_SECS = 12 * 60 * 60; // 12 hours.
 const PROD_RELEASE_TIME = '09:00'; // 9 am local (Eastern) time.
 const CODE_REPO = 'BlueConduit/open-data-platform';
 const CODE_CONNECTION_ARN =
@@ -74,7 +75,7 @@ export class PipelineStack extends Stack {
     );
 
     pipeline.addStage(
-      new MonitoringStage(this, 'Dev-Monitoring', {
+      new MonitoringStage(this, 'Dev', {
         env: { account: '036999211278', region: 'us-east-2' },
         tags: { Project: util.projectName, Environment: util.EnvType.Development },
         envType: util.EnvType.Development,
@@ -93,10 +94,27 @@ export class PipelineStack extends Stack {
         tags: { Project: util.projectName, Environment: util.EnvType.Development },
         envType: util.EnvType.Development,
       }),
+      {
+        // Bake the release in dev before deploying to prod, to catch any problems early.
+        post: [
+          new pipelines.ShellStep('BakeStep', {
+            commands: [
+              // Bake a minimum of this duration before calling the stage a success.
+              `sleep ${DEV_BAKE_DURATION_SECS}`,
+              // Then check there are no open alarms for dev. This ignores alarms named with
+              // "TargetTracking" because those are automatically created by AWS for auto-scaling,
+              // which shouldn't affect the release.
+              "if [[ $( aws cloudwatch describe-alarms --query 'MetricAlarms[?contains(AlarmName, `" +
+                `Dev-${util.projectName}` +
+                "`) == `true` && StateValue!=`OK` && !contains(AlarmName, `TargetTracking`)]' --output text) ]]; then exit 1; fi",
+            ],
+          }),
+        ],
+      },
     );
 
     pipeline.addStage(
-      new MonitoringStage(this, 'Prod-Monitoring', {
+      new MonitoringStage(this, 'Prod', {
         env: { account: '530942487205', region: 'us-east-2' },
         tags: { Project: util.projectName, Environment: util.EnvType.Production },
         envType: util.EnvType.Production,
@@ -128,7 +146,7 @@ export class PipelineStack extends Stack {
         pre: [
           new pipelines.ShellStep('BakeStep', {
             commands: [
-              // Bake a minimum of this duration.
+              // Bake a minimum of this duration before starting the stage.
               `sleep ${PROD_BAKE_DURATION_SECS}`,
               // Then wait until a specific (local) time on a weekday, to limit release to once/day.
               `while [ $(date +%H:%M) != "${PROD_RELEASE_TIME}" -o $(date +%u) -gt 5 ]; do sleep 1; done`,

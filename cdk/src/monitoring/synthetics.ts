@@ -4,6 +4,13 @@ import { join } from 'path';
 import * as fs from 'fs';
 import * as ts from 'typescript';
 import { CommonProps, domain, EnvType } from '../util';
+import { ITopic } from 'aws-cdk-lib/aws-sns';
+import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions';
+import { ComparisonOperator, TreatMissingData } from 'aws-cdk-lib/aws-cloudwatch';
+
+interface SyntheticsProps extends CommonProps {
+  ticketSNSTopic?: ITopic;
+}
 
 /**
  * Transpiles a set of files into a single JS string.
@@ -22,10 +29,10 @@ const compileHandlerString = (dependencyPaths: string[]): string => {
 };
 
 export class SyntheticsStack extends Construct {
-  constructor(scope: Construct, id: string, props: CommonProps) {
+  constructor(scope: Construct, id: string, props: SyntheticsProps) {
     super(scope, id);
 
-    const { envType } = props;
+    const { envType, ticketSNSTopic } = props;
 
     // By default, run every 15 minutes, every hour, Monday through Friday.
     // The original cron string: '0/15 * ? * MON-FRI'
@@ -56,5 +63,15 @@ export class SyntheticsStack extends Construct {
         DOMAIN: domain(envType),
       },
     });
+
+    // Add a basic alarm that fires when any canary fails.
+    const singleAlarm = canary.metricSuccessPercent().createAlarm(scope, 'SingleCanaryFailure', {
+      alarmDescription: `Canary execution failed: https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#synthetics:canary/detail/${canary.canaryName}`,
+      evaluationPeriods: 1,
+      threshold: 100,
+      comparisonOperator: ComparisonOperator.LESS_THAN_THRESHOLD,
+    });
+
+    if (ticketSNSTopic) singleAlarm.addAlarmAction(new SnsAction(ticketSNSTopic));
   }
 }

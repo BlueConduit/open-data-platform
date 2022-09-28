@@ -14,6 +14,6 @@ export class OpenDataPlatformStage extends Stage {
 export class MonitoringStage extends Stage {
   constructor(scope: Construct, id: string, props: MonitoringProps) {
     super(scope, id);
-    new MonitoringStack(this, util.StackId.Monitoring, props);
+    new MonitoringStack(this, util.stackName(util.StackId.Monitoring, props.envType), props);
   }
 }

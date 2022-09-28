@@ -2,8 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppDispatch } from '@/model/store';
 import { Status } from '@/model/states/status_state';
 import { MapDataState } from '@/model/states/map_data_state';
-import { MapData, ZoomLevel } from '@/model/states/model/map_data';
-import { DataLayer, MapLayer } from '@/model/data_layer';
+import { MapData } from '@/model/states/model/map_data';
+import { DataLayer, GeographicLevel, MapLayer } from '@/model/data_layer';
 import { leadServiceLinesByWaterSystemLayer } from '@/data_layer_configs/lead_service_lines_by_water_systems_config';
 import { leadAndCopperViolationsByCountyDataLayer } from '@/data_layer_configs/lead_and_copper_violations_by_water_system_config';
 import { leadServiceLinesByParcelLayer } from '@/data_layer_configs/lead_service_lines_by_parcel_config';
@@ -78,11 +78,11 @@ export const setZoom = (zoom: number) => {
 /**
  * Change the zoom to either an address, water system, or zip code level.
  */
-export const setZoomLevel = (level: ZoomLevel) => {
+export const setGeographicView = (level: GeographicLevel) => {
   return (dispatch: AppDispatch) => {
     dispatch(
       setMapDataSuccess({
-        zoomLevel: level,
+        geographicView: level,
       }),
     );
   };
