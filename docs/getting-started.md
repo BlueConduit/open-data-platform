@@ -15,9 +15,6 @@ This project is set up as a monorepo that contains everything required to run it
 - `docs` - Contains any other technical documentation See the [index](../README.md) to browse the
   docs.
 
-Instructions on how to run that [here](cdk/README.md). Instructions on how to run that
-[here](client/README.md).
-
 ## Prerequisites
 
 This guide assumes you have done the following:

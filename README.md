@@ -16,6 +16,7 @@ service lines in their home, neighborhood, or water system.**
 Technical guides:
 
 - [**Getting Started**](docs/getting-started.md)
+- [Operational Playbook](docs/operational-playbook.md)
 
 Designs documents:
 
