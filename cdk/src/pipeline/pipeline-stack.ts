@@ -75,7 +75,9 @@ export class PipelineStack extends Stack {
     );
 
     pipeline.addStage(
-      new MonitoringStage(this, 'Dev', {
+      // This must have a unique name from the `Dev` stage. It also must end in `Dev` so stacks have
+      // a similar name to other Dev stacks.
+      new MonitoringStage(this, 'Monitoring-Dev', {
         env: { account: '036999211278', region: 'us-east-2' },
         tags: { Project: util.projectName, Environment: util.EnvType.Development },
         envType: util.EnvType.Development,
@@ -114,7 +116,7 @@ export class PipelineStack extends Stack {
     );
 
     pipeline.addStage(
-      new MonitoringStage(this, 'Prod', {
+      new MonitoringStage(this, 'Monitoring-Prod', {
         env: { account: '530942487205', region: 'us-east-2' },
         tags: { Project: util.projectName, Environment: util.EnvType.Production },
         envType: util.EnvType.Production,
