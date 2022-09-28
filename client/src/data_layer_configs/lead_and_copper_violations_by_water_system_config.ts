@@ -45,7 +45,7 @@ const legend = new Map([
   [
     GeographicLevel.State,
     {
-      title: 'Percentage of service lines estimated to be lead',
+      title: 'Number of EPA violations for the Lead and Copper Rule',
       buckets: LEGEND_VALUES,
       bucketLabelType: FeaturePropertyDataType.Number,
     },
