@@ -57,7 +57,7 @@ export default defineComponent({
   props: {
     enableViewToggling: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   data() {
@@ -109,11 +109,18 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .container {
+  display: flex;
   align-items: center;
   justify-content: flex-end;
   height: $spacing-xl;
   padding: 0 $spacing-md;
   background-color: $warm-grey-100;
+}
+
+@media screen and (max-width: 470px) {
+  .container {
+    justify-content: center;
+  }
 }
 
 .zoom-options {

@@ -125,6 +125,10 @@ enum MapLayer {
  * This needs to be kept in order.
  *
  * This only applies to how data layers change on the map as you zoom in.
+<<<<<<< HEAD
+=======
+ * i.e. 0-4 is State, then switches to WaterSystem, then ZipCode, etc.
+>>>>>>> main
  */
 enum GeographicLevel {
   Unknown = 0,

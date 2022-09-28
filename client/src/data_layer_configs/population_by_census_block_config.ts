@@ -102,7 +102,7 @@ const legendInterpolation = [
   [...totalPopulationInterpolation, ...getLegendBucketsAsList(LEGEND_VALUES_STATES)],
 ];
 
-const legendInterpolationCounty = [
+const legendInterpolationZipcode = [
   ...nullInterpolation,
   [...totalPopulationInterpolation, ...getLegendBucketsAsList(LEGEND_VALUES_ZIPCODE)],
 ];
@@ -123,7 +123,7 @@ const styleLayer: FillLayer = {
       legendInterpolation,
       // For county-level zoom, interpolate based on county buckets.
       5,
-      legendInterpolationCounty,
+      legendInterpolationZipcode,
     ],
     'fill-opacity': 0.75,
     'fill-outline-color': '#0B2553',
