@@ -26,7 +26,8 @@ to the test suite:
 
 1. If there is a new stack, instantiate it in the `beforeEach` prep step.
 1. Identify the AWS resource type.
-   1. You can view a list of resources types in the [`cdk.out/`](../cdk/cdk.out/) dir.
+   1. You can view a list of resources types in the [`cdk.out/`](../cdk/cdk.out/) dir. (this is only
+      available after running `cdk synth` or `cdk deploy` locally)
    1. You can also reference a
       [list of resource types here](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html).
 1. Add an assertion for presence of the resource:
