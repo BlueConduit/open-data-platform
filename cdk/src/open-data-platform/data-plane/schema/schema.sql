@@ -130,10 +130,12 @@ CREATE TABLE IF NOT EXISTS demographics
     black_population      real,
     white_population      real,
     state_census_geo_id   varchar(255) NOT NULL references states (census_geo_id),
+    county_census_geo_id  varchar(255) NOT NULL references counties (census_geo_id),
     geom                  GEOMETRY(Geometry, 4326),
     PRIMARY KEY (census_geo_id)
 );
 CREATE INDEX IF NOT EXISTS demographics_state_census_geo_id_idx ON demographics (state_census_geo_id);
+CREATE INDEX IF NOT EXISTS demographics_county_census_geo_id_idx ON demographics (county_census_geo_id);
 CREATE INDEX IF NOT EXISTS demographics_geom_idx ON demographics USING GIST (geom);
 
 --- Tables related to U.S. demographic information.
@@ -173,6 +175,20 @@ CREATE TABLE IF NOT EXISTS state_demographics
     PRIMARY KEY (census_geo_id)
 );
 CREATE INDEX IF NOT EXISTS state_demographics_geom_idx ON state_demographics USING GIST (geom);
+
+CREATE TABLE IF NOT EXISTS county_demographics
+(
+    census_geo_id         varchar(255) NOT NULL,
+    name                  varchar(255) NOT NULL,
+    black_population      real,
+    white_population      real,
+    total_population      real,
+    under_five_population real,
+    poverty_population    real,
+    geom                  geometry(Geometry, 3857),
+    PRIMARY KEY (census_geo_id)
+);
+CREATE INDEX IF NOT EXISTS county_demographics_geom_idx ON county_demographics USING GIST (geom);
 
 -- Water-system-level data
 
@@ -336,6 +352,24 @@ FROM states
                    ON demographics.state_census_geo_id = states.census_geo_id
 GROUP BY states.census_geo_id, states.name, states.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
+
+INSERT INTO county_demographics(census_geo_id, name, geom, black_population,
+                                white_population, total_population,
+                                under_five_population, poverty_population)
+SELECT counties.census_geo_id            as census_geo_id,
+       counties.name                     AS name,
+       ST_Transform(counties.geom, 3857) AS geom,
+       SUM(black_population)             AS black_population,
+       SUM(white_population)             AS white_population,
+       SUM(total_population)             AS total_population,
+       SUM(under_five_population)        AS under_five_population,
+       SUM(poverty_population)           AS poverty_population
+FROM counties
+         LEFT JOIN demographics
+                   ON demographics.county_census_geo_id = counties.census_geo_id
+GROUP BY counties.census_geo_id, counties.name, counties.geom
+ON CONFLICT (census_geo_id) DO NOTHING;
+
 
 --- Tileserver function definitions.
 
