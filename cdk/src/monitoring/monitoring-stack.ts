@@ -28,6 +28,8 @@ export class MonitoringStack extends Stack {
   constructor(scope: Construct, id: string, props: MonitoringProps) {
     super(scope, id, props);
 
+    const { envType } = props;
+
     // The chatbot must be manually connected to Slack per AWS account. This can't be done in CDK.
     const slackbot = new chatbot.SlackChannelConfiguration(this, 'SlackChannel', {
       ...props.slackConfig,
@@ -36,10 +38,12 @@ export class MonitoringStack extends Stack {
 
     this.ticketSNSTopic = new sns.Topic(this, 'ticketSNSTopic', {
       displayName: 'Ticket-level alarms',
-      topicName: ticketTopicName(props.envType),
+      topicName: ticketTopicName(envType),
     });
     slackbot.addNotificationTopic(this.ticketSNSTopic);
 
-    new SyntheticsStack(this, 'synthetics', { ...props, ticketSNSTopic: this.ticketSNSTopic });
+    // LeadOut doesn't exist in the Deployments environment, so there's nothing to test.
+    if (envType !== EnvType.Deployments)
+      new SyntheticsStack(this, 'synthetics', { ...props, ticketSNSTopic: this.ticketSNSTopic });
   }
 }
