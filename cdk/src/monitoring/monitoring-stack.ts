@@ -23,8 +23,12 @@ export const topicArn = (envType: EnvType, env: Environment): string =>
   `arn:aws:sns:${env.region}:${env.account}:${ticketTopicName(envType)}`;
 
 export class MonitoringStack extends Stack {
+  readonly ticketSNSTopic: sns.Topic;
+
   constructor(scope: Construct, id: string, props: MonitoringProps) {
     super(scope, id, props);
+
+    const { envType } = props;
 
     // The chatbot must be manually connected to Slack per AWS account. This can't be done in CDK.
     const slackbot = new chatbot.SlackChannelConfiguration(this, 'SlackChannel', {
@@ -32,15 +36,14 @@ export class MonitoringStack extends Stack {
       loggingLevel: chatbot.LoggingLevel.INFO,
     });
 
-    // Subscribe to each topic from the other stacks.
-    // TODO: handle these differently, such as by tagging users or using a different channel.
-    slackbot.addNotificationTopic(
-      new sns.Topic(this, 'ticketSNSTopic', {
-        displayName: 'Ticket-level alarms',
-        topicName: ticketTopicName(props.envType),
-      }),
-    );
+    this.ticketSNSTopic = new sns.Topic(this, 'ticketSNSTopic', {
+      displayName: 'Ticket-level alarms',
+      topicName: ticketTopicName(envType),
+    });
+    slackbot.addNotificationTopic(this.ticketSNSTopic);
 
-    new SyntheticsStack(this, 'synthetics', props);
+    // LeadOut doesn't exist in the Deployments environment, so there's nothing to test.
+    if (envType !== EnvType.Deployments)
+      new SyntheticsStack(this, 'synthetics', { ...props, ticketSNSTopic: this.ticketSNSTopic });
   }
 }
