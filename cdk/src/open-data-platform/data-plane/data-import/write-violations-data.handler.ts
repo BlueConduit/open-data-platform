@@ -46,13 +46,18 @@ const insertIntoStatement = `INSERT INTO epa_violations (violation_id,
                                                          violation_code,
                                                          compliance_status,
                                                          start_date,
-                                                         end_date)
-                             VALUES (:violation_id,
-                                     :pws_id,
-                                     :violation_code,
-                                     :compliance_status,
-                                     :start_date,
-                                     :end_date) ON CONFLICT (violation_id) DO NOTHING`;
+                                                         end_date,
+                                                         state_census_geo_id)
+                             SELECT :violation_id,
+                                    :pws_id,
+                                    :violation_code,
+                                    :compliance_status,
+                                    TO_DATE(:start_date, 'YYYY-MM-DD'),
+                                    TO_DATE(:end_date, 'YYYY-MM-DD'),
+                                    s.census_geo_id
+                             FROM states s
+                             WHERE s.usps like
+                                   SUBSTRING(:pws_id, 1, 2) ON CONFLICT (violation_id) DO NOTHING`;
 
 /**
  *  Writes rows into the water systems table.
@@ -84,7 +89,7 @@ function getTableRowFromRow(row: any): SqlParametersList | null {
   // Skip violations outside of Lead and Copper Rule violations.
   if (LEAD_AND_COPPER_VIOLATIONS.has(properties[VIOLATION_CODE])) {
     const startDate = moment(properties[COMPL_PER_BEGIN_DATE], EPA_API_DATE_FORMAT);
-    let endDateFormatted;
+    let endDateFormatted = '';
 
     if (properties[COMPL_PER_END_DATE] != '') {
       const endDate = moment(properties[COMPL_PER_END_DATE], EPA_API_DATE_FORMAT);

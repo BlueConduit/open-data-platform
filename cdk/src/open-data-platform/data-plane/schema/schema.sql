@@ -130,12 +130,10 @@ CREATE TABLE IF NOT EXISTS demographics
     black_population      real,
     white_population      real,
     state_census_geo_id   varchar(255) NOT NULL references states (census_geo_id),
-    county_census_geo_id  varchar(255) NOT NULL references counties (census_geo_id),
     geom                  GEOMETRY(Geometry, 4326),
     PRIMARY KEY (census_geo_id)
 );
 CREATE INDEX IF NOT EXISTS demographics_state_census_geo_id_idx ON demographics (state_census_geo_id);
-CREATE INDEX IF NOT EXISTS demographics_county_census_geo_id_idx ON demographics (county_census_geo_id);
 CREATE INDEX IF NOT EXISTS demographics_geom_idx ON demographics USING GIST (geom);
 
 --- Tables related to U.S. demographic information.
@@ -241,15 +239,13 @@ CREATE INDEX IF NOT EXISTS epa_violations_state_census_geo_id_idx ON epa_violati
 CREATE OR REPLACE VIEW violation_counts AS
 SELECT pws_id,
        epa_violations.state_census_geo_id,
-       epa_violations.county_census_geo_id,
        geom,
        COUNT(violation_id) AS violation_count
 FROM epa_violations
          JOIN water_systems USING (pws_id)
 GROUP BY pws_id,
          geom,
-         epa_violations.state_census_geo_id,
-         epa_violations.county_census_geo_id;
+         epa_violations.state_census_geo_id;
 
 -- Parcel-level data
 
