@@ -174,20 +174,6 @@ CREATE TABLE IF NOT EXISTS state_demographics
 );
 CREATE INDEX IF NOT EXISTS state_demographics_geom_idx ON state_demographics USING GIST (geom);
 
-CREATE TABLE IF NOT EXISTS county_demographics
-(
-    census_geo_id         varchar(255) NOT NULL,
-    name                  varchar(255) NOT NULL,
-    black_population      real,
-    white_population      real,
-    total_population      real,
-    under_five_population real,
-    poverty_population    real,
-    geom                  geometry(Geometry, 3857),
-    PRIMARY KEY (census_geo_id)
-);
-CREATE INDEX IF NOT EXISTS county_demographics_geom_idx ON county_demographics USING GIST (geom);
-
 -- Water-system-level data
 
 CREATE TABLE IF NOT EXISTS water_systems
