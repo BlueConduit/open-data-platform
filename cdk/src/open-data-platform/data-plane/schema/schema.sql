@@ -370,7 +370,6 @@ FROM counties
 GROUP BY counties.census_geo_id, counties.name, counties.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
-
 --- Tileserver function definitions.
 
 CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer,
