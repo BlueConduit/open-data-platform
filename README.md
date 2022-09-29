@@ -17,6 +17,7 @@ Technical guides:
 
 - [**Getting Started**](docs/getting-started.md)
 - [Operational Playbook](docs/operational-playbook.md)
+- [Writing Tests](docs/writing-tests.md)
 
 Designs documents:
 

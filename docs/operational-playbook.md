@@ -48,8 +48,8 @@ and add a test for your change before implementing it)
 ### Testing a data or import lambda change
 
 Data is static after being imported. Changes to the data or its
-[import lambdas](../cdk/bin/src/open-data-platform/data-plane/data-import/) require removing
-existing data and re-importing:
+[import lambdas](../cdk/src/open-data-platform/data-plane/data-import/) require removing existing
+data and re-importing:
 
 1. Log into the AWS account for the environment.
 1. Open the [query editor](#querying-the-db) and drop the table(s) that you want to test.
