@@ -351,23 +351,6 @@ FROM states
 GROUP BY states.census_geo_id, states.name, states.geom
 ON CONFLICT (census_geo_id) DO NOTHING;
 
-INSERT INTO county_demographics(census_geo_id, name, geom, black_population,
-                                white_population, total_population,
-                                under_five_population, poverty_population)
-SELECT counties.census_geo_id            as census_geo_id,
-       counties.name                     AS name,
-       ST_Transform(counties.geom, 3857) AS geom,
-       SUM(black_population)             AS black_population,
-       SUM(white_population)             AS white_population,
-       SUM(total_population)             AS total_population,
-       SUM(under_five_population)        AS under_five_population,
-       SUM(poverty_population)           AS poverty_population
-FROM counties
-         LEFT JOIN demographics
-                   ON demographics.county_census_geo_id = counties.census_geo_id
-GROUP BY counties.census_geo_id, counties.name, counties.geom
-ON CONFLICT (census_geo_id) DO NOTHING;
-
 --- Tileserver function definitions.
 
 CREATE OR REPLACE FUNCTION public.demographics_function_source(z integer,
