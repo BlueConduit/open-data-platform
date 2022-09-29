@@ -35,7 +35,7 @@ export default defineComponent({
     },
     placeholder: {
       type: String,
-      default: 'Search',
+      default: 'Search different address',
     },
   },
   emits: {
@@ -44,7 +44,7 @@ export default defineComponent({
   mounted() {
     this.geocoder.addTo('.geocoder');
     this.geocoder.setPlaceholder(this.placeholder);
-    
+
     if (this.acceptedTypes != null) {
       this.geocoder.setTypes(this.acceptedTypes.join(','));
     }

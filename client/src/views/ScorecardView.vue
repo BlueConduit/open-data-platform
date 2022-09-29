@@ -34,6 +34,7 @@
             :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
             :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
             :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
+            image='protect-home.png'
             @onButtonClick='navigateToResourcePage' />
           <ActionSection
             class='column is-quarter'
@@ -42,6 +43,7 @@
             buttonIcon='copy.png'
             :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
             :buttonTooltip='ScorecardMessages.COPIED_TO_CLIPBOARD'
+            image='share-lead-out.png'
             @onButtonClick='copyToClipboard' />
         </div>
       </div>
