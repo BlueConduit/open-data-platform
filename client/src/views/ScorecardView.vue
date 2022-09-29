@@ -12,14 +12,14 @@
       <PredictionPanel />
 
       <!-- Only display the side-panel, full-width on mobile. -->
-      <ScorecardMapViewBar class='is-hidden-mobile' />
-      <div class='columns is-variable is-centered is-gapless'>
+      <ScorecardMapViewBar />
+      <div class='columns is-variable is-centered is-gapless is-hidden-mobile'>
         <div class='column is-hidden-touch side-panel' v-if='showResults'>
           <div class='section'>
             <SidePanel />
           </div>
         </div>
-        <div class='column is-hidden-mobile'>
+        <div class='column'>
           <NationwideMap height='70vh' :enableBasicMap='true' />
         </div>
       </div>

@@ -1,8 +1,9 @@
 <template>
-  <div class='container'>
-    <div class='container' v-if='enableViewToggling'>
+  <div class='is-flex container'>
+    <div class='is-flex container zoom-options is-hidden-mobile'
+         v-if='enableViewToggling'>
       <p v-if='options.length > 0'>View by:</p>
-      <div class='zoom-options'>
+      <div class='is-flex zoom-options'>
         <search-bar-option
           v-for='option in options'
           :key='GeoDataUtil.getLabelForGeographicView(option)'
@@ -14,6 +15,7 @@
     </div>
     <!--    TODO add more descriptive placeholder.-->
     <map-geocoder-wrapper
+      class='is-flex-grow-1'
       :acceptedTypes='acceptedTypes'
       :baseUrl='SCORECARD_BASE'
       v-model:expandSearch='showSearch'
@@ -63,7 +65,7 @@ export default defineComponent({
       acceptedTypes: [GeoType.address, GeoType.postcode],
       options: [] as GeographicLevel[],
       selectedOption: null as GeographicLevel | null,
-      showSearch: false,
+      showSearch: true,
       SCORECARD_BASE,
       GeoDataUtil,
     };
@@ -115,8 +117,13 @@ export default defineComponent({
   background-color: $warm-grey-100;
 }
 
+@media screen and (max-width: 470px) {
+  .container {
+    justify-content: center;
+  }
+}
+
 .zoom-options {
-  display: flex;
   align-items: center;
   flex-grow: 1;
   min-width: fit-content;
