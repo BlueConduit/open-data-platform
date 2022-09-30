@@ -73,8 +73,6 @@ export default defineComponent({
 
 .form-wrapper {
   background-color: $navy-blue;
-
-  //background-image: url('~@/assets/media/landing-image-3.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
