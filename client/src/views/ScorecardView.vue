@@ -30,18 +30,22 @@
         </div>
         <div class='columns is-centered'>
           <ActionSection
-            class='column is-quarter'
+            class='column is-half'
             :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
             :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
             :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
+            image='protect-home.png'
+            :imagePosition='ImagePosition.background'
             @onButtonClick='navigateToResourcePage' />
           <ActionSection
-            class='column is-quarter'
+            class='column is-half'
             :header='ScorecardMessages.SHARE_LEAD_OUT'
             :subheader='ScorecardMessages.SHARE_LEAD_OUT_SUBHEADER'
             buttonIcon='copy.png'
             :buttonText='ScorecardMessages.COPY_TO_CLIPBOARD'
             :buttonTooltip='ScorecardMessages.COPIED_TO_CLIPBOARD'
+            image='share-lead-out.png'
+            :imagePosition='ImagePosition.background'
             @onButtonClick='copyToClipboard' />
         </div>
       </div>
@@ -85,6 +89,7 @@ import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/vue-loading.css';
 import ContactCitySection from '../components/scorecard_page/ContactCitySection.vue';
 import EmailSignup from '../components/EmailSignup.vue';
+import { ImagePosition } from '../components/enums/enums';
 
 /**
  * Container for SearchBar and MapContainer.
@@ -114,10 +119,11 @@ export default defineComponent({
   },
   data() {
     return {
-      ScorecardMessages,
       SCORECARD_BASE,
       showResultSections: false,
+      ScorecardMessages,
       Titles,
+      ImagePosition,
     };
   },
   computed: {
