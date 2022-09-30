@@ -69,6 +69,16 @@ tables and running the lambdas to import the data.
   number of rows (should be listed in the handler) after running the lambda due
   to errors, rerun the lambda
 
+## Prod data
+
+We have a prod database separate from the dev database. The prod database lives
+in the Production account, but includes the same tables and data as the dev db.
+
+Since the Production account does not have access to the Development account and
+[S3 bucket names are globally unique](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html)
+, the bucket name is suffixed with '-prod'. When running any of the data import
+lambdas in hte Production account, append this string to the S3 bucket name.
+
 ## Specific table instructions + mappings
 
 **Note:** If any **foreign keys** are listed, the table that contains that
@@ -206,5 +216,3 @@ storing the data in separate tables decreases the query latency.
 * This is not a table but a view on the water systems table
 * Contains epa_violations grouped by pws_id (water system ID)
 * You do not need to insert here because it is a view
-
-
