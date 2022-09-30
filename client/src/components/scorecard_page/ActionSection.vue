@@ -4,8 +4,7 @@
       {{ header }}
     </div>
     <div v-if='image != null'
-         :className='imagePosition'
-         :style='{backgroundImage: `url(${require(`@/assets/media/${image}`)}`}'>
+         :className='containerClass'>
       <div class='container explain-text' v-if='subheader != null'>
         {{ subheader }}
       </div>
@@ -71,10 +70,13 @@ export default defineComponent({
     };
   },
   computed: {
-    cssProps() {
+    cssVars() {
       return {
-        '--background-image': `~@/assets/media//${this.image}`,
+        '--background-image': `url(${require(`@/assets/media/${this.image}`)}`,
       };
+    },
+    containerClass() {
+      return `is-flex ${this.imagePosition}`;
     },
   },
 });
@@ -91,9 +93,17 @@ export default defineComponent({
 }
 
 .background {
-  //background-image: 'url(' + var(--background-image) + ')';
+  background-image: var(--background-image);
   background-size: cover;
   background-repeat: no-repeat;
+  padding: $spacing-sm $spacing-lg;
+  min-height: 400px;
+
+  justify-content: flex-end;
+}
+
+.explain-text {
+  max-width: 300px;
 }
 
 .icon {
