@@ -18,6 +18,7 @@ Technical guides:
 - [**Getting Started**](docs/getting-started.md)
 - [Operational Playbook](docs/operational-playbook.md)
 - [Writing Tests](docs/writing-tests.md)
+- [Data Import Instructions](docs/data-import.md)
 
 Designs documents:
 
