@@ -48,8 +48,8 @@ and add a test for your change before implementing it)
 ### Testing a data or import lambda change
 
 Data is static after being imported. Changes to the data or its
-[import lambdas](../cdk/bin/src/open-data-platform/data-plane/data-import/) require removing
-existing data and re-importing:
+[import lambdas](../cdk/src/open-data-platform/data-plane/data-import/) require removing existing
+data and re-importing:
 
 1. Log into the AWS account for the environment.
 1. Open the [query editor](#querying-the-db) and drop the table(s) that you want to test.
@@ -59,11 +59,10 @@ existing data and re-importing:
 
 ### Deploying a code change
 
-<!-- TODO: Add a link to a doc describing the release process once written. -->
-
 Code changes are deployed to the dev and prod environments automatically after a PR is merged into
-the GitHub repository. No further manual action is required and the deployment process can be
-followed on the
+the GitHub repository
+([design](https://docs.google.com/document/d/1zZxCoXx5JzLXTOGVdvC4s8H-r82DFjfmNU-dmFPAQVI/edit#heading=h.bsmnc9iehgn)).
+No further manual action is required and the deployment process can be followed on the
 [pipeline dashboard](https://us-east-2.console.aws.amazon.com/codesuite/codepipeline/pipelines/OpenDataPlatform/view?region=us-east-2).
 
 ### Rolling back a code change
