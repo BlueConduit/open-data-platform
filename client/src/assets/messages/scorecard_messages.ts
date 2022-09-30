@@ -56,7 +56,9 @@ export class ScorecardMessages {
     'In addition to information from your water system, your score is also based on ' +
     'these statistics for your zip code:';
   static SHARE_LEAD_OUT = 'Share your lead score';
-  static SHARE_LEAD_OUT_SUBHEADER = 'Help others know their lead status through LeadOut.';
+  static SHARE_LEAD_OUT_SUBHEADER =
+    'Share LeadOut to help your friends and family ' +
+    'know their risk status and what actions they can take.';
   static SOMEWHAT_DISADVANTAGED = 'Somewhat disadvantaged';
   static SOMEWHAT_LIKELY = 'somewhat likely';
   static TAKE_ACTION_HEADER = "Here's what you can do today";

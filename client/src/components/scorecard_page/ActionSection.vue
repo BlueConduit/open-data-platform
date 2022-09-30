@@ -1,35 +1,39 @@
 <template>
-  <div class='is-flex'>
+  <div class='is-flex' :style='cssVars'>
     <div class='h2-header-large'>
       {{ header }}
     </div>
-    <div class='container explain-text' v-if='subheader != null'>
-      {{ subheader }}
+    <div v-if='image != null'
+         :className='containerClass'>
+      <div class='container explain-text' v-if='subheader != null'>
+        {{ subheader }}
+      </div>
+      <img v-if='image != null && this.imagePosition == ImagePosition.bottom'
+           :src='require(`@/assets/media/${image}`)'
+           alt=''
+           class='is-hidden-mobile' />
+      <Popper v-if='buttonText != null'
+              arrow
+              class='tooltip-content'
+              :content='buttonTooltip'
+              :show='showTooltip'>
+        <button class='gold-button'
+                v-on:click='onButtonClick'>
+          {{ buttonText }}
+          <img v-if='buttonIcon != null'
+               :src='require(`@/assets/icons/${buttonIcon}`)'
+               alt=''
+               class='icon'>
+        </button>
+      </Popper>
     </div>
-    <img v-if='image != null'
-         :src='require(`@/assets/media/${image}`)'
-         alt=''
-         class='is-hidden-mobile' />
-    <Popper v-if='buttonText != null'
-            arrow
-            class='tooltip-content'
-            :content='buttonTooltip'
-            :show='showTooltip'>
-      <button class='gold-button'
-              v-on:click='onButtonClick'>
-        {{ buttonText }}
-        <img v-if='buttonIcon != null'
-             :src='require(`@/assets/icons/${buttonIcon}`)'
-             alt=''
-             class='icon'>
-      </button>
-    </Popper>
   </div>
 </template>
 
-<script>
-import { defineComponent } from 'vue';
+<script lang='ts'>
+import { defineComponent, PropType } from 'vue';
 import Popper from 'vue3-popper';
+import { ImagePosition } from '@/components/enums/enums';
 
 const ONE_SECOND = 1000;
 
@@ -47,6 +51,10 @@ export default defineComponent({
       type: String,
     },
     image: String,
+    imagePosition: {
+      type: String as PropType<ImagePosition>,
+      default: ImagePosition.bottom,
+    },
   },
   methods: {
     onButtonClick() {
@@ -58,7 +66,18 @@ export default defineComponent({
   data() {
     return {
       showTooltip: false,
+      ImagePosition,
     };
+  },
+  computed: {
+    cssVars() {
+      return {
+        '--background-image': `url(${require(`@/assets/media/${this.image}`)}`,
+      };
+    },
+    containerClass() {
+      return `is-flex ${this.imagePosition}`;
+    },
   },
 });
 </script>
@@ -71,6 +90,20 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   gap: $spacing-md;
+}
+
+.background {
+  background-image: var(--background-image);
+  background-size: cover;
+  background-repeat: no-repeat;
+  padding: $spacing-sm $spacing-lg;
+  min-height: 400px;
+
+  justify-content: flex-end;
+}
+
+.explain-text {
+  max-width: 300px;
 }
 
 .icon {
