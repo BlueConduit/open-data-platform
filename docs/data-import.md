@@ -72,7 +72,9 @@ tables and running the lambdas to import the data.
 ## Prod data
 
 We have a prod database separate from the dev database. The prod database lives
-in the Production account, but includes the same tables and data as the dev db.
+in
+the [Production account](https://us-east-2.console.aws.amazon.com/console/home?region=us-east-2#)
+, but includes the same tables and data as the dev db.
 
 Since the Production account does not have access to the Development account and
 [S3 bucket names are globally unique](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html)
