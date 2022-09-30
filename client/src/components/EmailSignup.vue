@@ -1,14 +1,19 @@
 <template>
-  <div class='section form-wrapper columns'>
-    <div class='header-section column is-half is-centered'>
-      <div class='h1-header-large centered-text'>
-        {{ messages.SUBSCRIBE_HEADER }}
+  <div class='is-flex'>
+    <img class='is-hidden-mobile'
+         :src='require(`@/assets/media/get-notified.png`)'
+         alt='' />
+    <div class='section form-wrapper columns'>
+      <div class='header-section column is-half is-centered'>
+        <div class='h1-header-large centered-text'>
+          {{ messages.SUBSCRIBE_HEADER }}
+        </div>
+        <div class='h2-header-large centered-text mt-4'>
+          {{ messages.SUBSCRIBE_SUBHEADER }}
+        </div>
       </div>
-      <div class='h2-header-large centered-text mt-4'>
-        {{ messages.SUBSCRIBE_SUBHEADER }}
-      </div>
+      <div id='hubspotForm' v-once></div>
     </div>
-    <div id='hubspotForm' v-once></div>
   </div>
 </template>
 
@@ -63,13 +68,13 @@ export default defineComponent({
 
 .h1-header-large,
 .h2-header-large {
-  color: $warm-grey-800;
+  color: $white;
 }
 
 .form-wrapper {
-  background-color: $white;
+  background-color: $navy-blue;
 
-  background-image: url('~@/assets/media/landing-image-3.png');
+  //background-image: url('~@/assets/media/landing-image-3.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
