@@ -1,9 +1,11 @@
 <template>
-  <div class='is-flex'>
+  <div class='is-flex' :style='cssVars'>
     <div class='h2-header-large'>
       {{ header }}
     </div>
-    <div v-if='image != null && this.imagePosition == ImagePosition.background'>
+    <div v-if='image != null'
+         :className='imagePosition'
+         :style='{backgroundImage: `url(${require(`@/assets/media/${image}`)}`}'>
       <div class='container explain-text' v-if='subheader != null'>
         {{ subheader }}
       </div>
@@ -68,6 +70,13 @@ export default defineComponent({
       ImagePosition,
     };
   },
+  computed: {
+    cssProps() {
+      return {
+        '--background-image': `~@/assets/media//${this.image}`,
+      };
+    },
+  },
 });
 </script>
 
@@ -79,6 +88,12 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   gap: $spacing-md;
+}
+
+.background {
+  //background-image: 'url(' + var(--background-image) + ')';
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .icon {

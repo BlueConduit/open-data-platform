@@ -1,4 +1,4 @@
 export enum ImagePosition {
-  background,
-  bottom,
+  background = 'background',
+  bottom = 'bottom',
 }
