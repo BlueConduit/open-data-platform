@@ -66,6 +66,10 @@ export default defineComponent({
 @import 'bulma/sass/grid/columns.sass';
 @import 'bulma/sass/helpers/spacing';
 
+.is-flex {
+  overflow: hidden;
+}
+
 .h1-header-large,
 .h2-header-large {
   color: $white;
