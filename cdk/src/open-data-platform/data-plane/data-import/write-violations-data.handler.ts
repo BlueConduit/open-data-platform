@@ -53,7 +53,8 @@ const insertIntoStatement = `INSERT INTO epa_violations (violation_id,
                                     :violation_code,
                                     :compliance_status,
                                     TO_DATE(:start_date, 'YYYY-MM-DD'),
-                                    TO_DATE(:end_date, 'YYYY-MM-DD'),
+                                    NULLIF(TO_DATE(:end_date, 'YYYY-MM-DD'),
+                                           TO_DATE('-0001-12-30')),
                                     s.census_geo_id
                              FROM states s
                              WHERE s.usps like
