@@ -1,5 +1,15 @@
 <template>
   <div class='scorecard-search'>
+    <div class='header-section'>
+      <!--      TODO move text to messages-->
+      <div class='h1-header-xl'>Find My Risk Status</div>
+      <div class='h2-header'>
+        If the water pipes connected to your home contain lead, you may be at
+        risk for lead-based health concerns. Enter your location info to
+        understand the risk level for lead water pipes in your home or community
+        and what to do about it.
+      </div>
+    </div>
     <GeocoderInput
       class='geocoder'
       :placeholder='placeholder'
@@ -72,6 +82,7 @@ export default defineComponent({
 .geocoder {
   height: $spacing-xl;
   width: 100%;
+  border: 1px solid $warm-grey-700;
 }
 
 .scorecard-search {
@@ -79,5 +90,8 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   gap: $spacing-lg;
+  background-color: $white;
+  color: $warm-grey-800;
+  padding: $spacing-lg;
 }
 </style>
