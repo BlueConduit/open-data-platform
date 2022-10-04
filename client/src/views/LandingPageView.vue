@@ -3,8 +3,6 @@
     <SearchSection />
     <WhyLeadOutSection />
     <ExploreMapSection />
-    <FilterInfoSection />
-    <ResourcesSection />
     <EmailSignup />
   </div>
 </template>
@@ -13,8 +11,6 @@
 import { defineComponent } from 'vue';
 import SearchSection from '../components/landing_page/SearchSection.vue';
 import ExploreMapSection from '../components/landing_page/ExploreMapSection.vue';
-import FilterInfoSection from '../components/landing_page/FilterInfoSection.vue';
-import ResourcesSection from '../components/landing_page/ResourcesSection.vue';
 import EmailSignup from '../components/EmailSignup.vue';
 import WhyLeadOutSection from '../components/landing_page/WhyLeadOutSection.vue';
 
@@ -27,8 +23,6 @@ export default defineComponent({
     WhyLeadOutSection,
     EmailSignup,
     ExploreMapSection,
-    FilterInfoSection,
-    ResourcesSection,
     SearchSection,
   },
 });

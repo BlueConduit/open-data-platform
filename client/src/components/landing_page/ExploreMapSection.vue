@@ -59,8 +59,6 @@ export default defineComponent({
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
-;
-
 .static-map {
   width: 100%;
   max-width: 1000px;
@@ -69,8 +67,8 @@ export default defineComponent({
 }
 
 .section {
-  background-color: $white;
-  color: $warm-grey-800;
+  background-color: $light-gold;
+  color: $warm-grey-900;
 }
 
 .gold-button {
