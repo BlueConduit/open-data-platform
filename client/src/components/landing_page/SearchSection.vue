@@ -1,14 +1,12 @@
 <template>
-  <div class='section is-medium'>
-    <div class='columns is-centered'>
+  <div class='section is-large'>
+    <div class='columns'>
       <div class='header column is-half'>
-        <div class='header-section'>
-          <div class='h1-header-xl'>
-            {{ messages.SEARCH_SECTION_HEADER }}
-          </div>
-          <div class='h2-header-large mb-6'>{{ messages.SEARCH_SECTION_SUBHEADER
-            }}
-          </div>
+        <div class='h1-header-xl mb-6'>
+          {{ messages.SEARCH_SECTION_HEADER }}
+        </div>
+        <div class='h1-header-large'>
+          {{ messages.SEARCH_SECTION_SUBHEADER }}
         </div>
       </div>
       <div class='column is-half'>
@@ -46,14 +44,18 @@ export default defineComponent({
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
-.header {
-  @include center-container;
+.h1-header-xl {
+  font-size: 13.5 * $spacing-xs;
+}
+
+.h1-header-large {
+  text-align: start;
 }
 
 .section {
   color: $white;
 
-  background-image: url('~@/assets/media/landing-image-1.png');
+  background-image: url('~@/assets/media/landing-image-2.png'), url('~@/assets/media/landing-image-1.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
