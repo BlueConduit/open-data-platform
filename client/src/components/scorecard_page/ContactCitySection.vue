@@ -29,32 +29,19 @@ interface CityContactInfo {
 }
 
 // TODO: Move to table in DB if we get more entries.
-const CITY_INFO: Map<City, CityContactInfo> = new Map([
-  [
-    City.newOrleans,
-    {
-      name: City.newOrleans,
-      website: 'https://www.swbno.org/DrinkingWater/LeadAwareness',
-      phoneNumber: '(504) 529-2837',
-    },
-  ],
-  [
-    City.richmond,
-    {
-      name: City.richmond,
-      website: 'https://www.vdh.virginia.gov/richmond-city/healthy-homes',
-      phoneNumber: '(804) 205-3726',
-    },
-  ],
-  [
-    City.toledo,
-    {
-      name: City.toledo,
-      website: 'https://toledo.oh.gov/residents/water/lead-service-lines',
-      phoneNumber: '(419)-936-2020',
-    },
-  ],
-]);
+const CITY_INFO: Map<City, CityContactInfo> = new Map([[City.newOrleans, {
+  name: City.newOrleans,
+  website: 'https://www.swbno.org/DrinkingWater/LeadAwareness',
+  phoneNumber: '(504) 529-2837',
+}], [City.richmond, {
+  name: City.richmond,
+  website: 'https://www.vdh.virginia.gov/richmond-city/healthy-homes',
+  phoneNumber: '(804) 205-3726',
+}], [City.toledo, {
+  name: City.toledo,
+  website: 'https://toledo.oh.gov/residents/water/lead-service-lines',
+  phoneNumber: '(419)-936-2020',
+}]]);
 
 /**
  * Component for the contact city section of scorecard.
@@ -62,23 +49,18 @@ const CITY_INFO: Map<City, CityContactInfo> = new Map([
  * Only shows up when result is in a supported city.
  */
 export default defineComponent({
-  name: 'ContactCitySection',
-  props: {
+  name: 'ContactCitySection', props: {
     city: {
-      type: String as PropType<City>,
-      default: City.unknown,
+      type: String as PropType<City>, default: City.unknown,
     },
-  },
-  data() {
+  }, data() {
     return {
       MESSAGES: ScorecardMessages,
     };
-  },
-  computed: {
+  }, computed: {
     website(): string {
       return CITY_INFO.get(this.city)?.website ?? '';
-    },
-    phoneNumber(): string {
+    }, phoneNumber(): string {
       return CITY_INFO.get(this.city)?.phoneNumber ?? '';
 
     },

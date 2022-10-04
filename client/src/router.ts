@@ -6,6 +6,8 @@ import ResourceView from '@/views/ResourceView.vue';
 import NationwideMapView from '@/views/NationwideMapView.vue';
 import AboutUsView from '@/views/AboutUsView.vue';
 import ThankYouView from '@/views/ThankYouView.vue';
+import BlogView from '@/views/BlogView.vue';
+import { NextSteps } from '@/assets/blog/next_steps';
 
 export const LAT_LONG_PARAM = 'latlong';
 export const LAYER_PARAM = 'layer';
@@ -19,6 +21,7 @@ const MAP_ROUTE = `${MAP_ROUTE_BASE}/:${GEOTYPE_PARAM}/:${LAT_LONG_PARAM}?`;
 const ABOUT_ROUTE = '/about';
 const RESOURCES_ROUTE = '/resources';
 const SUBSCRIBED_ROUTE = '/subscribed';
+const NEXT_STEPS_ROUTE = '/next-steps';
 
 const routes = [
   {
@@ -71,6 +74,18 @@ const routes = [
     },
   },
   {
+    path: NEXT_STEPS_ROUTE,
+    component: BlogView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.NEXT_STEPS}`,
+    },
+    props: {
+      title: NextSteps.title,
+      content: NextSteps.content,
+      image: NextSteps.image,
+    },
+  },
+  {
     path: SUBSCRIBED_ROUTE,
     component: ThankYouView,
     meta: {
@@ -82,8 +97,8 @@ const routes = [
 /** Defines all routes for the app **/
 const router = createRouter({
   history: createWebHistory(),
-  routes: routes,
-  // Ensures that navigating to different pages takes you to the top of
+  routes: routes, // Ensures that navigating to different pages takes you to
+  // the top of
   // each page, rather than where you were on the previous page.
   scrollBehavior() {
     document?.getElementById('app')?.scrollIntoView({ behavior: 'smooth' });

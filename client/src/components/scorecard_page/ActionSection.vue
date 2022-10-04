@@ -38,44 +38,35 @@ import { ImagePosition } from '@/components/enums/enums';
 const ONE_SECOND = 1000;
 
 export default defineComponent({
-  name: 'ActionSection',
-  components: { Popper },
-  props: {
+  name: 'ActionSection', components: { Popper }, props: {
     header: String,
     subheader: String,
     buttonIcon: String,
     buttonText: String,
     buttonTooltip: String,
     copyText: {
-      default: window.location.href,
-      type: String,
+      default: window.location.href, type: String,
     },
     image: String,
     imagePosition: {
-      type: String as PropType<ImagePosition>,
-      default: ImagePosition.bottom,
+      type: String as PropType<ImagePosition>, default: ImagePosition.bottom,
     },
-  },
-  methods: {
+  }, methods: {
     onButtonClick() {
       this.showTooltip = true;
       this.$emit('onButtonClick', true);
       setTimeout(() => this.showTooltip = false, ONE_SECOND);
     },
-  },
-  data() {
+  }, data() {
     return {
-      showTooltip: false,
-      ImagePosition,
+      showTooltip: false, ImagePosition,
     };
-  },
-  computed: {
+  }, computed: {
     cssVars() {
       return {
         '--background-image': `url(${require(`@/assets/media/${this.image}`)}`,
       };
-    },
-    containerClass() {
+    }, containerClass() {
       return `is-flex ${this.imagePosition}`;
     },
   },
@@ -93,13 +84,11 @@ export default defineComponent({
 }
 
 .background {
-  background-image: var(--background-image);
-  background-size: cover;
-  background-repeat: no-repeat;
-  padding: $spacing-sm $spacing-lg;
-  min-height: 400px;
+  @include background-image;
 
+  background-image: var(--background-image);
   justify-content: flex-end;
+  padding: $spacing-sm $spacing-lg;
 }
 
 .explain-text {
