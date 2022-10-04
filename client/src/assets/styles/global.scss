@@ -166,6 +166,9 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
 
 .grey-button {
   @include button;
+
+  background-color: $warm-grey-100;
+  border: 1px solid $light-grey;
   color: $warm-grey-800;
 
   &:hover {

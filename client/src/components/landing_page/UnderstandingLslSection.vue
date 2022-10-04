@@ -13,9 +13,9 @@
           <div class='h2-header-large'>
             {{ messages.UNDERSTANDING_LSL_SUBHEADER }}
           </div>
-          <button class='grey-button'>
+          <router-link class='grey-button' :to='resourcesRoute'>
             {{ messages.UNDERSTANDING_LSL_BUTTON_TEXT }}
-          </button>
+          </router-link>
         </div>
       </div>
     </div>
@@ -25,12 +25,14 @@
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import { LandingPageMessages } from '../../assets/messages/landing';
+import { RESOURCES_ROUTE } from '../../router';
 
 export default defineComponent({
   name: 'UnderstandingLslSection',
   data() {
     return {
       messages: LandingPageMessages,
+      resourcesRoute: RESOURCES_ROUTE,
     };
   },
 });
