@@ -33,13 +33,21 @@ export class LandingPageMessages {
     'Sign up for our email list to be notified when more locations are available.';
   static THANK_YOU_MESSAGE = 'Thank you for submitting your contact information!';
   static VIEW_MORE_RESOURCES_BUTTON_TEXT = 'View More in Resources';
+  static UNDERSTANDING_LSL_HEADER = '10 Million American Households';
+  static UNDERSTANDING_LSL_SUBHEADER =
+    'Are impacted by lead-contaminated water due to pipes or fixtures in their homes containing ' +
+    'lead. LeadOut helps residents and homeowners understand the risk levels in their area and ' +
+    'take steps to protect themselves and their communities.';
+  static UNDERSTANDING_LSL_BUTTON_TEXT = 'Learn More About the Lead Problem in the US';
   static WHY_LEADOUT_HEADER = 'Why LeadOut';
-  static WHY_LEADOUT_SUBHEADER = 'LeadOut is an initiative that empowers you and your community ' +
-    'to take control of the water quality in your house and your neighborhood.';
-  static WHY_LEADOUT_BODY = 'LeadOut provides personalized estimates of lead risk levels, ' +
-    'helping residents take back their power and find safety and comfort in their water supply, ' +
-    'drop by drop. LeadOut is a collaboration between BlueConduit and Google.org, bringing ' +
-    'together experts with activists to empower communities.';
+  static WHY_LEADOUT_SUBHEADER =
+    'LeadOut is an initiative that empowers you and your community to take control of the water ' +
+    'quality in your house and your neighborhood.';
+  static WHY_LEADOUT_BODY =
+    'LeadOut provides personalized estimates of lead risk levels, helping residents take back ' +
+    'their power and find safety and comfort in their water supply, drop by drop. LeadOut is a ' +
+    'collaboration between BlueConduit and Google.org, bringing together experts with activists ' +
+    'to empower communities.';
 
   static RESOURCE_MESSAGES: ResourceMessage[] = [
     {

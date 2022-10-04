@@ -34,6 +34,12 @@ export default defineComponent({
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
+.header-section {
+  padding: $spacing-lg;
+  align-items: flex-start;
+  gap: $spacing-lg;
+}
+
 .image {
   width: 100%;
   height: 100%;
@@ -48,11 +54,5 @@ export default defineComponent({
 
 .why-leadout-section {
   max-height: 1000px;
-}
-
-.header-section {
-  padding: $spacing-lg;
-  align-items: flex-start;
-  gap: $spacing-lg;
 }
 </style>

@@ -2,6 +2,7 @@
   <div class='landing-page'>
     <SearchSection />
     <WhyLeadOutSection />
+    <UnderstandingLslSection />
     <ExploreMapSection />
     <EmailSignup />
   </div>
@@ -13,6 +14,7 @@ import SearchSection from '../components/landing_page/SearchSection.vue';
 import ExploreMapSection from '../components/landing_page/ExploreMapSection.vue';
 import EmailSignup from '../components/EmailSignup.vue';
 import WhyLeadOutSection from '../components/landing_page/WhyLeadOutSection.vue';
+import UnderstandingLslSection from '../components/landing_page/UnderstandingLslSection.vue';
 
 /**
  * This view displays a landing page with search.
@@ -20,10 +22,11 @@ import WhyLeadOutSection from '../components/landing_page/WhyLeadOutSection.vue'
 export default defineComponent({
   name: 'LandingPageView',
   components: {
-    WhyLeadOutSection,
     EmailSignup,
     ExploreMapSection,
     SearchSection,
+    UnderstandingLslSection,
+    WhyLeadOutSection,
   },
 });
 </script>
