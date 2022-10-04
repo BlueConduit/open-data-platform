@@ -30,7 +30,7 @@
         </div>
         <div class='columns is-centered'>
           <ActionSection
-            class='column is-one-quarter-desktop is-half-touch'
+            class='column is-full-mobile is-half-tablet is-one-quarter-desktop '
             :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
             :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
             :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
@@ -38,7 +38,7 @@
             :imagePosition='ImagePosition.background'
             @onButtonClick='navigateToResourcePage' />
           <ActionSection
-            class='column is-one-quarter-desktop is-half-touch'
+            class='column is-full-mobile is-half-tablet is-one-quarter-desktop'
             :header='ScorecardMessages.SHARE_LEAD_OUT'
             :subheader='ScorecardMessages.SHARE_LEAD_OUT_SUBHEADER'
             buttonIcon='copy.png'
