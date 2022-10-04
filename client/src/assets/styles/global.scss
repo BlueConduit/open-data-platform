@@ -17,7 +17,7 @@ $warm-grey-600: #757575;
 $warm-grey-800: #464646;
 $warm-grey-900: #212121;
 
-$light-gold: #FFF8E1;
+$light-gold: #FFE182;
 $gold: #FFC300;
 $white: #FFFFFF;
 
@@ -45,8 +45,6 @@ a {
 }
 
 .h1-header-large {
-  @include centered-text;
-
   font-size: 8 * $spacing-xs;
   line-height: 11 * $spacing-xs;
   font-weight: 500;
@@ -127,9 +125,12 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
 
 .section {
   @include container-column;
-  @include center-container;
   gap: $spacing-md;
   padding: $spacing-lg $spacing-lg;
+}
+
+.centered-section {
+  @include center-container;
 }
 
 @mixin background-image {

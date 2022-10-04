@@ -5,14 +5,16 @@
         {{ title }}
       </div>
     </div>
-    <div class='section content' v-html='content'>
-    </div>
+    <div class='section content' v-html='content'></div>
   </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
 
+/**
+ * Very simple blog page that support title, image, and basic HTML injection.
+ */
 export default defineComponent({
   name: 'BlogView', props: {
     title: {

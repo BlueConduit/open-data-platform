@@ -65,6 +65,15 @@ export class ScorecardMessages {
   static WANT_TO_KNOW_MORE = 'Want to know more?';
   static WATER_SYSTEM_DESCRIPTION =
     'This is the water system which owns the service lines that provide water to this area.';
+  static WHAT_TO_DO_HEADER =
+    'You now know you are at risk of having lead in your water, what to do?';
+  static WHAT_TO_SUBHEADER =
+    'What to do now you now know you’re at high risk of having lead in your water? \n' +
+    'It might sound a bit scary being in high risk of having lead in your ' +
+    'water. However, this just puts you in a great position to find out ' +
+    'what is really going on. First thing you should do is call your drinking' +
+    ' water utility to find out how to test your water. But there are some ' +
+    'immediate actions you can take. Read on to learn your options.';
 
   static SCORECARD_SUMMARY_PANEL_HEADER = (zipCode: string | null) =>
     zipCode != null ? `Understanding your score for ${zipCode}` : 'Understanding your score';
