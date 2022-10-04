@@ -97,8 +97,8 @@ const routes = [
 /** Defines all routes for the app **/
 const router = createRouter({
   history: createWebHistory(),
-  routes: routes, // Ensures that navigating to different pages takes you to
-  // the top of
+  routes: routes,
+  // Ensures that navigating to different pages takes you to the top of
   // each page, rather than where you were on the previous page.
   scrollBehavior() {
     document?.getElementById('app')?.scrollIntoView({ behavior: 'smooth' });
