@@ -38,35 +38,44 @@ import { ImagePosition } from '@/components/enums/enums';
 const ONE_SECOND = 1000;
 
 export default defineComponent({
-  name: 'ActionSection', components: { Popper }, props: {
+  name: 'ActionSection',
+  components: { Popper },
+  props: {
     header: String,
     subheader: String,
     buttonIcon: String,
     buttonText: String,
     buttonTooltip: String,
     copyText: {
-      default: window.location.href, type: String,
+      default: window.location.href,
+      type: String,
     },
     image: String,
     imagePosition: {
-      type: String as PropType<ImagePosition>, default: ImagePosition.bottom,
+      type: String as PropType<ImagePosition>,
+      default: ImagePosition.bottom,
     },
-  }, methods: {
+  },
+  methods: {
     onButtonClick() {
       this.showTooltip = true;
       this.$emit('onButtonClick', true);
       setTimeout(() => this.showTooltip = false, ONE_SECOND);
     },
-  }, data() {
+  },
+  data() {
     return {
-      showTooltip: false, ImagePosition,
+      showTooltip: false,
+      ImagePosition,
     };
-  }, computed: {
+  },
+  computed: {
     cssVars() {
       return {
         '--background-image': `url(${require(`@/assets/media/${this.image}`)}`,
       };
-    }, containerClass() {
+    },
+    containerClass() {
       return `is-flex ${this.imagePosition}`;
     },
   },
