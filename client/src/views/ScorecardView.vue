@@ -13,8 +13,8 @@
 
       <!-- Only display the side-panel, full-width on mobile. -->
       <ScorecardMapViewBar />
-      <div id='map-container'
-           class='columns is-variable is-centered is-hidden-mobile'>
+      <div
+        class='columns is-variable is-centered is-hidden-mobile map-container-div'>
         <div class='column is-hidden-touch side-panel' v-if='showResults'>
           <div class='section'>
             <SidePanel />
@@ -226,8 +226,7 @@ export default defineComponent({
   background-color: $light-blue-50;
 }
 
-// TODO: Remove id here.
-#map-container {
+.columns.map-container-div {
   margin-bottom: 0;
 
   .column {
