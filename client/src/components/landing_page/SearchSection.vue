@@ -1,18 +1,19 @@
 <template>
-  <div class='section is-medium has-text-centered'>
-    <div class='columns is-centered'>
-      <div class='column is-half'>
-        <div class='header-section'>
-          <div class='h1-header-xl'>{{ messages.SEARCH_SECTION_HEADER }}</div>
-          <div class='h2-header-large mb-6'>{{ messages.SEARCH_SECTION_SUBHEADER
-            }}
-          </div>
+  <div class='section is-large'>
+    <div class='columns'>
+      <div class='header column is-half'>
+        <div class='h1-header-xl mb-6'>
+          {{ messages.SEARCH_SECTION_HEADER }}
         </div>
+        <div class='h1-header-large'>
+          {{ messages.SEARCH_SECTION_SUBHEADER }}
+        </div>
+      </div>
+      <div class='column is-half'>
         <ScorecardSearch
           :placeholder='messages.GEOLOCATE_PLACEHOLDER_TEXT'
           :ctaButtonText='messages.CHECK_LEAD_STATUS_BUTTON_TEXT'
         />
-        <div class='h2-header mt-6'>{{ messages.SEARCH_SECTION_FOOTER }}</div>
       </div>
     </div>
   </div>
@@ -43,16 +44,21 @@ export default defineComponent({
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
+.h1-header-xl {
+  font-size: 13.5 * $spacing-xs;
+}
+
+.h1-header-large {
+  text-align: start;
+}
 
 .section {
   color: $white;
 
-  // Use a semi-opaque gradient to tint the background image for better text readability.
-  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-  url('~@/assets/media/landing-image-2.png'), url('~@/assets/media/landing-image-1.png');
+  background-image: url('~@/assets/media/landing-image-2.png'), url('~@/assets/media/landing-image-1.png');
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: center, center;
+  background-position: center;
 }
 
 </style>
