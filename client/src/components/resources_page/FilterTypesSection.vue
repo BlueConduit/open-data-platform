@@ -40,12 +40,19 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 @import '../../assets/styles/global.scss';
+@import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .filter-cards {
+  @include center-container;
   @include container-row;
-  flex-wrap: wrap;
-  justify-content: space-between;
 
-  max-width: 850px;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  max-width: 1000px;
+}
+
+.card {
+  margin: $spacing-md;
 }
 </style>
