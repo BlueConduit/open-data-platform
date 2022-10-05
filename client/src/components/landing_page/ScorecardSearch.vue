@@ -1,8 +1,12 @@
 <template>
   <div class='scorecard-search'>
+    <div class='header-section'>
+      <div class='h1-header-xl'>{{ messages.FIND_RISK_STATUS_HEADER }}</div>
+      <div class='h2-header'>{{ messages.FIND_RISK_STATUS_BODY }}</div>
+    </div>
     <GeocoderInput
       class='geocoder'
-      :placeholder='placeholder'
+      :placeholder='messages.GEOLOCATE_PLACEHOLDER_TEXT'
       :acceptedTypes='acceptedTypes'
       @result='onGeocodeResults'
     />
@@ -12,8 +16,11 @@
       @click='onSearch'
       :disabled='!searchHasResult'
     >
-      {{ ctaButtonText }}
+      {{ messages.CHECK_LEAD_STATUS_BUTTON_TEXT }}
     </button>
+    <div>
+      {{ messages.FIND_RISK_STATUS_FOOTER }}
+    </div>
   </div>
 </template>
 
@@ -22,6 +29,7 @@ import { defineComponent } from 'vue';
 import { SCORECARD_BASE } from '../../router';
 import GeocoderInput from '../GeocoderInput.vue';
 import { GeoType } from '../../model/states/model/geo_data';
+import { LandingPageMessages } from '../../assets/messages/landing';
 
 /**
  * A component for searching for a scorecard.
@@ -29,22 +37,13 @@ import { GeoType } from '../../model/states/model/geo_data';
 export default defineComponent({
   name: 'ScorecardSearch',
   components: { GeocoderInput },
-  props: {
-    placeholder: {
-      type: String,
-      default: 'Search',
-    },
-    ctaButtonText: {
-      type: String,
-      required: true,
-    },
-  },
   data() {
     return {
       lat: 0,
       long: 0,
       geoType: GeoType.unknown,
       acceptedTypes: [GeoType.address, GeoType.postcode],
+      messages: LandingPageMessages,
     };
   },
   computed: {
@@ -72,12 +71,16 @@ export default defineComponent({
 .geocoder {
   height: $spacing-xl;
   width: 100%;
+  border: 1px solid $warm-grey-700;
+  border-radius: $spacing-xs;
 }
 
 .scorecard-search {
-  display: flex;
+  @include center-container;
   flex-direction: column;
-  align-items: center;
   gap: $spacing-lg;
+  padding: $spacing-lg;
+  background-color: $white;
+  color: $warm-grey-800;
 }
 </style>
