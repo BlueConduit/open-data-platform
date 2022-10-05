@@ -93,13 +93,11 @@ export default defineComponent({
 }
 
 .background {
-  background-image: var(--background-image);
-  background-size: cover;
-  background-repeat: no-repeat;
-  padding: $spacing-sm $spacing-lg;
-  min-height: 400px;
+  @include background-image;
 
+  background-image: var(--background-image);
   justify-content: flex-end;
+  padding: $spacing-sm $spacing-lg;
 }
 
 .explain-text {

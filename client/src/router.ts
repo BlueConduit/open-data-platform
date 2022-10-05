@@ -6,6 +6,8 @@ import ResourceView from '@/views/ResourceView.vue';
 import NationwideMapView from '@/views/NationwideMapView.vue';
 import AboutUsView from '@/views/AboutUsView.vue';
 import ThankYouView from '@/views/ThankYouView.vue';
+import BlogView from '@/views/BlogView.vue';
+import { NextSteps } from '@/assets/blog/next_steps';
 
 export const LAT_LONG_PARAM = 'latlong';
 export const LAYER_PARAM = 'layer';
@@ -19,6 +21,7 @@ const MAP_ROUTE = `${MAP_ROUTE_BASE}/:${GEOTYPE_PARAM}/:${LAT_LONG_PARAM}?`;
 const ABOUT_ROUTE = '/about';
 const RESOURCES_ROUTE = '/resources';
 const SUBSCRIBED_ROUTE = '/subscribed';
+const NEXT_STEPS_ROUTE = '/next-steps';
 
 const routes = [
   {
@@ -68,6 +71,18 @@ const routes = [
     component: AboutUsView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.ABOUT_TITLE}`,
+    },
+  },
+  {
+    path: NEXT_STEPS_ROUTE,
+    component: BlogView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.NEXT_STEPS}`,
+    },
+    props: {
+      title: NextSteps.title,
+      content: NextSteps.content,
+      image: NextSteps.image,
     },
   },
   {

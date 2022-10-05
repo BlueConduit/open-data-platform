@@ -135,6 +135,13 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
   padding: $spacing-lg $spacing-lg;
 }
 
+@mixin background-image {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  min-height: 400px;
+}
+
 /** Buttons **/
 
 @mixin button {

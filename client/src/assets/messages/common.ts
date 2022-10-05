@@ -11,4 +11,5 @@ export class Titles {
   static ABOUT_TITLE = 'About Us';
   static EXPLORE_NATION_WIDE_MAP = 'Explore Nationwide Map';
   static RESOURCES_TITLE = 'Resources';
+  static NEXT_STEPS = 'Next steps';
 }
