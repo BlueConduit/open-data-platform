@@ -77,7 +77,7 @@ const routes = [
     path: NEXT_STEPS_ROUTE,
     component: BlogView,
     meta: {
-      title: `${Titles.APP_TITLE} - ${Titles.NEXT_STEPS}`,
+      title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
     },
     props: {
       title: NextSteps.title,

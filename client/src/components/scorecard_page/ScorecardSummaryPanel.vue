@@ -1,5 +1,5 @@
 <template>
-  <div class='section has-text-centered'>
+  <div class='section centered-section has-text-centered'>
     <div class='h1-header-large'>
       <div>
         {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER(zipCode) }}
