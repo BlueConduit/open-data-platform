@@ -31,7 +31,7 @@ export class NextSteps {
       href='https://www.epa.gov/ground-water-and-drinking-water/basic-information-about-lead-drinking-water#:~:text=drinking%20water.-,Important%20Steps%20You%20Can%20Take%20to%20Reduce%20Lead%20in%20Drinking%20Water,-Have%20your%20water'>
       according to the EPA</a> that may help reduce your lead exposure in the
     short term. </p>
-  <p> Running your taps, or “flushing” your water system is a short-term
+  <p>Running your taps, or “flushing” your water system is a short-term
     option. The evidence on flushing is mixed, but longer flushes have the
     potential to reduce exposure to water that has been in contact with lead
     pipes overnight. Contact your water utility to learn more about flushing
@@ -41,8 +41,7 @@ export class NextSteps {
     Remember, you cannot see, taste, or smell lead dissolved in water. Learn
     more about common lead myths here. Finally, you can clean your faucet’s
     screen (also called an aerator). Lead particles can collect in the screen
-    and contaminate your water.
-  </p>
+    and contaminate your water. </p>
   <p>Remember, if you suspect or find out you have lead in your water supply,
     your best bet until pipes can be replaced is to invest in a filter. This
     simple step can bring back your confidence in your drinking water.</p>`;

@@ -13,7 +13,8 @@
 
       <!-- Only display the side-panel, full-width on mobile. -->
       <ScorecardMapViewBar />
-      <div class='columns is-variable is-centered is-gapless is-hidden-mobile'>
+      <div id='map-container'
+           class='columns is-variable is-centered is-hidden-mobile'>
         <div class='column is-hidden-touch side-panel' v-if='showResults'>
           <div class='section'>
             <SidePanel />
@@ -225,6 +226,15 @@ export default defineComponent({
   background-color: $light-blue-50;
 }
 
+// TODO: Remove id here.
+#map-container {
+  margin-bottom: 0;
+
+  .column {
+    padding-bottom: 0;
+  }
+}
+
 .side-panel {
   max-width: 6 * $spacing-xl;
 }
@@ -241,6 +251,13 @@ export default defineComponent({
   @include tablet {
     .section {
       padding-right: $spacing-lg * 6;
+    }
+  }
+
+  // Above tablet create padding
+  @include desktop {
+    .section {
+      padding-right: $spacing-lg * 10;
     }
   }
 

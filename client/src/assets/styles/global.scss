@@ -14,17 +14,20 @@
 $light-grey: #A3A3A3;
 $warm-grey-100: #F6F6F6;
 $warm-grey-600: #757575;
+$warm-grey-700: #7A7A7A;
 $warm-grey-800: #464646;
 $warm-grey-900: #212121;
 
 $light-gold: #FFE182;
 $gold: #FFC300;
+$gold-200: #FFE182;
 $white: #FFFFFF;
 
 $light-blue-50: #E1F5FE;
 $light-blue: #05A8F4;
 $light-blue-800: #0576BD;
 $navy-blue: #2553A0;
+$teal: #006064;
 
 /** Typography */
 .body {
@@ -171,6 +174,9 @@ $image-shadow: 0 4px 6px 2px rgba(70, 70, 70, 0.25);
 
 .grey-button {
   @include button;
+
+  background-color: $warm-grey-100;
+  border: 1px solid $light-grey;
   color: $warm-grey-800;
 
   &:hover {
