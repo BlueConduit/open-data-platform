@@ -1,5 +1,5 @@
 <template>
-  <div class='section'>
+  <div class='section center-container'>
     <div class='header-section'>
       <div class='h1-header-large'>
         {{ messages.WATER_FILTER_INFO_SECTION_HEADER }}

@@ -1,5 +1,5 @@
 <template>
-  <div class='section'>
+  <div class='section center-container'>
     <div class='header-section'>
       <div class='h1-header-large'>
         {{ messages.FILTER_TYPES_SECTION_HEADER }}
@@ -48,4 +48,9 @@ export default defineComponent({
 
   max-width: 850px;
 }
+
+//
+//.section {
+//  align-items;
+//}
 </style>
