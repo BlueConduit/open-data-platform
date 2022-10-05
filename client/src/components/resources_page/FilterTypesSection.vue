@@ -48,4 +48,9 @@ export default defineComponent({
   justify-content: space-between;
   max-width: 850px;
 }
+
+//
+//.section {
+//  align-items;
+//}
 </style>
