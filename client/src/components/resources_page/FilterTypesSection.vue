@@ -48,9 +48,4 @@ export default defineComponent({
 
   max-width: 850px;
 }
-
-//
-//.section {
-//  align-items;
-//}
 </style>
