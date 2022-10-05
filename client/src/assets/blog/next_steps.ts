@@ -1,11 +1,10 @@
 export class NextSteps {
   static title = 'You’re at risk for lead in your water. What now?';
   static image = 'next-steps.jpg';
-  static content = `  <p>Learning that your area is at medium or high risk for lead may sound
+  static content = `<p>Learning that your area is at medium or high risk for lead may sound
     concerning, however, there are a number of steps you can take immediately to
     protect yourself to feel secure in your home once again. </p>
-  <p>
-    The first thing you should know is that testing your water for lead is the
+  <p>The first thing you should know is that testing your water for lead is the
     only way to know if your water is truly lead-free. Some areas offer free or
     subsidized <a
     href='https://www.epa.gov/sites/default/files/2015-11/documents/2005_09_14_faq_fs_homewatertesting.pdf'>

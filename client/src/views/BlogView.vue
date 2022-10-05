@@ -16,15 +16,20 @@ import { defineComponent, PropType } from 'vue';
  * Very simple blog page that support title, image, and basic HTML injection.
  */
 export default defineComponent({
-  name: 'BlogView', props: {
+  name: 'BlogView',
+  props: {
     title: {
-      type: String, default: 'LeadOut Blog',
+      type: String,
+      default: 'LeadOut Blog',
     }, content: {
-      type: String, required: true,
+      type: String,
+      required: true,
     }, image: {
-      type: String, required: true,
+      type: String,
+      required: true,
     },
-  }, computed: {
+  },
+  computed: {
     cssVars() {
       return {
         '--background-image': `url(${require(`@/assets/media/${this.image}`)}`,
