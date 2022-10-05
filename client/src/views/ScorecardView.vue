@@ -13,7 +13,8 @@
 
       <!-- Only display the side-panel, full-width on mobile. -->
       <ScorecardMapViewBar />
-      <div class='columns is-variable is-centered is-gapless is-hidden-mobile'>
+      <div id='map-container'
+           class='columns is-variable is-centered is-hidden-mobile'>
         <div class='column is-hidden-touch side-panel' v-if='showResults'>
           <div class='section'>
             <SidePanel />
@@ -30,7 +31,7 @@
         </div>
         <div class='columns is-centered'>
           <ActionSection
-            class='column is-half'
+            class='column is-full-mobile is-half-tablet is-one-quarter-desktop '
             :header='ScorecardMessages.ADDITIONAL_STEPS_HEADER'
             :subheader='ScorecardMessages.ADDITIONAL_STEPS_SUBHEADER'
             :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
@@ -38,7 +39,7 @@
             :imagePosition='ImagePosition.background'
             @onButtonClick='navigateToResourcePage' />
           <ActionSection
-            class='column is-half'
+            class='column is-full-mobile is-half-tablet is-one-quarter-desktop'
             :header='ScorecardMessages.SHARE_LEAD_OUT'
             :subheader='ScorecardMessages.SHARE_LEAD_OUT_SUBHEADER'
             buttonIcon='copy.png'
@@ -50,6 +51,20 @@
         </div>
       </div>
       <ContactCitySection class='section' v-if='showLslrSection' :city='city' />
+      <div class='is-flex what-to-do'>
+        <div class='section'>
+          <div class='h1-header-large'>
+            {{ ScorecardMessages.WHAT_TO_DO_HEADER }}
+          </div>
+          <ActionSection
+            :subheader='ScorecardMessages.WHAT_TO_SUBHEADER'
+            :buttonText='Titles.BLOG'
+            @onButtonClick='navigateToNextSteps' />
+        </div>
+        <img class='is-hidden-mobile'
+             :src='require(`@/assets/media/what-now.png`)'
+             alt='' />
+      </div>
       <div class='section has-text-centered nav-to-map'>
         <div class='h1-header-large'>
           {{ ScorecardMessages.WANT_TO_KNOW_MORE }}
@@ -171,6 +186,11 @@ export default defineComponent({
         path: '/map',
       });
     },
+    navigateToNextSteps() {
+      router.push({
+        path: '/next-steps',
+      });
+    },
     updateViewWithGeoIds() {
       // Check if an address was queried and another prediction should be
       // fetched.
@@ -200,12 +220,49 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
+@import 'bulma/sass/utilities/mixins';
 
 .nav-to-map {
   background-color: $light-blue-50;
 }
 
+// TODO: Remove id here.
+#map-container {
+  margin-bottom: 0;
+
+  .column {
+    padding-bottom: 0;
+  }
+}
+
 .side-panel {
   max-width: 6 * $spacing-xl;
+}
+
+.what-to-do {
+  background-color: $light-gold;
+
+  // Below tablet, center text
+  @include touch {
+    text-align: center;
+  }
+
+  // Above tablet create padding
+  @include tablet {
+    .section {
+      padding-right: $spacing-lg * 6;
+    }
+  }
+
+  // Above tablet create padding
+  @include desktop {
+    .section {
+      padding-right: $spacing-lg * 10;
+    }
+  }
+
+  img {
+    max-width: 400px;
+  }
 }
 </style>

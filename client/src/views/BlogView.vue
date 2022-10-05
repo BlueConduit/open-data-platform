@@ -12,6 +12,9 @@
 <script lang='ts'>
 import { defineComponent, PropType } from 'vue';
 
+/**
+ * Very simple blog page that support title, image, and basic HTML injection.
+ */
 export default defineComponent({
   name: 'BlogView',
   props: {
@@ -39,7 +42,6 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/elements/container';
 @import 'bulma/sass/layout/section.sass';
 @import 'bulma/sass/grid/columns.sass';
 

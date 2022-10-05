@@ -1,10 +1,9 @@
 <template>
   <div class='is-flex' :style='cssVars'>
-    <div class='h2-header-large'>
+    <div class='h2-header-large' v-if='header != null'>
       {{ header }}
     </div>
-    <div v-if='image != null'
-         :className='containerClass'>
+    <div :className='containerClass'>
       <div class='container explain-text' v-if='subheader != null'>
         {{ subheader }}
       </div>
@@ -72,11 +71,11 @@ export default defineComponent({
   computed: {
     cssVars() {
       return {
-        '--background-image': `url(${require(`@/assets/media/${this.image}`)}`,
+        '--background-image': this.image != null ? `url(${require(`@/assets/media/${this.image}`)}` : '',
       };
     },
     containerClass() {
-      return `is-flex ${this.imagePosition}`;
+      return this.image != null ? `is-flex ${this.imagePosition}` : `is-flex`;
     },
   },
 });
@@ -88,7 +87,6 @@ export default defineComponent({
 
 .is-flex {
   flex-direction: column;
-  align-items: center;
   gap: $spacing-md;
 }
 
@@ -100,8 +98,8 @@ export default defineComponent({
   padding: $spacing-sm $spacing-lg;
 }
 
-.explain-text {
-  max-width: 300px;
+.bottom {
+  align-items: center;
 }
 
 .icon {

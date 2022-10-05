@@ -4,11 +4,11 @@
          :src='require(`@/assets/media/get-notified.png`)'
          alt='' />
     <div class='section form-wrapper columns'>
-      <div class='header-section column is-half is-centered'>
-        <div class='h1-header-large centered-text'>
+      <div class='header-section column is-half'>
+        <div class='h1-header-large'>
           {{ messages.SUBSCRIBE_HEADER }}
         </div>
-        <div class='h2-header-large centered-text mt-4'>
+        <div class='h2-header-large mt-4'>
           {{ messages.SUBSCRIBE_SUBHEADER }}
         </div>
       </div>
@@ -65,6 +65,7 @@ export default defineComponent({
 @import 'bulma/sass/layout/section.sass';
 @import 'bulma/sass/grid/columns.sass';
 @import 'bulma/sass/helpers/spacing';
+@import 'bulma/sass/helpers/flexbox';
 
 .is-flex {
   overflow: hidden;
@@ -76,9 +77,12 @@ export default defineComponent({
 }
 
 .form-wrapper {
+  @include background-image;
+
   background-color: $navy-blue;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
+}
+
+#hubspotForm {
+  max-width: 400px
 }
 </style>
