@@ -67,7 +67,7 @@ export default defineComponent({
 }
 
 .section {
-  background-color: $light-gold;
+  background-color: $light-gold-50;
   color: $warm-grey-900;
 }
 
