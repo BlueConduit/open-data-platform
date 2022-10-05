@@ -4,6 +4,7 @@
 
 @use 'bulma/sass/layout/section.sass';
 @use 'bulma/sass/grid/columns.sass';
+@use 'bulma/sass/helpers/flexbox';
 @use 'bulma/sass/helpers/spacing.sass';
 @use 'bulma/sass/helpers/typography.sass';
 @use 'bulma/sass/helpers/visibility.sass';
@@ -11,6 +12,7 @@
 
 /** Colors */
 /** TODO: Move colors to copper.*/
+$faint-grey: #F6F6F6;
 $light-grey: #A3A3A3;
 $warm-grey-100: #F6F6F6;
 $warm-grey-600: #757575;

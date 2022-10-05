@@ -1,5 +1,5 @@
 <template>
-  <div class='section center-container'>
+  <div class='section center-container has-text-centered'>
     <div class='header-section'>
       <div class='h1-header-large'>
         {{ messages.WATER_FILTER_INFO_SECTION_HEADER }}
@@ -7,14 +7,6 @@
       <div class='h2-header-large'>
         {{ messages.WATER_FILTER_INFO_SECTION_SUBHEADER }}
       </div>
-    </div>
-    <div class='filter-static-content'>
-    <span class='asset'><img
-      :src='require(`@/assets/media/resource-image-1.png`)'
-      alt=''></span>
-      <span class='h1-header'>
-      {{ messages.WATER_FILTER_DESCRIPTION }}
-    </span>
     </div>
   </div>
 </template>
@@ -40,15 +32,16 @@ export default defineComponent({
 @import '../../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
+.section.has-text-centered {
+  @include background-image;
+  background-image: linear-gradient(rgba(4, 86, 155, 0.75), rgba(4, 86, 155, 0.75)), url('~@/assets/media/resource-image-1.png');
+  background-position: center center;
+  color: $white;
+}
+
 .asset img {
   height: auto;
   max-width: 475px;
-}
-
-.filter-static-content {
-  @include container-row;
-  @include center-container;
-  gap: $spacing-lg;
 }
 
 .h1-header {
