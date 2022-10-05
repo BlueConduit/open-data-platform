@@ -91,7 +91,7 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .city-information {
-  background-color: $light-gold;
+  background-color: $light-gold-50;
   padding: $spacing-lg;
   margin-top: $spacing-lg;
   border-radius: $spacing-xs;
