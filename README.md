@@ -19,6 +19,7 @@ Technical guides:
 - [Operational Playbook](docs/operational-playbook.md)
 - [Writing Tests](docs/writing-tests.md)
 - [Data Import Instructions](docs/data-import.md)
+- [Release Process](docs/release-process.md)
 
 Design documents:
 
