@@ -15,7 +15,6 @@
     </div>
     <!--    TODO add more descriptive placeholder.-->
     <map-geocoder-wrapper
-      class='is-flex-grow-1'
       :acceptedTypes='acceptedTypes'
       :baseUrl='SCORECARD_BASE'
       v-model:expandSearch='showSearch'
