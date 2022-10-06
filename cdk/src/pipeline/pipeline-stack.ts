@@ -8,7 +8,6 @@ import * as util from '../util';
 import { MonitoringStage, OpenDataPlatformStage } from './stage';
 import { BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 
-const PROD_BAKE_DURATION_HOURS = 4;
 const CODE_REPO = 'BlueConduit/open-data-platform';
 const CODE_CONNECTION_ARN =
   'arn:aws:codestar-connections:us-east-2:223904267317:connection/cf8a731a-3a36-4e74-ac7f-d93604fd258e';
@@ -122,12 +121,6 @@ export class PipelineStack extends Stack {
      * [1] https://docs.google.com/document/d/1zZxCoXx5JzLXTOGVdvC4s8H-r82DFjfmNU-dmFPAQVI/edit#heading=h.bsmnc9iehgn
      * [2] https://github.com/BlueConduit/open-data-platform/pull/195
      */
-    const bakeCommands = [];
-    for (let i = 0; i < PROD_BAKE_DURATION_HOURS; i++) {
-      bakeCommands.push(
-        `sleep ${60 * 60 - 20}`, // 1 hour. Minus buffer to prevent hitting the 1 hour timeout.
-      );
-    }
     pipeline.addStage(
       new OpenDataPlatformStage(this, 'Prod', {
         env: { account: '530942487205', region: 'us-east-2' },
@@ -138,7 +131,9 @@ export class PipelineStack extends Stack {
         // Bake the release in dev before deploying to prod, to catch any problems early.
         pre: [
           new pipelines.ShellStep('BakeStep', {
-            commands: bakeCommands,
+            commands: [
+              `sleep ${60 * 60 - 20}`, // 1 hour. Minus buffer to prevent hitting the 1 hour timeout.
+            ],
           }),
         ],
       },
