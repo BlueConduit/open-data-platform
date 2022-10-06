@@ -33,9 +33,7 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .section.has-text-centered {
-  @include background-image;
-  background-image: linear-gradient(rgba(4, 86, 155, 0.75), rgba(4, 86, 155, 0.75)), url('~@/assets/media/resource-image-1.png');
-  background-position: center center;
+  @include background-image-gradient(rgba(4, 86, 155, 0.75), url('~@/assets/media/resource-image-1.png'));
   color: $white;
 }
 
