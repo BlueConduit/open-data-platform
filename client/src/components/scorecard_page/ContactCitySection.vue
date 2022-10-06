@@ -93,6 +93,9 @@ export default defineComponent({
 .city-information {
   @include container-column;
   @include center-container;
+  background-color: $light-gold-50;
+  padding: $spacing-lg;
+  margin-top: $spacing-lg;
   border-radius: $spacing-xs;
 }
 </style>
