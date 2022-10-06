@@ -43,6 +43,10 @@ a {
   text-decoration: none;
 }
 
+.section {
+  background-color: $faint-grey;
+}
+
 .recommendations-content {
   @include container-column;
   align-items: flex-start;
@@ -65,8 +69,4 @@ a {
   color: $navy-blue;
 }
 
-.section {
-  background-color: $light-blue;
-  color: $white;
-}
 </style>

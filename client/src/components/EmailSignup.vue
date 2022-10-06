@@ -62,10 +62,7 @@ export default defineComponent({
 <style scoped lang='scss'>
 @import '../assets/styles/global.scss';
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/layout/section.sass';
-@import 'bulma/sass/grid/columns.sass';
 @import 'bulma/sass/helpers/spacing';
-@import 'bulma/sass/helpers/flexbox';
 
 .is-flex {
   overflow: hidden;
