@@ -84,8 +84,11 @@ export const styleLayer: FillLayer = {
   paint: {
     'fill-color': [
       'case',
-      ['==', ['get', 'lead_connections_count'], null],
+      ['==', ['get', 'service_connections_count'], null],
       DEFAULT_NULL_COLOR,
+      // Prevent divide by 0
+      ['==', ['get', 'service_connections_count'], 0],
+      LEGEND_VALUES[0].bucketColor,
       leadConnectionLegendInterpolation,
     ],
     'fill-opacity': 0.75,

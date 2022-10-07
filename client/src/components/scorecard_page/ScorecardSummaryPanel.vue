@@ -1,5 +1,5 @@
 <template>
-  <div class='section centered-section has-text-centered'>
+  <div class='section center-container has-text-centered'>
     <div class='h1-header-large'>
       <div>
         {{ ScorecardSummaryMessages.SCORECARD_SUMMARY_PANEL_HEADER(zipCode) }}
@@ -147,12 +147,11 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .section.has-text-centered {
+  @include background-image;
+
   // Use a semi-opaque gradient to tint the background image for better text readability.
   background-image: linear-gradient(rgba(4, 86, 155, 0.75), rgba(4, 86, 155, 0.75)),
   url('~@/assets/media/understand-score.png');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center, center;
   color: $white;
 
   // Using .is-medium makes this section far too large.
