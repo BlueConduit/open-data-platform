@@ -32,7 +32,7 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .about-us {
-  height: 100%;
+  min-height: 100%;
   background-color: $light-blue-800;
   background-image: url('~@/assets/media/about-us-image.png');
   background-size: cover;
