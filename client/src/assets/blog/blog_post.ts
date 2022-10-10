@@ -1,3 +1,4 @@
+// Minimum content for rendering a post.
 export interface BlogPost {
   // Title of post.
   title: string;
