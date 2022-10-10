@@ -1,13 +1,17 @@
 export class AboutUsMessages {
   static ABOUT_US_HEADER = 'About us';
   static BLUE_CONDUIT_INTRO_TEXT =
-    'Leadout is a tool created by BlueConduit. BlueConduit is a water analytics company that has ' +
-    'developed cutting-edge, predictive machine learning software to locate lead service lines, ' +
-    'empowering local officials and their engineering partners with the information to ' +
-    'efficiently remove those pipes.';
+    'LeadOut is an interactive tool that empowers communities to understand their risk status ' +
+    'for lead water pipes and to take action. The tool was designed in a collaboration between ' +
+    'BlueConduit, a water analytics company using machine learning to locate lead service lines ' +
+    'and a Google.Org fellowship program that matches Google employees with nonprofits and ' +
+    'civic entities on full time technical projects.';
   static BLUE_CONDUIT_IMPACT_TEXT =
-    'The company’s solutions enable utilities to focus their resources on digging where the lead ' +
-    'is and accelerating the removal of this significant health concern and save millions of ' +
-    'dollars in avoided digs. Since 2016, BlueConduit has worked with more than 50 municipalities ' +
-    'and inventoried over 1.5 million service lines, which serve more than 4 million people.';
+    'An estimated 10 million American households are served by a lead service line, which ' +
+    'exposes residents, especially children, to serious adverse health effects. By creating ' +
+    'awareness of the issue and providing access to personalized, reliable, and digestible ' +
+    'information, LeadOut helps communities protect themselves and once again feel secure in ' +
+    'their homes.';
+  static LEARN_RISK_STATUS_CTA_PROMPT = 'Concerned about lead in your water supply?';
+  static LEARN_RISK_STATUS_CTA_TEXT = 'Learn your risk status.';
 }
