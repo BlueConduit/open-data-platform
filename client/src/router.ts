@@ -7,7 +7,8 @@ import NationwideMapView from '@/views/NationwideMapView.vue';
 import AboutUsView from '@/views/AboutUsView.vue';
 import ThankYouView from '@/views/ThankYouView.vue';
 import BlogView from '@/views/BlogView.vue';
-import { NextSteps } from '@/assets/blog/next_steps';
+import { nextSteps } from '@/assets/blog/next_steps';
+import { historyOfLead } from '@/assets/blog/history_of_lead';
 
 export const LAT_LONG_PARAM = 'latlong';
 export const LAYER_PARAM = 'layer';
@@ -22,6 +23,7 @@ const ABOUT_ROUTE = '/about';
 const RESOURCES_ROUTE = '/resources';
 const SUBSCRIBED_ROUTE = '/subscribed';
 const NEXT_STEPS_ROUTE = '/next-steps';
+const HISTORY_LEAD_ROUTE = '/history-lead';
 
 const routes = [
   {
@@ -80,9 +82,21 @@ const routes = [
       title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
     },
     props: {
-      title: NextSteps.title,
-      content: NextSteps.content,
-      image: NextSteps.image,
+      title: nextSteps.title,
+      content: nextSteps.content,
+      image: nextSteps.image,
+    },
+  },
+  {
+    path: HISTORY_LEAD_ROUTE,
+    component: BlogView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
+    },
+    props: {
+      title: historyOfLead.title,
+      content: historyOfLead.content,
+      image: historyOfLead.image,
     },
   },
   {

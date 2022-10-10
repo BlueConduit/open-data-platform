@@ -1,21 +1,16 @@
-<template>
-  <div :style='cssVars'>
-    <div class='title-section is-flex has-text-centered'>
-      <div class='h1-header-large'>
-        {{ title }}
-      </div>
-    </div>
-    <div class='section is-flex' v-html='content'></div>
-  </div>
-  <p>You may have heard that lead exposure is dangerous, so how did it end up
-    in our water systems? </p>
+import { BlogPost } from '@/assets/blog/blog_post';
+
+export const historyOfLead: BlogPost = {
+  title: 'A Short History of Lead in Water Systems',
+  image: 'next-steps.jpg',
+  content: `<p>You may have heard that lead exposure is dangerous, so how did 
+    it end up in our water systems? </p>
   <p>Lead is a toxic metal that is harmful to human health, but it wasn’t always
     seen as dangerous. In the late 1800s and early 1900s, before the dangers of
     lead were fully documented,
     <a
       href='https://www.epa.gov/ground-water-and-drinking-water/basic-information-about-lead-drinking-water'>
-      many cities in the USA installed lead water
-      pipes </a>.
+      many cities in the USA installed lead water pipes </a>.
     In some cities, use of lead water pipes was even required by the
     local government due to the material’s durability. Because lead water pipes
     can last up to a century, many cities today still have their original pipes
@@ -46,52 +41,5 @@
     their infrastructure, LeadOut helps affected communities take action for
     their health. The first steps are easy - calling your local utility company
     to learn about water testing, ordering a filter, and educating yourself
-    about lead poisoning symptoms.</p>
-</template>
-
-<script lang='ts'>
-import { defineComponent, PropType } from 'vue';
-
-/**
- * Very simple blog page that support title, image, and basic HTML injection.
- */
-export default defineComponent({
-  name: 'BlogView',
-  props: {
-    title: {
-      type: String,
-      default: 'LeadOut Blog',
-    }, content: {
-      type: String,
-      required: true,
-    }, image: {
-      type: String,
-      required: true,
-    },
-  },
-  computed: {
-    cssVars() {
-      return {
-        '--background-image': `url(${require(`@/assets/media/${this.image}`)}`,
-      };
-    },
-  },
-});
-</script>
-
-<style scoped lang='scss'>
-@import '../assets/styles/global.scss';
-@import '@blueconduit/copper/scss/01_settings/design-tokens';
-
-.title-section {
-  @include background-image;
-  @include center-container;
-
-  // Use a semi-opaque gradient to tint the background image for better text readability.
-  background-image: linear-gradient(rgba(0, 96, 100, 0.75), rgba(0, 96, 100, 0.75)), var(--background-image);
-}
-
-.h1-header-large {
-  color: $white;
-}
-</style>
+    about lead poisoning symptoms.</p>`,
+};
