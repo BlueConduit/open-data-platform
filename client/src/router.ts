@@ -9,6 +9,7 @@ import ThankYouView from '@/views/ThankYouView.vue';
 import BlogView from '@/views/BlogView.vue';
 import { nextSteps } from '@/assets/blog/next_steps';
 import { historyOfLead } from '@/assets/blog/history_of_lead';
+import { understandLead } from '@/assets/blog/understand_lead_status';
 
 export const LAT_LONG_PARAM = 'latlong';
 export const LAYER_PARAM = 'layer';
@@ -24,6 +25,7 @@ const RESOURCES_ROUTE = '/resources';
 const SUBSCRIBED_ROUTE = '/subscribed';
 const NEXT_STEPS_ROUTE = '/next-steps';
 const HISTORY_LEAD_ROUTE = '/history-lead';
+const UNDERSTAND_LEAD_ROUTE = '/understand-lead';
 
 const routes = [
   {
@@ -97,6 +99,18 @@ const routes = [
       title: historyOfLead.title,
       content: historyOfLead.content,
       image: historyOfLead.image,
+    },
+  },
+  {
+    path: UNDERSTAND_LEAD_ROUTE,
+    component: BlogView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
+    },
+    props: {
+      title: understandLead.title,
+      content: understandLead.content,
+      image: understandLead.image,
     },
   },
   {
