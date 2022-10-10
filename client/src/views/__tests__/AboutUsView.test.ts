@@ -1,8 +1,8 @@
-import { mount } from '@vue/test-utils';
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe } from 'vitest';
 import { VueWrapper } from '@vue/test-utils/dist/vueWrapper';
 import AboutUsView from '@/views/AboutUsView.vue';
-import { AboutUsMessages } from '@/assets/messages/about_us_messages';
+import { mount } from '@vue/test-utils';
+import { aboutUsContent } from '@/assets/messages/about_us_messages';
 
 describe('AboutUsView.vue', () => {
   let wrapper: VueWrapper;
@@ -15,18 +15,15 @@ describe('AboutUsView.vue', () => {
     wrapper.unmount();
   });
 
-  it('Renders correct header', () => {
+  it('Renders correct title', () => {
     expect(wrapper.exists()).toBe(true);
     const header = wrapper.find('.h1-header-xl');
-    expect(header.text()).toBe(AboutUsMessages.ABOUT_US_HEADER);
+    expect(header.text()).toBe(aboutUsContent.title);
   });
 
-  it('Renders descriptions', () => {
+  it('Renders correct content', () => {
     expect(wrapper.exists()).toBe(true);
-    const descriptions = wrapper.findAll('.h1-header div');
-    expect(descriptions).toHaveLength(2);
-
-    expect(descriptions[0].text()).toBe(AboutUsMessages.BLUE_CONDUIT_INTRO_TEXT);
-    expect(descriptions[1].text()).toBe(AboutUsMessages.BLUE_CONDUIT_IMPACT_TEXT);
+    const descriptions = wrapper.findAll('.h1-header p');
+    expect(descriptions).toHaveLength(3);
   });
 });
