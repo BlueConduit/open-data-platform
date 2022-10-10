@@ -10,7 +10,6 @@
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import { aboutUsContent } from '../assets/messages/about_us_messages';
-import { HOME_ROUTE } from '../router';
 
 /**
  * About Us page component.
@@ -20,7 +19,6 @@ export default defineComponent({
   data() {
     return {
       aboutUsContent,
-      HOME_ROUTE,
     };
   },
 });

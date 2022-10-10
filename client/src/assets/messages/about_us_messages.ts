@@ -11,11 +11,11 @@ export const aboutUsContent: BlogPost = {
       employees with nonprofits and civic entities on full time technical projects.</p>
       <p class='h1-header'>An estimated 
       <a href='https://www.reuters.com/markets/commodities/white-house-unveil-plan-faster-scrapping-lead-pipes-paint-2021-12-16/'>
-      10 million</a> American households are served by a lead service line, which exposes residents,
+      10 million</a> American households are served by a lead service line, which exposes residents, 
       especially children, to serious adverse health effects. By creating 
       awareness of the issue and providing access to personalized, reliable, and digestible 
       information, LeadOut helps communities protect themselves and once again feel secure in their 
-      homes. </p>
+      homes.</p>
       <p class='h1-header'>Concerned about lead in your water supply? <a href='/'>Learn your risk 
       status.</a></p>`,
 };
