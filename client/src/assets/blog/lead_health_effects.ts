@@ -1,7 +1,5 @@
 import { BlogPost } from '@/assets/blog/blog_post';
 
-// TODO replace water filter route with variable exported when it exists.
-
 export const leadHealthEffects: BlogPost = {
   title: 'How Lead Exposure Affects Your Health',
   image: 'next-steps.jpg',
