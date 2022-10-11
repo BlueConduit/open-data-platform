@@ -10,6 +10,7 @@ import BlogView from '@/views/BlogView.vue';
 import { nextSteps } from '@/assets/blog/next_steps';
 import { historyOfLead } from '@/assets/blog/history_of_lead';
 import { understandLead } from '@/assets/blog/understand_lead_status';
+import { leadHealthEffects } from '@/assets/blog/lead_health_effects';
 
 export const LAT_LONG_PARAM = 'latlong';
 export const LAYER_PARAM = 'layer';
@@ -25,6 +26,7 @@ const RESOURCES_ROUTE = '/resources';
 const SUBSCRIBED_ROUTE = '/subscribed';
 const NEXT_STEPS_ROUTE = '/next-steps';
 const HISTORY_LEAD_ROUTE = '/history-lead';
+const LEAD_HEALTH_EFFECTS_ROUTE = '/lead-health-effects';
 const UNDERSTAND_LEAD_ROUTE = '/understand-lead';
 
 const routes = [
@@ -114,6 +116,18 @@ const routes = [
     },
   },
   {
+    path: LEAD_HEALTH_EFFECTS_ROUTE,
+    component: BlogView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
+    },
+    props: {
+      title: leadHealthEffects.title,
+      content: leadHealthEffects.content,
+      image: leadHealthEffects.image,
+    },
+  },
+  {
     path: SUBSCRIBED_ROUTE,
     component: ThankYouView,
     meta: {
@@ -142,6 +156,7 @@ router.beforeEach((to: RouteLocationNormalized, _) => {
 
 export {
   router,
+  HISTORY_LEAD_ROUTE,
   HOME_ROUTE,
   SCORECARD_BASE,
   SCORECARD_ROUTE,
