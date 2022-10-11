@@ -1,6 +1,6 @@
 <template>
   <div class='subscribe-section columns is-gapless'>
-    <img class='column is-hidden-mobile'
+    <img class='column is-one-third is-hidden-mobile'
          :src='require(`@/assets/media/get-notified.png`)'
          alt='' />
     <div class='column columns form-wrapper'>
