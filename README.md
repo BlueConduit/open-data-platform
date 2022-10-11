@@ -26,6 +26,7 @@ Design documents:
 - [Production Design](https://docs.google.com/document/d/1zZxCoXx5JzLXTOGVdvC4s8H-r82DFjfmNU-dmFPAQVI/preview)
 - [Scorecard Design](https://docs.google.com/document/d/1T-hBIzci81r0Xez70zEVfYxWHh6oHKsXJlxDsVJ7lDM/preview)
 - [Integration Design](https://docs.google.com/document/d/1Zjntcdu4OBkyDbyPOH84GmlnUU2ah14zEh99KGlDeAw/preview)
+- [UX Design (Figma file download)](https://drive.google.com/file/d/1tJFk30ZdCTPrVc5AYpY9j72C2AVw5VnZ/view?usp=sharing)
 
 ## About
 
