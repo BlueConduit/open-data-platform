@@ -56,5 +56,5 @@ export const leadHealthEffects: BlogPost = {
     ask about getting your water tested. Some areas may have free or low cost 
     water tests available. In the meantime, you may want to consider getting a 
     <a 
-      href='select-water-filter'>water filter</a> for your home.</div>`,
+      href='/select-water-filter'>water filter</a> for your home.</div>`,
 };
