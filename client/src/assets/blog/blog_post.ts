@@ -6,4 +6,6 @@ export interface BlogPost {
   image: string;
   // HTML of post, including links, images, etc.
   content: string;
+  // Route associated with blog.
+  route: string;
 }

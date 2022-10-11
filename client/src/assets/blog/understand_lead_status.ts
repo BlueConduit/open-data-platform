@@ -3,6 +3,7 @@ import { BlogPost } from '@/assets/blog/blog_post';
 export const understandLead: BlogPost = {
   title: 'Understanding Your Lead Status\n',
   image: 'understand-lead.png',
+  route: '/understand-lead',
   content: `<p>So you’ve just checked your area’s lead water pipe contamination risk
     level? Good! You can now take action to reduce your risk of lead-based
     health impacts. Don’t see your area listed? Sign up for our mailing list to

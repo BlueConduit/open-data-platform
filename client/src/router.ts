@@ -10,6 +10,7 @@ import BlogView from '@/views/BlogView.vue';
 import { nextSteps } from '@/assets/blog/next_steps';
 import { historyOfLead } from '@/assets/blog/history_of_lead';
 import { understandLead } from '@/assets/blog/understand_lead_status';
+import BlogHomePageView from '@/views/BlogHomePageView.vue';
 
 export const LAT_LONG_PARAM = 'latlong';
 export const LAYER_PARAM = 'layer';
@@ -23,9 +24,7 @@ const MAP_ROUTE = `${MAP_ROUTE_BASE}/:${GEOTYPE_PARAM}/:${LAT_LONG_PARAM}?`;
 const ABOUT_ROUTE = '/about';
 const RESOURCES_ROUTE = '/resources';
 const SUBSCRIBED_ROUTE = '/subscribed';
-const NEXT_STEPS_ROUTE = '/next-steps';
-const HISTORY_LEAD_ROUTE = '/history-lead';
-const UNDERSTAND_LEAD_ROUTE = '/understand-lead';
+const BLOG_ROUTE = '/blog';
 
 const routes = [
   {
@@ -78,7 +77,14 @@ const routes = [
     },
   },
   {
-    path: NEXT_STEPS_ROUTE,
+    path: BLOG_ROUTE,
+    component: BlogHomePageView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
+    },
+  },
+  {
+    path: nextSteps.route,
     component: BlogView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
@@ -90,7 +96,7 @@ const routes = [
     },
   },
   {
-    path: HISTORY_LEAD_ROUTE,
+    path: historyOfLead.route,
     component: BlogView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
@@ -102,7 +108,7 @@ const routes = [
     },
   },
   {
-    path: UNDERSTAND_LEAD_ROUTE,
+    path: understandLead.route,
     component: BlogView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
@@ -143,6 +149,7 @@ router.beforeEach((to: RouteLocationNormalized, _) => {
 export {
   router,
   HOME_ROUTE,
+  BLOG_ROUTE,
   SCORECARD_BASE,
   SCORECARD_ROUTE,
   MAP_ROUTE_BASE,
