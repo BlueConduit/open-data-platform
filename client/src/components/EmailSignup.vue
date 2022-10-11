@@ -1,18 +1,20 @@
 <template>
-  <div class='is-flex'>
-    <img class='is-hidden-mobile'
+  <div class='subscribe-section columns is-gapless'>
+    <img class='column is-hidden-mobile'
          :src='require(`@/assets/media/get-notified.png`)'
          alt='' />
-    <div class='section form-wrapper columns'>
-      <div class='header-section column is-half'>
-        <div class='h1-header-large'>
-          {{ messages.SUBSCRIBE_HEADER }}
+    <div class='column columns form-wrapper'>
+      <div class='column is-half hubspot-wrapper'>
+        <div>
+          <div class='h1-header-large'>
+            {{ messages.SUBSCRIBE_HEADER }}
+          </div>
+          <div class='h2-header-large mt-4 mb-4'>
+            {{ messages.SUBSCRIBE_SUBHEADER }}
+          </div>
         </div>
-        <div class='h2-header-large mt-4'>
-          {{ messages.SUBSCRIBE_SUBHEADER }}
-        </div>
+        <div id='hubspotForm' v-once></div>
       </div>
-      <div id='hubspotForm' v-once></div>
     </div>
   </div>
 </template>
@@ -64,8 +66,13 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 @import 'bulma/sass/helpers/spacing';
 
-.is-flex {
-  overflow: hidden;
+.hubspot-wrapper {
+  padding: $spacing-xl;
+}
+
+img {
+  border-radius: 0;
+  max-width: 600px;
 }
 
 .h1-header-large,
@@ -81,5 +88,9 @@ export default defineComponent({
 
 #hubspotForm {
   max-width: 400px
+}
+
+.subscribe-section {
+  max-height: 700px;
 }
 </style>

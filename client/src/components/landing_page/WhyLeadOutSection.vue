@@ -1,5 +1,5 @@
 <template>
-  <div class=''>
+  <div>
     <div class='why-leadout-section columns is-gapless'>
       <div class='column is-one-third is-hidden-mobile'>
         <img class='image' alt=''
