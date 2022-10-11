@@ -5,7 +5,7 @@
     </div>
     <div class='section '>
       <div class='blog-posts is-flex'>
-        <div v-for='post in posts' class='post is-flex'>
+        <div v-for='post in posts' :key='post.route' class='post is-flex'>
           <img class='is-hidden-mobile'
                :src='require(`@/assets/media/${post.image}`)' />
           <div class='preview'>
