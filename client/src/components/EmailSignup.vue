@@ -73,6 +73,7 @@ export default defineComponent({
 img {
   border-radius: 0;
   max-width: 600px;
+  min-width: 375px;
 }
 
 .h1-header-large,
