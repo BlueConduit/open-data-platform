@@ -1,7 +1,7 @@
 <template>
   <div class='container' :style='cssVars'>
     <div id='map-container'></div>
-    <MapLegend :style='legendStyle' />
+    <MapLegend class='is-hidden-mobile' :style='legendStyle' />
   </div>
 </template>
 
@@ -491,7 +491,7 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style lang='scss'>
 #map-container {
   height: var(--height);
 }

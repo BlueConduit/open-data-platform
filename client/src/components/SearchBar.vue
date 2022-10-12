@@ -1,7 +1,7 @@
 <template>
   <div class='searchbar-container'>
     <div>
-      <span>View by:</span>
+      <span class='is-hidden-mobile'>View by:</span>
       <div class='select-wrapper'>
         <v-select
           label='name'
@@ -116,7 +116,7 @@ export default defineComponent({
 
 .searchbar-container {
   display: flex;
-  height: 54px;
+  min-height: 54px;
   padding: 0 15px;
   align-items: center;
   justify-content: space-between;
