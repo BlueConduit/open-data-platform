@@ -15,8 +15,9 @@
     </div>
     <div class='navbar-menu'>
       <div class='navbar-end'>
-        <div v-for='route in routes' class='navbar-item nav-link'
-             :key='route[0]'>
+        <div v-for='route in routes'
+             :key='route[0]'
+             class='navbar-item nav-link'>
           <router-link :to='route[1]'>{{ route[0] }}</router-link>
         </div>
       </div>
