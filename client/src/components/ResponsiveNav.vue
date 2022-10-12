@@ -4,7 +4,9 @@
       <router-link class='navbar-item' to='/'>
         <img src='../assets/lo-logo.png' class='logo' />
       </router-link>
-      <a role='button' class='navbar-burger' aria-label='menu'
+      <a role='button'
+         class='navbar-burger'
+         aria-label='menu'
          aria-expanded='false'>
         <span aria-hidden='true'></span>
         <span aria-hidden='true'></span>

@@ -48,6 +48,7 @@ export default defineComponent({
      * Clip string to preview of blog post
      */
     getPreview(content: string): string {
+      // First 3 chars are <p> tag.
       return content.split('</p>')[0].substring(3);
     },
   },
