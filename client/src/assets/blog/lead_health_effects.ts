@@ -2,8 +2,9 @@ import { BlogPost } from '@/assets/blog/blog_post';
 
 export const leadHealthEffects: BlogPost = {
   title: 'How Lead Exposure Affects Your Health',
-  image: 'next-steps.jpg',
-  content: `<div>While the harmful effects of lead weren’t always understood, 
+  image: 'health-effects.jpg',
+  route: '/lead-health-effects',
+  content: `<p>While the harmful effects of lead weren’t always understood, 
   health experts today agree that there is 
     <a 
       href='/history-lead'>no safe level</a> of lead in your blood. Fetuses, 
@@ -15,7 +16,7 @@ export const leadHealthEffects: BlogPost = {
     be 
     <a 
       href='https://www.epa.gov/ground-water-and-drinking-water/protect-your-tap-quick-check-lead-0'>
-      found</a> in paint, dust, soil, air, and food. </div>
+      found</a> in paint, dust, soil, air, and food. </p>
   <div>The greater the exposure level to lead, the more risk there is for 
     damage to the bones, teeth, blood, liver, kidneys and brain. Exposure risk 
     continues after first contact, as lead is stored in the bones where it can 

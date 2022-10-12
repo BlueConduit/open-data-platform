@@ -2,8 +2,8 @@ import { BlogPost } from '@/assets/blog/blog_post';
 
 export const aboutUsContent: BlogPost = {
   title: 'About us',
-  content:
-    `<p class='h1-header'>LeadOut is an interactive tool that empowers communities to understand 
+  route: '/about',
+  content: `<p class='h1-header'>LeadOut is an interactive tool that empowers communities to understand 
       their risk status for lead water pipes and to take action. The tool was designed in a 
       collaboration between <a href='https://blueconduit.com/'>BlueConduit</a>, a water analytics 
       company using machine learning to locate lead service lines and a 

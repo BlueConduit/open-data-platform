@@ -4,7 +4,10 @@
       <router-link class='navbar-item' to='/'>
         <img src='../assets/lo-logo.png' class='logo' />
       </router-link>
-      <a role='button' class='navbar-burger' aria-label='menu' aria-expanded='false'>
+      <a role='button'
+         class='navbar-burger'
+         aria-label='menu'
+         aria-expanded='false'>
         <span aria-hidden='true'></span>
         <span aria-hidden='true'></span>
         <span aria-hidden='true'></span>
@@ -12,18 +15,21 @@
     </div>
     <div class='navbar-menu'>
       <div class='navbar-end'>
-        <div v-for='route in routes' class='navbar-item nav-link' :key='route[0]'>
-          <router-link :to='route[1]'>{{ route[0] }} </router-link>
+        <div v-for='route in routes'
+             :key='route[0]'
+             class='navbar-item nav-link'>
+          <router-link :to='route[1]'>{{ route[0] }}</router-link>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import { defineComponent } from 'vue';
 import { Titles } from '../assets/messages/common';
 import * as router from '../router';
+import { aboutUsContent } from '../assets/messages/about_us_messages';
 
 export default defineComponent({
   name: 'ResponsiveNav',
@@ -32,7 +38,8 @@ export default defineComponent({
       [Titles.HOME_TITLE, router.HOME_ROUTE],
       [Titles.LEAD_STATUS_TITLE, router.SCORECARD_BASE],
       [Titles.MAP_TITLE, router.MAP_ROUTE_BASE],
-      [Titles.ABOUT_TITLE, router.ABOUT_ROUTE],
+      [Titles.RESOURCES_TITLE, router.BLOG_ROUTE],
+      [Titles.ABOUT_TITLE, aboutUsContent.route],
       // TODO: Re-add the resources link once we have a resources page in Wordpress.
       // [Titles.RESOURCES_TITLE, router.RESOURCES_ROUTE],
     ];
@@ -55,9 +62,10 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
+<style scoped lang='scss'>
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
-@import 'bulma/sass/form/_all.sass'; // Needed for some reason to import the below.
+@import 'bulma/sass/form/_all.sass';
+// Needed for some reason to import the below.
 @import 'bulma/sass/utilities/extends.sass';
 @import 'bulma/sass/components/navbar.sass';
 

@@ -2,7 +2,8 @@ import { BlogPost } from '@/assets/blog/blog_post';
 
 export const historyOfLead: BlogPost = {
   title: 'A Short History of Lead in Water Systems',
-  image: 'next-steps.jpg',
+  image: 'history-lead.jpg',
+  route: '/history-lead',
   content: `<p>You may have heard that lead exposure is dangerous, so how did 
     it end up in our water systems? </p>
   <p>Lead is a toxic metal that is harmful to human health, but it wasn’t always
