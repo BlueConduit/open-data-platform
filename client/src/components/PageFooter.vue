@@ -19,6 +19,7 @@
 import { defineComponent } from 'vue';
 import { Titles } from '../assets/messages/common';
 import * as router from '../router';
+import { aboutUsContent } from '../assets/messages/about_us_messages';
 
 /**
  * The navigational footer for the landing page.
@@ -29,7 +30,7 @@ export default defineComponent({
     const routes: [string, string][] = [
       [Titles.HOME_TITLE, router.HOME_ROUTE],
       [Titles.MAP_TITLE, router.MAP_ROUTE_BASE],
-      [Titles.ABOUT_TITLE, router.ABOUT_ROUTE],
+      [Titles.ABOUT_TITLE, aboutUsContent.route],
     ];
     return {
       routes,

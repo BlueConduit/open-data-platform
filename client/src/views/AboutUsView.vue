@@ -1,18 +1,15 @@
 <template>
-  <div class='about-us'>
-    <div class='text container-column'>
-      <div class='h1-header-xl'>{{ messages.ABOUT_US_HEADER }}</div>
-      <div class='h1-header container-column'>
-        <div>{{ messages.BLUE_CONDUIT_INTRO_TEXT }}</div>
-        <div>{{ messages.BLUE_CONDUIT_IMPACT_TEXT }}</div>
-      </div>
+  <div class='about-us columns'>
+    <div class='text container-column column is-two-thirds'>
+      <div class='h1-header-xl'>{{ aboutUsContent.title }}</div>
+      <div class='container-column' v-html='aboutUsContent.content'></div>
     </div>
   </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue';
-import { AboutUsMessages as messages } from '../assets/messages/about_us_messages';
+import { aboutUsContent } from '../assets/messages/about_us_messages';
 
 /**
  * About Us page component.
@@ -21,7 +18,7 @@ export default defineComponent({
   name: 'AboutUsView',
   data() {
     return {
-      messages,
+      aboutUsContent,
     };
   },
 });
@@ -32,7 +29,7 @@ export default defineComponent({
 @import '@blueconduit/copper/scss/01_settings/design-tokens';
 
 .about-us {
-  height: 100%;
+  min-height: 100%;
   background-color: $light-blue-800;
   background-image: url('~@/assets/media/about-us-image.png');
   background-size: cover;
@@ -40,10 +37,13 @@ export default defineComponent({
   color: $white;
 }
 
+.cta {
+  @include container-row;
+}
+
 .text {
   gap: $spacing-lg;
   padding: $spacing-xl;
-  max-width: 700px;
 }
 
 .h1-header {

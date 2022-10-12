@@ -11,6 +11,8 @@ import { nextSteps } from '@/assets/blog/next_steps';
 import { historyOfLead } from '@/assets/blog/history_of_lead';
 import { understandLead } from '@/assets/blog/understand_lead_status';
 import BlogHomePageView from '@/views/BlogHomePageView.vue';
+import { leadHealthEffects } from '@/assets/blog/lead_health_effects';
+import { aboutUsContent } from '@/assets/messages/about_us_messages';
 
 export const LAT_LONG_PARAM = 'latlong';
 export const LAYER_PARAM = 'layer';
@@ -21,7 +23,6 @@ const SCORECARD_BASE = `/scorecard`;
 const SCORECARD_ROUTE = `${SCORECARD_BASE}/:${GEOTYPE_PARAM}/:${LAT_LONG_PARAM}`;
 const MAP_ROUTE_BASE = `/map`;
 const MAP_ROUTE = `${MAP_ROUTE_BASE}/:${GEOTYPE_PARAM}/:${LAT_LONG_PARAM}?`;
-const ABOUT_ROUTE = '/about';
 const RESOURCES_ROUTE = '/resources';
 const SUBSCRIBED_ROUTE = '/subscribed';
 const BLOG_ROUTE = '/blog';
@@ -70,7 +71,7 @@ const routes = [
     },
   },
   {
-    path: ABOUT_ROUTE,
+    path: aboutUsContent.route,
     component: AboutUsView,
     meta: {
       title: `${Titles.APP_TITLE} - ${Titles.ABOUT_TITLE}`,
@@ -120,6 +121,18 @@ const routes = [
     },
   },
   {
+    path: leadHealthEffects.route,
+    component: BlogView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
+    },
+    props: {
+      title: leadHealthEffects.title,
+      content: leadHealthEffects.content,
+      image: leadHealthEffects.image,
+    },
+  },
+  {
     path: SUBSCRIBED_ROUTE,
     component: ThankYouView,
     meta: {
@@ -154,6 +167,5 @@ export {
   SCORECARD_ROUTE,
   MAP_ROUTE_BASE,
   MAP_ROUTE,
-  ABOUT_ROUTE,
   RESOURCES_ROUTE,
 };

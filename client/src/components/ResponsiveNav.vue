@@ -28,6 +28,7 @@
 import { defineComponent } from 'vue';
 import { Titles } from '../assets/messages/common';
 import * as router from '../router';
+import { aboutUsContent } from '../assets/messages/about_us_messages';
 
 export default defineComponent({
   name: 'ResponsiveNav',
@@ -37,7 +38,7 @@ export default defineComponent({
       [Titles.LEAD_STATUS_TITLE, router.SCORECARD_BASE],
       [Titles.MAP_TITLE, router.MAP_ROUTE_BASE],
       [Titles.RESOURCES_TITLE, router.BLOG_ROUTE],
-      [Titles.ABOUT_TITLE, router.ABOUT_ROUTE],
+      [Titles.ABOUT_TITLE, aboutUsContent.route],
       // TODO: Re-add the resources link once we have a resources page in Wordpress.
       // [Titles.RESOURCES_TITLE, router.RESOURCES_ROUTE],
     ];

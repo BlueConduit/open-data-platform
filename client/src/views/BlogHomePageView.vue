@@ -10,8 +10,11 @@
                :src='require(`@/assets/media/${post.image}`)' />
           <div class='preview'>
             <div class='h2-header-large'>{{ post.title }}</div>
-            <div> {{ getPreview(post.content) }} <a :href='post.route'>
-              {{ BlogPageMessages.READ_MORE }}</a></div>
+            <div>
+              <span v-html='getPreview(post.content)'></span>
+              <a :href='post.route'>
+                {{ BlogPageMessages.READ_MORE }}
+              </a></div>
           </div>
         </div>
       </div>
@@ -26,6 +29,7 @@ import { BlogPost } from '../assets/blog/blog_post';
 import { nextSteps } from '../assets/blog/next_steps';
 import { understandLead } from '../assets/blog/understand_lead_status';
 import { historyOfLead } from '../assets/blog/history_of_lead';
+import { leadHealthEffects } from '../assets/blog/lead_health_effects';
 
 /**
  * Very simple blog home page.
@@ -37,6 +41,7 @@ export default defineComponent({
       nextSteps,
       historyOfLead,
       understandLead,
+      leadHealthEffects,
     ];
     return {
       BlogPageMessages,
@@ -49,7 +54,7 @@ export default defineComponent({
      */
     getPreview(content: string): string {
       // First 3 chars are <p> tag.
-      return content.split('</p>')[0].substring(3);
+      return content.split('</p>')[0] + '</p>';
     },
   },
 });
