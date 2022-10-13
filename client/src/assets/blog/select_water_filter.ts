@@ -2,7 +2,7 @@ import { BlogPost } from '@/assets/blog/blog_post';
 
 export const selectWaterFilter: BlogPost = {
   title: 'How to Select a Water Filter',
-  image: 'next-steps.jpg',
+  image: 'water-filter.png',
   route: '/select-water-filter',
   content: `<p>While replacing your water pipes entirely is the best way to 
     protect yourself from known lead sources (contact your local water utility 
