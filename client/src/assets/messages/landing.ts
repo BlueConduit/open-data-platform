@@ -24,7 +24,8 @@ export class LandingPageMessages {
   static SUBSCRIBE_SUBHEADER =
     'Don’t see your city or want to know when new regions come online? ' +
     'Sign up for our email list to be notified when more locations are available.';
-  static THANK_YOU_MESSAGE = 'Thank you for submitting your contact information!';
+  static THANK_YOU_MESSAGE = 'Thank you for submitting your contact info. We ' +
+    'will notify you as soon as more information is available.';
   static VIEW_MORE_RESOURCES_BUTTON_TEXT = 'View More in Resources';
   static UNDERSTANDING_LSL_HEADER = '10 Million American Households';
   static UNDERSTANDING_LSL_SUBHEADER =
