@@ -3,7 +3,7 @@ import { BlogPost } from '@/assets/blog/blog_post';
 export const nextSteps: BlogPost = {
   title: 'You’re at risk for lead in your water. What now?',
   image: 'next-steps.jpg',
-  route: '/history-lead',
+  route: '/next-steps',
   content: `<p>Learning that your area is at medium or high risk for lead may sound
     concerning, however, there are a number of steps you can take immediately to
     protect yourself to feel secure in your home once again. </p>
