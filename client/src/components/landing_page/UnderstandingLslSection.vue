@@ -13,7 +13,7 @@
           <div class='h2-header-large'>
             {{ messages.UNDERSTANDING_LSL_SUBHEADER }}
           </div>
-          <router-link class='grey-button' :to='resourcesRoute'>
+          <router-link class='grey-button' :to='historyOfLeadRoute'>
             {{ messages.UNDERSTANDING_LSL_BUTTON_TEXT }}
           </router-link>
         </div>
@@ -25,14 +25,14 @@
 <script lang='ts'>
 import { defineComponent } from 'vue';
 import { LandingPageMessages } from '../../assets/messages/landing';
-import { RESOURCES_ROUTE } from '../../router';
+import { historyOfLead } from '../../assets/blog/history_of_lead';
 
 export default defineComponent({
   name: 'UnderstandingLslSection',
   data() {
     return {
       messages: LandingPageMessages,
-      resourcesRoute: RESOURCES_ROUTE,
+      historyOfLeadRoute: historyOfLead.route,
     };
   },
 });
