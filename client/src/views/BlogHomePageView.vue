@@ -23,13 +23,14 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, PropType } from 'vue';
+import { defineComponent } from 'vue';
 import { BlogPageMessages } from '../assets/messages/blog_messages';
 import { BlogPost } from '../assets/blog/blog_post';
 import { nextSteps } from '../assets/blog/next_steps';
 import { understandLead } from '../assets/blog/understand_lead_status';
 import { historyOfLead } from '../assets/blog/history_of_lead';
 import { leadHealthEffects } from '../assets/blog/lead_health_effects';
+import { selectWaterFilter } from '../assets/blog/select_water_filter';
 
 /**
  * Very simple blog home page.
@@ -42,6 +43,7 @@ export default defineComponent({
       historyOfLead,
       understandLead,
       leadHealthEffects,
+      selectWaterFilter,
     ];
     return {
       BlogPageMessages,

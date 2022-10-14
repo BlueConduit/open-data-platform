@@ -13,6 +13,7 @@ import { understandLead } from '@/assets/blog/understand_lead_status';
 import BlogHomePageView from '@/views/BlogHomePageView.vue';
 import { leadHealthEffects } from '@/assets/blog/lead_health_effects';
 import { aboutUsContent } from '@/assets/messages/about_us_messages';
+import { selectWaterFilter } from '@/assets/blog/select_water_filter';
 
 export const LAT_LONG_PARAM = 'latlong';
 export const LAYER_PARAM = 'layer';
@@ -130,6 +131,18 @@ const routes = [
       title: leadHealthEffects.title,
       content: leadHealthEffects.content,
       image: leadHealthEffects.image,
+    },
+  },
+  {
+    path: selectWaterFilter.route,
+    component: BlogView,
+    meta: {
+      title: `${Titles.APP_TITLE} - ${Titles.BLOG}`,
+    },
+    props: {
+      title: selectWaterFilter.title,
+      content: selectWaterFilter.content,
+      image: selectWaterFilter.image,
     },
   },
   {
