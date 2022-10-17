@@ -37,7 +37,7 @@
             :buttonText='ScorecardMessages.RESEARCH_WATER_FILTERS'
             image='protect-home.png'
             :imagePosition='ImagePosition.background'
-            @onButtonClick='navigateToResourcePage' />
+            @onButtonClick='navigateToWaterFiltersPage' />
           <ActionSection
             class='column is-full-mobile is-half-tablet is-one-quarter-desktop'
             :header='ScorecardMessages.SHARE_LEAD_OUT'
@@ -59,7 +59,7 @@
           <ActionSection
             :subheader='ScorecardMessages.WHAT_TO_SUBHEADER'
             :buttonText='Titles.BLOG'
-            @onButtonClick='navigateToNextSteps' />
+            @onButtonClick='navigateToBlog' />
         </div>
         <img class='is-hidden-mobile'
              :src='require(`@/assets/media/what-now.png`)'
@@ -176,9 +176,9 @@ export default defineComponent({
       // Requires lat,long to be in the URL.
       await navigator.clipboard.writeText(window.location.href);
     },
-    navigateToResourcePage() {
+    navigateToWaterFiltersPage() {
       router.push({
-        path: '/resources',
+        path: '/select-water-filter',
       });
     },
     navigateToMapPage() {
@@ -186,9 +186,9 @@ export default defineComponent({
         path: '/map',
       });
     },
-    navigateToNextSteps() {
+    navigateToBlog() {
       router.push({
-        path: '/next-steps',
+        path: '/blog',
       });
     },
     updateViewWithGeoIds() {
