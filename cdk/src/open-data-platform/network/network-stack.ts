@@ -4,7 +4,7 @@ import { Stack } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import { Construct } from 'constructs';
-import { CommonProps, projectName, EnvType } from '../../util';
+import { CommonProps, EnvType } from '../../util';
 import { Dns } from './dns';
 
 export class NetworkStack extends Stack {
@@ -18,6 +18,7 @@ export class NetworkStack extends Stack {
     this.vpc = new ec2.Vpc(this, 'VPC', {
       cidr: '10.0.0.0/16',
       maxAzs: 2,
+      natGateways: props.envType !== EnvType.Production ? 1 : undefined,
       subnetConfiguration: [
         {
           cidrMask: 24,
