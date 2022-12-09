@@ -128,13 +128,14 @@ export class PipelineStack extends Stack {
         envType: util.EnvType.Production,
       }),
       {
-        // Bake the release in dev before deploying to prod, to catch any problems early.
         pre: [
-          new pipelines.ShellStep('BakeStep', {
-            commands: [
-              `sleep ${60 * 60 - 20}`, // 1 hour. Minus buffer to prevent hitting the 1 hour timeout.
-            ],
-          }),
+          // Bake the release in dev before deploying to prod, to catch any problems early.
+          // new pipelines.ShellStep('BakeStep', {
+          //   commands: [
+          //     `sleep ${60 * 60 - 20}`, // 1 hour. Minus buffer to prevent hitting the 1 hour timeout.
+          //   ],
+          // }),
+          new pipelines.ManualApprovalStep('PromoteToProd'),
         ],
       },
     );

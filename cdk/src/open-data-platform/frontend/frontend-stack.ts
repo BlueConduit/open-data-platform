@@ -50,7 +50,7 @@ export class FrontendStack extends Stack {
       certificate: networkStack.dns.cloudfrontCertificate,
       defaultBehavior: {
         origin: new origins.S3Origin(this.frontendAssetsBucket),
-        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.ALLOW_ALL,
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
         functionAssociations: [
           {
