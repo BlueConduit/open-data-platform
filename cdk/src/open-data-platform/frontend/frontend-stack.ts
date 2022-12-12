@@ -38,23 +38,10 @@ export class FrontendStack extends Stack {
     // Create s3 bucket to host static assets.
     this.frontendAssetsBucket = new s3.Bucket(this, 'FrontendAssets');
 
-    // TODO: will need before launching LeadOut
-    // const redirect4xxFunction = new cloudfront.Function(this, 'Redirect4xxFunction', {
-    //   functionName: `${id}-redirect4xx`,
-    //   code: cloudfront.FunctionCode.fromInline(redirect4xx.toString()),
-    //   comment: `Repalces URL to point to the home route.`,
-    // });
-
-    const redirectToBlueConduitWebsite = new cloudfront.Function(this, 'RedirectToBlueConduit', {
-      code: cloudfront.FunctionCode.fromInline(`
-        function handler(event) {
-          return {
-            statusCode: 302,
-            statusDescription: 'Found',
-            headers: { location: { value: 'https://blueconduit.com/lsl-solutions/nationwide-map/' } }
-          }
-        }
-      `),
+    const redirect4xxFunction = new cloudfront.Function(this, 'Redirect4xxFunction', {
+      functionName: `${id}-redirect4xx`,
+      code: cloudfront.FunctionCode.fromInline(redirect4xx.toString()),
+      comment: `Repalces URL to point to the home route.`,
     });
 
     // Create CloudFront Distribution that points to frontendAssetsBucket.
@@ -66,9 +53,8 @@ export class FrontendStack extends Stack {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
         functionAssociations: [
-          // Temporarily redirect leadout.blueconduit.com to blueconduit.com/lsl-solutions/nationwide-map/
           {
-            function: redirectToBlueConduitWebsite,
+            function: redirect4xxFunction,
             eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
           },
         ],
