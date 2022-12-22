@@ -32,18 +32,17 @@ export class FrontendStack extends Stack {
   constructor(scope: Construct, id: string, props: FrontendProps) {
     super(scope, id, props);
 
-    const { appPlaneStack, networkStack } = props;
-    const { hostedZone } = networkStack.dns;
+    const { envType, appPlaneStack, networkStack } = props;
+    const { hostedZone, tempInternalHostedZone } = networkStack.dns;
 
     // Create s3 bucket to host static assets.
     this.frontendAssetsBucket = new s3.Bucket(this, 'FrontendAssets');
 
-    // TODO: will need before launching LeadOut
-    // const redirect4xxFunction = new cloudfront.Function(this, 'Redirect4xxFunction', {
-    //   functionName: `${id}-redirect4xx`,
-    //   code: cloudfront.FunctionCode.fromInline(redirect4xx.toString()),
-    //   comment: `Repalces URL to point to the home route.`,
-    // });
+    const redirect4xxFunction = new cloudfront.Function(this, 'Redirect4xxFunction', {
+      functionName: `${id}-redirect4xx`,
+      code: cloudfront.FunctionCode.fromInline(redirect4xx.toString()),
+      comment: `Repalces URL to point to the home route.`,
+    });
 
     const redirectToBlueConduitWebsite = new cloudfront.Function(this, 'RedirectToBlueConduit', {
       code: cloudfront.FunctionCode.fromInline(`
@@ -67,6 +66,7 @@ export class FrontendStack extends Stack {
         responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
         functionAssociations: [
           // Temporarily redirect leadout.blueconduit.com to blueconduit.com/lsl-solutions/nationwide-map/
+          // TODO: would need to replace with redirect4xxFunction before launching LeadOut
           {
             function: redirectToBlueConduitWebsite,
             eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
@@ -147,6 +147,54 @@ export class FrontendStack extends Stack {
           new route53targets.CloudFrontTarget(this.distribution),
         ),
       });
+    }
+
+    // Temporarily duplicate CF distro for internal endpoint
+    if (envType === EnvType.Production) {
+
+      const tempInternalAssetsBucket = new s3.Bucket(this, 'TempInternalAssets');
+
+      const tempInternalDist = new cloudfront.Distribution(this, 'TempInternalDist', {
+        domainNames: tempInternalHostedZone ? [tempInternalHostedZone.zoneName] : undefined,
+        certificate: networkStack.dns.tempInternalCert,
+        defaultBehavior: {
+          origin: new origins.S3Origin(tempInternalAssetsBucket),
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+          functionAssociations: [{
+            function: redirect4xxFunction,
+            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+          }],
+        },
+        defaultRootObject: 'index.html',
+        priceClass: cloudfront.PriceClass.PRICE_CLASS_100
+      })
+
+      new s3deploy.BucketDeployment(this, 'TempInternalAssetsDeployment', {
+        sources: [s3deploy.Source.asset('../client/dist')],
+        destinationBucket: tempInternalAssetsBucket,
+        distribution: tempInternalDist,
+        distributionPaths: ['/*'],
+      })
+
+      tempInternalDist.addBehavior(`${prefixes.tileServer}/*`, tileServerOrigin, {
+        ...policy,
+        functionAssociations: [{
+          function: prefixTrimFunction,
+          eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+        }]
+      })
+
+      tempInternalDist.addBehavior(`${apiPath}/*`, new origins.HttpOrigin(apiHostname), policy)
+
+      if (tempInternalHostedZone) {
+        new route53.ARecord(this, 'TempInternalDnsRecord', {
+          zone: tempInternalHostedZone,
+          target: route53.RecordTarget.fromAlias(
+            new route53targets.CloudFrontTarget(tempInternalDist)
+          )
+        })
+      }
     }
   }
 }

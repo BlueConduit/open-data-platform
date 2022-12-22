@@ -3,7 +3,7 @@
 
 import { Construct } from 'constructs';
 import { Stack } from 'aws-cdk-lib';
-import { CommonProps, domain, parentDomain } from '../../util';
+import { CommonProps, domain, EnvType, parentDomain } from '../../util';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as certificatemanager from 'aws-cdk-lib/aws-certificatemanager';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -11,6 +11,10 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 export class Dns extends Construct {
   readonly hostedZone: route53.PublicHostedZone;
   readonly cloudfrontCertificate: certificatemanager.Certificate;
+
+  // Temp internal subdomain dns inf
+  readonly tempInternalHostedZone: route53.PublicHostedZone;
+  readonly tempInternalCert: certificatemanager.Certificate;
 
   constructor(scope: Construct, id: string, props: CommonProps) {
     super(scope, id);
@@ -48,5 +52,28 @@ export class Dns extends Construct {
         region: 'us-east-1',
       },
     );
+
+    // Temporarily do everything again for the leadout-internal.blueconduit.com domain
+    if (envType === EnvType.Production) {
+      this.tempInternalHostedZone = new route53.PublicHostedZone(this, 'TempInternalSubdomain', {
+        zoneName: 'leadout-internal.blueconduit.com'
+      })
+
+      new route53.CrossAccountZoneDelegationRecord(this, 'TempInternalDelegationRecord', {
+        delegatedZone: this.tempInternalHostedZone,
+        parentHostedZoneName: parentDomain,
+        delegationRole
+      })
+
+      this.tempInternalCert = new certificatemanager.DnsValidatedCertificate(
+        this,
+        'TempInternalCloudFrontCert',
+        {
+          domainName: this.tempInternalHostedZone.zoneName,
+          hostedZone: this.tempInternalHostedZone,
+          region: 'us-east-1',
+        }
+      )
+    }
   }
 }
