@@ -1,0 +1,1 @@
+Dir for the new Vue frontend
