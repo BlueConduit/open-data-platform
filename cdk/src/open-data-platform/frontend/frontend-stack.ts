@@ -28,6 +28,8 @@ interface FrontendProps extends CommonProps {
 export class FrontendStack extends Stack {
   readonly distribution: cloudfront.Distribution;
   readonly frontendAssetsBucket: s3.Bucket;
+  readonly newClientAssetsBucket: s3.Bucket;
+  readonly newClientDistribution: cloudfront.Distribution;
 
   constructor(scope: Construct, id: string, props: FrontendProps) {
     super(scope, id, props);
@@ -37,6 +39,9 @@ export class FrontendStack extends Stack {
 
     // Create s3 bucket to host static assets.
     this.frontendAssetsBucket = new s3.Bucket(this, 'FrontendAssets');
+
+    // Create s3 bucket to host new client static assets.
+    this.newClientAssetsBucket = new s3.Bucket(this, 'NewClientAssets');
 
     const redirect4xxFunction = new cloudfront.Function(this, 'Redirect4xxFunction', {
       functionName: `${id}-redirect4xx`,
@@ -78,11 +83,33 @@ export class FrontendStack extends Stack {
       enableLogging: true,
     });
 
+    // Create CloudFront Distribution that points to newClientAssetsBucket
+    this.newClientDistribution = new cloudfront.Distribution(this, 'NewClientDistribution', {
+      domainNames: hostedZone ? [hostedZone.zoneName] : undefined,
+      certificate: networkStack.dns.newClientCert, // TODO does this need to be different?
+      defaultBehavior: {
+        origin: new origins.S3Origin(this.newClientAssetsBucket),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+      },
+      defaultRootObject: 'index.html',
+      priceClass: cloudfront.PriceClass.PRICE_CLASS_100, // Only deploy to NA and EU access points
+      enableLogging: true,
+    });
+
     // Deploy frontend assets at client/dist to frontendAssetsBucket.
     new s3deploy.BucketDeployment(this, 'StaticAssetsDeployment', {
       sources: [s3deploy.Source.asset('../client/dist')],
       destinationBucket: this.frontendAssetsBucket,
       distribution: this.distribution,
+      distributionPaths: ['/*'],
+    });
+
+    // Deploy new client assets at client-new/dist to newClientAssetsBucket
+    new s3deploy.BucketDeployment(this, 'NewClientAssetsDeployment', {
+      sources: [s3deploy.Source.asset('../client-new/dist')],
+      destinationBucket: this.newClientAssetsBucket,
+      distribution: this.newClientDistribution,
       distributionPaths: ['/*'],
     });
 
