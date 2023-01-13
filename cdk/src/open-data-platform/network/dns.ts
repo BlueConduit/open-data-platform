@@ -16,6 +16,10 @@ export class Dns extends Construct {
   readonly tempInternalHostedZone: route53.PublicHostedZone;
   readonly tempInternalCert: certificatemanager.Certificate;
 
+  // New client subdomain dns inf
+  readonly newClientHostedZone: route53.PublicHostedZone;
+  readonly newClientCert: certificatemanager.Certificate;
+
   constructor(scope: Construct, id: string, props: CommonProps) {
     super(scope, id);
 
@@ -75,5 +79,25 @@ export class Dns extends Construct {
         }
       )
     }
+
+    this.newClientHostedZone = new route53.PublicHostedZone(this, 'NewClientSubdomain', {
+      zoneName: envType === EnvType.Production ? 'leadout-v1.blueconduit.com' : 'leadout-v1-dev.blueconduit.com',
+    })
+
+    new route53.CrossAccountZoneDelegationRecord(this, 'NewClientDelegationRecord', {
+      delegatedZone: this.newClientHostedZone,
+      parentHostedZoneName: parentDomain,
+      delegationRole,
+    });
+
+    this.newClientCert = new certificatemanager.DnsValidatedCertificate(
+      this,
+      'NewClientCloudFrontCert',
+      {
+        domainName: this.newClientHostedZone.zoneName,
+        hostedZone: this.newClientHostedZone,
+        region: 'us-east-1',
+      }
+    )
   }
 }
