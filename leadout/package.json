@@ -7,16 +7,20 @@
     "dev": "sst dev",
     "build": "sst build",
     "deploy": "sst deploy",
+    "diff": "sst diff",
     "remove": "sst remove",
     "console": "sst console",
-    "typecheck": "tsc --noEmit"
+    "console-stg": "sst console --profile staging --stage staging",
+    "console-prod": "sst console --profile prod --stage prod",
+    "typecheck": "tsc --noEmit && npm run typecheck -ws",
+    "test": "npm test -ws"
   },
   "devDependencies": {
-    "sst": "^2.0.17",
+    "@tsconfig/node18": "^1.0.1",
     "aws-cdk-lib": "2.62.2",
     "constructs": "10.1.156",
-    "typescript": "^4.9.5",
-    "@tsconfig/node16": "^1.0.3"
+    "sst": "^2.0.17",
+    "typescript": "^4.9.5"
   },
   "workspaces": [
     "packages/*"
