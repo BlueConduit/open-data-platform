@@ -1,5 +1,10 @@
 # LeadOut
 
+[![Seed Status](https://api.seed.run/blueconduit/leadout/stages/staging/build_badge)](https://console.seed.run/blueconduit/leadout)
+[![Seed Status](https://api.seed.run/blueconduit/leadout/stages/prod/build_badge)](https://console.seed.run/blueconduit/leadout)
+
+---
+
 12 Million US households, mostly in low socioeconomic status neighborhoods, live in homes with
 contaminated drinking water supplied from lead pipes and are unable to get the lead out, mainly due
 to lack of awareness and easy access to information on lead pipes and the remediation plan.
