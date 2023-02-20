@@ -1,9 +1,16 @@
-<script setup lang="ts">
-import MapSection from '../components/MapSection.vue'
+<script	lang="ts">
+import MapSection from '../components/MapSection.vue';
+
+export default {
+	name: 'HomeView',
+	components: {
+		MapSection,
+	},
+};
 </script>
 
 <template>
-	<main>
+	<div>
 		<MapSection />
-	</main>
+	</div>
 </template>
