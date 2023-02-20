@@ -11,6 +11,11 @@
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false"
   },
   "dependencies": {
+    "@esri/arcgis-rest-feature-service": "^4.0.4",
+    "@esri/arcgis-rest-geocoding": "^4.0.2",
+    "@esri/arcgis-rest-request": "^4.0.2",
+    "maplibre-gl": "^2.4.0",
+    "sanitize.css": "^13.0.0",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },
