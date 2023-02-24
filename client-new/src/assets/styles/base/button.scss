@@ -1,0 +1,13 @@
+.button {
+	&.is-primary {
+		background-color: $primary;
+		border-color: $primary;
+		color: $link-hover;
+
+		&:hover {
+			background-color: #f7d694;
+			border-color: $primary;
+			color: $link-hover;
+		}
+	}
+}
