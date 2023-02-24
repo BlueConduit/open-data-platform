@@ -233,11 +233,13 @@ export default defineComponent({
 						title: e.features![ 0 ].properties.state_name ?? '',
 						reportedLsl: e.features![ 0 ].properties.reported_lsl ?? '',
 						serviceConnections: e.features![ 0 ].properties.service_connections_count ?? '',
+						estLslRate: e.features![ 0 ].properties.est_lsl_rate ?? '',
 						lslLow: e.features![ 0 ].properties.est_lsl_rate_low ?? '',
 						lslHigh: e.features![ 0 ].properties.est_lsl_rate_high ?? '',
 						iijaFunding: e.features![ 0 ].properties.iija_funding ?? '',
 						iijaPerLsl: e.features![ 0 ].properties.iija_per_lsl ?? '',
 						stateReplacementProgram: e.features![ 0 ].properties.state_replacement_program ?? '',
+						inventoryUrl: e.features![ 0 ].properties.inventory_url ?? '',
 						dataType: 'State',
 					}
 				];
@@ -303,6 +305,7 @@ export default defineComponent({
 						lslLow: e.features![ 0 ].properties.est_lsl_rate_low ?? '',
 						lslHigh: e.features![ 0 ].properties.est_lsl_rate_high ?? '',
 						eji: e.features![ 0 ].properties.eji ?? '',
+						state_code: e.features![ 0 ].properties.state_code ?? '',
 						dataType: 'PWS',
 					}
 				];
