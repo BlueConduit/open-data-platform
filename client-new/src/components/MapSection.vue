@@ -1,16 +1,22 @@
 <template>
 	<div class="map-wrapper">
 		<div id="map" class="map-container" ref="map"></div>
-		<MapPanel :panelData="panelData" />
+		<HelpModal />
+		<MapLegend />
+		<InfoCard v-show="infoCardActive" />
+		<MapPanel v-show="panelActive" :panelData="panelData" @close="closeMapPanel" />
 	</div>
 </template>
 
 <script	lang="ts">
 import MapPanel from './MapPanel.vue';
+import HelpModal from './HelpModal.vue';
+import MapLegend from './MapLegend.vue';
 import maplibregl, { GeoJSONSource, MapMouseEvent, type LngLatLike } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { queryFeatures } from '@esri/arcgis-rest-feature-service';
 import { defineComponent, ref } from 'vue';
+import InfoCard from './InfoCard.vue';
 
 const apiKey = "AAPK11d5429da31346419f8c1f632a62e3b6FS92k0O7YmRmdBscOOcYMe1f5Ea8kkxzLbxO9aZWtDCL6FtHAtHKeBup3Bj0aCS_";
 const basemapEnum = "OSM:Standard";
@@ -22,13 +28,18 @@ let map: maplibregl.Map;
 export default defineComponent({
 	name: 'MapSection',
 	components: {
-		MapPanel
+		MapPanel,
+		HelpModal,
+		MapLegend,
+		InfoCard
 	},
 
 	data: () => {
 		return {
 			map: maplibregl.Map,
 			panelData: {},
+			infoCardActive: true,
+			panelActive: false,
 		}
 	},
 
@@ -37,8 +48,10 @@ export default defineComponent({
 	},
 
 	methods: {
-		showPanel(): boolean {
-			return false;
+
+		closeMapPanel(): void {
+			this.infoCardActive = true;
+			this.panelActive = false;
 		},
 
 		pwsQuery(state_code: string): void {
@@ -243,6 +256,9 @@ export default defineComponent({
 						dataType: 'State',
 					}
 				];
+
+				this.infoCardActive = false;
+				this.panelActive = true;
 			});
 
 			let hoveredId: string | number | undefined = '';
@@ -309,6 +325,9 @@ export default defineComponent({
 						dataType: 'PWS',
 					}
 				];
+				this.infoCardActive = false;
+				this.panelActive = true;
+
 			});
 
 		},
@@ -319,6 +338,7 @@ export default defineComponent({
 				style: mapStyle,
 				center: [ -98.5556199, 39.8097343 ],
 				zoom: 4,
+				dragRotate: false,
 			});
 
 			map?.on('load', this.configureMap);
