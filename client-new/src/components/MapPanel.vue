@@ -1,7 +1,17 @@
 <template>
-	<section class="info__panel" :class="{ active: isToggled }" v-if="panelData[ 0 ]!">
+	<section class="info__panel" :class="{ 'is-active': isToggled }" v-if="panelData[ 0 ]!">
 		<div class="inner box" v-show="isToggled">
-			<!-- TODO: add search input with close button -->
+			<div class="search__form">
+				<GeocodeControl />
+				<div class="toggle toggle--top">
+					<button class="button" @click="close">
+						<span class="icon">
+							<img src="@/assets/icons/xmark.svg">
+						</span>
+					</button>
+				</div>
+			</div>
+
 			<h1>{{ panelTitle }}</h1>
 
 			<ul class="info__lines">
@@ -80,8 +90,8 @@
 			</div>
 
 		</div>
-		<div class="toggle">
-			<button class="button" @click="togglePanel" :class="{ active: isToggled }">
+		<div class="toggle toggle--side">
+			<button class="button" @click="togglePanel" :class="{ 'is-active': isToggled }">
 				<span class="icon">
 					<img src="@/assets/icons/chevron-left.svg">
 				</span>
@@ -91,8 +101,10 @@
 </template>
 
 <script lang="ts">
+import GeocodeControl from './GeocodeControl.vue';
+
 export default {
-	name: 'MapPanel',
+	name: "MapPanel",
 	data() {
 		return {
 			isToggled: true,
@@ -109,9 +121,10 @@ export default {
 			return this.panelData[ 0 ]?.dataType;
 		},
 		panelTitle() {
-			if (this.dataType == 'PWS') {
+			if (this.dataType == "PWS") {
 				return `${this.formattedPwsTitle}, ${this.panelData[ 0 ]?.state_code}`;
-			} else {
+			}
+			else {
 				return this.panelData[ 0 ]?.title;
 			}
 		},
@@ -123,61 +136,65 @@ export default {
 		predictedLsl() {
 			const lsl = this.panelData[ 0 ]?.estLslRate * this.panelData[ 0 ]?.serviceConnections;
 			if (lsl) {
-				return new Intl.NumberFormat('en-US', {
-					style: 'decimal',
+				return new Intl.NumberFormat("en-US", {
+					style: "decimal",
 					maximumFractionDigits: 0,
 				}).format(lsl);
-			} else {
-				return 'We could not make a prediction for this location.';
+			}
+			else {
+				return "We could not make a prediction for this location.";
 			}
 		},
 		reportedLsl() {
 			if (this.panelData[ 0 ]?.reportedLsl) {
 				return this.panelData[ 0 ]?.reportedLsl.toLocaleString();
-			} else {
-				return 'No data available';
+			}
+			else {
+				return "No data available";
 			}
 		},
-
 		percentLsl() {
 			return `${(this.panelData[ 0 ]?.lslLow * 100).toFixed(1)} -
-						${(this.panelData[ 0 ]?.lslHigh * 100).toFixed(1)}`
+						${(this.panelData[ 0 ]?.lslHigh * 100).toFixed(1)}`;
 		},
 		inventoryUrl() {
 			if (this.panelData[ 0 ]?.inventoryUrl.length > 2) {
 				return `<a href="${this.panelData[ 0 ]?.inventoryUrl}" target="_blank">Public Facing Inventory</a>`;
-			} else {
+			}
+			else {
 				return false;
 			}
 		},
 		stateProgramUrl() {
 			if (this.panelData[ 0 ]?.stateReplacementProgram.length > 2) {
 				return `<a href="${this.panelData[ 0 ]?.stateReplacementProgram}" target="_blank">State Replacement Program</a>`;
-			} else {
+			}
+			else {
 				return false;
 			}
 		}
-
-
 	},
 	methods: {
 		togglePanel() {
 			this.isToggled = !this.isToggled;
 		},
+		close() {
+			this.$emit("close");
+		},
 		currencyFormat(amount: number): any {
-			const formatter = new Intl.NumberFormat('en-US', {
-				style: 'currency',
-				currency: 'USD',
+			const formatter = new Intl.NumberFormat("en-US", {
+				style: "currency",
+				currency: "USD",
 				maximumFractionDigits: 0,
 			});
 			return formatter.format(amount);
 		},
-
 	},
+	components: { GeocodeControl }
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .flex {
 	display: flex;
 	align-items: center;
@@ -197,13 +214,12 @@ export default {
 		position: relative;
 		width: 30%;
 		height: 100vh;
-		overflow: scroll;
-		transform: translate(-96%, 0);
 		transition: transform 0.3s ease-in-out;
 		z-index: 1;
 
-		&.active {
-			transform: translateX(0);
+		.inner {
+			height: 100vh;
+			overflow-y: scroll;
 		}
 	}
 }
@@ -228,19 +244,62 @@ a:not(.button) {
 }
 
 .toggle {
-	position: absolute;
-	top: calc(50vh - 1rem);
-	right: -1rem;
-	z-index: 2;
 
-	.button {
-		width: 2rem;
-		height: 2rem;
-		transition: transform 0.3s ease-in-out;
+	&--side {
+		position: absolute;
+		top: calc(50vh - 1rem);
+		right: -1rem;
+		left: 0;
+		z-index: 2;
 
-		&:not(.active) {
-			transform: rotate(180deg);
+		.is-active & {
+			left: 100%;
 		}
+
+		.button {
+			width: 2rem;
+			height: 2rem;
+
+			.icon {
+				width: 1rem;
+				height: 1rem;
+				transition: transform 0.3s ease-in-out;
+
+			}
+
+			&.is-active {
+				border-color: #d3d3d3;
+			}
+
+			&:not(.is-active) {
+				.icon {
+					transform: rotate(180deg);
+				}
+			}
+		}
+	}
+}
+
+.toggle--top {
+	.button {
+		.icon {
+			width: .75rem;
+			height: .75rem;
+		}
+	}
+}
+
+.search__form {
+	display: flex;
+
+	.input,
+	.button {
+		border-color: transparent;
+	}
+
+	.search {
+		flex: 1;
+		margin: 0;
 	}
 }
 </style>
