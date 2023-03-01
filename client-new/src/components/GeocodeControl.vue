@@ -5,7 +5,7 @@
 				<input id="geocode-input" class="input" type="text" placeholder="Search a location" v-model="searchQuery" />
 			</div>
 			<div class="control">
-				<button id="geocode-button" class="button">
+				<button id="geocode-button" @click="search" class="button">
 					<span class="icon">
 						<img src="@/assets/icons/magnifying-glass.svg">
 					</span>
@@ -30,15 +30,30 @@ export default {
 	methods: {
 		search() {
 			geocode({
-				// outfields: this.searchQuery,
+				singleLine: this.searchQuery,
 				authentication,
 				params: {
 					outFields: [ '*' ],
-					f: 'geojson'
+					sourceCountry: 'USA',
+					f: 'json'
 				}
 			})
-				.then((response) => {
-					console.log(response);
+				.then((response: any) => {
+					const result = response.candidates[ 0 ];
+					const lngLat = [ result.location.x, result.location.y ];
+					const type = result.attributes.Type;
+					const stateAbbr = result.attributes.RegionAbbr;
+					const boundingBox = [
+						[ result.extent.xmin, result.extent.ymin ],
+						[ result.extent.xmax, result.extent.ymax ]
+					];
+
+					this.$parent!.$emit('queryResults', {
+						boundingBox: boundingBox,
+						lngLat: lngLat,
+						locationType: type,
+						stateAbbr: stateAbbr
+					});
 				})
 				.catch((error) => {
 					console.log(error);

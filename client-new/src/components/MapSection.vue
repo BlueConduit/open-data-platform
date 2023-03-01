@@ -3,8 +3,8 @@
 		<div id="map" class="map-container" ref="map"></div>
 		<HelpModal />
 		<MapLegend />
-		<InfoCard v-show="infoCardActive" />
-		<MapPanel v-show="panelActive" :panelData="panelData" @close="closeMapPanel" />
+		<InfoCard v-show="infoCardActive" @queryResults="searchQuery" />
+		<MapPanel v-show="panelActive" :panelData="panelData" @close="closeMapPanel" @queryResults="searchQuery" />
 	</div>
 </template>
 
@@ -12,7 +12,7 @@
 import MapPanel from './MapPanel.vue';
 import HelpModal from './HelpModal.vue';
 import MapLegend from './MapLegend.vue';
-import maplibregl, { GeoJSONSource, MapMouseEvent, type LngLatLike } from 'maplibre-gl';
+import maplibregl, { GeoJSONSource, LngLatBounds, MapMouseEvent, type LngLatLike } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { queryFeatures } from '@esri/arcgis-rest-feature-service';
 import { defineComponent, ref } from 'vue';
@@ -50,18 +50,60 @@ export default defineComponent({
 	methods: {
 
 		closeMapPanel(): void {
-			this.infoCardActive = true;
 			this.panelActive = false;
+			this.infoCardActive = true;
+		},
+
+		toggleMapPanel(): void {
+
+		},
+
+		searchQuery(data: any): void {
+			// const lngLat = data.lngLat;
+			const stateCode = data.stateAbbr;
+			// const locationType = data.locationType;
+			const bounds = data.boundingBox;
+
+			queryFeatures({
+				url: STATE_LAYER_PATH,
+				where: `state_code = '${stateCode}'`,
+				outFields: [ '*' ],
+				f: 'geojson',
+			})
+				.then((response: any) => {
+					const stateData = response.features[ 0 ].properties;
+					this.panelData = [
+						{
+							title: stateData.state_name ?? '',
+							reportedLsl: stateData.reported_lsl ?? '',
+							serviceConnections: stateData.service_connections_count ?? '',
+							estLslRate: stateData.est_lsl_rate ?? '',
+							lslLow: stateData.est_lsl_rate_low ?? '',
+							lslHigh: stateData.est_lsl_rate_high ?? '',
+							iijaFunding: stateData.iija_funding ?? '',
+							iijaPerLsl: stateData.iija_per_lsl ?? '',
+							stateReplacementProgram: stateData.state_replacement_program ?? '',
+							inventoryUrl: stateData.inventory_url ?? '',
+							dataType: 'State',
+						}
+					];
+
+					this.infoCardActive = false;
+					this.panelActive = true;
+				});
+
+			map?.fitBounds(bounds, {
+				padding: 25,
+				linear: true,
+				maxZoom: 8,
+			});
+
+			this.pwsQuery(stateCode);
+			map?.setFilter('state-fills', [ '!=', 'state_code', stateCode ]);
+
 		},
 
 		pwsQuery(state_code: string): void {
-			// fetch(PWS_LAYER_PATH + 'query?where=1%3D1&outFields=*&f=pgeojson')
-			// 	.then((response) => response.json())
-			// 	.then((data) => {
-			// 		map?.getSource('pws')?.setData(data);
-			// 	});
-
-			// let whereClause = `state_code='${state}'`;
 
 			queryFeatures({
 				url: PWS_LAYER_PATH,
@@ -75,6 +117,19 @@ export default defineComponent({
 		},
 
 		addQueryLayer(): void {
+			// TODO: move this to a separate function - used twice
+			let layers = map?.getStyle()?.layers;
+			let labelLayerId;
+
+			if (layers) {
+				for (let i = 0; i < layers.length; i++) {
+					if (layers[ i ].type === 'symbol') {
+						labelLayerId = layers[ i ].id;
+						break;
+					}
+				}
+			}
+
 			map?.addSource('pws', {
 				type: 'geojson',
 				data: {
@@ -83,39 +138,65 @@ export default defineComponent({
 				},
 			});
 
-			map?.addLayer({
-				id: 'pws-fill',
-				type: 'fill',
-				source: 'pws',
-				paint: {
-					'fill-color': [
-						'interpolate',
-						[ 'linear' ],
-						[ 'get', 'PRE1960PCT' ],
-						0, '#fdecae',
-						0.01, '#f9d071',
-						0.02, '#f6ad36',
-						0.03, '#e58724',
-						0.05, '#c0531e',
-					],
-					'fill-opacity': 0.5,
+			// TODO: add layer hover effect
+			map?.addLayer(
+				{
+					id: 'pws-fill',
+					type: 'fill',
+					source: 'pws',
+					paint: {
+						'fill-color': [
+							'interpolate',
+							[ 'linear' ],
+							[ 'get', 'PRE1960PCT' ],
+							0, '#ffedb3',
+							0.02, '#ffd74f',
+							0.04, '#ffa200',
+							0.06, '#ff6e4a',
+							0.08, '#d9401f',
+							0.1, '#bf3417',
+						],
+						'fill-opacity': 0.75,
+						// 'fill-opacity': [
+						// 	'case',
+						// 	[ 'boolean', [ 'feature-state', 'hover' ], false ],
+						// 	1, 0.5
+						// ],
+					},
+					// minzoom: 5,
 				},
-				// minzoom: 5,
-			});
+				labelLayerId
+			);
 
-			map?.addLayer({
-				id: 'pws-line',
-				type: 'line',
-				source: 'pws',
-				paint: {
-					'line-color': '#000',
-					'line-width': 1,
+			// TODO: add layer hover effect
+			map?.addLayer(
+				{
+					id: 'pws-line',
+					type: 'line',
+					source: 'pws',
+					paint: {
+						'line-color': '#000',
+						'line-width': 1,
+					},
+					// minzoom: 5,
 				},
-				// minzoom: 5,
-			});
+				labelLayerId
+			);
 		},
 
 		configureMap(): void {
+
+			let layers = map?.getStyle()?.layers;
+			let labelLayerId;
+
+			if (layers) {
+				for (let i = 0; i < layers.length; i++) {
+					if (layers[ i ].type === 'symbol') {
+						labelLayerId = layers[ i ].id;
+						break;
+					}
+				}
+			}
 
 			this.addQueryLayer();
 
@@ -128,47 +209,53 @@ export default defineComponent({
 				data: STATE_LAYER_PATH + 'query?where=1%3D1&outFields=*&f=pgeojson',
 			});
 
-			map?.addLayer({
-				id: 'state-fills',
-				type: 'fill',
-				source: 'states',
-				layout: {},
-				paint: {
-					'fill-color': [
-						'let',
-						'ratio',
-						[ '/', [ 'get', 'reported_lsl' ], [ 'get', 'service_connections_count' ] ],
-						[
-							'interpolate',
-							[ 'linear' ],
-							[ 'var', 'ratio' ],
-							0, '#fdecae',
-							0.01, '#f9d071',
-							0.02, '#f6ad36',
-							0.03, '#e58724',
-							0.05, '#c0531e',
-						]
-					],
-					'fill-opacity': 0.5,
+			map?.addLayer(
+				{
+					id: 'state-fills',
+					type: 'fill',
+					source: 'states',
+					layout: {},
+					paint: {
+						'fill-color': [
+							'let',
+							'ratio',
+							[ '/', [ 'get', 'reported_lsl' ], [ 'get', 'service_connections_count' ] ],
+							[
+								'interpolate',
+								[ 'linear' ],
+								[ 'var', 'ratio' ],
+								0, '#ffedb3',
+								0.02, '#ffd74f',
+								0.04, '#ffa200',
+								0.06, '#ff6e4a',
+								0.08, '#d9401f',
+								0.1, '#bf3417',
+							]
+						],
+						'fill-opacity': 0.6,
+					},
 				},
-			});
+				labelLayerId,
+			);
 
-			map?.addLayer({
-				id: 'state-lines',
-				type: 'line',
-				source: 'states',
-				layout: {},
-				paint: {
-					'line-color': '#000',
-					'line-width': 1,
-					'line-opacity': [
-						'case',
-						[ 'boolean', [ 'feature-state', 'hover' ], false ],
-						1,
-						0,
-					],
+			map?.addLayer(
+				{
+					id: 'state-lines',
+					type: 'line',
+					source: 'states',
+					layout: {},
+					paint: {
+						'line-color': '#000',
+						'line-width': 1,
+						'line-opacity': [
+							'case',
+							[ 'boolean', [ 'feature-state', 'hover' ], false ], 1,
+							[ 'boolean', [ 'feature-state', 'active' ], false ], 1, 0,
+						],
+					},
 				},
-			});
+				labelLayerId,
+			);
 
 			let hoveredStateId: string | number | undefined = '';
 			let popup = new maplibregl.Popup({
@@ -211,9 +298,10 @@ export default defineComponent({
 
 			let activeStateId: string | number | undefined = '';
 
-			map?.on('click', 'state-fills', async (e: MapMouseEvent & { features?: string | any[]; lngLat: LngLatLike }) => {
+			map?.on('click', 'state-fills', async (e: MapMouseEvent & { features?: string | any[]; lngLat: LngLatLike; }) => {
 
 				let state = e.features![ 0 ].properties.state_code;
+				let lngLat = e.lngLat;
 
 				if (activeStateId) {
 					map?.setFeatureState(
@@ -221,7 +309,9 @@ export default defineComponent({
 						{ active: false },
 					);
 
+					// TODO: Change this to fitBounds, get bounds from state layer
 					if (activeStateId === e.features![ 0 ].id) {
+						console.log(lngLat)
 						map?.flyTo({
 							center: e.lngLat,
 							zoom: 6,
@@ -233,6 +323,8 @@ export default defineComponent({
 						this.pwsQuery(state);
 
 						map?.setFilter('state-fills', [ '!=', 'state_code', state ]);
+					} else {
+						map?.panTo(lngLat);
 					}
 				}
 				activeStateId = e.features![ 0 ].id;
@@ -333,6 +425,8 @@ export default defineComponent({
 		},
 
 		async mapCreate(): Promise<void> {
+			// TODO: Use fitBounds to show all states on load regardless of screen size - will need the bounds of the continental US
+
 			map = new maplibregl.Map({
 				container: 'map',
 				style: mapStyle,

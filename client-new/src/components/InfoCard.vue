@@ -24,11 +24,7 @@ import GeocodeControl from './GeocodeControl.vue';
 
 export default {
 	name: "InfoCard",
-	methods: {
-		toggle() {
-			this.$emit("toggle");
-		}
-	},
+	emits: [ "queryResults" ],
 	components: { GeocodeControl }
 };
 </script>
