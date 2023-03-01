@@ -15,8 +15,8 @@
 			<h1>{{ panelTitle }}</h1>
 
 			<ul class="info__lines">
-				<li>Predicted Lead Service Lines: <span class="has-text-blue has-text-weight-bold">{{ predictedLsl }}</span></li>
-				<li>Reported Lead Service Lines: <span class="has-text-blue has-text-weight-bold">{{ reportedLsl }}</span></li>
+				<li v-html="predictedLsl"></li>
+				<li v-html="reportedLsl"></li>
 				<li>Total Service Lines: <span
 						class="has-text-blue has-text-weight-bold">{{ (panelData[ 0 ]?.serviceConnections).toLocaleString() }}</span>
 				</li>
@@ -24,8 +24,8 @@
 			<h2 class="has-text-dark-blue">Percent Lead Service Lines</h2>
 			<div class="flex">
 				<div class="flex-numeric">
-					<span class="has-text-blue is-size-2">{{ percentLsl }}</span>
-					<span class="sup is-size-3">%</span>
+					<span class="has-text-blue">{{ percentLsl }}</span>
+					<span class="sup">%</span>
 				</div>
 				<div class="flex-content">
 					This is the estimated percent of service connections in {{ panelTitle }} that contain lead.
@@ -41,7 +41,7 @@
 					</div>
 					<div class="flex-content">
 						Higher scores indicate more vulnerable locations, such as lower income or proximity to environmental hazards
-						such as superfund sites. <a href="#" target="_blank">More on how this is calculated.</a>
+						such as superfund sites. <a href="#" target="_blank" rel="noopener">More on how this is calculated.</a>
 					</div>
 				</div>
 			</div>
@@ -72,7 +72,8 @@
 			<p class="mb-0" v-if="dataType == 'State'">
 				States do not have complete or even accurrate service line materials records. In the absence of comprehensive
 				records, some have turned to data science to predict unkown service line materials. These state-level lead service
-				line totals are the cumulative sums of the water system level predictions within a state.
+				line totals are the cumulative sums of the water system level predictions within a state. More information on the
+				<a href="#" target="_blank" rel="noopener">predictions and underlying data</a>.
 			</p>
 			<p class="mt-0">
 				BlueConduit colleced lead service line data from a combination of state environmental agency websites and Freedom
@@ -82,9 +83,10 @@
 			</p>
 
 			<div class="my-6 has-text-centered">
-				<a href="#" class="button is-primary has-text-weight-bold" target="_blank">Learn more about BlueConduit</a>
+				<a href="#" class="button is-primary has-text-weight-bold" target="_blank" rel="noopener">Learn more about
+					BlueConduit</a>
 				<p class="has-text-weight-bold">Have a question about your water system boundary or predictions?
-					<a href="#" target="_blank">Contact
+					<a href="#" target="_blank" rel="noopener">Contact
 						us.</a>
 				</p>
 			</div>
@@ -116,6 +118,7 @@ export default {
 			required: true,
 		},
 	},
+	emits: [ "queryResults", "close" ],
 	computed: {
 		dataType() {
 			return this.panelData[ 0 ]?.dataType;
@@ -136,30 +139,30 @@ export default {
 		predictedLsl() {
 			const lsl = this.panelData[ 0 ]?.estLslRate * this.panelData[ 0 ]?.serviceConnections;
 			if (lsl) {
-				return new Intl.NumberFormat("en-US", {
+				const amount = new Intl.NumberFormat("en-US", {
 					style: "decimal",
 					maximumFractionDigits: 0,
 				}).format(lsl);
+				return `Predicted Lead Service Lines: <span class="has-text-blue has-text-weight-bold">${amount}</span>`;
 			}
 			else {
-				return "We could not make a prediction for this location.";
+				return `Predicted Lead Service Lines: <span class="is-italic has-text-warm-grey">We could not make a prediction for this location.</span>`;
 			}
 		},
 		reportedLsl() {
 			if (this.panelData[ 0 ]?.reportedLsl) {
-				return this.panelData[ 0 ]?.reportedLsl.toLocaleString();
+				return `Reported Lead Service Lines: <span class="has-text-blue has-text-weight-bold">${this.panelData[ 0 ]?.reportedLsl.toLocaleString()}</span>`;
 			}
 			else {
-				return "No data available";
+				return `Reported Lead Service Lines: <span class="is-italic has-text-warm-grey">No data available</span>`;
 			}
 		},
 		percentLsl() {
-			return `${(this.panelData[ 0 ]?.lslLow * 100).toFixed(1)} -
-						${(this.panelData[ 0 ]?.lslHigh * 100).toFixed(1)}`;
+			return `${(this.panelData[ 0 ]?.lslLow * 100).toFixed(0)}-${(this.panelData[ 0 ]?.lslHigh * 100).toFixed(0)}`;
 		},
 		inventoryUrl() {
 			if (this.panelData[ 0 ]?.inventoryUrl.length > 2) {
-				return `<a href="${this.panelData[ 0 ]?.inventoryUrl}" target="_blank">Public Facing Inventory</a>`;
+				return `<a href="${this.panelData[ 0 ]?.inventoryUrl}" target="_blank" rel="noopener">Public Facing Inventory</a>`;
 			}
 			else {
 				return false;
@@ -167,7 +170,7 @@ export default {
 		},
 		stateProgramUrl() {
 			if (this.panelData[ 0 ]?.stateReplacementProgram.length > 2) {
-				return `<a href="${this.panelData[ 0 ]?.stateReplacementProgram}" target="_blank">State Replacement Program</a>`;
+				return `<a href="${this.panelData[ 0 ]?.stateReplacementProgram}" target="_blank" rel="noopener">State Replacement Program</a>`;
 			}
 			else {
 				return false;
@@ -202,20 +205,28 @@ export default {
 
 	&-numeric {
 		flex: 1;
+
+		> span:first-child {
+			font-size: 3rem;
+		}
 	}
 
 	&-content {
-		flex: 3;
+		flex-basis: 58%;
 	}
 }
 
 .info {
 	&__panel {
 		position: relative;
-		width: 30%;
+		width: 0;
 		height: 100vh;
 		transition: transform 0.3s ease-in-out;
 		z-index: 1;
+
+		&.is-active {
+			width: 30%;
+		}
 
 		.inner {
 			height: 100vh;
@@ -241,6 +252,12 @@ a:not(.button) {
 	&:hover {
 		box-shadow: inset 0 -1px 0 var(--bc--link-hover-color);
 	}
+}
+
+.sup {
+	display: inline-block;
+	font-size: 1.5rem;
+	transform: translateY(-1rem);
 }
 
 .toggle {
