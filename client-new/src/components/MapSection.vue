@@ -21,7 +21,7 @@ import InfoCard from './InfoCard.vue';
 const apiKey = "AAPK11d5429da31346419f8c1f632a62e3b6FS92k0O7YmRmdBscOOcYMe1f5Ea8kkxzLbxO9aZWtDCL6FtHAtHKeBup3Bj0aCS_";
 const basemapEnum = "OSM:Standard";
 const mapStyle = `https://basemaps-api.arcgis.com/arcgis/rest/services/styles/${basemapEnum}?type=style&token=${apiKey}`;
-const PWS_LAYER_PATH = "https://services6.arcgis.com/hR19wnqEg78ptZn4/arcgis/rest/services/View_of_Leadout_PWS_Predictions/FeatureServer/1/";
+const PWS_LAYER_PATH = "https://services6.arcgis.com/hR19wnqEg78ptZn4/ArcGIS/rest/services/leadout_public_water_systems_dataset_20230303/FeatureServer/0";
 const STATE_LAYER_PATH = "https://services6.arcgis.com/hR19wnqEg78ptZn4/arcgis/rest/services/View_of_LeadOut_State-level_Predictions/FeatureServer/0/";
 let map: maplibregl.Map;
 
@@ -54,9 +54,9 @@ export default defineComponent({
 			this.infoCardActive = true;
 		},
 
-		toggleMapPanel(): void {
+		// getPanelToggleState(): void {
 
-		},
+		// },
 
 		searchQuery(data: any): void {
 			// const lngLat = data.lngLat;
@@ -92,6 +92,8 @@ export default defineComponent({
 					this.panelActive = true;
 				});
 
+			// TODO: add a check to see if the map panel is open and adjust the padding accordingly
+
 			map?.fitBounds(bounds, {
 				padding: 25,
 				linear: true,
@@ -112,6 +114,8 @@ export default defineComponent({
 				f: 'geojson',
 			})
 				.then((response: any) => {
+					const exceededTransferLimit = response.properties?.exceededTransferLimit ?? false;
+
 					(map?.getSource('pws') as GeoJSONSource)?.setData(response);
 				});
 		},
@@ -148,7 +152,7 @@ export default defineComponent({
 						'fill-color': [
 							'interpolate',
 							[ 'linear' ],
-							[ 'get', 'PRE1960PCT' ],
+							[ 'get', 'reported_lsl' ],
 							0, '#ffedb3',
 							0.02, '#ffd74f',
 							0.04, '#ffa200',
@@ -311,7 +315,7 @@ export default defineComponent({
 
 					// TODO: Change this to fitBounds, get bounds from state layer
 					if (activeStateId === e.features![ 0 ].id) {
-						console.log(lngLat)
+						// console.log(lngLat);
 						map?.flyTo({
 							center: e.lngLat,
 							zoom: 6,
@@ -413,6 +417,7 @@ export default defineComponent({
 						lslLow: e.features![ 0 ].properties.est_lsl_rate_low ?? '',
 						lslHigh: e.features![ 0 ].properties.est_lsl_rate_high ?? '',
 						eji: e.features![ 0 ].properties.eji ?? '',
+						tier: e.features![ 0 ].properties.tier ?? '',
 						state_code: e.features![ 0 ].properties.state_code ?? '',
 						dataType: 'PWS',
 					}
@@ -420,6 +425,21 @@ export default defineComponent({
 				this.infoCardActive = false;
 				this.panelActive = true;
 
+			});
+
+			const initialZoom = map?.getZoom();
+			// console.log(`initial zoom: ${initialZoom}`);
+			map?.on('zoomend', () => {
+				let currentZoom = map?.getZoom();
+				let zoomDifference = currentZoom! - initialZoom!;
+				if (currentZoom && zoomDifference >= 3) {
+					// console.log('zoomed in to three levels');
+					let currentBounds = map?.getBounds();
+					// TODO: Show PWS points
+					// console.log(currentBounds);
+				} else {
+					// console.log('zoomed out');
+				}
 			});
 
 		},
