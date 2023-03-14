@@ -66,7 +66,7 @@
 				records. In the absence of comprehensive
 				records, some have turned to data science to predict unknown service line materials. The lead service line
 				predictions are made by BlueConduit's model based on reported inventories as well as the demographics within the
-				[estimated/known] service boundary of {{ formattedPwsTitle }}.
+				{{ tier }} service boundary of {{ formattedPwsTitle }}.
 				<!-- TODO: replace estimated/known based on tier data -->
 			</p>
 			<p class="mb-0" v-if="dataType == 'State'">
@@ -174,6 +174,13 @@ export default {
 			}
 			else {
 				return false;
+			}
+		},
+		tier() {
+			if (this.panelData[ 0 ]?.tier == 1) {
+				return "known";
+			} else if (this.panelData[ 0 ]?.tier == 2) {
+				return "estimated";
 			}
 		}
 	},
