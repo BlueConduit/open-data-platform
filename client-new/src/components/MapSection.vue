@@ -152,7 +152,7 @@ export default defineComponent({
 						'fill-color': [
 							'interpolate',
 							[ 'linear' ],
-							[ 'get', 'reported_lsl' ],
+							[ 'get', 'est_rate' ],
 							0, '#ffedb3',
 							0.02, '#ffd74f',
 							0.04, '#ffa200',
@@ -221,20 +221,15 @@ export default defineComponent({
 					layout: {},
 					paint: {
 						'fill-color': [
-							'let',
-							'ratio',
-							[ '/', [ 'get', 'reported_lsl' ], [ 'get', 'service_connections_count' ] ],
-							[
-								'interpolate',
-								[ 'linear' ],
-								[ 'var', 'ratio' ],
-								0, '#ffedb3',
-								0.02, '#ffd74f',
-								0.04, '#ffa200',
-								0.06, '#ff6e4a',
-								0.08, '#d9401f',
-								0.1, '#bf3417',
-							]
+							'interpolate',
+							[ 'linear' ],
+							[ 'get', 'est_lsl_rate' ],
+							0, '#ffedb3',
+							0.02, '#ffd74f',
+							0.04, '#ffa200',
+							0.06, '#ff6e4a',
+							0.08, '#d9401f',
+							0.1, '#bf3417',
 						],
 						'fill-opacity': 0.6,
 					},
