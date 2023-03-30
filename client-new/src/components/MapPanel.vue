@@ -1,6 +1,6 @@
 <template>
-	<section class="info__panel" :class="{ 'is-active': isToggled }" v-if="panelData[ 0 ]!">
-		<div class="inner box" v-show="isToggled">
+	<section class="info__panel is-hidden-touch" :class="{ 'is-active': isToggled || toggleActive }" v-if="panelData[ 0 ]!">
+		<div class="inner box" v-show="isToggled || toggleActive">
 			<div class="search__form">
 				<GeocodeControl />
 				<div class="toggle toggle--top">
@@ -92,7 +92,7 @@
 
 		</div>
 		<div class="toggle toggle--side">
-			<button class="button" @click="togglePanel" :class="{ 'is-active': isToggled }">
+			<button class="button" @click="togglePanel" :class="{ 'is-active': isToggled || toggleActive }">
 				<span class="icon">
 					<img src="@/assets/icons/chevron-left.svg">
 				</span>
@@ -108,7 +108,7 @@ export default {
 	name: "MapPanel",
 	data() {
 		return {
-			isToggled: true,
+			isToggled: this.toggleActive,
 		};
 	},
 	props: {
@@ -116,8 +116,12 @@ export default {
 			type: Object,
 			required: true,
 		},
+		toggleActive: {
+			type: Boolean,
+			required: true,
+		},
 	},
-	emits: [ "queryResults", "close" ],
+	emits: [ "queryResults", "close", "togglePanel" ],
 	computed: {
 		dataType() {
 			return this.panelData[ 0 ]?.dataType;
@@ -185,7 +189,14 @@ export default {
 	},
 	methods: {
 		togglePanel() {
-			this.isToggled = !this.isToggled;
+			if (this.toggleActive && !this.isToggled) {
+				console.log('toggleActive panel click', this.toggleActive);
+				console.log('isToggled panel click', this.isToggled);
+				this.isToggled = false;
+			} else {
+				this.isToggled = !this.isToggled;
+			}
+			this.$emit("togglePanel", this.isToggled);
 		},
 		close() {
 			this.$emit("close");
@@ -231,12 +242,15 @@ export default {
 		z-index: 1;
 
 		&.is-active {
-			width: 30%;
+			width: 400px;
 		}
 
 		.inner {
 			height: 100vh;
 			overflow-y: scroll;
+			border-radius: 0;
+			box-shadow: none;
+			filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
 		}
 	}
 }
@@ -273,18 +287,20 @@ a:not(.button) {
 		top: calc(50vh - 1rem);
 		right: -1rem;
 		left: 0;
-		z-index: 2;
+		z-index: -1;
 
 		.is-active & {
 			left: 100%;
 		}
 
 		.button {
+			margin-left: -0.375rem;
+			padding-right: 0.75rem;
 			width: 2rem;
 			height: 2rem;
 
 			.icon {
-				width: 1rem;
+				width: .75rem;
 				height: 1rem;
 				transition: transform 0.3s ease-in-out;
 
