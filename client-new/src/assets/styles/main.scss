@@ -2,6 +2,7 @@ $primary: #ffc637;
 $text: #464646;
 $blue: #6ca3e4;
 $dark-blue: #122550;
+$link: #0b2553;
 $link-hover: #0b2553;
 
 $custom-colors: (
@@ -24,3 +25,10 @@ $family-primary: 'IBM Plex Sans', sans-serif;
 
 @import 'base/properties';
 @import 'base/button';
+
+@include touch {
+	.modal-content {
+		max-height: 90vh;
+		overflow-y: scroll;
+	}
+}
