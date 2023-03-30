@@ -69,6 +69,10 @@ export default {
 	}
 }
 
+.modal-background {
+	background-color: rgba(22, 78, 135, .2);
+}
+
 h1,
 h2 {
 	margin-top: 0;

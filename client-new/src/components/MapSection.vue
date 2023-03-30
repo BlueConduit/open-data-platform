@@ -4,7 +4,9 @@
 		<HelpModal />
 		<MapLegend />
 		<InfoCard v-show="infoCardActive" @queryResults="searchQuery" />
-		<MapPanel v-show="panelActive" :panelData="panelData" @close="closeMapPanel" @queryResults="searchQuery" />
+		<MapPanel v-show="panelActive" :panelData="panelData" :toggleActive="toggleActive" @close="closeMapPanel"
+			@queryResults="searchQuery" @togglePanel="setToggleState" />
+		<img src="@/assets/images/google.logo.png" class="image-support" alt="Supported by Google.com">
 	</div>
 </template>
 
@@ -40,6 +42,9 @@ export default defineComponent({
 			panelData: {},
 			infoCardActive: true,
 			panelActive: false,
+			toggleActive: true,
+			pwsLayerActive: false,
+			activeStateCode: null,
 		}
 	},
 
@@ -49,19 +54,61 @@ export default defineComponent({
 
 	methods: {
 
+		getInitialZoom(): number {
+			return map?.getZoom();
+		},
+
 		closeMapPanel(): void {
 			this.panelActive = false;
 			this.infoCardActive = true;
 		},
 
-		// getPanelToggleState(): void {
+		setToggleState(state: boolean): void {
+			this.toggleActive = state;
+		},
 
-		// },
+		setPwsLayerState(state: boolean): void {
+			this.pwsLayerActive = state;
+
+			if (state) {
+				map?.setLayoutProperty('pws-fill', 'visibility', 'visible');
+				map?.setLayoutProperty('pws-line', 'visibility', 'visible');
+			} else {
+				map?.setLayoutProperty('pws-fill', 'visibility', 'none');
+				map?.setLayoutProperty('pws-line', 'visibility', 'none');
+			}
+		},
+
+		boundsQuery(bounds: LngLatBounds): void {
+			const envelope = {
+				xmin: bounds.getWest(),
+				ymin: bounds.getSouth(),
+				xmax: bounds.getEast(),
+				ymax: bounds.getNorth(),
+				spatialReference: {
+					wkid: 4326
+				}
+			};
+
+			queryFeatures({
+				url: PWS_LAYER_PATH,
+				geometry: envelope,
+				geometryType: 'esriGeometryEnvelope',
+				outFields: [ '*' ],
+				f: 'geojson',
+			})
+				.then((response: any) => {
+					const exceededTransferLimit = response.properties?.exceededTransferLimit ?? false;
+					if (exceededTransferLimit) {
+						console.log('exceededTransferLimit');
+					}
+
+					(map?.getSource('pws') as GeoJSONSource)?.setData(response);
+				});
+		},
 
 		searchQuery(data: any): void {
-			// const lngLat = data.lngLat;
 			const stateCode = data.stateAbbr;
-			// const locationType = data.locationType;
 			const bounds = data.boundingBox;
 
 			queryFeatures({
@@ -90,19 +137,17 @@ export default defineComponent({
 
 					this.infoCardActive = false;
 					this.panelActive = true;
+					this.activeStateCode = stateCode;
 				});
 
-			// TODO: add a check to see if the map panel is open and adjust the padding accordingly
-
 			map?.fitBounds(bounds, {
-				padding: 25,
+				padding: { top: 25, bottom: 25, left: 450, right: 25 },
 				linear: true,
-				maxZoom: 8,
+				maxZoom: 9,
 			});
 
 			this.pwsQuery(stateCode);
 			map?.setFilter('state-fills', [ '!=', 'state_code', stateCode ]);
-
 		},
 
 		pwsQuery(state_code: string): void {
@@ -167,7 +212,7 @@ export default defineComponent({
 						// 	1, 0.5
 						// ],
 					},
-					// minzoom: 5,
+					// minzoom: 6,
 				},
 				labelLayerId
 			);
@@ -192,6 +237,7 @@ export default defineComponent({
 
 			let layers = map?.getStyle()?.layers;
 			let labelLayerId;
+			const maxzoom = this.getInitialZoom() + 3;
 
 			if (layers) {
 				for (let i = 0; i < layers.length; i++) {
@@ -218,6 +264,7 @@ export default defineComponent({
 					id: 'state-fills',
 					type: 'fill',
 					source: 'states',
+					maxzoom: maxzoom,
 					layout: {},
 					paint: {
 						'fill-color': [
@@ -296,11 +343,14 @@ export default defineComponent({
 			});
 
 			let activeStateId: string | number | undefined = '';
+			let clickCount = 0;
 
 			map?.on('click', 'state-fills', async (e: MapMouseEvent & { features?: string | any[]; lngLat: LngLatLike; }) => {
 
 				let state = e.features![ 0 ].properties.state_code;
 				let lngLat = e.lngLat;
+
+				clickCount++;
 
 				if (activeStateId) {
 					map?.setFeatureState(
@@ -308,12 +358,10 @@ export default defineComponent({
 						{ active: false },
 					);
 
-					// TODO: Change this to fitBounds, get bounds from state layer
-					if (activeStateId === e.features![ 0 ].id) {
-						// console.log(lngLat);
+					if (activeStateId === e.features![ 0 ].id && clickCount === 2) {
 						map?.flyTo({
 							center: e.lngLat,
-							zoom: 6,
+							zoom: 5.5,
 							speed: 1,
 							curve: 1,
 							easing: (t: number) => t,
@@ -321,11 +369,17 @@ export default defineComponent({
 
 						this.pwsQuery(state);
 
+						this.activeStateCode = state;
+
 						map?.setFilter('state-fills', [ '!=', 'state_code', state ]);
+
 					} else {
 						map?.panTo(lngLat);
 					}
+				} else {
+					map?.panTo(lngLat);
 				}
+
 				activeStateId = e.features![ 0 ].id;
 				map?.setFeatureState(
 					{ source: 'states', id: activeStateId },
@@ -350,6 +404,16 @@ export default defineComponent({
 
 				this.infoCardActive = false;
 				this.panelActive = true;
+
+				if (!this.toggleActive) {
+					this.toggleActive = true;
+				}
+
+				setTimeout(() => {
+					if (clickCount > 0) {
+						clickCount = 0;
+					}
+				}, 500);
 			});
 
 			let hoveredId: string | number | undefined = '';
@@ -422,18 +486,37 @@ export default defineComponent({
 
 			});
 
-			const initialZoom = map?.getZoom();
-			// console.log(`initial zoom: ${initialZoom}`);
+			const initialZoom = this.getInitialZoom();
+			// TODO: refactor this to be more DRY
 			map?.on('zoomend', () => {
 				let currentZoom = map?.getZoom();
-				let zoomDifference = currentZoom! - initialZoom!;
+				let zoomDifference = currentZoom! - initialZoom;
+				this.setPwsLayerState(false);
+
 				if (currentZoom && zoomDifference >= 3) {
-					// console.log('zoomed in to three levels');
 					let currentBounds = map?.getBounds();
-					// TODO: Show PWS points
-					// console.log(currentBounds);
-				} else {
-					// console.log('zoomed out');
+					this.boundsQuery(currentBounds);
+					this.setPwsLayerState(true);
+				} else if (this.activeStateCode) {
+					this.setPwsLayerState(true);
+					this.pwsQuery(this.activeStateCode);
+				}
+
+			});
+
+			map?.on('dragend', () => {
+				let currentZoom = map?.getZoom();
+				let zoomDifference = currentZoom! - initialZoom;
+
+				this.setPwsLayerState(false);
+
+				if (currentZoom && zoomDifference >= 3) {
+					let currentBounds = map?.getBounds();
+					this.boundsQuery(currentBounds);
+					this.setPwsLayerState(true);
+				} else if (this.activeStateCode) {
+					this.setPwsLayerState(true);
+					this.pwsQuery(this.activeStateCode);
 				}
 			});
 
@@ -448,6 +531,11 @@ export default defineComponent({
 				center: [ -98.5556199, 39.8097343 ],
 				zoom: 4,
 				dragRotate: false,
+				doubleClickZoom: false,
+				bounds: [ [ -124.7844079, 24.7433195 ], [ -66.9513812, 49.3457868 ] ],
+				fitBoundsOptions: {
+					padding: 50,
+				},
 			});
 
 			map?.on('load', this.configureMap);
@@ -472,5 +560,12 @@ export default defineComponent({
 	position: relative;
 	width: 100%;
 	height: 100vh;
+}
+
+.image-support {
+	display: block;
+	position: absolute;
+	left: 1rem;
+	bottom: 1rem;
 }
 </style>

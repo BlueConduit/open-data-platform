@@ -1,5 +1,5 @@
 <template>
-	<section class="info__card">
+	<section class="info__card is-hidden-touch">
 		<div class="card">
 			<h1><span>Click on a state</span> to see lead service line data</h1>
 			<p>or</p>
@@ -34,7 +34,7 @@ export default {
 	position: absolute;
 	top: 10px;
 	left: 10px;
-	width: 30%;
+	width: 400px;
 	z-index: 1;
 }
 
