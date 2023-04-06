@@ -1,0 +1,16 @@
+.popup {
+	color: #fff;
+
+	.maplibregl-popup-tip {
+		border-top-color: $popup-background;
+		border-width: 6px;
+	}
+
+	.maplibregl-popup-content {
+		padding: 2px 4px;
+		background: $popup-background;
+		border-radius: 1px;
+		line-height: 1.4;
+		text-align: center;
+	}
+}

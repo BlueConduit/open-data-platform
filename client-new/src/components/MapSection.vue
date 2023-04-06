@@ -15,17 +15,24 @@ import MapPanel from './MapPanel.vue';
 import HelpModal from './HelpModal.vue';
 import MapLegend from './MapLegend.vue';
 import maplibregl, { GeoJSONSource, LngLatBounds, MapMouseEvent, type LngLatLike } from 'maplibre-gl';
+import type { Feature, FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { queryFeatures } from '@esri/arcgis-rest-feature-service';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, type Prop } from 'vue';
 import InfoCard from './InfoCard.vue';
 
 const apiKey = "AAPK11d5429da31346419f8c1f632a62e3b6FS92k0O7YmRmdBscOOcYMe1f5Ea8kkxzLbxO9aZWtDCL6FtHAtHKeBup3Bj0aCS_";
-const basemapEnum = "OSM:Standard";
+const basemapEnum = "OSM:LightGray";
 const mapStyle = `https://basemaps-api.arcgis.com/arcgis/rest/services/styles/${basemapEnum}?type=style&token=${apiKey}`;
 const PWS_LAYER_PATH = "https://services6.arcgis.com/hR19wnqEg78ptZn4/ArcGIS/rest/services/leadout_public_water_systems_dataset_20230303/FeatureServer/0";
 const STATE_LAYER_PATH = "https://services6.arcgis.com/hR19wnqEg78ptZn4/arcgis/rest/services/View_of_LeadOut_State-level_Predictions/FeatureServer/0/";
 let map: maplibregl.Map;
+
+
+interface IQueryFeaturesResponse {
+	features: GeoJSON.Feature[];
+	exceededTransferLimit?: boolean;
+}
 
 export default defineComponent({
 	name: 'MapSection',
@@ -150,7 +157,97 @@ export default defineComponent({
 			map?.setFilter('state-fills', [ '!=', 'state_code', stateCode ]);
 		},
 
-		pwsQuery(state_code: string): void {
+		async queryAllFeatures(url: string, whereClause: string): Promise<Feature[]> {
+			const resultRecordCount = 1000;
+			let resultOffset = 0;
+			let totalCount = 0;
+			let allFeatures: Feature[] = [];
+
+			let response = await queryFeatures({
+				url: url,
+				where: whereClause,
+				outFields: [ '*' ],
+				resultRecordCount: resultRecordCount,
+				resultOffset: resultOffset,
+				returnGeometry: true,
+				f: 'geojson',
+			});
+
+			allFeatures = (response as IQueryFeaturesResponse)?.features ?? [];
+
+			while ((response as IQueryFeaturesResponse)?.exceededTransferLimit) {
+				resultOffset += resultRecordCount;
+
+				response = await queryFeatures({
+					url: url,
+					where: whereClause,
+					outFields: [ '*' ],
+					resultRecordCount: resultRecordCount,
+					resultOffset: resultOffset,
+					returnGeometry: true,
+					f: 'geojson',
+				});
+
+				allFeatures = allFeatures.concat((response as IQueryFeaturesResponse)?.features ?? []);
+			}
+
+			console.log(`Total features: ${allFeatures.length}`);
+
+			return allFeatures;
+		},
+
+		async pwsQuery(state_code: string): Promise<void> {
+
+			// const whereClause = `state_code = '${state_code}'`;
+
+			// this.queryAllFeatures(PWS_LAYER_PATH, whereClause)
+			// 	.then((features: Feature<Geometry, GeoJsonProperties>[]) => {
+			// 		console.log(`Total features found: ${features.length}`);
+			// 		// Do something with the features...
+			// 		(map?.getSource('pws') as GeoJSONSource)?.setData({
+			// 			type: 'FeatureCollection',
+			// 			features: features
+			// 		});
+			// 	})
+			// 	.catch((error) => {
+			// 		console.error(error);
+			// 	});
+
+
+
+
+			// let features: Feature[] = [];
+
+			// while (true) {
+			// 	const response = await queryFeatures({
+			// 		url: PWS_LAYER_PATH,
+			// 		where: `state_code = '${state_code}'`,
+			// 		outFields: [ '*' ],
+			// 		f: 'geojson',
+			// 		resultOffset: offset,
+			// 		resultRecordCount: maxFeatures,
+			// 	}) as IQueryFeaturesResponse;
+
+			// 	console.log(response);
+
+			// 	features = features.concat(response.features);
+
+			// 	console.log('length', response.features.length, 'state', state_code, 'offset', offset);
+
+			// 	if (response.features.length < maxFeatures) {
+			// 		break;
+			// 	}
+
+			// 	offset += maxFeatures;
+			// }
+
+			// const geoJsonFeatures: FeatureCollection<Geometry, GeoJsonProperties> = {
+			// 	type: 'FeatureCollection',
+			// 	features: features
+			// };
+
+			// (map?.getSource('pws') as GeoJSONSource).setData(geoJsonFeatures);
+
 
 			queryFeatures({
 				url: PWS_LAYER_PATH,
@@ -160,6 +257,8 @@ export default defineComponent({
 			})
 				.then((response: any) => {
 					const exceededTransferLimit = response.properties?.exceededTransferLimit ?? false;
+
+					// console.log('excceededTransferLimit', exceededTransferLimit);
 
 					(map?.getSource('pws') as GeoJSONSource)?.setData(response);
 				});
@@ -292,7 +391,7 @@ export default defineComponent({
 					layout: {},
 					paint: {
 						'line-color': '#000',
-						'line-width': 1,
+						'line-width': 2,
 						'line-opacity': [
 							'case',
 							[ 'boolean', [ 'feature-state', 'hover' ], false ], 1,
@@ -307,6 +406,7 @@ export default defineComponent({
 			let popup = new maplibregl.Popup({
 				closeButton: false,
 				closeOnClick: false,
+				className: 'popup'
 			});
 
 			map?.on('mousemove', 'state-fills', (e: MapMouseEvent & { features?: string | any[]; lngLat: LngLatLike }) => {
@@ -484,6 +584,10 @@ export default defineComponent({
 				this.infoCardActive = false;
 				this.panelActive = true;
 
+				if (!this.toggleActive) {
+					this.toggleActive = true;
+				}
+
 			});
 
 			const initialZoom = this.getInitialZoom();
@@ -523,13 +627,10 @@ export default defineComponent({
 		},
 
 		async mapCreate(): Promise<void> {
-			// TODO: Use fitBounds to show all states on load regardless of screen size - will need the bounds of the continental US
 
 			map = new maplibregl.Map({
 				container: 'map',
 				style: mapStyle,
-				center: [ -98.5556199, 39.8097343 ],
-				zoom: 4,
 				dragRotate: false,
 				doubleClickZoom: false,
 				bounds: [ [ -124.7844079, 24.7433195 ], [ -66.9513812, 49.3457868 ] ],

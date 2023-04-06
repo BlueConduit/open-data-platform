@@ -92,7 +92,8 @@
 
 		</div>
 		<div class="toggle toggle--side">
-			<button class="button" @click="togglePanel" :class="{ 'is-active': isToggled || toggleActive }">
+			<button class="button" @click="togglePanel" :class="{ 'is-active': isToggled || toggleActive }" title="Toggle Panel"
+				aria-label="Toggle Panel">
 				<span class="icon">
 					<img src="@/assets/icons/chevron-left.svg">
 				</span>
@@ -190,8 +191,6 @@ export default {
 	methods: {
 		togglePanel() {
 			if (this.toggleActive && !this.isToggled) {
-				console.log('toggleActive panel click', this.toggleActive);
-				console.log('isToggled panel click', this.isToggled);
 				this.isToggled = false;
 			} else {
 				this.isToggled = !this.isToggled;
