@@ -4,11 +4,15 @@ $blue: #6ca3e4;
 $dark-blue: #122550;
 $link: #0b2553;
 $link-hover: #0b2553;
+$warm-grey: #a3a3a3;
+$warm-grey-900: #252525;
+$popup-background: $warm-grey-900;
 
 $custom-colors: (
 	'blue': $blue,
 	'dark-blue': $dark-blue,
-	'warm-grey': #a3a3a3,
+	'warm-grey': $warm-grey,
+	'warm-grey-900': $warm-grey-900,
 );
 
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;700&display=swap');
@@ -25,6 +29,7 @@ $family-primary: 'IBM Plex Sans', sans-serif;
 
 @import 'base/properties';
 @import 'base/button';
+@import 'base/popup';
 
 @include touch {
 	.modal-content {
