@@ -1,6 +1,6 @@
 <template>
 	<div class="toggle">
-		<button class="button" @click="toggleModal">
+		<button class="button" @click="toggleModal" title="Help" aria-label="Help">
 			<span class="icon">
 				<img src="@/assets/icons/question.svg">
 			</span>
