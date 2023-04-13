@@ -82,7 +82,7 @@
 			</p>
 
 			<div class="my-6 has-text-centered">
-				<a href="#" class="button is-primary has-text-weight-bold" target="_blank" rel="noopener">Learn more about
+				<a href="#" class="button is-primary" target="_blank" rel="noopener">Learn more about
 					BlueConduit</a>
 				<p class="has-text-weight-bold">Have a question about your water system boundary or predictions?
 					<a href="#" target="_blank" rel="noopener">Contact

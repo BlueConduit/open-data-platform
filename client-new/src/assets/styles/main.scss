@@ -30,10 +30,3 @@ $family-primary: 'IBM Plex Sans', sans-serif;
 @import 'base/properties';
 @import 'base/button';
 @import 'base/popup';
-
-@include touch {
-	.modal-content {
-		max-height: 90vh;
-		overflow-y: scroll;
-	}
-}
