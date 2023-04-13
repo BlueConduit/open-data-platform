@@ -17,7 +17,9 @@
 					of Water Coalition, SimpleLab, and many other partners. <a href="#" target="_blank">More information here.</a>
 				</p>
 				<h2>My water systems's data is incorrect. How can I fix it?</h2>
-				<p>Additional information</p>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+					magna aliqua. Ac tortor dignissim convallis aenean et tortor. Maecenas volutpat blandit aliquam etiam erat velit
+					scelerisque in.</p>
 				<h2>About this map</h2>
 				<p>Support for this project comes from Google.org and the Rockefeller Foundation through the BlueConduit
 					Charitable Fund.</p>
@@ -46,15 +48,35 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/styles/main.scss' as u;
+
 .modal__content {
 	position: relative;
-	margin: 0 3rem;
+
+	@include u.touch {
+		overflow-y: scroll;
+	}
+
+	@include u.desktop {
+		margin: 0 3rem;
+		max-width: 1180px;
+	}
 
 	.box {
 		display: flex;
 		flex-direction: column;
-		padding: 2rem;
-		min-height: 60vh;
+		margin: 0;
+		padding: 1.25rem;
+		min-height: 100vh;
+
+		> *:not(h2) {
+			@include u.block(1.5rem);
+		}
+
+		@include u.desktop {
+			min-height: 60vh;
+			padding: 2rem;
+		}
 	}
 }
 
@@ -62,6 +84,11 @@ export default {
 	position: absolute;
 	max-width: unset;
 	max-height: unset;
+
+	@include u.touch {
+		top: 10px;
+		right: 10px;
+	}
 
 	&::before,
 	&::after {
@@ -78,15 +105,34 @@ h2 {
 	margin-top: 0;
 }
 
+h1 {
+	@include u.touch {
+		max-width: 70%;
+		font-size: 1.5rem;
+	}
+}
+
 h2 {
 	margin-bottom: 0;
+	font-size: 1.25rem;
+}
+
+p {
+	margin-top: 0;
 }
 
 .toggle {
 	position: absolute;
-	top: 5rem;
 	right: 10px;
 	z-index: 10;
+
+	@include u.touch {
+		bottom: 10px;
+	}
+
+	@include u.desktop {
+		top: 5rem;
+	}
 
 	.button {
 		width: 29px;
