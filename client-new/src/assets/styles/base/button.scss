@@ -11,8 +11,27 @@
 			color: $link-hover;
 		}
 	}
+
+	&.is-secondary {
+		background-color: $white;
+		border-color: $link;
+		border-width: 2px;
+		color: $link;
+		font-weight: 600;
+
+		&:hover {
+			background-color: $link;
+			color: $white;
+		}
+	}
 }
 
 a:not(.button) {
 	box-shadow: inset 0 -1px 0 var(--bc--link-color);
+}
+
+.mapboxgl-ctrl button:not(:disabled) {
+	&:hover {
+		background-color: $icon-button-hover;
+	}
 }

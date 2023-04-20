@@ -5,8 +5,11 @@ $dark-blue: #122550;
 $link: #0b2553;
 $link-hover: #0b2553;
 $warm-grey: #a3a3a3;
+$warm-grey-200: #f1f1f1;
 $warm-grey-900: #252525;
+$icon-button-hover: $warm-grey-200;
 $popup-background: $warm-grey-900;
+$input-color: $warm-grey-900;
 
 $custom-colors: (
 	'blue': $blue,
@@ -29,4 +32,6 @@ $family-primary: 'IBM Plex Sans', sans-serif;
 
 @import 'base/properties';
 @import 'base/button';
+@import 'base/input';
 @import 'base/popup';
+@import 'base/tooltip';
