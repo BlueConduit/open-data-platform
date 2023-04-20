@@ -4,6 +4,7 @@
 		<HelpModal />
 		<MapLegend />
 		<Loading v-show="loading" />
+		<SearchMobile v-if="isMobile()" @queryResults="searchQuery" />
 		<InfoCard v-show="infoCardActive" @queryResults="searchQuery" />
 		<MapPanel v-show="panelActive" :panelData="panelData" :toggleActive="toggleActive" @close="closeMapPanel"
 			@queryResults="searchQuery" @togglePanel="setToggleState" />
@@ -22,6 +23,8 @@ import { queryFeatures } from '@esri/arcgis-rest-feature-service';
 import { defineComponent, ref, type Prop } from 'vue';
 import InfoCard from './InfoCard.vue';
 import Loading from './Loading.vue';
+import SearchMobile from './SearchMobile.vue';
+import type SearchMobileVue from './SearchMobile.vue';
 
 const apiKey = "AAPK11d5429da31346419f8c1f632a62e3b6FS92k0O7YmRmdBscOOcYMe1f5Ea8kkxzLbxO9aZWtDCL6FtHAtHKeBup3Bj0aCS_";
 const basemapEnum = "OSM:LightGray";
@@ -42,7 +45,8 @@ export default defineComponent({
 		HelpModal,
 		MapLegend,
 		InfoCard,
-		Loading
+		Loading,
+		SearchMobile
 	},
 
 	data: () => {
@@ -63,6 +67,10 @@ export default defineComponent({
 	},
 
 	methods: {
+
+		isMobile(): boolean {
+			return window.matchMedia('(max-width: 768px)').matches;
+		},
 
 		getInitialZoom(): number {
 			return map?.getZoom();
@@ -588,11 +596,11 @@ export default defineComponent({
 				style: mapStyle,
 				dragRotate: false,
 				center: [ -95.7129, 37.0902 ],
-				zoom: isSmallScreen ? 3.5 : 0,
-				attributionControl: isSmallScreen ? false : true,
+				zoom: this.isMobile() ? 3.5 : 0,
+				attributionControl: this.isMobile() ? false : true,
 			});
 
-			if (!isSmallScreen) {
+			if (!this.isMobile()) {
 				map?.fitBounds([ [ -124.7844079, 24.7433195 ], [ -66.9513812, 49.3457868 ] ], {
 					padding: 50,
 				});
@@ -612,7 +620,7 @@ export default defineComponent({
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .map-container {
 	position: absolute;
 	width: 100%;
