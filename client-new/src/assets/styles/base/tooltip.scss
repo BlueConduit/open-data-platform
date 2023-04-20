@@ -1,0 +1,92 @@
+$tooltip-background: $popup-background;
+$tooltip-color: #fff;
+
+@mixin tooltip($position) {
+	position: relative;
+	overflow: visible;
+	cursor: pointer;
+
+	&::before {
+		content: attr(title);
+		padding: 4px;
+		width: max-content;
+		background: $tooltip-background;
+		border-radius: 1px;
+		color: $tooltip-color;
+		font-size: 0.75rem;
+		line-height: 1;
+		text-align: center;
+	}
+
+	&::after {
+		content: '';
+		margin-bottom: 5px;
+		border-style: solid;
+		border-width: 6px;
+		border-color: $tooltip-background transparent transparent;
+	}
+
+	&::before,
+	&::after {
+		position: absolute;
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+		transition: opacity 0.2s ease-in-out;
+		z-index: 10;
+	}
+
+	@if $position =='right' {
+		&::before {
+			top: auto;
+			right: -5px;
+			bottom: 50%;
+			left: auto;
+			margin-top: auto;
+			transform: translate(100%, 50%);
+		}
+
+		&::after {
+			top: auto;
+			right: 0;
+			bottom: 50%;
+			left: auto;
+			margin: auto -6px -6px auto;
+			border-color: transparent $tooltip-background transparent transparent;
+		}
+	}
+
+	@if $position =='left' {
+		&::before {
+			top: auto;
+			right: auto;
+			bottom: 50%;
+			left: -5px;
+			margin-top: auto;
+			transform: translate(-100%, 50%);
+		}
+
+		&::after {
+			top: auto;
+			right: auto;
+			bottom: 50%;
+			left: 0;
+			margin: auto auto -6px -6px;
+			border-color: transparent transparent transparent $tooltip-background;
+		}
+	}
+
+	&:hover {
+
+		&::before,
+		&::after {
+			opacity: 1;
+			visibility: visible;
+		}
+	}
+}
+
+.maplibregl-ctrl-zoom-in,
+.maplibregl-ctrl-zoom-out {
+	@include tooltip('left');
+}

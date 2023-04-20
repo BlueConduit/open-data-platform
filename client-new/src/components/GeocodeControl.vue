@@ -2,7 +2,8 @@
 	<div class="search">
 		<div class="geocode-container field has-addons">
 			<div class="control is-expanded">
-				<input id="geocode-input" class="input" type="text" placeholder="Search a location" v-model="searchQuery" />
+				<input id="geocode-input" class="input" type="text" placeholder="Search a location" v-model="searchQuery"
+					@keyup.enter="search" />
 			</div>
 			<div class="control">
 				<button id="geocode-button" @click="search" class="button">

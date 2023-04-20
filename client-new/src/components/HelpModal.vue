@@ -143,6 +143,12 @@ p {
 			width: .75rem;
 			height: .75rem;
 		}
+
+		@include u.tooltip('left');
+
+		&:hover {
+			background-color: u.$icon-button-hover;
+		}
 	}
 }
 </style>
