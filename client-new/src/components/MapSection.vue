@@ -1,32 +1,34 @@
 <template>
 	<div class="map-wrapper">
 		<div id="map" class="map-container" ref="map"></div>
-		<HelpModal />
 		<MapLegend />
-		<Loading v-show="loading" />
-		<SearchMobile v-if="isMobile()" @queryResults="searchQuery" />
+		<SearchMobile v-if="isMobile()" @queryResults="searchQuery" @close="closeMapPanel" :infoCardActive="infoCardActive" />
 		<InfoCard v-show="infoCardActive" @queryResults="searchQuery" />
-		<MapPanel v-show="panelActive" :panelData="panelData" :toggleActive="toggleActive" @close="closeMapPanel"
-			@queryResults="searchQuery" @togglePanel="setToggleState" />
+		<MapPanel v-show="panelActive" :isMobile="isMobile()" :panelData="panelData" :toggleActive="toggleActive"
+			@close="closeMapPanel" @queryResults="searchQuery" @togglePanel="setToggleState" />
 		<img src="@/assets/images/google.logo.png" class="image-support" alt="Supported by Google.com">
+		<HelpModal />
+		<Loading v-show="loading" />
 	</div>
 </template>
 
 <script	lang="ts">
+import { defineComponent, ref, type Prop } from 'vue';
+import maplibregl, { GeoJSONSource, LngLatBounds, MapMouseEvent, type LngLatLike, type LngLatBoundsLike } from 'maplibre-gl';
+import type { GeoJSON, Feature, FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
+import { queryFeatures } from '@esri/arcgis-rest-feature-service';
+import { geocode } from '@esri/arcgis-rest-geocoding';
+import { ApiKeyManager } from '@esri/arcgis-rest-request';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import MapPanel from './MapPanel.vue';
 import HelpModal from './HelpModal.vue';
 import MapLegend from './MapLegend.vue';
-import maplibregl, { GeoJSONSource, LngLatBounds, MapMouseEvent, type LngLatLike } from 'maplibre-gl';
-import type { GeoJSON, Feature, FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
-import 'maplibre-gl/dist/maplibre-gl.css';
-import { queryFeatures } from '@esri/arcgis-rest-feature-service';
-import { defineComponent, ref, type Prop } from 'vue';
 import InfoCard from './InfoCard.vue';
 import Loading from './Loading.vue';
 import SearchMobile from './SearchMobile.vue';
-import type SearchMobileVue from './SearchMobile.vue';
 
 const apiKey = "AAPK11d5429da31346419f8c1f632a62e3b6FS92k0O7YmRmdBscOOcYMe1f5Ea8kkxzLbxO9aZWtDCL6FtHAtHKeBup3Bj0aCS_";
+const authentication = ApiKeyManager.fromKey(apiKey);
 const basemapEnum = "OSM:LightGray";
 const mapStyle = `https://basemaps-api.arcgis.com/arcgis/rest/services/styles/${basemapEnum}?type=style&token=${apiKey}`;
 const PWS_LAYER_PATH = "https://services6.arcgis.com/hR19wnqEg78ptZn4/ArcGIS/rest/services/leadout_public_water_systems_dataset_20230303/FeatureServer/0";
@@ -57,8 +59,10 @@ export default defineComponent({
 			panelActive: false,
 			toggleActive: true,
 			pwsLayerActive: false,
-			activeStateCode: null,
-			loading: false
+			activeStateCode: '',
+			activeStateId: '',
+			loading: false,
+			zoomAction: false,
 		}
 	},
 
@@ -79,6 +83,15 @@ export default defineComponent({
 		closeMapPanel(): void {
 			this.panelActive = false;
 			this.infoCardActive = true;
+
+			if (this.activeStateId) {
+				this.setPwsLayerState(false);
+
+				map?.setFeatureState({ source: 'states', id: this.activeStateId }, { hover: false, active: false });
+				map?.setFilter('state-fills', null);
+				this.activeStateId = '';
+				this.activeStateCode = '';
+			}
 		},
 
 		setToggleState(state: boolean): void {
@@ -101,15 +114,18 @@ export default defineComponent({
 
 			let currentZoom = map?.getZoom();
 			let zoomDifference = currentZoom! - initialZoom;
-			this.setPwsLayerState(false);
+
+			if (currentZoom && zoomDifference < 3 && !this.pwsLayerActive) return;
 
 			if (currentZoom && zoomDifference >= 3) {
 				let currentBounds = map?.getBounds();
 				this.boundsQuery(currentBounds);
-				this.setPwsLayerState(true);
+				map?.setFeatureState({ source: 'states', id: this.activeStateId }, { hover: false, active: false });
+				this.zoomAction = true;
 			} else if (this.activeStateCode) {
-				this.setPwsLayerState(true);
 				this.pwsQuery(this.activeStateCode);
+			} else {
+				this.setPwsLayerState(false);
 			}
 		},
 
@@ -147,6 +163,8 @@ export default defineComponent({
 				(map?.getSource('pws') as GeoJSONSource)?.setData(response as GeoJSON);
 
 				this.loading = false;
+				this.setPwsLayerState(true);
+
 			}
 		},
 
@@ -181,6 +199,7 @@ export default defineComponent({
 					this.infoCardActive = false;
 					this.panelActive = true;
 					this.activeStateCode = stateCode;
+					this.activeStateId = response.features[ 0 ].id;
 				});
 
 			map?.fitBounds(bounds, {
@@ -238,6 +257,11 @@ export default defineComponent({
 			let loadingTimeout;
 
 			try {
+				if (this.zoomAction) {
+					this.zoomAction = false;
+					this.setPwsLayerState(false);
+				}
+
 				loadingTimeout = setTimeout(() => {
 					this.loading = true;
 				}, 750);
@@ -258,6 +282,8 @@ export default defineComponent({
 
 				(map?.getSource('pws') as GeoJSONSource)?.setData(response as GeoJSON);
 				this.loading = false;
+				this.setPwsLayerState(true);
+
 			}
 		},
 
@@ -443,26 +469,47 @@ export default defineComponent({
 				let lngLat = e.lngLat;
 
 
-				if (activeStateId) {
+				if (this.activeStateId) {
 					map?.setFeatureState(
-						{ source: 'states', id: activeStateId },
+						{ source: 'states', id: this.activeStateId },
 						{ active: false },
 					);
 
-					if (activeStateId === e.features![ 0 ].id) {
-						map?.flyTo({
-							center: e.lngLat,
-							zoom: 5.5,
-							speed: 1,
-							curve: 1,
-							easing: (t: number) => t,
-						});
+					if (this.activeStateId === e.features![ 0 ].id) {
+						this.setPwsLayerState(false);
+
+						geocode({
+							region: state,
+							authentication,
+							params: {
+								sourceCountry: 'USA',
+								maxLocations: 1,
+								f: 'json',
+							},
+						})
+							.then((response: any) => {
+								const bbox = response.candidates[ 0 ].extent;
+								const bounds: LngLatBoundsLike = [
+									[ bbox.xmin, bbox.ymin ],
+									[ bbox.xmax, bbox.ymax ],
+								];
+
+								map?.fitBounds(bounds, {
+									padding: { top: 25, bottom: 25, left: 450, right: 25 },
+									linear: true,
+									maxZoom: 7,
+								});
+							})
+							.catch((error: any) => {
+								console.log(error);
+							});
 
 						this.pwsQuery(state);
 
 						this.activeStateCode = state;
 
 						map?.setFilter('state-fills', [ '!=', 'state_code', state ]);
+						map?.setFilter('state-lines', [ '!=', 'state_code', state ]);
 
 					} else {
 						map?.panTo(lngLat);
@@ -471,9 +518,9 @@ export default defineComponent({
 					map?.panTo(lngLat);
 				}
 
-				activeStateId = e.features![ 0 ].id;
+				this.activeStateId = e.features![ 0 ].id;
 				map?.setFeatureState(
-					{ source: 'states', id: activeStateId },
+					{ source: 'states', id: this.activeStateId },
 					{ active: true },
 				);
 

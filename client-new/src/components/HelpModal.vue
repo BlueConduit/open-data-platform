@@ -30,8 +30,9 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
 	name: 'HelpModal',
 	data() {
 		return {
@@ -44,7 +45,7 @@ export default {
 		},
 	},
 
-};
+});
 </script>
 
 <style lang="scss" scoped>
