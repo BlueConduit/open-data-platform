@@ -24,6 +24,21 @@
 			color: $white;
 		}
 	}
+
+	&.is-outline {
+		height: 26px;
+		background-color: $white;
+		font-size: 0.875rem;
+		font-weight: 700;
+		border: 1px solid $link;
+		border-radius: 23px;
+
+		&.is-secondary {
+			background-color: $link;
+			border-color: $link;
+			color: $white;
+		}
+	}
 }
 
 a:not(.button) {
