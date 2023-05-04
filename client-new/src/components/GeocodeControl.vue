@@ -19,9 +19,10 @@
 <script lang="ts">
 import { geocode } from '@esri/arcgis-rest-geocoding';
 import { ApiKeyManager } from '@esri/arcgis-rest-request';
+import { defineComponent } from 'vue';
 const apiKey = "AAPK11d5429da31346419f8c1f632a62e3b6FS92k0O7YmRmdBscOOcYMe1f5Ea8kkxzLbxO9aZWtDCL6FtHAtHKeBup3Bj0aCS_";
 const authentication = ApiKeyManager.fromKey(apiKey);
-export default {
+export default defineComponent({
 	name: 'GeocodeControl',
 	data() {
 		return {
@@ -62,7 +63,7 @@ export default {
 		}
 	}
 
-}
+});
 
 </script>
 

@@ -1,7 +1,7 @@
 <template>
-	<section class="info__panel is-hidden-touch" :class="{ 'is-active': isToggled || toggleActive }" v-if="panelData[ 0 ]!">
-		<div class="inner box" v-show="isToggled || toggleActive">
-			<div class="search__form">
+	<section class="info__panel" :class="{ 'is-active': isToggled || toggleActive }" v-if="panelData[ 0 ]!">
+		<div class="inner box" :class="{ 'is-expanded': isExpanded }" v-show="isToggled || toggleActive">
+			<div class="search__form is-hidden-touch">
 				<GeocodeControl />
 				<div class="toggle toggle--top">
 					<button class="button" @click="close" title="Close Panel" aria-label="Close panel">
@@ -12,7 +12,7 @@
 				</div>
 			</div>
 
-			<h1>{{ panelTitle }}</h1>
+			<h1 :class="{ 'is-expanded': isExpanded }" @click="expandMobile">{{ panelTitle }}</h1>
 
 			<ul class="info__lines">
 				<li v-html="predictedLsl"></li>
@@ -82,17 +82,25 @@
 			</p>
 
 			<div class="info__lower my-6 has-text-centered">
-				<a href="#" class="button is-secondary" target="_blank" rel="noopener">See Address-Level Map</a>
-				<a href="#" class="button is-primary" target="_blank" rel="noopener">Learn more about
-					BlueConduit</a>
+				<div class="button__group is-hidden-touch">
+					<a href="#" class="button is-secondary" target="_blank" rel="noopener">See Address-Level Map</a>
+					<a href="#" class="button is-primary" target="_blank" rel="noopener">Learn more about
+						BlueConduit</a>
+				</div>
 				<p class="has-text-weight-bold">Have a question about your water system boundary or predictions?
 					<a href="#" target="_blank" rel="noopener">Contact
 						us.</a>
 				</p>
 			</div>
-
 		</div>
-		<div class="toggle toggle--side">
+		<div class="button__group button--lower is-hidden-desktop" :class="{ 'is-expanded': isExpanded }">
+			<a href="#" class="button is-secondary is-outline" target="_blank" rel="noopener">See Address-Level Map</a>
+			<a href="#" class="button is-outline" target="_blank" rel="noopener">About BlueConduit</a>
+			<button class="button is-outline" title="Help" aria-label="Help">
+				FAQs
+			</button>
+		</div>
+		<div class="toggle toggle--side	is-hidden-touch">
 			<button class="button" @click="togglePanel" :class="{ 'is-active': isToggled || toggleActive }" :title="toggleTitle"
 				aria-label="Toggle Panel">
 				<span class="icon">
@@ -104,14 +112,16 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import GeocodeControl from './GeocodeControl.vue';
 
-export default {
+export default defineComponent({
 	name: "MapPanel",
 	data() {
 		return {
 			isToggled: this.toggleActive,
 			toggleTitle: "Collapse Panel",
+			isExpanded: false,
 		};
 	},
 	props: {
@@ -123,7 +133,12 @@ export default {
 			type: Boolean,
 			required: true,
 		},
+		isMobile: {
+			type: Boolean,
+			required: true,
+		},
 	},
+	components: { GeocodeControl },
 	emits: [ "queryResults", "close", "togglePanel" ],
 	computed: {
 		dataType() {
@@ -223,9 +238,13 @@ export default {
 			});
 			return formatter.format(amount);
 		},
+		expandMobile() {
+			if (this.isMobile) {
+				this.isExpanded = !this.isExpanded;
+			}
+		}
 	},
-	components: { GeocodeControl }
-};
+});
 </script>
 
 <style lang="scss" scoped>
@@ -257,8 +276,16 @@ export default {
 		transition: transform 0.3s ease-in-out;
 		z-index: 1;
 
+		@include u.touch {
+			height: auto;
+		}
+
 		&.is-active {
 			width: 400px;
+
+			@include u.touch {
+				width: 100vw;
+			}
 		}
 
 		.inner {
@@ -267,6 +294,18 @@ export default {
 			border-radius: 0;
 			box-shadow: none;
 			filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
+
+			@include u.touch {
+				position: absolute;
+				top: 76vh;
+				left: 0;
+				border-radius: 24px 24px 0 0;
+
+				&.is-expanded {
+					top: 3rem;
+					bottom: 0;
+				}
+			}
 		}
 	}
 
@@ -367,6 +406,31 @@ a:not(.button) {
 	.search {
 		flex: 1;
 		margin: 0;
+	}
+}
+
+.button {
+	&__group:not(.button--lower) {
+		> * {
+			@include u.block(1rem);
+		}
+	}
+
+	&--lower {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		display: none;
+		gap: 6px;
+		padding: 10px;
+		width: 100%;
+		background: #fff;
+		border-top: 1px solid #f6f6f6;
+		box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.1);
+
+		&.is-expanded {
+			display: flex;
+		}
 	}
 }
 </style>

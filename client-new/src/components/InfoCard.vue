@@ -29,9 +29,10 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import GeocodeControl from './GeocodeControl.vue';
 
-export default {
+export default defineComponent({
 	name: "InfoCard",
 	emits: [ "queryResults" ],
 	components: { GeocodeControl },
@@ -45,7 +46,7 @@ export default {
 			this.isActive = false;
 		}
 	}
-};
+});
 </script>
 
 <style lang="scss" scoped>

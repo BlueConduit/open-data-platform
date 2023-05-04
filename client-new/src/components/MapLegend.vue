@@ -22,9 +22,11 @@
 		</div>
 	</section>
 </template>
-<script lang="ts">
 
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
 	name: 'MapLegend',
 	data() {
 		return {
@@ -44,8 +46,9 @@ export default {
 			return this.heading;
 		},
 	},
-};
+});
 </script>
+
 <style lang="scss" scoped>
 .legend {
 	position: absolute;
