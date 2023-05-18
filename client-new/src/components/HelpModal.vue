@@ -10,19 +10,33 @@
 		<div class="modal-background" @click="toggleModal"></div>
 		<div class="modal__content">
 			<div class="box">
-				<h1 class="has-text-blue">Frequently Asked Questions</h1>
-				<h2>Where does the data come from?</h2>
-				<p>The predictions were created using publicly-available data. The map bounderies were created using the national
-					dataset of water system bounderies prepared by the Environmental Policy Innovation Center (EPIC), the Internet
-					of Water Coalition, SimpleLab, and many other partners. <a href="#" target="_blank">More information here.</a>
-				</p>
-				<h2>My water systems's data is incorrect. How can I fix it?</h2>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-					magna aliqua. Ac tortor dignissim convallis aenean et tortor. Maecenas volutpat blandit aliquam etiam erat velit
-					scelerisque in.</p>
-				<h2>About this map</h2>
-				<p>Support for this project comes from Google.org and the Rockefeller Foundation through the BlueConduit
-					Charitable Fund.</p>
+				<div class="modal__header">
+					<h1 class="has-text-blue">Frequently Asked Questions</h1>
+				</div>
+				<div class="modal__body">
+					<h2>Where does the data come from?</h2>
+					<p>The predictions were created using publicly-available data. The map bounderies were created using the
+						national
+						dataset of water system bounderies prepared by the Environmental Policy Innovation Center (EPIC), the Internet
+						of Water Coalition, SimpleLab, and many other partners. <a href="#" target="_blank">More information here.</a>
+					</p>
+					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+						magna aliqua. Ac tortor dignissim convallis aenean et tortor. Maecenas volutpat blandit aliquam etiam erat
+						velit
+						scelerisque in.</p>
+					<h2>My water systems's data is incorrect. How can I fix it?</h2>
+					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+						magna aliqua. Ac tortor dignissim convallis aenean et tortor. Maecenas volutpat blandit aliquam etiam erat
+						velit
+						scelerisque in.</p>
+					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+						magna aliqua. Ac tortor dignissim convallis aenean et tortor. Maecenas volutpat blandit aliquam etiam erat
+						velit
+						scelerisque in.</p>
+					<h2>About this map</h2>
+					<p>Support for this project comes from Google.org and the Rockefeller Foundation through the BlueConduit
+						Charitable Fund.</p>
+				</div>
 			</div>
 			<button class="modal-close" @click="toggleModal" aria-label="close"></button>
 		</div>
@@ -44,7 +58,6 @@ export default defineComponent({
 			this.isToggled = !this.isToggled;
 		},
 	},
-
 });
 </script>
 
@@ -67,7 +80,7 @@ export default defineComponent({
 		display: flex;
 		flex-direction: column;
 		margin: 0;
-		padding: 1.25rem;
+		padding: 0 1.25rem 1.25rem;
 		min-height: 100vh;
 
 		> *:not(h2) {
@@ -81,12 +94,33 @@ export default defineComponent({
 	}
 }
 
+.modal__header {
+	@include u.touch {
+		position: fixed;
+		padding-top: 1.25rem;
+		width: 100%;
+		height: 100px;
+		background: #fff;
+	}
+}
+
+.modal__body {
+	@include u.touch {
+		margin-top: 140px;
+	}
+
+	@include u.tablet-only {
+		margin-top: 100px;
+	}
+}
+
 .modal-close {
 	position: absolute;
 	max-width: unset;
 	max-height: unset;
 
 	@include u.touch {
+		position: fixed;
 		top: 10px;
 		right: 10px;
 	}
@@ -132,7 +166,7 @@ p {
 	}
 
 	@include u.desktop {
-		top: 5rem;
+		top: 7.25rem;
 	}
 
 	.button {

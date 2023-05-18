@@ -164,7 +164,6 @@ export default defineComponent({
 
 				this.loading = false;
 				this.setPwsLayerState(true);
-
 			}
 		},
 
@@ -283,7 +282,6 @@ export default defineComponent({
 				(map?.getSource('pws') as GeoJSONSource)?.setData(response as GeoJSON);
 				this.loading = false;
 				this.setPwsLayerState(true);
-
 			}
 		},
 
@@ -653,6 +651,12 @@ export default defineComponent({
 				});
 				map?.addControl(new maplibregl.NavigationControl({
 					showCompass: false,
+				}));
+				map?.addControl(new maplibregl.GeolocateControl({
+					positionOptions: {
+						enableHighAccuracy: true,
+					},
+					trackUserLocation: true,
 				}));
 			}
 
