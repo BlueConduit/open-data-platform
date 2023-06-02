@@ -1,4 +1,6 @@
 import { SSTConfig } from "sst";
+import { Dns } from "./stacks/Dns";
+import { Redirect } from "./stacks/Redirect"
 import { Web } from "./stacks/Web";
 
 export default {
@@ -16,6 +18,8 @@ export default {
     })
 
     app
+      .stack(Dns)
+      .stack(Redirect)
       .stack(Web)
   },
 } satisfies SSTConfig;
